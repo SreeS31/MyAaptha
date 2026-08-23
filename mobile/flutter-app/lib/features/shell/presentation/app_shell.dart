@@ -16,6 +16,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_contacts/fast_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.session, required this.onSignedOut});
@@ -3878,6 +3879,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
   bool loading = false;
   String? error;
   List<Map<String, dynamic>> suggestions = [];
+  final TextEditingController emailController = TextEditingController();
   static const relationshipTypes = [
     'Mother',
     'Father',
@@ -3902,6 +3904,12 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
     'Colleague',
     'Other'
   ];
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -3961,6 +3969,42 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                   style: const TextStyle(
                       color: Colors.red, fontWeight: FontWeight.w800))),
         const SizedBox(height: 16),
+        TextField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            decoration: const InputDecoration(
+                labelText: 'Email containing your contacts',
+                hintText: 'name@gmail.com or name@outlook.com')),
+        const SizedBox(height: 10),
+        Row(children: [
+          Expanded(
+              child: FilledButton.icon(
+                  onPressed: () => connectProvider('google'),
+                  icon: const Icon(Icons.contact_mail_outlined),
+                  label: const Text('Google'))),
+          const SizedBox(width: 8),
+          Expanded(
+              child: OutlinedButton.icon(
+                  onPressed: () => connectProvider('microsoft'),
+                  icon: const Icon(Icons.business_outlined),
+                  label: const Text('Outlook')))
+        ]),
+        const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+                'CircleNet opens the provider consent page with read-only contact access. Your email password is never requested or stored.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: Color(0xFF718096)))),
+        const SizedBox(height: 12),
+        const Row(children: [
+          Expanded(child: Divider()),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text('OR USE THIS DEVICE')),
+          Expanded(child: Divider())
+        ]),
+        const SizedBox(height: 12),
         FilledButton.icon(
             onPressed: readAndAnalyze,
             icon: const Icon(Icons.auto_awesome_rounded),
@@ -3969,6 +4013,50 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Skip for now')),
       ]);
+
+  Future<void> connectProvider(String provider) async {
+    final email = emailController.text.trim();
+    if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(email)) {
+      setState(() => error = 'Enter a valid Google or Outlook email address.');
+      return;
+    }
+    setState(() {
+      loading = true;
+      error = null;
+    });
+    try {
+      final started = await widget.api.startContactOAuth(email, provider);
+      final authorizationUrl = Uri.parse(started['authorizationUrl'].toString());
+      final resultKey = started['resultKey'].toString();
+      if (!await launchUrl(authorizationUrl,
+          mode: LaunchMode.externalApplication)) {
+        throw const CircleNetApiException(
+            'The provider consent page could not be opened.');
+      }
+      List<Map<String, dynamic>>? result;
+      for (var attempt = 0; attempt < 150 && mounted; attempt++) {
+        await Future<void>.delayed(const Duration(seconds: 2));
+        try {
+          result = await widget.api.contactOAuthResult(resultKey);
+          break;
+        } catch (_) {
+          // A not-found response is expected until provider consent completes.
+        }
+      }
+      if (result == null) {
+        throw const CircleNetApiException(
+            'Contact authorization timed out or was cancelled. Please try again.');
+      }
+      for (final item in result) {
+        item['selected'] = item['phone'] != null || item['email'] != null;
+      }
+      if (mounted) setState(() => suggestions = result!);
+    } catch (exception) {
+      if (mounted) setState(() => error = exception.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
 
   Widget reviewView() => Column(children: [
         Padding(
@@ -4112,7 +4200,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
           .toList();
       final result = await widget.api.analyzeContacts(payload);
       for (final item in result) {
-        item['selected'] = item['phone'] != null;
+        item['selected'] = item['phone'] != null || item['email'] != null;
       }
       if (mounted) setState(() => suggestions = result);
     } catch (exception) {

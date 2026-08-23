@@ -375,7 +375,7 @@ export async function acceptImportedContacts(suggestions:ContactSuggestion[]){
   return authenticatedRequest<ContactOrganizerResult>('/api/contact-organizer/accept',{method:'POST',body:JSON.stringify({consent:true,suggestions:suggestions.map(item=>({displayName:item.display_name,phone:item.phone,email:item.email,relationship:item.suggested_relationship,circles:item.suggested_circles,selected:item.selected===true}))})});
 }
 export async function startContactOAuth(email:string,provider:'google'|'microsoft'){
-  return authenticatedRequest<{authorizationUrl:string;provider:string}>('/api/contact-organizer/oauth/start',{method:'POST',body:JSON.stringify({email,provider})});
+  return authenticatedRequest<{authorizationUrl:string;provider:string;resultKey:string}>('/api/contact-organizer/oauth/start',{method:'POST',body:JSON.stringify({email,provider})});
 }
 export async function fetchContactOAuthResult(resultKey:string){
   return authenticatedRequest<ContactSuggestion[]>(`/api/contact-organizer/oauth/results/${encodeURIComponent(resultKey)}`);

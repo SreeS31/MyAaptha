@@ -91,6 +91,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return true;
     }
 
+    if ("GET".equalsIgnoreCase(request.getMethod())
+        && path.startsWith("/api/contact-organizer/oauth/callback/")) {
+      return true;
+    }
+
+    if ("GET".equalsIgnoreCase(request.getMethod())
+        && path.startsWith("/api/notifications/unsubscribe/")) {
+      return true;
+    }
+
     return "POST".equalsIgnoreCase(request.getMethod()) && "/api/users".equals(path);
   }
 }

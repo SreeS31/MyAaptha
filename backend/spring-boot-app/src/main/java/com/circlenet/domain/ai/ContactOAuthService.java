@@ -39,9 +39,9 @@ public class ContactOAuthService {
 
   public StartResult start(Long userId,StartRequest request){
     cleanup();String provider=normalizeProvider(request.provider());String email=clean(request.email());
-    if(email==null||!email.contains("@"))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Enter a valid email address");
-    configured(provider);String state=token(32),verifier=token(48),challenge=base64(sha256(verifier));
-    pending.put(state,new Pending(userId,provider,email,verifier,Instant.now().plusSeconds(LIFE_SECONDS)));
+    if(email==null||!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Enter a valid email address");
+    configured(provider);String state=token(32),verifier=token(48),resultKey=token(32),challenge=base64(sha256(verifier));
+    pending.put(state,new Pending(userId,provider,email,verifier,resultKey,Instant.now().plusSeconds(LIFE_SECONDS)));
     String callback=callback(provider);String url;
     if(provider.equals("google"))url=UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
         .queryParam("client_id",googleId).queryParam("redirect_uri",callback).queryParam("response_type","code")
@@ -53,7 +53,7 @@ public class ContactOAuthService {
         .queryParam("response_mode","query").queryParam("scope","openid profile https://graph.microsoft.com/Contacts.Read")
         .queryParam("prompt","select_account").queryParam("login_hint",email).queryParam("state",state)
         .queryParam("code_challenge",challenge).queryParam("code_challenge_method","S256").build().encode().toUriString();
-    return new StartResult(url,provider);
+    return new StartResult(url,provider,resultKey);
   }
 
   public String callback(String pathProvider,String code,String state,String oauthError){
@@ -65,8 +65,8 @@ public class ContactOAuthService {
       List<Map<String,Object>> contacts=provider.equals("google")?googleContacts(accessToken):microsoftContacts(accessToken);
       if(contacts.isEmpty())return popup(null,"No contacts were found in this account.");
       Object suggestions=ai.post().uri("/contacts/organize").body(Map.of("consent",true,"contacts",contacts)).retrieve().body(Object.class);
-      String key=token(32);results.put(key,new Result(session.userId(),suggestions,Instant.now().plusSeconds(LIFE_SECONDS)));
-      return popup(key,null);
+      results.put(session.resultKey(),new Result(session.userId(),suggestions,Instant.now().plusSeconds(LIFE_SECONDS)));
+      return popup(session.resultKey(),null);
     }catch(Exception exception){return popup(null,"Contacts could not be imported. Check provider configuration and try again.");}
   }
 
@@ -93,5 +93,5 @@ public class ContactOAuthService {
   private String clean(String value){return value==null||value.isBlank()?null:value.trim();}private String string(Object value){return value==null||value.toString().isBlank()?null:value.toString();}private String trimSlash(String value){return value.replaceAll("/+$","");}private String js(String value){return value==null?"":value.replace("\\","\\\\").replace("'","\\'").replace("\r","").replace("\n"," ").replace("<","\\x3c");}
   private List<?> list(Map<?,?> map,String key){Object value=map.get(key);return value instanceof List<?> items?items:List.of();}private List<String> strings(Object value){if(!(value instanceof List<?> items))return new ArrayList<>();return items.stream().map(this::string).filter(Objects::nonNull).toList();}
   private List<String> nested(Map<?,?> map,String listKey,String valuePath){List<String> values=new ArrayList<>();for(Object raw:list(map,listKey))if(raw instanceof Map<?,?> item){Object current=item;for(String key:valuePath.split("\\.")){if(!(current instanceof Map<?,?> currentMap)){current=null;break;}current=currentMap.get(key);}String text=string(current);if(text!=null)values.add(text);}return values;}private String firstNested(Map<?,?> map,String listKey,String key){List<String> values=nested(map,listKey,key);return values.isEmpty()?null:values.get(0);}
-  public record StartRequest(String email,String provider){}public record StartResult(String authorizationUrl,String provider){}private record Pending(Long userId,String provider,String email,String verifier,Instant expiresAt){}private record Result(Long userId,Object suggestions,Instant expiresAt){}
+  public record StartRequest(String email,String provider){}public record StartResult(String authorizationUrl,String provider,String resultKey){}private record Pending(Long userId,String provider,String email,String verifier,String resultKey,Instant expiresAt){}private record Result(Long userId,Object suggestions,Instant expiresAt){}
 }

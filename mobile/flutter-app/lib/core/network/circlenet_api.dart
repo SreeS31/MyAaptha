@@ -513,6 +513,20 @@ class CircleNetApi {
           '/api/contact-organizer/accept',
           {'consent': true, 'suggestions': suggestions},
           bearerToken: _token)) as Map);
+
+  Future<Map<String, dynamic>> startContactOAuth(
+          String email, String provider) async =>
+      Map<String, dynamic>.from(await _json(_client.post(
+          '/api/contact-organizer/oauth/start',
+          {'email': email, 'provider': provider},
+          bearerToken: _token)) as Map);
+
+  Future<List<Map<String, dynamic>>> contactOAuthResult(String resultKey) async =>
+      (await _json(_client.get(
+                  '/api/contact-organizer/oauth/results/${Uri.encodeComponent(resultKey)}',
+                  bearerToken: _token)) as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
 }
 
 class CircleNetApiException implements Exception {

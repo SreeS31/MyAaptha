@@ -98,6 +98,15 @@ class AuthControllerTest {
   }
 
   @Test
+  void shouldAllowContactProviderCallbackWithoutAccessToken() throws Exception {
+    mockMvc.perform(get("/api/contact-organizer/oauth/callback/google")
+        .param("state", "expired-test-state"))
+      .andExpect(status().isOk())
+      .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+          .string(org.hamcrest.Matchers.containsString("authorization expired")));
+  }
+
+  @Test
   void shouldRejectLoginWithInvalidCredentials() throws Exception {
     createUser("auth-bad-user", "auth-bad@circlenet.ai", "secret123");
 
