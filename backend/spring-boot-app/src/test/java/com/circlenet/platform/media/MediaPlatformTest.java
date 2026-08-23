@@ -23,6 +23,8 @@ class MediaPlatformTest {
     var scanner=new BasicMediaScanner();
     assertThatThrownBy(()->scanner.assertClean(new byte[]{0x4d,0x5a,0x00},"fake.jpg","image/jpeg")).isInstanceOf(ResponseStatusException.class);
     assertThatThrownBy(()->scanner.assertClean("EICAR-STANDARD-ANTIVIRUS-TEST-FILE".getBytes(),"test.txt","text/plain")).isInstanceOf(ResponseStatusException.class);
+    assertThatThrownBy(()->scanner.assertClean("<svg onload=javascript:alert(1)>".getBytes(),"attack.svg","image/svg+xml")).isInstanceOf(ResponseStatusException.class);
+    assertThatThrownBy(()->scanner.assertClean("#!/bin/sh\necho hacked".getBytes(),"audio.mp3","audio/mpeg")).isInstanceOf(ResponseStatusException.class);
     scanner.assertClean("ordinary document".getBytes(),"safe.txt","text/plain");
   }
 }
