@@ -29,6 +29,9 @@ class AuthControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @Autowired
+  private AuthTokenRepository authTokenRepository;
+
   @Test
   void shouldLoginWithValidCredentials() throws Exception {
     createUser("auth-login-user", "auth-login@circlenet.ai", "secret123");
@@ -62,6 +65,36 @@ class AuthControllerTest {
       .andExpect(jsonPath("$.tokenType").value("Bearer"))
       .andExpect(jsonPath("$.accessToken", not(nullValue())))
       .andExpect(jsonPath("$.refreshToken", not(nullValue())));
+  }
+
+  @Test
+  void shouldStoreOnlyRefreshTokenFingerprint() throws Exception {
+    createUser("auth-fingerprint-user", "auth-fingerprint@circlenet.ai", "secret123");
+    MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new LoginPayload("auth-fingerprint@circlenet.ai", "secret123"))))
+      .andExpect(status().isOk()).andReturn();
+    TokenPayload loginPayload = objectMapper.readValue(loginResult.getResponse().getContentAsString(), TokenPayload.class);
+
+    org.junit.jupiter.api.Assertions.assertTrue(authTokenRepository.findAll().stream()
+        .noneMatch(token -> loginPayload.refreshToken.equals(token.getToken())));
+    org.junit.jupiter.api.Assertions.assertTrue(authTokenRepository.findAll().stream()
+        .anyMatch(token -> token.getToken() != null && token.getToken().matches("[0-9a-f]{64}")));
+  }
+
+  @Test
+  void shouldRejectWeakPasswordAndSendSecurityHeaders() throws Exception {
+    mockMvc.perform(post("/api/users")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new CreateUserPayload(
+            "weak-password-user", "weak-password@circlenet.ai", "+15550119999", "password"))))
+      .andExpect(status().isBadRequest())
+      .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+          .string("X-Content-Type-Options", "nosniff"))
+      .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+          .string("X-Frame-Options", "DENY"))
+      .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+          .string("Content-Security-Policy", org.hamcrest.Matchers.containsString("default-src 'none'")));
   }
 
   @Test

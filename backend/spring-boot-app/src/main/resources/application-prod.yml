@@ -37,6 +37,11 @@ management:
       application: circlenet-backend
 
 circlenet:
+  rate-limit:
+    # Enable only when the load balancer strips client-supplied forwarding headers.
+    trust-forwarded-for: ${CIRCLENET_TRUST_FORWARDED_FOR:false}
+    auth-per-minute: ${CIRCLENET_AUTH_RATE_LIMIT:10}
+    api-per-minute: ${CIRCLENET_API_RATE_LIMIT:300}
   cors:
     allowed-origins: ${CIRCLENET_CORS_ALLOWED_ORIGINS}
   ai:

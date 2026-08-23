@@ -34,7 +34,7 @@ public class UserService {
     String username = requireValue(request.getUsername(), "Username");
     String email = optionalEmail(request.getEmail());
     String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
-    String password = requireValue(request.getPassword(), "Password");
+    String password = validatePassword(request.getPassword());
 
     if (userRepository.existsByUsername(username)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already in use");
@@ -84,7 +84,7 @@ public class UserService {
     entity.setSurname(optionalText(request.getSurname()));
     entity.setLocation(optionalText(request.getLocation()));
     if (request.getPassword() != null && !request.getPassword().isBlank()) {
-      entity.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+      entity.setPasswordHash(passwordEncoder.encode(validatePassword(request.getPassword())));
     }
     return toDto(userRepository.save(entity));
   }
@@ -130,5 +130,15 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number must contain 7 to 15 digits");
     }
     return phoneNumber;
+  }
+
+  private String validatePassword(String value) {
+    String password = requireValue(value, "Password");
+    if (password.length() < 8 || password.length() > 128
+        || !password.matches(".*[A-Za-z].*") || !password.matches(".*[0-9].*")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Password must be 8 to 128 characters and contain both letters and numbers");
+    }
+    return password;
   }
 }

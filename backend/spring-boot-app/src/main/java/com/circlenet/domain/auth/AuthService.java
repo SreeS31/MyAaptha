@@ -1,6 +1,9 @@
 package com.circlenet.domain.auth;
 
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,11 +82,11 @@ public class AuthService {
     Claims claims = jwtTokenService.parseAndValidate(request.getRefreshToken(), "refresh");
     Long userId = Long.parseLong(claims.getSubject());
 
-    AuthTokenEntity storedToken = authTokenRepository.findByToken(request.getRefreshToken())
+    AuthTokenEntity storedToken = authTokenRepository.findByToken(tokenFingerprint(request.getRefreshToken()))
       .orElseThrow(() -> new IllegalArgumentException("Refresh token not recognized"));
 
     if (storedToken.getExpiresAt().isBefore(Instant.now())) {
-      authTokenRepository.deleteByToken(request.getRefreshToken());
+      authTokenRepository.deleteByToken(tokenFingerprint(request.getRefreshToken()));
       throw new IllegalArgumentException("Refresh token expired");
     }
 
@@ -105,14 +108,14 @@ public class AuthService {
     Claims claims = jwtTokenService.parseAndValidate(request.getRefreshToken(), "refresh");
     Long userId = Long.parseLong(claims.getSubject());
 
-    AuthTokenEntity storedToken = authTokenRepository.findByToken(request.getRefreshToken())
+    AuthTokenEntity storedToken = authTokenRepository.findByToken(tokenFingerprint(request.getRefreshToken()))
       .orElseThrow(() -> new IllegalArgumentException("Refresh token not recognized"));
 
     if (!"refresh".equals(storedToken.getTokenType()) || !userId.equals(storedToken.getUserId())) {
       throw new IllegalArgumentException("Invalid refresh token context");
     }
 
-    authTokenRepository.deleteByToken(request.getRefreshToken());
+    authTokenRepository.deleteByToken(tokenFingerprint(request.getRefreshToken()));
   }
 
   public AuthSessionProfileResponse getSessionProfile(String accessToken) {
@@ -136,14 +139,15 @@ public class AuthService {
     String refreshToken = jwtTokenService.createRefreshToken(user);
 
     if (oldRefreshToken != null) {
-      authTokenRepository.deleteByToken(oldRefreshToken);
+      authTokenRepository.deleteByToken(tokenFingerprint(oldRefreshToken));
     }
     authTokenRepository.deleteByUserIdAndTokenType(user.getId(), "refresh");
 
     AuthTokenEntity refreshTokenEntity = new AuthTokenEntity();
     refreshTokenEntity.setUserId(user.getId());
     refreshTokenEntity.setTokenType("refresh");
-    refreshTokenEntity.setToken(refreshToken);
+    // Store only a one-way fingerprint. A database leak must not expose reusable sessions.
+    refreshTokenEntity.setToken(tokenFingerprint(refreshToken));
     refreshTokenEntity.setExpiresAt(jwtTokenService.getRefreshTokenExpiryInstant());
     authTokenRepository.save(refreshTokenEntity);
 
@@ -161,5 +165,17 @@ public class AuthService {
       return "+91" + compact;
     }
     return compact;
+  }
+
+  private String tokenFingerprint(String token) {
+    if (token == null || token.isBlank()) {
+      throw new IllegalArgumentException("Refresh token is required");
+    }
+    try {
+      return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+          .digest(token.getBytes(StandardCharsets.UTF_8)));
+    } catch (Exception exception) {
+      throw new IllegalStateException("Unable to secure refresh token", exception);
+    }
   }
 }
