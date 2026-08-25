@@ -22,6 +22,7 @@ const navigationSections = [
   {
     label: 'Account',
     items: [
+      { href: '/trust', icon: '★', label: 'Trust center' },
       { href: '/profile', icon: '♙', label: 'My profile' },
       { href: '/privacy', icon: '⚙', label: 'Privacy & settings' },
       { href: '/session', icon: '◌', label: 'Account sessions' },

@@ -10,6 +10,15 @@ class CircleNetApi {
   final AuthTokenBundle session;
   final ApiClient _client;
   String get _token => session.accessToken;
+  Future<List<Map<String, dynamic>>> trustedPeople(String kind) async =>
+      (await _json(_client.get('/api/trust/people?kind=$kind', bearerToken: _token)) as List).map((x)=>Map<String,dynamic>.from(x as Map)).toList();
+  Future<Map<String, dynamic>> addTrustedPerson(int userId,String kind) async => Map<String,dynamic>.from(await _json(_client.post('/api/trust/people',{'userId':userId,'kind':kind},bearerToken:_token)) as Map);
+  Future<List<Map<String, dynamic>>> roleModels() async => (await _json(_client.get('/api/trust/role-models',bearerToken:_token)) as List).map((x)=>Map<String,dynamic>.from(x as Map)).toList();
+  Future<void> followRoleModel(int userId) async => _json(_client.post('/api/trust/role-models/$userId/follow',const {},bearerToken:_token));
+  Future<List<Map<String, dynamic>>> emergencyRequests() async => (await _json(_client.get('/api/trust/emergencies',bearerToken:_token)) as List).map((x)=>Map<String,dynamic>.from(x as Map)).toList();
+  Future<Map<String, dynamic>> startEmergencyAccess(int ownerUserId,String reason) async => Map<String,dynamic>.from(await _json(_client.post('/api/trust/emergencies',{'ownerUserId':ownerUserId,'reason':reason},bearerToken:_token)) as Map);
+  Future<void> decideEmergencyAccess(int requestId,bool approved) async => _json(_client.post('/api/trust/emergencies/$requestId/decision',{'approved':approved},bearerToken:_token));
+  Future<List<Map<String, dynamic>>> emergencyDocuments(int requestId) async => (await _json(_client.get('/api/trust/emergencies/$requestId/documents',bearerToken:_token)) as List).map((x)=>Map<String,dynamic>.from(x as Map)).toList();
   Future<List<Map<String, dynamic>>> notifications() async =>
       (await _json(_client.get('/api/notifications', bearerToken: _token))
               as List)

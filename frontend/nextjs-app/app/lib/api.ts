@@ -337,6 +337,20 @@ export type BlockedUser = { userId:number; displayName:string; profilePhoto?:str
 export type AppNotification = { id:number; type:string; title:string; body:string; actionUrl?:string|null; entityType?:string|null; entityId?:number|null; readAt?:string|null; createdAt:string };
 export type PresenceStatus = { online:boolean; lastActiveAt?:string|null; typingUsers:{userId:number;displayName:string}[] };
 export type NotificationPreferences = { emailEnabled:boolean; smsEnabled:boolean; pushEnabled:boolean; messagesEnabled:boolean; circlesEnabled:boolean; relationshipsEnabled:boolean; callsEnabled:boolean; invitationsEnabled:boolean; socialEnabled:boolean };
+export type TrustedPerson = { userId:number; displayName:string; profilePhoto?:string|null; kind:'STAR'|'ROLE_MODEL'; followerCount:number; addedAt:string };
+export type EmergencyRequest = { id:number; ownerUserId:number; ownerName:string; requesterUserId:number; requesterName:string; reason:string; status:'PENDING'|'APPROVED'|'REJECTED'|'EXPIRED'; approvals:number; requiredApprovals:number; createdAt:string; expiresAt:string; grantedUntil?:string|null };
+export type EmergencyDocument = { id:number; caption:string; mediaName:string; mediaType:string; mediaSize:number; mediaUrl:string; createdAt:string };
+export async function fetchTrustedPeople(kind:'STAR'|'ROLE_MODEL'){return authenticatedRequest<TrustedPerson[]>(`/api/trust/people?kind=${kind}`);}
+export async function fetchInboundTrustedPeople(kind:'STAR'|'ROLE_MODEL'){return authenticatedRequest<TrustedPerson[]>(`/api/trust/people/inbound?kind=${kind}`);}
+export async function addTrustedPerson(userId:number,kind:'STAR'|'ROLE_MODEL'){return authenticatedRequest<TrustedPerson>('/api/trust/people',{method:'POST',body:JSON.stringify({userId,kind})});}
+export async function removeTrustedPerson(userId:number,kind:'STAR'|'ROLE_MODEL'){return authenticatedRequest<void>(`/api/trust/people/${userId}?kind=${kind}`,{method:'DELETE'});}
+export async function fetchRoleModels(){return authenticatedRequest<TrustedPerson[]>('/api/trust/role-models');}
+export async function followRoleModel(userId:number){return authenticatedRequest<TrustedPerson>(`/api/trust/role-models/${userId}/follow`,{method:'POST'});}
+export async function fetchEmergencyRequests(){return authenticatedRequest<EmergencyRequest[]>('/api/trust/emergencies');}
+export async function startEmergencyAccess(ownerUserId:number,reason:string){return authenticatedRequest<EmergencyRequest>('/api/trust/emergencies',{method:'POST',body:JSON.stringify({ownerUserId,reason})});}
+export async function decideEmergencyAccess(id:number,approved:boolean){return authenticatedRequest<EmergencyRequest>(`/api/trust/emergencies/${id}/decision`,{method:'POST',body:JSON.stringify({approved})});}
+export async function fetchEmergencyDocuments(id:number){return authenticatedRequest<EmergencyDocument[]>(`/api/trust/emergencies/${id}/documents`);}
+export async function fetchEmergencyDocumentMedia(path:string){return authenticatedRequest<Blob>(path,{responseType:'blob'});}
 export async function fetchNotifications(){return authenticatedRequest<AppNotification[]>('/api/notifications');}
 export async function fetchUnreadNotificationCount(){return authenticatedRequest<{count:number}>('/api/notifications/unread-count');}
 export async function markNotificationRead(id:number){return authenticatedRequest<AppNotification>(`/api/notifications/${id}/read`,{method:'POST'});}

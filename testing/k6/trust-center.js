@@ -1,0 +1,4 @@
+import http from 'k6/http';import {check,sleep} from 'k6';
+export const options={scenarios:{read_traffic:{executor:'ramping-vus',startVUs:1,stages:[{duration:'30s',target:25},{duration:'2m',target:100},{duration:'30s',target:0}]},emergency_spike:{executor:'constant-arrival-rate',rate:20,timeUnit:'1s',duration:'1m',preAllocatedVUs:25,maxVUs:100,startTime:'3m'}},thresholds:{http_req_failed:['rate<0.01'],http_req_duration:['p(95)<500','p(99)<1000']}};
+const base=__ENV.BASE_URL||'http://localhost:8080',token=__ENV.ACCESS_TOKEN;
+export default function(){const headers={Authorization:`Bearer ${token}`};const responses=http.batch([['GET',`${base}/api/trust/people?kind=STAR`,null,{headers}],['GET',`${base}/api/trust/role-models`,null,{headers}],['GET',`${base}/api/trust/emergencies`,null,{headers}]]);responses.forEach(r=>check(r,{'authenticated response':x=>x.status===200}));sleep(1);}
