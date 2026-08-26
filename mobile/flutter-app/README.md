@@ -1,6 +1,6 @@
-# CircleNet AI Mobile
+# MyAaptha Mobile
 
-Flutter client for Android and iOS. The application shares CircleNet's Spring Boot API and privacy rules with the web client.
+Flutter client for Android and iOS. The application shares MyAaptha's Spring Boot API and privacy rules with the web client.
 
 ## Available flows
 

@@ -3,7 +3,7 @@ services:
     image: caddy:2.10-alpine
     restart: unless-stopped
     environment:
-      CIRCLENET_DOMAIN: ${CIRCLENET_DOMAIN:?Set CIRCLENET_DOMAIN}
+      MYAAPTHA_DOMAIN: ${MYAAPTHA_DOMAIN:?Set MYAAPTHA_DOMAIN}
     ports: ["80:80", "443:443"]
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
@@ -13,28 +13,28 @@ services:
       frontend: { condition: service_started }
 
   frontend:
-    image: ${CIRCLENET_FRONTEND_IMAGE:?Set frontend image}
+    image: ${MYAAPTHA_FRONTEND_IMAGE:?Set frontend image}
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp]
 
   backend:
-    image: ${CIRCLENET_BACKEND_IMAGE:?Set backend image}
+    image: ${MYAAPTHA_BACKEND_IMAGE:?Set backend image}
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
       POSTGRES_HOST: postgres
-      POSTGRES_DB: ${POSTGRES_DB:-circlenet_ai}
-      POSTGRES_USER: ${POSTGRES_USER:-circlenet}
+      POSTGRES_DB: ${POSTGRES_DB:-myaaptha}
+      POSTGRES_USER: ${POSTGRES_USER:-myaaptha}
       SPRING_CONFIG_IMPORT: optional:configtree:/run/secrets/
-      CIRCLENET_STORAGE_PROVIDER: ${CIRCLENET_STORAGE_PROVIDER:-s3}
-      CIRCLENET_S3_BUCKET: ${CIRCLENET_S3_BUCKET:-circlenet-media}
-      CIRCLENET_S3_REGION: ${CIRCLENET_S3_REGION:-ap-south-1}
-      CIRCLENET_S3_ENDPOINT: ${CIRCLENET_S3_ENDPOINT:-}
-      CIRCLENET_AI_BASE_URL: http://ai-agent:8081/api/v1
-      CIRCLENET_CORS_ALLOWED_ORIGINS: https://${CIRCLENET_DOMAIN:?Set CIRCLENET_DOMAIN}
-      CIRCLENET_NOTIFICATION_WEBHOOK_CHANNEL: ${CIRCLENET_NOTIFICATION_WEBHOOK_CHANNEL:-}
-      CIRCLENET_NOTIFICATION_WEBHOOK_URL: ${CIRCLENET_NOTIFICATION_WEBHOOK_URL:-https://sms-provider.invalid/api/messages}
+      MYAAPTHA_STORAGE_PROVIDER: ${MYAAPTHA_STORAGE_PROVIDER:-s3}
+      MYAAPTHA_S3_BUCKET: ${MYAAPTHA_S3_BUCKET:-myaaptha-media}
+      MYAAPTHA_S3_REGION: ${MYAAPTHA_S3_REGION:-ap-south-1}
+      MYAAPTHA_S3_ENDPOINT: ${MYAAPTHA_S3_ENDPOINT:-}
+      MYAAPTHA_BASE_URL: http://ai-agent:8081/api/v1
+      MYAAPTHA_CORS_ALLOWED_ORIGINS: https://${MYAAPTHA_DOMAIN:?Set MYAAPTHA_DOMAIN}
+      MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL: ${MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL:-}
+      MYAAPTHA_NOTIFICATION_WEBHOOK_URL: ${MYAAPTHA_NOTIFICATION_WEBHOOK_URL:-https://sms-provider.invalid/api/messages}
     secrets: [postgres_password, jwt_secret]
     depends_on:
       postgres: { condition: service_healthy }
@@ -46,7 +46,7 @@ services:
       retries: 5
 
   ai-agent:
-    image: ${CIRCLENET_AI_IMAGE:?Set AI image}
+    image: ${MYAAPTHA_IMAGE:?Set AI image}
     restart: unless-stopped
     environment:
       AI_ENV: production
@@ -63,13 +63,13 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-circlenet_ai}
-      POSTGRES_USER: ${POSTGRES_USER:-circlenet}
+      POSTGRES_DB: ${POSTGRES_DB:-myaaptha}
+      POSTGRES_USER: ${POSTGRES_USER:-myaaptha}
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets: [postgres_password]
     volumes: [postgres-data:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-circlenet} -d ${POSTGRES_DB:-circlenet_ai}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myaaptha} -d ${POSTGRES_DB:-myaaptha}"]
       interval: 10s
       timeout: 5s
       retries: 10

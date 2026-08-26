@@ -104,7 +104,7 @@ export default function HomePage() {
   return (
     <main className="container">
       <nav className="nav">
-        <div style={{ fontWeight: 800 }}>CircleNet-AI</div>
+        <div style={{ fontWeight: 800 }}>MyAaptha</div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           {sessionUser && (
             <span style={{ color: '#334155', fontSize: '0.9rem' }}>

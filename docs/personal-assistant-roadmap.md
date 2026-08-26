@@ -1,8 +1,8 @@
-# CircleNet personal assistant roadmap
+# MyAaptha personal assistant roadmap
 
 ## Product direction
 
-CircleNet is evolving from a private social network into a consent-driven digital presence: one place for a person's relationships, communication, memories, records, money, health, plans, and trusted continuity.
+MyAaptha is evolving from a private social network into a consent-driven digital presence: one place for a person's relationships, communication, memories, records, money, health, plans, and trusted continuity.
 
 The publicly available MyAaptha description lists unlimited personal, education, health and document storage; professional interaction; health-record storage; doctor appointments; medicine ordering; and diagnostic-test booking. This roadmap incorporates those capabilities without claiming that healthcare-provider integrations already exist.
 

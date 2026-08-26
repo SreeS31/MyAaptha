@@ -1,0 +1,1 @@
+package com.myaaptha.domain.health;import java.util.*;import org.springframework.data.jpa.repository.JpaRepository;public interface HealthMeasurementRepository extends JpaRepository<HealthMeasurementEntity,Long>{List<HealthMeasurementEntity>findByReportId(Long reportId);void deleteByReportId(Long reportId);}

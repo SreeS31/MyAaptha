@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:circlenet_mobile/core/network/circlenet_api.dart';
-import 'package:circlenet_mobile/features/auth/data/session_store.dart';
+import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
+import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
 
 import 'app.dart';
 
-const backgroundSyncTask = 'circlenet-background-sync';
+const backgroundSyncTask = 'myaaptha-background-sync';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -13,7 +13,7 @@ void callbackDispatcher() {
     WidgetsFlutterBinding.ensureInitialized();
     final session = await SessionStore().load();
     if (session == null) return true;
-    final api = CircleNetApi(session);
+    final api = MyAapthaApi(session);
     try {
       await Future.wait([api.relationships(), api.circles(), api.profile()]);
       return true;
@@ -31,5 +31,5 @@ Future<void> main() async {
       frequency: const Duration(minutes: 15),
       existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
       constraints: Constraints(networkType: NetworkType.connected));
-  runApp(const CircleNetMobileApp());
+  runApp(const MyAapthaMobileApp());
 }

@@ -1,6 +1,6 @@
 # Cloud deployment runbook
 
-CircleNet is ready to run from the tagged container images produced by
+MyAaptha is ready to run from the tagged container images produced by
 `.github/workflows/release.yml`. The supported production baseline is the
 Kubernetes configuration in `infrastructure/kubernetes`; the single-host
 Compose configuration is intended for a small controlled installation or a
@@ -32,8 +32,8 @@ previous application version so rolling updates and rollback are safe.
 - Secrets Manager plus External Secrets Operator for `POSTGRES_PASSWORD`,
   `JWT_SECRET`, and notification-provider credentials.
 
-Set `CIRCLENET_S3_REGION` and `CIRCLENET_S3_BUCKET`; leave
-`CIRCLENET_S3_ENDPOINT` empty for AWS S3.
+Set `MYAAPTHA_S3_REGION` and `MYAAPTHA_S3_BUCKET`; leave
+`MYAAPTHA_S3_ENDPOINT` empty for AWS S3.
 
 ## GCP reference deployment
 
@@ -47,22 +47,22 @@ Set `CIRCLENET_S3_REGION` and `CIRCLENET_S3_BUCKET`; leave
   Cloud Armor; Cloud Logging and Managed Service for Prometheus for operations.
 - Secret Manager plus External Secrets Operator for application secrets.
 
-Set `CIRCLENET_S3_ENDPOINT` when the selected GCP object-storage gateway needs
+Set `MYAAPTHA_S3_ENDPOINT` when the selected GCP object-storage gateway needs
 one. Validate multipart upload, signed access, lifecycle, and restore behavior
 in staging before production promotion.
 
 ## Required release configuration
 
 Replace every `OWNER`, `VERSION`, example hostname, bucket, and database host
-in `infrastructure/kubernetes`. Create `circlenet-secrets` from the cloud secret
+in `infrastructure/kubernetes`. Create `myaaptha-secrets` from the cloud secret
 manager—never from a committed file. `JWT_SECRET` must be a cryptographically
 random value of at least 32 bytes. Set the repository variable
 `PRODUCTION_API_URL` for Android/iOS release builds.
 
 Required runtime values are `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`,
-`POSTGRES_PASSWORD`, `JWT_SECRET`, `CIRCLENET_CORS_ALLOWED_ORIGINS`,
-`CIRCLENET_STORAGE_PROVIDER=s3`, `CIRCLENET_S3_BUCKET`, and
-`CIRCLENET_S3_REGION`. Set notification and OAuth credentials only through the
+`POSTGRES_PASSWORD`, `JWT_SECRET`, `MYAAPTHA_CORS_ALLOWED_ORIGINS`,
+`MYAAPTHA_STORAGE_PROVIDER=s3`, `MYAAPTHA_S3_BUCKET`, and
+`MYAAPTHA_S3_REGION`. Set notification and OAuth credentials only through the
 secret manager. The production profile does not create demo users.
 
 ## Promotion checklist

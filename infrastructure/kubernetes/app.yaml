@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: backend, namespace: circlenet }
+metadata: { name: backend, namespace: myaaptha }
 spec:
   replicas: 2
   selector: { matchLabels: { app: backend } }
   template:
     metadata: { labels: { app: backend } }
     spec:
-      serviceAccountName: circlenet-backend
+      serviceAccountName: myaaptha-backend
       securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
       containers:
         - name: backend
-          image: ghcr.io/OWNER/circlenet-backend:VERSION
+          image: ghcr.io/OWNER/myaaptha-backend:VERSION
           ports: [{ containerPort: 8080 }]
-          envFrom: [{ secretRef: { name: circlenet-secrets } }, { configMapRef: { name: circlenet-config } }]
+          envFrom: [{ secretRef: { name: myaaptha-secrets } }, { configMapRef: { name: myaaptha-config } }]
           resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: '1', memory: 1Gi } }
           readinessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 20, periodSeconds: 10 }
           livenessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 45, periodSeconds: 20 }
@@ -23,12 +23,12 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: backend, namespace: circlenet }
+metadata: { name: backend, namespace: myaaptha }
 spec: { selector: { app: backend }, ports: [{ port: 8080, targetPort: 8080 }] }
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: frontend, namespace: circlenet }
+metadata: { name: frontend, namespace: myaaptha }
 spec:
   replicas: 2
   selector: { matchLabels: { app: frontend } }
@@ -38,7 +38,7 @@ spec:
       securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
       containers:
         - name: frontend
-          image: ghcr.io/OWNER/circlenet-frontend:VERSION
+          image: ghcr.io/OWNER/myaaptha-frontend:VERSION
           ports: [{ containerPort: 3000 }]
           resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
           readinessProbe: { httpGet: { path: /, port: 3000 }, initialDelaySeconds: 10 }
@@ -48,12 +48,12 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: frontend, namespace: circlenet }
+metadata: { name: frontend, namespace: myaaptha }
 spec: { selector: { app: frontend }, ports: [{ port: 3000, targetPort: 3000 }] }
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: ai-agent, namespace: circlenet }
+metadata: { name: ai-agent, namespace: myaaptha }
 spec:
   replicas: 2
   selector: { matchLabels: { app: ai-agent } }
@@ -63,7 +63,7 @@ spec:
       securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
       containers:
         - name: ai-agent
-          image: ghcr.io/OWNER/circlenet-ai-agent:VERSION
+          image: ghcr.io/OWNER/myaaptha-agent:VERSION
           ports: [{ containerPort: 8081 }]
           env: [{ name: AI_ENV, value: production }, { name: AI_LOG_LEVEL, value: INFO }]
           resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
@@ -75,16 +75,16 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: ai-agent, namespace: circlenet }
+metadata: { name: ai-agent, namespace: myaaptha }
 spec: { selector: { app: ai-agent }, ports: [{ port: 8081, targetPort: 8081 }] }
 ---
 apiVersion: v1
 kind: ServiceAccount
-metadata: { name: circlenet-backend, namespace: circlenet }
+metadata: { name: myaaptha-backend, namespace: myaaptha }
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
-metadata: { name: backend, namespace: circlenet }
+metadata: { name: backend, namespace: myaaptha }
 spec:
   scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: backend }
   minReplicas: 2

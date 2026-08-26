@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:circlenet-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:myaaptha-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -20,10 +20,10 @@ spring:
   h2:
     console:
       enabled: false
-circlenet:
+myaaptha:
   rate-limit:
     auth-per-minute: 10000
     api-per-minute: 10000
 security:
   jwt:
-    secret: circlenet-automated-test-jwt-secret-2026-strong
+    secret: myaaptha-automated-test-jwt-secret-2026-strong

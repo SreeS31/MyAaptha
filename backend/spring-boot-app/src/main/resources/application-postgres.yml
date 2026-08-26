@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:circlenet_ai}
-    username: ${POSTGRES_USER:circlenet}
-    password: ${POSTGRES_PASSWORD:circlenet123}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
+    username: ${POSTGRES_USER:myaaptha}
+    password: ${POSTGRES_PASSWORD:myaaptha123}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -20,4 +20,4 @@ spring:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:circlenet-local-dev-jwt-secret-please-change-2026-strong}
+    secret: ${JWT_SECRET:myaaptha-local-dev-jwt-secret-please-change-2026-strong}

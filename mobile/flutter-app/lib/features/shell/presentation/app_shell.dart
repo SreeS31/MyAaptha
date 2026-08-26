@@ -2,12 +2,12 @@ import 'dart:math' as math;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:circlenet_mobile/core/models/network_models.dart';
-import 'package:circlenet_mobile/core/network/circlenet_api.dart';
-import 'package:circlenet_mobile/core/platform/attachment_opener.dart';
-import 'package:circlenet_mobile/core/theme/app_theme.dart';
-import 'package:circlenet_mobile/features/auth/data/session_store.dart';
-import 'package:circlenet_mobile/features/auth/models/auth_models.dart';
+import 'package:myaaptha_mobile/core/models/network_models.dart';
+import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
+import 'package:myaaptha_mobile/core/platform/attachment_opener.dart';
+import 'package:myaaptha_mobile/core/theme/app_theme.dart';
+import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
+import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +29,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int index = 0;
-  late final CircleNetApi api = CircleNetApi(widget.session);
+  late final MyAapthaApi api = MyAapthaApi(widget.session);
   Timer? incomingTimer;
   StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
   bool showingIncomingCall = false;
@@ -308,9 +308,9 @@ class _BrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       Column(mainAxisSize: MainAxisSize.min, children: [
-        Image.asset('assets/brand/circlenet-logo.png', width: 48, height: 48),
+        Image.asset('assets/brand/myaaptha-logo.png', width: 48, height: 48),
         const SizedBox(height: 6),
-        const Text('CircleNet',
+        const Text('MyAaptha',
             style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12))
       ]);
 }
@@ -323,7 +323,7 @@ class MoreScreen extends StatelessWidget {
     required this.onSignOut,
     required this.onSelectPrimaryPage,
   });
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final AuthTokenBundle session;
   final VoidCallback onSignOut;
   final ValueChanged<int> onSelectPrimaryPage;
@@ -416,7 +416,7 @@ class MoreScreen extends StatelessWidget {
 
 class TimelineScreen extends StatelessWidget {
   const TimelineScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   Widget build(BuildContext context) =>
       FutureBuilder<List<Map<String, dynamic>>>(
@@ -457,7 +457,7 @@ class TimelineScreen extends StatelessWidget {
 
 class HealthRecordsScreen extends StatefulWidget {
   const HealthRecordsScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<HealthRecordsScreen> createState() => _HealthRecordsScreenState();
 }
@@ -577,7 +577,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
                       const Padding(
                           padding: EdgeInsets.only(top: 12),
                           child: Text(
-                              'Enter values and reference ranges exactly as printed by the laboratory. CircleNet does not diagnose conditions.'))
+                              'Enter values and reference ranges exactly as printed by the laboratory. MyAaptha does not diagnose conditions.'))
                     ])),
                     actions: [
                       TextButton(
@@ -723,7 +723,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
 
 class FinanceScreen extends StatefulWidget {
   const FinanceScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<FinanceScreen> createState() => _FinanceScreenState();
 }
@@ -846,7 +846,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                 icon: const Icon(Icons.sms_outlined),
                 title: const Text('Import financial SMS?'),
                 content: const Text(
-                    'CircleNet will read up to 200 recent messages on this device, select only messages that look financial, and upload those transaction messages to your private account for categorization. It will not import personal conversations. You can revoke SMS permission or delete transactions at any time.'),
+                    'MyAaptha will read up to 200 recent messages on this device, select only messages that look financial, and upload those transaction messages to your private account for categorization. It will not import personal conversations. You can revoke SMS permission or delete transactions at any time.'),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -866,7 +866,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
     }
     setState(() => loading = true);
     try {
-      final messages = await const MethodChannel('circlenet/sms')
+      final messages = await const MethodChannel('myaaptha/sms')
               .invokeListMethod<dynamic>('financialMessages') ??
           [];
       int imported = 0;
@@ -1025,7 +1025,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
 
 class PrivacyCenterScreen extends StatelessWidget {
   const PrivacyCenterScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   Widget build(BuildContext context) =>
       ListView(padding: const EdgeInsets.all(16), children: [
@@ -1050,7 +1050,7 @@ class PrivacyCenterScreen extends StatelessWidget {
 
 class TrustCenterScreen extends StatefulWidget {
   const TrustCenterScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<TrustCenterScreen> createState() => _TrustCenterScreenState();
 }
@@ -1295,7 +1295,7 @@ class _TrustCenterScreenState extends State<TrustCenterScreen> {
 
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   Widget build(BuildContext context) =>
       FutureBuilder<List<Map<String, dynamic>>>(
@@ -1327,7 +1327,7 @@ class ReportsScreen extends StatelessWidget {
 
 class ModerationScreen extends StatelessWidget {
   const ModerationScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   Widget build(BuildContext context) =>
       FutureBuilder<List<Map<String, dynamic>>>(
@@ -1395,7 +1395,7 @@ class SessionScreen extends StatelessWidget {
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
@@ -1616,7 +1616,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
 class NotificationPreferencesSheet extends StatefulWidget {
   const NotificationPreferencesSheet({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<NotificationPreferencesSheet> createState() =>
       _NotificationPreferencesSheetState();
@@ -1815,7 +1815,7 @@ class _ErrorState extends StatelessWidget {
 
 class NetworkHome extends StatefulWidget {
   const NetworkHome({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<NetworkHome> createState() => _NetworkHomeState();
 }
@@ -1857,7 +1857,7 @@ class _NetworkHomeState extends State<NetworkHome> {
       child: CustomScrollView(slivers: [
         SliverToBoxAdapter(
             child: _PageHeader(
-                eyebrow: 'MY CIRCLENET',
+                eyebrow: 'MY MYAAPTHA',
                 title: 'Relationships',
                 subtitle: 'Your connected family and social network.',
                 action: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -1923,7 +1923,7 @@ class _NetworkHomeState extends State<NetworkHome> {
 class RelationshipBroadcastScreen extends StatefulWidget {
   const RelationshipBroadcastScreen(
       {super.key, required this.api, required this.relationships});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final List<Relationship> relationships;
   @override
   State<RelationshipBroadcastScreen> createState() =>
@@ -2163,7 +2163,7 @@ class _FamilyTreeView extends StatefulWidget {
 
   final List<Relationship> relationships;
   final UserProfileModel? profile;
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final VoidCallback onChanged;
 
   static const nodeWidth = 132.0;
@@ -2651,7 +2651,7 @@ class RelationshipTile extends StatelessWidget {
       required this.api,
       required this.onRemoved});
   final Relationship relationship;
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final VoidCallback onRemoved;
   @override
   Widget build(BuildContext context) {
@@ -2785,7 +2785,7 @@ class RelationshipTile extends StatelessWidget {
                   color: AppTheme.primary),
               title: const Text('Communication not active yet'),
               content: Text(
-                  '${relationship.person.displayName} can receive messages and calls after activating their CircleNet account. The communication options will remain available here.'),
+                  '${relationship.person.displayName} can receive messages and calls after activating their MyAaptha account. The communication options will remain available here.'),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
@@ -3023,7 +3023,7 @@ class RelationshipTile extends StatelessWidget {
     final confirmed = await _confirmDestructiveAction(context,
         title: 'Remove relationship?',
         message:
-            '${relationship.person.displayName} will disappear from your relationship tree and circles will no longer use this relationship. Their CircleNet account and your existing messages are not deleted.',
+            '${relationship.person.displayName} will disappear from your relationship tree and circles will no longer use this relationship. Their MyAaptha account and your existing messages are not deleted.',
         confirmLabel: 'Remove relationship');
     if (confirmed != true) return;
     try {
@@ -3046,7 +3046,7 @@ class DirectCallScreen extends StatefulWidget {
       this.person,
       this.callType = 'AUDIO',
       this.incomingCall});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final Person? person;
   final String callType;
   final DirectCallModel? incomingCall;
@@ -3071,7 +3071,7 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
   String get personName =>
       widget.incomingCall?.callerName ??
       widget.person?.displayName ??
-      'CircleNet member';
+      'MyAaptha member';
 
   @override
   void initState() {
@@ -3507,7 +3507,7 @@ String _time(DateTime value) =>
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
 }
@@ -3602,7 +3602,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
 class SocialFeedScreen extends StatefulWidget {
   const SocialFeedScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<SocialFeedScreen> createState() => _SocialFeedScreenState();
 }
@@ -4401,7 +4401,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
 
 class CirclesScreen extends StatefulWidget {
   const CirclesScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<CirclesScreen> createState() => _CirclesScreenState();
 }
@@ -4538,7 +4538,7 @@ class _CirclesScreenState extends State<CirclesScreen> {
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<DiscoverScreen> createState() => _DiscoverScreenState();
 }
@@ -4573,7 +4573,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SearchBar(
                     controller: query,
-                    hintText: 'Search CircleNet…',
+                    hintText: 'Search MyAaptha…',
                     leading: const Icon(Icons.search),
                     trailing: [
                       IconButton(
@@ -4688,7 +4688,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen(
       {super.key, required this.api, required this.onDataChanged});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final VoidCallback onDataChanged;
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -4860,7 +4860,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class BlockedAccountsScreen extends StatefulWidget {
   const BlockedAccountsScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<BlockedAccountsScreen> createState() => _BlockedAccountsScreenState();
 }
@@ -4937,7 +4937,7 @@ class _BlockedAccountsScreenState extends State<BlockedAccountsScreen> {
 
 class ContactOrganizerScreen extends StatefulWidget {
   const ContactOrganizerScreen({super.key, required this.api});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   @override
   State<ContactOrganizerScreen> createState() => _ContactOrganizerScreenState();
 }
@@ -5006,7 +5006,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
             textAlign: TextAlign.center),
         const SizedBox(height: 12),
         const Text(
-            'CircleNet reads your phonebook only after permission. Raw contacts are not retained during analysis. You review every relationship and circle before anything is added.',
+            'MyAaptha reads your phonebook only after permission. Raw contacts are not retained during analysis. You review every relationship and circle before anything is added.',
             textAlign: TextAlign.center),
         const SizedBox(height: 16),
         const Card(
@@ -5060,7 +5060,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
         const Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text(
-                'CircleNet opens the provider consent page with read-only contact access. Your email password is never requested or stored.',
+                'MyAaptha opens the provider consent page with read-only contact access. Your email password is never requested or stored.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: Color(0xFF718096)))),
         const SizedBox(height: 12),
@@ -5098,7 +5098,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
       final resultKey = started['resultKey'].toString();
       if (!await launchUrl(authorizationUrl,
           mode: LaunchMode.externalApplication)) {
-        throw const CircleNetApiException(
+        throw const MyAapthaApiException(
             'The provider consent page could not be opened.');
       }
       List<Map<String, dynamic>>? result;
@@ -5112,7 +5112,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
         }
       }
       if (result == null) {
-        throw const CircleNetApiException(
+        throw const MyAapthaApiException(
             'Contact authorization timed out or was cancelled. Please try again.');
       }
       for (final item in result) {
@@ -5318,7 +5318,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
 
 class DirectChatScreen extends StatelessWidget {
   const DirectChatScreen({super.key, required this.api, required this.person});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final Person person;
   @override
   Widget build(BuildContext context) => ConversationScreen(
@@ -5343,7 +5343,7 @@ class DirectChatScreen extends StatelessWidget {
 
 class CircleChatScreen extends StatefulWidget {
   const CircleChatScreen({super.key, required this.api, required this.circle});
-  final CircleNetApi api;
+  final MyAapthaApi api;
   final CircleModel circle;
   @override
   State<CircleChatScreen> createState() => _CircleChatScreenState();
@@ -5788,7 +5788,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       if (selectedFile != null) {
         final bytes = selectedFile!.bytes;
         if (bytes == null) {
-          throw const CircleNetApiException(
+          throw const MyAapthaApiException(
               'Could not read the selected file.');
         }
         await widget.sendAttachment(

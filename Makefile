@@ -1,7 +1,7 @@
 .PHONY: help docker-up docker-down ci ai-install ai-run ai-test mobile-get mobile-test
 
 help:
-	@echo "CircleNet-AI development commands"
+	@echo "MyAaptha development commands"
 	@echo "  make docker-up      Start local infrastructure"
 	@echo "  make docker-down    Stop local infrastructure"
 	@echo "  make ci             Run validation steps"

@@ -1,6 +1,0 @@
-package com.circlenet.platform.audit;
-import jakarta.persistence.*; import java.time.Instant;
-@Entity @Table(name="audit_events") public class AuditEventEntity{
- @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @Column(name="actor_user_id") private Long actorUserId; @Column(nullable=false,length=20) private String action; @Column(name="request_path",nullable=false,length=700) private String requestPath; @Column(name="resource_type",length=80) private String resourceType; @Column(name="resource_id",length=120) private String resourceId; @Column(name="response_status",nullable=false) private int responseStatus; @Column(name="ip_address",length=64) private String ipAddress; @Column(name="user_agent",length=500) private String userAgent; @Column(name="occurred_at",nullable=false) private Instant occurredAt=Instant.now();
- public void setActorUserId(Long v){actorUserId=v;} public void setAction(String v){action=v;} public void setRequestPath(String v){requestPath=v;} public void setResourceType(String v){resourceType=v;} public void setResourceId(String v){resourceId=v;} public void setResponseStatus(int v){responseStatus=v;} public void setIpAddress(String v){ipAddress=v;} public void setUserAgent(String v){userAgent=v;}
-}

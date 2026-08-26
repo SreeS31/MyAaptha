@@ -1,0 +1,1 @@
+package com.myaaptha.domain.person;import com.myaaptha.domain.person.model.PersonRecordEntity;import org.springframework.data.jpa.repository.JpaRepository;public interface PersonRecordRepository extends JpaRepository<PersonRecordEntity,PersonRecordEntity.Key>{}

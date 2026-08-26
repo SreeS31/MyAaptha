@@ -1,3 +1,0 @@
-package com.circlenet.domain.privacy;
-import java.util.*; import org.springframework.data.jpa.repository.JpaRepository;
-public interface UserBlockRepository extends JpaRepository<UserBlockEntity,Long>{Optional<UserBlockEntity> findByBlockerUserIdAndBlockedUserId(Long blocker,Long blocked);List<UserBlockEntity> findByBlockerUserIdOrderByCreatedAtDesc(Long blocker);boolean existsByBlockerUserIdAndBlockedUserId(Long blocker,Long blocked);default boolean blockedEitherWay(Long first,Long second){return existsByBlockerUserIdAndBlockedUserId(first,second)||existsByBlockerUserIdAndBlockedUserId(second,first);}}

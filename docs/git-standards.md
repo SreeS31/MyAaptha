@@ -1,6 +1,6 @@
 # Git Standards
 
-This document defines the mandatory Git practices for CircleNet-AI.
+This document defines the mandatory Git practices for MyAaptha.
 
 ## Branching Model
 

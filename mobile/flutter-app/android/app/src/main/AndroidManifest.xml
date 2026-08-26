@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <application
-        android:label="CircleNet AI"
+        android:label="MyAaptha"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

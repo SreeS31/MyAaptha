@@ -1,23 +1,23 @@
 apiVersion: v1
 kind: ConfigMap
-metadata: { name: circlenet-config, namespace: circlenet }
+metadata: { name: myaaptha-config, namespace: myaaptha }
 data:
   SPRING_PROFILES_ACTIVE: prod
   POSTGRES_HOST: managed-postgres.example.internal
-  POSTGRES_DB: circlenet_ai
-  POSTGRES_USER: circlenet
-  CIRCLENET_STORAGE_PROVIDER: s3
-  CIRCLENET_S3_BUCKET: circlenet-media
-  CIRCLENET_S3_REGION: ap-south-1
-  CIRCLENET_AI_BASE_URL: http://ai-agent:8081/api/v1
-  CIRCLENET_CORS_ALLOWED_ORIGINS: https://app.example.com
-  CIRCLENET_NOTIFICATION_WEBHOOK_CHANNEL: ""
-  CIRCLENET_NOTIFICATION_WEBHOOK_URL: https://sms-provider.invalid/api/messages
+  POSTGRES_DB: myaaptha
+  POSTGRES_USER: myaaptha
+  MYAAPTHA_STORAGE_PROVIDER: s3
+  MYAAPTHA_S3_BUCKET: myaaptha-media
+  MYAAPTHA_S3_REGION: ap-south-1
+  MYAAPTHA_BASE_URL: http://ai-agent:8081/api/v1
+  MYAAPTHA_CORS_ALLOWED_ORIGINS: https://app.example.com
+  MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL: ""
+  MYAAPTHA_NOTIFICATION_WEBHOOK_URL: https://sms-provider.invalid/api/messages
 ---
 # Create this object through your cloud secret manager/external-secrets operator.
 apiVersion: v1
 kind: Secret
-metadata: { name: circlenet-secrets, namespace: circlenet }
+metadata: { name: myaaptha-secrets, namespace: myaaptha }
 type: Opaque
 stringData:
   POSTGRES_PASSWORD: replace-through-secret-manager

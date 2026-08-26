@@ -1,6 +1,6 @@
-import 'package:circlenet_mobile/core/config/app_config.dart';
-import 'package:circlenet_mobile/core/network/api_client.dart';
-import 'package:circlenet_mobile/features/auth/models/auth_models.dart';
+import 'package:myaaptha_mobile/core/config/app_config.dart';
+import 'package:myaaptha_mobile/core/network/api_client.dart';
+import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 
 class AuthApi {
   AuthApi({ApiClient? apiClient})

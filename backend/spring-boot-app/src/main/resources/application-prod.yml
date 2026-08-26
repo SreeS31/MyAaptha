@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:circlenet_ai}
-    username: ${POSTGRES_USER:circlenet}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
+    username: ${POSTGRES_USER:myaaptha}
     password: ${POSTGRES_PASSWORD:${postgres_password}}
     driver-class-name: org.postgresql.Driver
   sql:
@@ -34,20 +34,20 @@ management:
       show-details: never
   metrics:
     tags:
-      application: circlenet-backend
+      application: myaaptha-backend
 
-circlenet:
+myaaptha:
   rate-limit:
     # Enable only when the load balancer strips client-supplied forwarding headers.
-    trust-forwarded-for: ${CIRCLENET_TRUST_FORWARDED_FOR:false}
-    auth-per-minute: ${CIRCLENET_AUTH_RATE_LIMIT:10}
-    api-per-minute: ${CIRCLENET_API_RATE_LIMIT:300}
+    trust-forwarded-for: ${MYAAPTHA_TRUST_FORWARDED_FOR:false}
+    auth-per-minute: ${MYAAPTHA_AUTH_RATE_LIMIT:10}
+    api-per-minute: ${MYAAPTHA_API_RATE_LIMIT:300}
   cors:
-    allowed-origins: ${CIRCLENET_CORS_ALLOWED_ORIGINS}
+    allowed-origins: ${MYAAPTHA_CORS_ALLOWED_ORIGINS}
   ai:
-    base-url: ${CIRCLENET_AI_BASE_URL:http://ai-agent:8081/api/v1}
+    base-url: ${MYAAPTHA_BASE_URL:http://ai-agent:8081/api/v1}
   notifications:
     webhook:
-      channel: ${CIRCLENET_NOTIFICATION_WEBHOOK_CHANNEL:}
-      url: ${CIRCLENET_NOTIFICATION_WEBHOOK_URL:https://sms-provider.invalid/api/messages}
-      token: ${CIRCLENET_NOTIFICATION_WEBHOOK_TOKEN:}
+      channel: ${MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL:}
+      url: ${MYAAPTHA_NOTIFICATION_WEBHOOK_URL:https://sms-provider.invalid/api/messages}
+      token: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:}

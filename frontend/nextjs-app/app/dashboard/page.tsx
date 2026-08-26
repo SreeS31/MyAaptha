@@ -686,7 +686,7 @@ export default function DashboardPage() {
 
       <section className="dashboard-welcome">
         <div>
-          <p className="eyebrow">CIRCLENET OVERVIEW</p>
+          <p className="eyebrow">MYAAPTHA OVERVIEW</p>
           <h1>Good to see you{sessionUser ? `, ${sessionUser.username}` : ''}.</h1>
           <p>See your circles, people, and project work at a glance.</p>
         </div>

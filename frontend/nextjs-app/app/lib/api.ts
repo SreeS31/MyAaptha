@@ -1,6 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ||
   (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080');
-const AUTH_SESSION_KEY = 'circlenet.auth.session';
+const AUTH_SESSION_KEY = 'myaaptha.auth.session';
 
 export type AuthSession = {
   tokenType: string;
@@ -48,7 +48,7 @@ export async function addPersonMemory(id:number,title:string,note:string,file?:F
   const body=new FormData();if(title)body.append('title',title);if(note)body.append('note',note);if(file)body.append('file',file);
   const upload=(mayRefresh:boolean):Promise<PersonMemory>=>new Promise<PersonMemory>((resolve,reject)=>{
     const session=getStoredAuthSession();const request=new XMLHttpRequest();request.open('POST',`${API_BASE_URL}/api/people/${id}/memories`);if(session?.accessToken)request.setRequestHeader('Authorization',`${session.tokenType||'Bearer'} ${session.accessToken}`);
-    const announce=(progress:number,status:'uploading'|'processing'|'complete'|'error',message:string)=>window.dispatchEvent(new CustomEvent('circlenet:upload-progress',{detail:{progress,status,message,fileName:file?.name||'Memory'}}));
+    const announce=(progress:number,status:'uploading'|'processing'|'complete'|'error',message:string)=>window.dispatchEvent(new CustomEvent('myaaptha:upload-progress',{detail:{progress,status,message,fileName:file?.name||'Memory'}}));
     announce(0,'uploading','Preparing upload…');request.upload.onprogress=event=>{if(event.lengthComputable)announce(Math.min(99,Math.round(event.loaded/event.total*100)),'uploading','Uploading memory…');};request.upload.onload=()=>announce(99,'processing','Upload received. Saving memory…');
     request.onerror=()=>{announce(0,'error','Upload failed');reject(new ApiError(0,'The upload connection failed. If this is a cloud file, download it locally and try again.'));};
     request.onload=async()=>{if(request.status>=200&&request.status<300){announce(100,'complete','Upload completed');try{resolve(JSON.parse(request.responseText) as PersonMemory);window.setTimeout(()=>{const gallery=document.querySelector<HTMLDetailsElement>('.memory-gallery-disclosure');if(gallery){gallery.open=true;gallery.scrollIntoView({behavior:'smooth',block:'start'});}},700);}catch{reject(new ApiError(request.status,'The upload completed but its response could not be read.'));}return;}if(request.status===401&&mayRefresh){announce(0,'processing','Refreshing session…');try{await refreshSessionOrThrow();resolve(await upload(false));}catch{clearAuthSession();announce(0,'error','Session expired');reject(new ApiError(401,'Session expired. Please sign in again.'));}return;}let message=`Request failed: ${request.status}`;try{const value=JSON.parse(request.responseText) as {message?:string;error?:string};message=value.message||value.error||message;}catch{}announce(0,'error',message);reject(new ApiError(request.status,message));};request.send(body);

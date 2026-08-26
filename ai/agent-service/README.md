@@ -1,4 +1,4 @@
-# CircleNet-AI Agent Service
+# MyAaptha Agent Service
 
 This service is the Milestone 5 foundation for AI capabilities.
 
@@ -26,6 +26,6 @@ This service is the Milestone 5 foundation for AI capabilities.
 ## Environment variables
 
 - AI_ENV (default: local)
-- AI_SERVICE_NAME (default: circlenet-ai-agent)
+- AI_SERVICE_NAME (default: myaaptha-agent)
 - AI_API_PREFIX (default: /api/v1)
 - AI_LOG_LEVEL (default: INFO)

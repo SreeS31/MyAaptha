@@ -67,18 +67,18 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const isPublic = pathname === '/' || pathname === '/auth';
 
   useEffect(() => {
-    setExpanded(window.localStorage.getItem('circlenet.sidebar.expanded') !== 'false');
+    setExpanded(window.localStorage.getItem('myaaptha.sidebar.expanded') !== 'false');
   }, []);
 
   useEffect(() => setMobileOpen(false), [pathname]);
-  useEffect(()=>{let timer:number|undefined;const listener=(event:Event)=>{const detail=(event as CustomEvent<{progress:number;status:string;message:string;fileName:string}>).detail;setUpload(detail);if(detail.status==='complete')timer=window.setTimeout(()=>setUpload(null),3500);};window.addEventListener('circlenet:upload-progress',listener);return()=>{window.removeEventListener('circlenet:upload-progress',listener);if(timer)window.clearTimeout(timer);};},[]);
+  useEffect(()=>{let timer:number|undefined;const listener=(event:Event)=>{const detail=(event as CustomEvent<{progress:number;status:string;message:string;fileName:string}>).detail;setUpload(detail);if(detail.status==='complete')timer=window.setTimeout(()=>setUpload(null),3500);};window.addEventListener('myaaptha:upload-progress',listener);return()=>{window.removeEventListener('myaaptha:upload-progress',listener);if(timer)window.clearTimeout(timer);};},[]);
 
   if (isPublic) return children;
 
   const toggle = () => {
     if (window.innerWidth <= 760) return setMobileOpen(value => !value);
     setExpanded(value => {
-      window.localStorage.setItem('circlenet.sidebar.expanded', String(!value));
+      window.localStorage.setItem('myaaptha.sidebar.expanded', String(!value));
       return !value;
     });
   };
@@ -91,9 +91,9 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     {upload&&<section className={`global-upload-status upload-${upload.status}`} role="status" aria-live="polite"><div><strong>{upload.message}</strong><span>{upload.fileName}</span></div><b>{upload.progress}%</b><progress max="100" value={upload.progress}>{upload.progress}%</progress></section>}
     <header className="workspace-topbar">
       <button className="workspace-menu-button" onClick={toggle} aria-label="Toggle main menu" aria-expanded={expanded || mobileOpen}>☰</button>
-      <Link href="/dashboard" className="workspace-brand" aria-label="CircleNet home"><Image src="/circlenet-logo.png" width={38} height={38} alt="" priority /><strong>CircleNet</strong></Link>
+      <Link href="/dashboard" className="workspace-brand" aria-label="MyAaptha home"><Image src="/myaaptha-logo.png" width={38} height={38} alt="" priority /><strong>MyAaptha</strong></Link>
       <form className="workspace-global-search" onSubmit={search} role="search">
-        <span aria-hidden="true">⌕</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search people, circles and messages" aria-label="Search CircleNet" />
+        <span aria-hidden="true">⌕</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search people, circles and messages" aria-label="Search MyAaptha" />
         <button aria-label="Open search filters" type="submit">☷</button>
       </form>
       <nav className="workspace-top-actions" aria-label="Account tools"><Link href="/notifications" aria-label="Notifications">♢</Link><Link href="/privacy" aria-label="Settings">⚙</Link><Link href="/profile" className="workspace-account" aria-label="Profile">ME</Link></nav>

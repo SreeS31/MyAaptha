@@ -1,3 +1,0 @@
-package com.circlenet.domain.privacy;
-import jakarta.persistence.*; import java.time.Instant;
-@Entity @Table(name="user_blocks") public class UserBlockEntity {@Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;@Column(name="blocker_user_id",nullable=false) private Long blockerUserId;@Column(name="blocked_user_id",nullable=false) private Long blockedUserId;@Column(name="created_at",nullable=false) private Instant createdAt=Instant.now();public Long getId(){return id;}public Long getBlockerUserId(){return blockerUserId;}public void setBlockerUserId(Long v){blockerUserId=v;}public Long getBlockedUserId(){return blockedUserId;}public void setBlockedUserId(Long v){blockedUserId=v;}public Instant getCreatedAt(){return createdAt;}}

@@ -1,1 +1,0 @@
-package com.circlenet.domain.person;import com.circlenet.domain.person.model.PersonRecordEntity;import org.springframework.data.jpa.repository.JpaRepository;public interface PersonRecordRepository extends JpaRepository<PersonRecordEntity,PersonRecordEntity.Key>{}

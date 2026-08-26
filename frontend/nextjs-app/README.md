@@ -1,6 +1,6 @@
-# CircleNet-AI Next.js Frontend
+# MyAaptha Next.js Frontend
 
-This folder contains the initial Next.js application for the CircleNet-AI platform.
+This folder contains the initial Next.js application for the MyAaptha platform.
 
 ## Included pages
 

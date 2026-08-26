@@ -1,6 +1,6 @@
-import 'package:circlenet_mobile/features/auth/data/auth_api.dart';
-import 'package:circlenet_mobile/features/auth/data/session_store.dart';
-import 'package:circlenet_mobile/features/auth/models/auth_models.dart';
+import 'package:myaaptha_mobile/features/auth/data/auth_api.dart';
+import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
+import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 import 'package:flutter/material.dart';
 
 enum AuthMode { signIn, signUp }
@@ -247,7 +247,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CircleNet-AI Auth'),
+        title: const Text('MyAaptha Auth'),
         actions: [
           if (_session != null)
             TextButton(

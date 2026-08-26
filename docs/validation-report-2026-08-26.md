@@ -1,4 +1,4 @@
-# CircleNet validation report — 26 August 2026
+# MyAaptha validation report — 26 August 2026
 
 ## Regression results
 

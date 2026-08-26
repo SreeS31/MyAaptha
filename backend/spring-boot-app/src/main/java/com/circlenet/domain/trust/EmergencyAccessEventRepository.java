@@ -1,1 +1,0 @@
-package com.circlenet.domain.trust;import org.springframework.data.jpa.repository.JpaRepository;public interface EmergencyAccessEventRepository extends JpaRepository<EmergencyAccessEventEntity,Long>{}

@@ -11,7 +11,7 @@ def test_health_endpoint() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
-    assert payload["service"] == "circlenet-ai-agent"
+    assert payload["service"] == "myaaptha-agent"
 
 
 def test_ready_endpoint() -> None:

@@ -1,0 +1,1 @@
+package com.myaaptha.domain.person;import com.myaaptha.domain.person.model.PersonMemoryEntity;import org.springframework.data.jpa.repository.JpaRepository;import java.util.List;public interface PersonMemoryRepository extends JpaRepository<PersonMemoryEntity,Long>{List<PersonMemoryEntity> findByOwnerUserIdAndPersonUserIdOrderByCreatedAtDesc(Long owner,Long person);}

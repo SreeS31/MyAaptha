@@ -1,6 +1,6 @@
-# CircleNet-AI Mobile Modules
+# MyAaptha Mobile Modules
 
-This directory contains the mobile applications for CircleNet-AI.
+This directory contains the mobile applications for MyAaptha.
 
 ## Current module
 

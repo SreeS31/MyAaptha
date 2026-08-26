@@ -1,1 +1,0 @@
-package com.circlenet.domain.trust;import java.util.*;import org.springframework.data.jpa.repository.JpaRepository;public interface EmergencyApprovalRepository extends JpaRepository<EmergencyApprovalEntity,EmergencyApprovalEntity.Key>{List<EmergencyApprovalEntity> findByRequestId(Long id);long countByRequestIdAndApprovedTrue(Long id);}

@@ -14,7 +14,7 @@ function AuthForm() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState('Sign in with your CircleNet account.');
+  const [status, setStatus] = useState('Sign in with your MyAaptha account.');
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
   const [profile, setProfile] = useState({ username: '', firstName: '', surname: '', phoneNumber: '', email: '', location: '' });
 
@@ -63,15 +63,15 @@ function AuthForm() {
   return (
     <main className="auth-shell">
       <section className="auth-story">
-        <Image className="auth-logo" src="/circlenet-logo.png" width={112} height={112} alt="CircleNet logo" priority />
-        <p className="eyebrow">CIRCLENET INTELLIGENCE CLOUD</p>
+        <Image className="auth-logo" src="/myaaptha-logo.png" width={112} height={112} alt="MyAaptha logo" priority />
+        <p className="eyebrow">MYAAPTHA INTELLIGENCE CLOUD</p>
         <h1>People, progress and purpose—beautifully connected.</h1>
         <p>One secure workspace for teams to understand relationships, deliver projects and make better decisions with live operational intelligence.</p>
         <div className="auth-pills"><span>Enterprise security</span><span>Live analytics</span><span>Connected teams</span></div>
       </section>
       <section className="auth-panel">
       <div className="card auth-card">
-        <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN CIRCLENET'}</p>
+        <p className="eyebrow">{mode === 'signin' ? 'WELCOME BACK' : 'JOIN MYAAPTHA'}</p>
         <h2>{mode === 'signin' ? 'Sign in to your workspace' : 'Create your account'}</h2>
         <p style={{ color: '#71809b', marginBottom: '1.5rem' }}>{mode === 'signin' ? 'Use your credentials to continue.' : 'Your unique mobile number keeps duplicate accounts out.'}</p>
 
@@ -114,7 +114,7 @@ function AuthForm() {
         </form>}
 
         <p className="status-note" style={{ marginTop: '1rem' }}>{status}</p>
-        <button type="button" className="text-button auth-switch" onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setStatus(mode === 'signin' ? 'Create a searchable profile using your unique mobile number.' : 'Sign in with your CircleNet account.'); }}>{mode === 'signin' ? 'New to CircleNet? Create an account' : 'Already have an account? Sign in'}</button>
+        <button type="button" className="text-button auth-switch" onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setStatus(mode === 'signin' ? 'Create a searchable profile using your unique mobile number.' : 'Sign in with your MyAaptha account.'); }}>{mode === 'signin' ? 'New to MyAaptha? Create an account' : 'Already have an account? Sign in'}</button>
         <p style={{ marginTop: '1rem' }}>
           <Link href="/">Back to home</Link>
         </p>

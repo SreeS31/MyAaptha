@@ -9,11 +9,11 @@
     <relativePath/>
   </parent>
 
-  <groupId>com.circlenet</groupId>
-  <artifactId>circlenet-ai-service</artifactId>
+  <groupId>com.myaaptha</groupId>
+  <artifactId>myaaptha-service</artifactId>
   <version>0.1.0</version>
-  <name>circlenet-ai-service</name>
-  <description>Spring Boot backend for CircleNet-AI</description>
+  <name>myaaptha-service</name>
+  <description>Spring Boot backend for MyAaptha</description>
 
   <properties>
     <java.version>21</java.version>

@@ -5,15 +5,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN groupadd --system circlenet && useradd --system --gid circlenet --home-dir /app circlenet
+RUN groupadd --system myaaptha && useradd --system --gid myaaptha --home-dir /app myaaptha
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
 
-RUN chown -R circlenet:circlenet /app
-USER circlenet
+RUN chown -R myaaptha:myaaptha /app
+USER myaaptha
 
 EXPOSE 8081
 

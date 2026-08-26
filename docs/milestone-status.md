@@ -1,4 +1,4 @@
-# CircleNet-AI Milestone Status
+# MyAaptha Milestone Status
 
 Audit date: 16 August 2026
 

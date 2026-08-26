@@ -1,6 +1,6 @@
-# CircleNet-AI Design System
+# MyAaptha Design System
 
-The CircleNet-AI design system establishes the shared visual language for the platform. It is intentionally modular, themeable, and ready to support the upcoming frontend implementation.
+The MyAaptha design system establishes the shared visual language for the platform. It is intentionally modular, themeable, and ready to support the upcoming frontend implementation.
 
 ## Principles
 

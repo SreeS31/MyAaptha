@@ -1,6 +1,6 @@
-# CircleNet-AI AI Modules
+# MyAaptha AI Modules
 
-This directory contains AI-focused services and assets for CircleNet-AI.
+This directory contains AI-focused services and assets for MyAaptha.
 
 ## Current module
 

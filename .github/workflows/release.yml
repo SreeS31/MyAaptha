@@ -28,7 +28,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/circlenet-${{ matrix.name }}:${{ github.ref_name }}
+          tags: ghcr.io/${{ github.repository_owner }}/myaaptha-${{ matrix.name }}:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -41,7 +41,7 @@ jobs:
       - working-directory: mobile/flutter-app
         run: flutter pub get && flutter build appbundle --release --dart-define=API_BASE_URL=${{ vars.PRODUCTION_API_URL }}
       - uses: actions/upload-artifact@v4
-        with: { name: circlenet-android-${{ github.ref_name }}, path: mobile/flutter-app/build/app/outputs/bundle/release/app-release.aab }
+        with: { name: myaaptha-android-${{ github.ref_name }}, path: mobile/flutter-app/build/app/outputs/bundle/release/app-release.aab }
 
   ios:
     runs-on: macos-latest
@@ -52,4 +52,4 @@ jobs:
       - working-directory: mobile/flutter-app
         run: flutter pub get && flutter build ios --release --no-codesign --dart-define=API_BASE_URL=${{ vars.PRODUCTION_API_URL }}
       - uses: actions/upload-artifact@v4
-        with: { name: circlenet-ios-unsigned-${{ github.ref_name }}, path: mobile/flutter-app/build/ios/iphoneos/Runner.app }
+        with: { name: myaaptha-ios-unsigned-${{ github.ref_name }}, path: mobile/flutter-app/build/ios/iphoneos/Runner.app }

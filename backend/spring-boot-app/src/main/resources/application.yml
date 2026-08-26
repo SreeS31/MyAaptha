@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:circlenet_ai}
-    username: ${POSTGRES_USER:circlenet}
-    password: ${POSTGRES_PASSWORD:${postgres_password:circlenet123}}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
+    username: ${POSTGRES_USER:myaaptha}
+    password: ${POSTGRES_PASSWORD:${postgres_password:myaaptha123}}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -34,28 +34,28 @@ spring.servlet.multipart:
   max-file-size: 25MB
   max-request-size: 30MB
 
-circlenet:
+myaaptha:
   storage:
-    provider: ${CIRCLENET_STORAGE_PROVIDER:local}
-    user-quota-bytes: ${CIRCLENET_MEDIA_USER_QUOTA_BYTES:1073741824}
-    retention-cleanup-cron: ${CIRCLENET_MEDIA_CLEANUP_CRON:0 30 2 * * *}
-    local-directory: ${CIRCLENET_UPLOAD_DIR:./var/circlenet/uploads}
-    public-base-url: ${CIRCLENET_MEDIA_BASE_URL:http://localhost:8080}
+    provider: ${MYAAPTHA_STORAGE_PROVIDER:local}
+    user-quota-bytes: ${MYAAPTHA_MEDIA_USER_QUOTA_BYTES:1073741824}
+    retention-cleanup-cron: ${MYAAPTHA_MEDIA_CLEANUP_CRON:0 30 2 * * *}
+    local-directory: ${MYAAPTHA_UPLOAD_DIR:./var/myaaptha/uploads}
+    public-base-url: ${MYAAPTHA_MEDIA_BASE_URL:http://localhost:8080}
     s3:
-      bucket: ${CIRCLENET_S3_BUCKET:}
-      region: ${CIRCLENET_S3_REGION:ap-south-1}
-      endpoint: ${CIRCLENET_S3_ENDPOINT:}
+      bucket: ${MYAAPTHA_S3_BUCKET:}
+      region: ${MYAAPTHA_S3_REGION:ap-south-1}
+      endpoint: ${MYAAPTHA_S3_ENDPOINT:}
   notifications:
-    dispatch-delay-ms: ${CIRCLENET_NOTIFICATION_DISPATCH_MS:5000}
+    dispatch-delay-ms: ${MYAAPTHA_NOTIFICATION_DISPATCH_MS:5000}
     webhook:
-      channel: ${CIRCLENET_NOTIFICATION_WEBHOOK_CHANNEL:}
-      url: ${CIRCLENET_NOTIFICATION_WEBHOOK_URL:}
-      token: ${CIRCLENET_NOTIFICATION_WEBHOOK_TOKEN:}
+      channel: ${MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL:}
+      url: ${MYAAPTHA_NOTIFICATION_WEBHOOK_URL:}
+      token: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:}
   ai:
-    base-url: ${CIRCLENET_AI_BASE_URL:http://localhost:8081/api/v1}
+    base-url: ${MYAAPTHA_BASE_URL:http://localhost:8081/api/v1}
   contact-oauth:
-    public-api-base-url: ${CIRCLENET_PUBLIC_API_BASE_URL:http://localhost:8080}
-    web-origin: ${CIRCLENET_WEB_ORIGIN:http://localhost:3000}
+    public-api-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL:http://localhost:8080}
+    web-origin: ${MYAAPTHA_WEB_ORIGIN:http://localhost:3000}
     google-client-id: ${GOOGLE_CONTACTS_CLIENT_ID:}
     google-client-secret: ${GOOGLE_CONTACTS_CLIENT_SECRET:}
     microsoft-client-id: ${MICROSOFT_CONTACTS_CLIENT_ID:}
@@ -63,4 +63,4 @@ circlenet:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:${jwt_secret:circlenet-local-dev-jwt-secret-please-change-2026-strong}}
+    secret: ${JWT_SECRET:${jwt_secret:myaaptha-local-dev-jwt-secret-please-change-2026-strong}}

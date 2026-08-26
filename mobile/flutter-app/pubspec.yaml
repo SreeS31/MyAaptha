@@ -1,5 +1,5 @@
-name: circlenet_mobile
-description: CircleNet-AI mobile application.
+name: myaaptha_mobile
+description: MyAaptha mobile application.
 publish_to: "none"
 version: 0.1.0+1
 
@@ -33,4 +33,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/brand/circlenet-logo.png
+    - assets/brand/myaaptha-logo.png

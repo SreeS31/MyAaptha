@@ -1,0 +1,1 @@
+package com.myaaptha.domain.moderation; import java.util.List; import org.springframework.data.jpa.repository.JpaRepository; public interface AbuseReportRepository extends JpaRepository<AbuseReportEntity,Long>{List<AbuseReportEntity> findTop200ByOrderByCreatedAtDesc();List<AbuseReportEntity> findByReporterUserIdOrderByCreatedAtDesc(Long id);}

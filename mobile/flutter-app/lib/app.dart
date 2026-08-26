@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:circlenet_mobile/core/theme/app_theme.dart';
-import 'package:circlenet_mobile/features/auth/data/session_store.dart';
-import 'package:circlenet_mobile/features/auth/data/auth_api.dart';
-import 'package:circlenet_mobile/features/auth/models/auth_models.dart';
-import 'package:circlenet_mobile/features/auth/presentation/auth_screen.dart';
-import 'package:circlenet_mobile/features/shell/presentation/app_shell.dart';
+import 'package:myaaptha_mobile/core/theme/app_theme.dart';
+import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
+import 'package:myaaptha_mobile/features/auth/data/auth_api.dart';
+import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
+import 'package:myaaptha_mobile/features/auth/presentation/auth_screen.dart';
+import 'package:myaaptha_mobile/features/shell/presentation/app_shell.dart';
 
-class CircleNetMobileApp extends StatefulWidget {
-  const CircleNetMobileApp({super.key});
+class MyAapthaMobileApp extends StatefulWidget {
+  const MyAapthaMobileApp({super.key});
 
   @override
-  State<CircleNetMobileApp> createState() => _CircleNetMobileAppState();
+  State<MyAapthaMobileApp> createState() => _MyAapthaMobileAppState();
 }
 
-class _CircleNetMobileAppState extends State<CircleNetMobileApp> {
+class _MyAapthaMobileAppState extends State<MyAapthaMobileApp> {
   final SessionStore _store = SessionStore();
   AuthTokenBundle? _session;
   bool _restoring = true;
@@ -42,7 +42,7 @@ class _CircleNetMobileAppState extends State<CircleNetMobileApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CircleNet',
+      title: 'MyAaptha',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: _restoring
@@ -70,9 +70,9 @@ class _SplashScreen extends StatelessWidget {
                   end: Alignment.bottomRight)),
           child: Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Image.asset('assets/brand/circlenet-logo.png', width: 96, height: 96),
+            Image.asset('assets/brand/myaaptha-logo.png', width: 96, height: 96),
             const SizedBox(height: 16),
-            const Text('CircleNet',
+            const Text('MyAaptha',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,

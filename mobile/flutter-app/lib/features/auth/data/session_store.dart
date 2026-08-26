@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:circlenet_mobile/features/auth/models/auth_models.dart';
+import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

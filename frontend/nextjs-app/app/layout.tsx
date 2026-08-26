@@ -4,13 +4,13 @@ import WorkspaceShell from './components/WorkspaceShell';
 
 export const metadata: Metadata = {
   title: {
-    default: 'CircleNet Intelligence Cloud',
-    template: '%s | CircleNet'
+    default: 'MyAaptha Intelligence Cloud',
+    template: '%s | MyAaptha'
   },
   description: 'Enterprise relationship intelligence, project delivery and team analytics in one connected workspace.',
   icons: {
     icon: '/favicon.png',
-    apple: '/circlenet-logo.png'
+    apple: '/myaaptha-logo.png'
   }
 };
 

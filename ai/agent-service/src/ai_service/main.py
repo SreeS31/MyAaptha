@@ -10,7 +10,7 @@ from ai_service.models import (
     SearchRankRequest, ContactOrganizeRequest, ContactSuggestion,
 )
 
-app = FastAPI(title="CircleNet AI Agent Service", version="1.0.0", description="Privacy-aware ranking, duplicate detection, and family graph assistance.")
+app = FastAPI(title="MyAaptha Agent Service", version="1.0.0", description="Privacy-aware ranking, duplicate detection, and family graph assistance.")
 router = APIRouter(prefix=settings.ai_api_prefix)
 
 def norm(value: str | None) -> str:

@@ -1,6 +1,6 @@
 INSERT INTO people (full_name, email)
-SELECT 'Ava Patel', 'ava@circlenet.ai'
-WHERE NOT EXISTS (SELECT 1 FROM people WHERE email = 'ava@circlenet.ai');
+SELECT 'Ava Patel', 'ava@myaaptha.ai'
+WHERE NOT EXISTS (SELECT 1 FROM people WHERE email = 'ava@myaaptha.ai');
 
 INSERT INTO circles (name, description)
 SELECT 'Engineering', 'Core platform collaboration circle'
@@ -15,8 +15,8 @@ SELECT 'admin', 'Full platform access'
 WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE name = 'admin');
 
 INSERT INTO projects (name, description, status)
-SELECT 'CircleNet Platform', 'Initial platform delivery track', 'Active'
-WHERE NOT EXISTS (SELECT 1 FROM projects WHERE name = 'CircleNet Platform');
+SELECT 'MyAaptha Platform', 'Initial platform delivery track', 'Active'
+WHERE NOT EXISTS (SELECT 1 FROM projects WHERE name = 'MyAaptha Platform');
 
 INSERT INTO tasks (title, details, status, project_id, milestone_id)
 SELECT 'Kickoff architecture review', 'Review baseline architecture and service boundaries', 'Todo', NULL, NULL

@@ -1,6 +1,6 @@
-# CircleNet-AI Spring Boot Backend
+# MyAaptha Spring Boot Backend
 
-This module contains the initial Spring Boot backend foundation for the CircleNet-AI platform.
+This module contains the initial Spring Boot backend foundation for the MyAaptha platform.
 
 ## Included areas
 
@@ -59,8 +59,8 @@ Then set:
 
 - `GOOGLE_CONTACTS_CLIENT_ID` and `GOOGLE_CONTACTS_CLIENT_SECRET`
 - `MICROSOFT_CONTACTS_CLIENT_ID` and `MICROSOFT_CONTACTS_CLIENT_SECRET`
-- `CIRCLENET_PUBLIC_API_BASE_URL` for the externally reachable backend origin
-- `CIRCLENET_WEB_ORIGIN` for the web application origin
+- `MYAAPTHA_PUBLIC_API_BASE_URL` for the externally reachable backend origin
+- `MYAAPTHA_WEB_ORIGIN` for the web application origin
 
 Enable the Google People API with the `contacts.readonly` scope. For Microsoft Entra, add delegated Microsoft Graph `Contacts.Read` permission. Provider tokens are used only during the one-time import and are not persisted.
 
@@ -74,9 +74,9 @@ The PostgreSQL profile reads these environment variables (with defaults):
 
 - POSTGRES_HOST=localhost
 - POSTGRES_PORT=5432
-- POSTGRES_DB=circlenet_ai
-- POSTGRES_USER=circlenet
-- POSTGRES_PASSWORD=circlenet123
+- POSTGRES_DB=myaaptha
+- POSTGRES_USER=myaaptha
+- POSTGRES_PASSWORD=myaaptha123
 
 Automated tests use an isolated H2 in-memory datasource under `src/test/resources`;
 H2 is never used by the running application.
