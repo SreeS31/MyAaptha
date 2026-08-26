@@ -23,6 +23,7 @@ const navigationSections = [
       { href: '/feed', icon: '✎', label: 'Diary & memories' },
       { href: '/timeline', icon: '◇', label: 'Life timeline' },
       { href: '/finance', icon: '₹', label: 'Money & insights' },
+      { href: '/health', icon: '♥', label: 'Health records' },
     ],
   },
   {

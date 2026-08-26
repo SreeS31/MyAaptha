@@ -23,12 +23,13 @@ The publicly available MyAaptha description lists unlimited personal, education,
 - Android financial-SMS import with prominent consent, device-side financial-message filtering, deduplication and revocable permission.
 - Pasted-SMS/manual alternatives for web and iOS.
 - Educational saving and investment considerations with a clear non-advisory disclaimer.
+- Diagnostic-report records linked to existing private diary documents, structured measurements, laboratory reference-range indicators, and trend charts on web and mobile.
 
 ### Next releases
 
 1. Budgets, recurring bills, CSV/OFX statement import and user-editable categorization rules.
 2. Encrypted document vault grouped into personal, education, health, insurance, tax, warranty and property records.
-3. Family health profiles, prescriptions, laboratory reports, medication schedules and emergency medical ID.
+3. Family health profiles, prescriptions, medication schedules and emergency medical ID. Diagnostic report storage and measurement trends are already available for the signed-in user.
 4. Reminders for bills, EMIs, birthdays, appointments, warranties and vehicle service.
 5. Verified provider directory and consent-based appointment requests.
 6. Medicine and diagnostic ordering only after licensed provider, payment, refund and regulatory integrations are defined.

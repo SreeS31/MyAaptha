@@ -357,6 +357,12 @@ class MoreScreen extends StatelessWidget {
               FinanceScreen(api: api)),
           _moreTile(
               context,
+              Icons.monitor_heart_outlined,
+              'Health records',
+              'Diagnostic reports, measurements and health trends.',
+              HealthRecordsScreen(api: api)),
+          _moreTile(
+              context,
               Icons.stars_rounded,
               'Trust center',
               'Star Members, emergency access and Role Models.',
@@ -447,6 +453,272 @@ class TimelineScreen extends StatelessWidget {
                               '${item['createdAt'] ?? ''} · ${(item['audience'] ?? 'PRIVATE').toString().toLowerCase()}')));
                 });
           });
+}
+
+class HealthRecordsScreen extends StatefulWidget {
+  const HealthRecordsScreen({super.key, required this.api});
+  final CircleNetApi api;
+  @override
+  State<HealthRecordsScreen> createState() => _HealthRecordsScreenState();
+}
+
+class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
+  Map<String, dynamic>? data;
+  List<Map<String, dynamic>> docs = [];
+  bool loading = true;
+  String? error;
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  Future<void> load() async {
+    setState(() => loading = true);
+    try {
+      final values = await Future.wait(
+          [widget.api.healthDashboard(), widget.api.socialFeed()]);
+      final feed = (values[1] as List)
+          .map((x) => Map<String, dynamic>.from(x as Map))
+          .toList();
+      if (mounted) {
+        setState(() {
+          data = Map<String, dynamic>.from(values[0] as Map);
+          docs = feed
+              .where((x) =>
+                  x['mine'] == true &&
+                  x['audience'] == 'PRIVATE' &&
+                  x['mediaUrl'] != null)
+              .map((x) =>
+                  {'id': x['id'], 'name': x['mediaName'] ?? x['caption']})
+              .toList();
+          error = null;
+          loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = '$e';
+          loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> add() async {
+    final name = TextEditingController(),
+        lab = TextEditingController(),
+        metric = TextEditingController(),
+        value = TextEditingController(),
+        unit = TextEditingController(),
+        minimum = TextEditingController(),
+        maximum = TextEditingController();
+    int? postId;
+    final save = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+            builder: (context, setDialog) => AlertDialog(
+                    title: const Text('Add diagnostic report'),
+                    content: SingleChildScrollView(
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                      TextField(
+                          controller: name,
+                          decoration:
+                              const InputDecoration(labelText: 'Report name')),
+                      TextField(
+                          controller: lab,
+                          decoration:
+                              const InputDecoration(labelText: 'Laboratory')),
+                      DropdownButtonFormField<int?>(
+                          initialValue: postId,
+                          items: [
+                            const DropdownMenuItem<int?>(
+                                value: null,
+                                child: Text('No linked diary document')),
+                            ...docs.map((x) => DropdownMenuItem<int?>(
+                                value: x['id'] as int,
+                                child: Text('${x['name']}')))
+                          ],
+                          onChanged: (v) => setDialog(() => postId = v),
+                          decoration: const InputDecoration(
+                              labelText: 'Private diary document')),
+                      const Divider(height: 28),
+                      TextField(
+                          controller: metric,
+                          decoration: const InputDecoration(
+                              labelText:
+                                  'Measurement (for example Hemoglobin)')),
+                      TextField(
+                          controller: value,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          decoration:
+                              const InputDecoration(labelText: 'Value')),
+                      TextField(
+                          controller: unit,
+                          decoration: const InputDecoration(labelText: 'Unit')),
+                      Row(children: [
+                        Expanded(
+                            child: TextField(
+                                controller: minimum,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    labelText: 'Lab minimum'))),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: TextField(
+                                controller: maximum,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                    labelText: 'Lab maximum')))
+                      ]),
+                      const Padding(
+                          padding: EdgeInsets.only(top: 12),
+                          child: Text(
+                              'Enter values and reference ranges exactly as printed by the laboratory. CircleNet does not diagnose conditions.'))
+                    ])),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel')),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Save'))
+                    ])));
+    if (save != true || name.text.trim().isEmpty) return;
+    final measurement = metric.text.trim().isEmpty
+        ? const <Map<String, dynamic>>[]
+        : [
+            {
+              'metricName': metric.text.trim(),
+              'value': double.tryParse(value.text),
+              'unit': unit.text.trim(),
+              'referenceMin': double.tryParse(minimum.text),
+              'referenceMax': double.tryParse(maximum.text)
+            }
+          ];
+    await widget.api.addHealthReport({
+      'sourcePostId': postId,
+      'reportName': name.text.trim(),
+      'laboratory': lab.text.trim(),
+      'collectedOn': DateTime.now().toIso8601String().substring(0, 10),
+      'measurements': measurement
+    });
+    await load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: CircularProgressIndicator());
+    if (error != null) return _ErrorState(error!);
+    final trends = (data?['trends'] as List? ?? []).cast<Map>();
+    final reports = (data?['reports'] as List? ?? []).cast<Map>();
+    return RefreshIndicator(
+      onRefresh: load,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const _PageHeader(
+            eyebrow: 'PERSONAL ASSISTANT · HEALTH',
+            title: 'Health records & trends',
+            subtitle:
+                'One private home for diagnostic reports and their measurements.',
+          ),
+          Card(
+            color: const Color(0xfffff7df),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text('ⓘ ${data?['disclaimer']}'),
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: add,
+            icon: const Icon(Icons.add),
+            label: const Text('Add diagnostic report'),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 18, bottom: 6),
+            child: Text('Measurement trends',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          ),
+          ...trends.map((trend) {
+            final points = (trend['points'] as List).cast<Map>();
+            final values = points
+                .map((point) => (point['value'] as num).toDouble())
+                .toList();
+            final maxValue = values.fold<double>(1, math.max);
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${trend['metricName']}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w900)),
+                        Text(
+                            '${values.isEmpty ? '—' : values.last} ${trend['unit']}'),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ...points.map((point) => Padding(
+                          padding: const EdgeInsets.only(top: 7),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                  width: 90, child: Text('${point['date']}')),
+                              Expanded(
+                                child: LinearProgressIndicator(
+                                  value: (point['value'] as num).toDouble() /
+                                      maxValue,
+                                  minHeight: 10,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text('${point['value']}'),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const Padding(
+            padding: EdgeInsets.only(top: 18, bottom: 6),
+            child: Text('Diagnostic reports',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          ),
+          ...reports.map((report) => Card(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                      child: Icon(Icons.description_outlined)),
+                  title: Text('${report['reportName']}'),
+                  subtitle: Text(
+                    '${report['laboratory'] ?? 'Laboratory not specified'} · '
+                    '${report['collectedOn']}\n'
+                    '${(report['measurements'] as List).length} measurements',
+                  ),
+                  isThreeLine: true,
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () async {
+                      await widget.api.deleteHealthReport(report['id'] as int);
+                      await load();
+                    },
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
 }
 
 class FinanceScreen extends StatefulWidget {

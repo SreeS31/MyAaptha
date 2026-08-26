@@ -1,0 +1,1 @@
+package com.circlenet.domain.health;import java.util.*;import org.springframework.data.jpa.repository.JpaRepository;public interface HealthReportRepository extends JpaRepository<HealthReportEntity,Long>{List<HealthReportEntity>findByUserIdOrderByCollectedOnDesc(Long userId);}

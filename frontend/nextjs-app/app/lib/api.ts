@@ -657,3 +657,9 @@ export type FinancialSummary={income:number;spending:number;net:number;categorie
 export async function fetchFinancialSummary(month:string){return authenticatedRequest<FinancialSummary>(`/api/finance/summary?month=${month}`);}
 export async function addFinancialTransaction(payload:{amount?:number;direction?:string;category?:string;merchant?:string;description?:string;occurredAt?:string;source:string;smsBody?:string;smsSender?:string}){return authenticatedRequest<FinancialTransaction>('/api/finance/transactions',{method:'POST',body:JSON.stringify(payload)});}
 export async function deleteFinancialTransaction(id:number){return authenticatedRequest<void>(`/api/finance/transactions/${id}`,{method:'DELETE'});}
+export type HealthMeasurement={id:number;metricName:string;value:number;unit:string;referenceMin?:number|null;referenceMax?:number|null;rangeStatus:'BELOW'|'ABOVE'|'IN_RANGE'};
+export type HealthReport={id:number;sourcePostId?:number|null;sourceMediaName?:string|null;sourceMediaUrl?:string|null;reportName:string;laboratory?:string|null;collectedOn:string;notes?:string|null;measurements:HealthMeasurement[]};
+export type HealthDashboard={reports:HealthReport[];trends:{metricName:string;unit:string;points:{date:string;value:number;referenceMin?:number|null;referenceMax?:number|null;reportId:number}[]}[];disclaimer:string};
+export async function fetchHealthDashboard(){return authenticatedRequest<HealthDashboard>('/api/health/dashboard');}
+export async function addHealthReport(payload:{sourcePostId?:number;reportName:string;laboratory?:string;collectedOn:string;notes?:string;measurements:{metricName:string;value:number;unit:string;referenceMin?:number;referenceMax?:number}[]}){return authenticatedRequest<HealthReport>('/api/health/reports',{method:'POST',body:JSON.stringify(payload)});}
+export async function deleteHealthReport(id:number){return authenticatedRequest<void>(`/api/health/reports/${id}`,{method:'DELETE'});}

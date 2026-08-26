@@ -10,6 +10,13 @@ class CircleNetApi {
   final AuthTokenBundle session;
   final ApiClient _client;
   String get _token => session.accessToken;
+  Future<Map<String, dynamic>> healthDashboard() async =>
+      Map<String, dynamic>.from(await _json(
+          _client.get('/api/health/dashboard', bearerToken: _token)) as Map);
+  Future<void> addHealthReport(Map<String, dynamic> value) async =>
+      _json(_client.post('/api/health/reports', value, bearerToken: _token));
+  Future<void> deleteHealthReport(int id) async =>
+      _json(_client.delete('/api/health/reports/$id', bearerToken: _token));
   Future<Map<String, dynamic>> financialSummary(String month) async =>
       Map<String, dynamic>.from(await _json(_client.get(
           '/api/finance/summary?month=$month',
