@@ -23,7 +23,7 @@ In Play Console open **Policy and programs → App content → Permissions Decla
    - Sign in with the dedicated reviewer account.
    - Open **Your life tools → Money & insights**.
    - Tap **Import SMS**.
-   - Review the prominent disclosure and choose **Allow and import**.
+   - Review the prominent disclosure and choose **Agree and continue**.
    - Grant Android SMS permission.
    - Show categorized transactions and charts.
    - Repeat the flow and choose **Not now** to demonstrate graceful degradation.

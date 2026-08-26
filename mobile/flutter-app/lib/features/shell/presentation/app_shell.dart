@@ -853,7 +853,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       child: const Text('Not now')),
                   FilledButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Allow and import'))
+                            child: const Text('Agree and continue'))
                 ]));
     if (approved != true) return;
     final permission = await Permission.sms.request();
