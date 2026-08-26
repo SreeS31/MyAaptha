@@ -8,15 +8,21 @@ import { usePathname, useRouter } from 'next/navigation';
 
 const navigationSections = [
   {
-    label: 'Main',
+    label: 'Connect',
     items: [
       { href: '/dashboard', icon: '⌂', label: 'Home dashboard' },
-      { href: '/feed', icon: '✎', label: 'Digital diary & feed' },
       { href: '/messages', icon: '✉', label: 'Private messages' },
       { href: '/circles', icon: '◎', label: 'My circles' },
       { href: '/circle-search', icon: '⌕', label: 'Find people & circles' },
       { href: '/notifications', icon: '♢', label: 'Notifications' },
+    ],
+  },
+  {
+    label: 'Personal assistant',
+    items: [
+      { href: '/feed', icon: '✎', label: 'Diary & memories' },
       { href: '/timeline', icon: '◇', label: 'Life timeline' },
+      { href: '/finance', icon: '₹', label: 'Money & insights' },
     ],
   },
   {

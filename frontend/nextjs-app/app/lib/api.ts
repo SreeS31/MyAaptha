@@ -651,3 +651,9 @@ export async function deleteMilestone(id: number) {
 export async function fetchDashboardSummary() {
   return authenticatedRequest<any>('/api/dashboard/summary');
 }
+
+export type FinancialTransaction={id:number;amount:number;direction:'EXPENSE'|'INCOME';category:string;merchant?:string;description?:string;occurredAt:string;source:'MANUAL'|'SMS'|'IMPORT'};
+export type FinancialSummary={income:number;spending:number;net:number;categories:Record<string,number>;transactions:FinancialTransaction[];suggestions:string[];disclaimer:string};
+export async function fetchFinancialSummary(month:string){return authenticatedRequest<FinancialSummary>(`/api/finance/summary?month=${month}`);}
+export async function addFinancialTransaction(payload:{amount?:number;direction?:string;category?:string;merchant?:string;description?:string;occurredAt?:string;source:string;smsBody?:string;smsSender?:string}){return authenticatedRequest<FinancialTransaction>('/api/finance/transactions',{method:'POST',body:JSON.stringify(payload)});}
+export async function deleteFinancialTransaction(id:number){return authenticatedRequest<void>(`/api/finance/transactions/${id}`,{method:'DELETE'});}

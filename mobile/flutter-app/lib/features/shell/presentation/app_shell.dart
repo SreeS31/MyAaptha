@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_contacts/fast_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -332,29 +333,48 @@ class MoreScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const _PageHeader(
-              eyebrow: 'ALL FUNCTIONALITIES',
-              title: 'More',
-              subtitle: 'Alerts, discovery, profile, privacy and account controls.'),
+              eyebrow: 'PERSONAL ASSISTANT & SETTINGS',
+              title: 'Your life tools',
+              subtitle:
+                  'Money, memories, safety, discovery, privacy and account controls.'),
           _primaryTile(Icons.notifications_outlined, 'Notifications',
               'Review activity and important alerts.', 4),
           _primaryTile(Icons.person_search_outlined, 'Find people & circles',
               'Discover people and communities.', 5),
           _primaryTile(Icons.person_outline, 'My profile',
               'Manage your identity and profile details.', 6),
-          _moreTile(context, Icons.timeline_rounded, 'Life timeline',
+          _moreTile(
+              context,
+              Icons.timeline_rounded,
+              'Life timeline',
               'Review your diary entries in chronological order.',
               TimelineScreen(api: api)),
-          _moreTile(context, Icons.stars_rounded, 'Trust center',
+          _moreTile(
+              context,
+              Icons.account_balance_wallet_outlined,
+              'Money & insights',
+              'Spending, savings and financial wellbeing.',
+              FinanceScreen(api: api)),
+          _moreTile(
+              context,
+              Icons.stars_rounded,
+              'Trust center',
               'Star Members, emergency access and Role Models.',
               TrustCenterScreen(api: api)),
-          _moreTile(context, Icons.shield_outlined, 'Privacy & settings',
+          _moreTile(
+              context,
+              Icons.shield_outlined,
+              'Privacy & settings',
               'Blocked accounts and privacy controls.',
               PrivacyCenterScreen(api: api)),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
           _moreTile(context, Icons.admin_panel_settings_outlined, 'Moderation',
               'Admin trust and safety queue.', ModerationScreen(api: api)),
-          _moreTile(context, Icons.devices_rounded, 'Account session',
+          _moreTile(
+              context,
+              Icons.devices_rounded,
+              'Account session',
               'Review this login and sign out securely.',
               SessionScreen(session: session, onSignOut: onSignOut)),
         ],
@@ -376,65 +396,729 @@ class MoreScreen extends StatelessWidget {
       Card(
           child: ListTile(
               leading: CircleAvatar(child: Icon(icon)),
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+              title: Text(title,
+                  style: const TextStyle(fontWeight: FontWeight.w800)),
               subtitle: Text(subtitle),
               trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => Scaffold(appBar: AppBar(title: Text(title)), body: destination)))));
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => Scaffold(
+                          appBar: AppBar(title: Text(title)),
+                          body: destination)))));
 }
 
 class TimelineScreen extends StatelessWidget {
   const TimelineScreen({super.key, required this.api});
   final CircleNetApi api;
   @override
-  Widget build(BuildContext context) => FutureBuilder<List<Map<String, dynamic>>>(
-      future: api.socialFeed(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-        if (snapshot.hasError) return _ErrorState('${snapshot.error}');
-        final entries=(snapshot.data??[]).where((item)=>item['mine']==true).toList();
-        if(entries.isEmpty)return const Center(child: Text('Your timeline will grow as you add diary entries.'));
-        return ListView.builder(padding:const EdgeInsets.all(16),itemCount:entries.length,itemBuilder:(context,index){final item=entries[index];return Card(child:ListTile(leading:const Icon(Icons.auto_stories_rounded),title:Text((item['caption']??item['mediaName']??'Diary entry').toString(),maxLines:2,overflow:TextOverflow.ellipsis),subtitle:Text('${item['createdAt']??''} · ${(item['audience']??'PRIVATE').toString().toLowerCase()}')));});
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<Map<String, dynamic>>>(
+          future: api.socialFeed(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) return _ErrorState('${snapshot.error}');
+            final entries = (snapshot.data ?? [])
+                .where((item) => item['mine'] == true)
+                .toList();
+            if (entries.isEmpty) {
+              return const Center(
+                  child: Text(
+                      'Your timeline will grow as you add diary entries.'));
+            }
+            return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: entries.length,
+                itemBuilder: (context, index) {
+                  final item = entries[index];
+                  return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.auto_stories_rounded),
+                          title: Text(
+                              (item['caption'] ??
+                                      item['mediaName'] ??
+                                      'Diary entry')
+                                  .toString(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis),
+                          subtitle: Text(
+                              '${item['createdAt'] ?? ''} · ${(item['audience'] ?? 'PRIVATE').toString().toLowerCase()}')));
+                });
+          });
+}
+
+class FinanceScreen extends StatefulWidget {
+  const FinanceScreen({super.key, required this.api});
+  final CircleNetApi api;
+  @override
+  State<FinanceScreen> createState() => _FinanceScreenState();
+}
+
+class _FinanceScreenState extends State<FinanceScreen> {
+  Map<String, dynamic>? data;
+  String? error;
+  bool loading = true;
+  String get month => DateTime.now().toIso8601String().substring(0, 7);
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  Future<void> load() async {
+    setState(() => loading = true);
+    try {
+      final value = await widget.api.financialSummary(month);
+      if (mounted) {
+        setState(() {
+          data = value;
+          error = null;
+          loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = '$e';
+          loading = false;
+        });
+      }
+    }
+  }
+
+  String money(dynamic value) => '₹${(value as num? ?? 0).toStringAsFixed(0)}';
+  Future<void> addManual() async {
+    final amount = TextEditingController(), merchant = TextEditingController();
+    String category = 'GROCERIES', direction = 'EXPENSE';
+    final save = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+            builder: (context, setDialog) => AlertDialog(
+                    title: const Text('Add transaction'),
+                    content: Column(mainAxisSize: MainAxisSize.min, children: [
+                      TextField(
+                          controller: amount,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          decoration:
+                              const InputDecoration(labelText: 'Amount')),
+                      DropdownButtonFormField<String>(
+                          initialValue: direction,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'EXPENSE', child: Text('Expense')),
+                            DropdownMenuItem(
+                                value: 'INCOME', child: Text('Income'))
+                          ],
+                          onChanged: (v) => setDialog(() => direction = v!),
+                          decoration: const InputDecoration(labelText: 'Type')),
+                      DropdownButtonFormField<String>(
+                          initialValue: category,
+                          items: [
+                            'SHOPPING',
+                            'GROCERIES',
+                            'HEALTH',
+                            'INVESTMENT',
+                            'HOUSING',
+                            'TRANSPORT',
+                            'FOOD',
+                            'UTILITIES',
+                            'EDUCATION',
+                            'ENTERTAINMENT',
+                            'OTHER'
+                          ]
+                              .map((x) =>
+                                  DropdownMenuItem(value: x, child: Text(x)))
+                              .toList(),
+                          onChanged: (v) => setDialog(() => category = v!),
+                          decoration:
+                              const InputDecoration(labelText: 'Category')),
+                      TextField(
+                          controller: merchant,
+                          decoration: const InputDecoration(
+                              labelText: 'Merchant or note'))
+                    ]),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel')),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Save'))
+                    ])));
+    if (save == true) {
+      await widget.api.addFinancialTransaction({
+        'source': 'MANUAL',
+        'amount': double.tryParse(amount.text),
+        'direction': direction,
+        'category': category,
+        'merchant': merchant.text,
+        'occurredAt': DateTime.now().toUtc().toIso8601String()
       });
+      await load();
+    }
+  }
+
+  Future<void> importSms() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'SMS inbox import is available on Android. Paste transactions manually on this platform.')));
+      return;
+    }
+    final approved = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+                icon: const Icon(Icons.sms_outlined),
+                title: const Text('Import financial SMS?'),
+                content: const Text(
+                    'CircleNet will read up to 200 recent messages on this device, select only messages that look financial, and upload those transaction messages to your private account for categorization. It will not import personal conversations. You can revoke SMS permission or delete transactions at any time.'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Not now')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Allow and import'))
+                ]));
+    if (approved != true) return;
+    final permission = await Permission.sms.request();
+    if (!permission.isGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('SMS permission was not granted.')));
+      }
+      return;
+    }
+    setState(() => loading = true);
+    try {
+      final messages = await const MethodChannel('circlenet/sms')
+              .invokeListMethod<dynamic>('financialMessages') ??
+          [];
+      int imported = 0;
+      for (final raw in messages) {
+        final item = Map<String, dynamic>.from(raw as Map);
+        try {
+          await widget.api.addFinancialTransaction({
+            'source': 'SMS',
+            'smsSender': item['sender'],
+            'smsBody': item['body'],
+            'occurredAt': DateTime.fromMillisecondsSinceEpoch(
+                    (item['date'] as num).toInt())
+                .toUtc()
+                .toIso8601String()
+          });
+          imported++;
+        } catch (_) {}
+      }
+      await load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                'Reviewed ${messages.length} financial messages; synchronized $imported transactions.')));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = '$e';
+          loading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: CircularProgressIndicator());
+    if (error != null) return _ErrorState(error!);
+    final categories =
+            Map<String, dynamic>.from(data?['categories'] as Map? ?? {}),
+        transactions = (data?['transactions'] as List? ?? []).cast<Map>();
+    final maxValue = categories.values
+        .fold<double>(1, (m, x) => math.max(m, (x as num).toDouble()));
+    return RefreshIndicator(
+        onRefresh: load,
+        child: ListView(padding: const EdgeInsets.all(16), children: [
+          const _PageHeader(
+              eyebrow: 'PERSONAL ASSISTANT · MONEY',
+              title: 'Financial wellbeing',
+              subtitle:
+                  'See spending patterns and make thoughtful next steps.'),
+          Row(children: [
+            Expanded(
+                child: _moneyCard('Income', data?['income'], Colors.green)),
+            const SizedBox(width: 8),
+            Expanded(
+                child: _moneyCard('Spending', data?['spending'], Colors.red)),
+            const SizedBox(width: 8),
+            Expanded(
+                child: _moneyCard('Net saved', data?['net'], AppTheme.primary))
+          ]),
+          const SizedBox(height: 12),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Spending by category',
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.w900)),
+                        ...categories.entries.map((x) => Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(x.key),
+                                        Text(money(x.value))
+                                      ]),
+                                  LinearProgressIndicator(
+                                      value: (x.value as num).toDouble() /
+                                          maxValue,
+                                      minHeight: 9,
+                                      borderRadius: BorderRadius.circular(9))
+                                ])))
+                      ]))),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Ideas for your next step',
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.w900)),
+                        ...(data?['suggestions'] as List? ?? []).map((x) =>
+                            Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text('◆ $x'))),
+                        const SizedBox(height: 10),
+                        Text('${data?['disclaimer']}',
+                            style: Theme.of(context).textTheme.bodySmall)
+                      ]))),
+          Row(children: [
+            Expanded(
+                child: FilledButton.icon(
+                    onPressed: addManual,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add'))),
+            const SizedBox(width: 8),
+            Expanded(
+                child: FilledButton.tonalIcon(
+                    onPressed: importSms,
+                    icon: const Icon(Icons.sms_outlined),
+                    label: const Text('Import SMS')))
+          ]),
+          const Padding(
+              padding: EdgeInsets.only(top: 18, bottom: 6),
+              child: Text('Transactions',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+          ...transactions.map((x) => Card(
+              child: ListTile(
+                  leading: CircleAvatar(
+                      child: Text('${x['category']}'.substring(0, 2))),
+                  title: Text('${x['merchant'] ?? x['category']}'),
+                  subtitle: Text('${x['category']} · ${x['source']}'),
+                  trailing: Text(
+                      '${x['direction'] == 'INCOME' ? '+' : '−'}${money(x['amount'])}',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: x['direction'] == 'INCOME'
+                              ? Colors.green
+                              : Colors.red)))))
+        ]));
+  }
+
+  Widget _moneyCard(String title, dynamic value, Color color) => Card(
+      child: Padding(
+          padding: const EdgeInsets.all(12),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: const TextStyle(fontSize: 11)),
+            const SizedBox(height: 6),
+            FittedBox(
+                child: Text(money(value),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: color,
+                        fontSize: 18)))
+          ])));
 }
 
 class PrivacyCenterScreen extends StatelessWidget {
   const PrivacyCenterScreen({super.key, required this.api});
   final CircleNetApi api;
   @override
-  Widget build(BuildContext context) => ListView(padding:const EdgeInsets.all(16),children:[
-    const Card(child:ListTile(leading:Icon(Icons.lock_rounded),title:Text('Private by default'),subtitle:Text('New diary entries are visible only to you unless you choose another audience.'))),
-    Card(child:ListTile(leading:const Icon(Icons.block_rounded),title:const Text('Blocked accounts'),subtitle:const Text('Review or unblock accounts.'),trailing:const Icon(Icons.chevron_right_rounded),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>BlockedAccountsScreen(api:api)))))
-  ]);
+  Widget build(BuildContext context) =>
+      ListView(padding: const EdgeInsets.all(16), children: [
+        const Card(
+            child: ListTile(
+                leading: Icon(Icons.lock_rounded),
+                title: Text('Private by default'),
+                subtitle: Text(
+                    'New diary entries are visible only to you unless you choose another audience.'))),
+        Card(
+            child: ListTile(
+                leading: const Icon(Icons.block_rounded),
+                title: const Text('Blocked accounts'),
+                subtitle: const Text('Review or unblock accounts.'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => BlockedAccountsScreen(api: api)))))
+      ]);
 }
 
 class TrustCenterScreen extends StatefulWidget {
-  const TrustCenterScreen({super.key,required this.api});final CircleNetApi api;
-  @override State<TrustCenterScreen> createState()=>_TrustCenterScreenState();
+  const TrustCenterScreen({super.key, required this.api});
+  final CircleNetApi api;
+  @override
+  State<TrustCenterScreen> createState() => _TrustCenterScreenState();
 }
-class _TrustCenterScreenState extends State<TrustCenterScreen>{
- bool loading=true;String? error;List<Map<String,dynamic>> stars=[],models=[],discover=[],emergencies=[],owners=[];
- @override void initState(){super.initState();load();}
- Future<void> load()async{setState(()=>loading=true);try{final values=await Future.wait([widget.api.trustedPeople('STAR'),widget.api.trustedPeople('ROLE_MODEL'),widget.api.roleModels(),widget.api.emergencyRequests(),widget.api.inboundTrustedPeople('STAR')]);if(mounted)setState((){stars=values[0];models=values[1];discover=values[2];emergencies=values[3];owners=values[4];error=null;loading=false;});}catch(e){if(mounted)setState((){error='$e';loading=false;});}}
- Future<void> add(String kind)async{final controller=TextEditingController();final query=await showDialog<String>(context:context,builder:(context)=>AlertDialog(title:Text('Add ${kind=='STAR'?'Star Member':'Role Model'}'),content:TextField(controller:controller,autofocus:true,decoration:const InputDecoration(labelText:'Name, phone or location')),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,controller.text.trim()),child:const Text('Search'))]));if(query==null||query.isEmpty)return;try{final people=await widget.api.search(query);if(people.isEmpty)throw Exception('No matching member found.');await widget.api.addTrustedPerson(people.first.id,kind);await load();}catch(e){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('$e')));}}
- Future<void> requestEmergency()async{if(owners.isEmpty)return;int ownerId=owners.first['userId'] as int;final reason=TextEditingController();final sent=await showDialog<bool>(context:context,builder:(context)=>StatefulBuilder(builder:(context,setDialog)=>AlertDialog(title:const Text('Report an emergency'),content:Column(mainAxisSize:MainAxisSize.min,children:[DropdownButtonFormField<int>(initialValue:ownerId,items:owners.map((x)=>DropdownMenuItem(value:x['userId'] as int,child:Text('${x['displayName']}'))).toList(),onChanged:(v)=>setDialog(()=>ownerId=v??ownerId),decoration:const InputDecoration(labelText:'Person needing help')),TextField(controller:reason,minLines:3,maxLines:5,maxLength:1000,decoration:const InputDecoration(labelText:'What happened and why are documents needed?'))]),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const Text('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const Text('Request access'))])));if(sent==true&&reason.text.trim().length>=20){await widget.api.startEmergencyAccess(ownerId,reason.text.trim());await load();}}
- @override Widget build(BuildContext context){if(loading)return const Center(child:CircularProgressIndicator());if(error!=null)return _ErrorState(error!);return RefreshIndicator(onRefresh:load,child:ListView(padding:const EdgeInsets.all(16),children:[const _PageHeader(eyebrow:'SAFETY & INSPIRATION',title:'Trust center',subtitle:'Protect important life records and follow the people who inspire you.'),_section('Star Members','Two independent Stars must verify an emergency.',stars,'STAR'),_section('My Role Models','Members you endorse while their contact details remain private.',models,'ROLE_MODEL'),if(owners.isNotEmpty)Card(child:ListTile(leading:const Icon(Icons.emergency_rounded,color:Colors.red),title:const Text('Report an emergency'),subtitle:const Text('Requests expire after 24 hours; approved access lasts one hour.'),trailing:const Icon(Icons.chevron_right),onTap:requestEmergency)),const Padding(padding:EdgeInsets.only(top:18,bottom:6),child:Text('Discover Role Models',style:TextStyle(fontSize:20,fontWeight:FontWeight.w900))),...discover.map((x)=>Card(child:ListTile(leading:const CircleAvatar(child:Icon(Icons.workspace_premium)),title:Text('${x['displayName']}'),subtitle:Text('${x['followerCount']??0} followers · contact details private'),trailing:FilledButton(onPressed:()async{await widget.api.followRoleModel(x['userId'] as int);await load();},child:const Text('Follow'))))),const Padding(padding:EdgeInsets.only(top:18,bottom:6),child:Text('Emergency requests',style:TextStyle(fontSize:20,fontWeight:FontWeight.w900))),...emergencies.map((x)=>Card(child:ListTile(title:Text('${x['requesterName']} → ${x['ownerName']}'),subtitle:Text('${x['reason']}\n${x['approvals']}/${x['requiredApprovals']} approvals · ${x['status']}'),isThreeLine:true,trailing:x['status']=='PENDING'?PopupMenuButton<bool>(onSelected:(approved)async{await widget.api.decideEmergencyAccess(x['id'] as int,approved);await load();},itemBuilder:(_)=>const[PopupMenuItem(value:true,child:Text('Verify & approve')),PopupMenuItem(value:false,child:Text('Reject'))]):null))) ]));}
- Widget _section(String title,String subtitle,List<Map<String,dynamic>> items,String kind)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Row(children:[Expanded(child:Text(title,style:const TextStyle(fontSize:19,fontWeight:FontWeight.w900))),IconButton(onPressed:()=>add(kind),icon:const Icon(Icons.person_add_alt_1),tooltip:'Add $title')]),Text(subtitle),...items.map((x)=>ListTile(contentPadding:EdgeInsets.zero,leading:Icon(kind=='STAR'?Icons.star_rounded:Icons.workspace_premium_rounded,color:AppTheme.primary),title:Text('${x['displayName']}'),subtitle:kind=='ROLE_MODEL'?Text('${x['followerCount']??0} followers'):null,trailing:IconButton(icon:const Icon(Icons.remove_circle_outline),onPressed:()async{await widget.api.removeTrustedPerson(x['userId'] as int,kind);await load();})))])));
+
+class _TrustCenterScreenState extends State<TrustCenterScreen> {
+  bool loading = true;
+  String? error;
+  List<Map<String, dynamic>> stars = [],
+      models = [],
+      discover = [],
+      emergencies = [],
+      owners = [];
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  Future<void> load() async {
+    setState(() => loading = true);
+    try {
+      final values = await Future.wait([
+        widget.api.trustedPeople('STAR'),
+        widget.api.trustedPeople('ROLE_MODEL'),
+        widget.api.roleModels(),
+        widget.api.emergencyRequests(),
+        widget.api.inboundTrustedPeople('STAR')
+      ]);
+      if (mounted) {
+        setState(() {
+          stars = values[0];
+          models = values[1];
+          discover = values[2];
+          emergencies = values[3];
+          owners = values[4];
+          error = null;
+          loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = '$e';
+          loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> add(String kind) async {
+    final controller = TextEditingController();
+    final query = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(
+                    'Add ${kind == 'STAR' ? 'Star Member' : 'Role Model'}'),
+                content: TextField(
+                    controller: controller,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                        labelText: 'Name, phone or location')),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel')),
+                  FilledButton(
+                      onPressed: () =>
+                          Navigator.pop(context, controller.text.trim()),
+                      child: const Text('Search'))
+                ]));
+    if (query == null || query.isEmpty) return;
+    try {
+      final people = await widget.api.search(query);
+      if (people.isEmpty) throw Exception('No matching member found.');
+      await widget.api.addTrustedPerson(people.first.id, kind);
+      await load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+  }
+
+  Future<void> requestEmergency() async {
+    if (owners.isEmpty) return;
+    int ownerId = owners.first['userId'] as int;
+    final reason = TextEditingController();
+    final sent = await showDialog<bool>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+            builder: (context, setDialog) => AlertDialog(
+                    title: const Text('Report an emergency'),
+                    content: Column(mainAxisSize: MainAxisSize.min, children: [
+                      DropdownButtonFormField<int>(
+                          initialValue: ownerId,
+                          items: owners
+                              .map((x) => DropdownMenuItem(
+                                  value: x['userId'] as int,
+                                  child: Text('${x['displayName']}')))
+                              .toList(),
+                          onChanged: (v) =>
+                              setDialog(() => ownerId = v ?? ownerId),
+                          decoration: const InputDecoration(
+                              labelText: 'Person needing help')),
+                      TextField(
+                          controller: reason,
+                          minLines: 3,
+                          maxLines: 5,
+                          maxLength: 1000,
+                          decoration: const InputDecoration(
+                              labelText:
+                                  'What happened and why are documents needed?'))
+                    ]),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel')),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Request access'))
+                    ])));
+    if (sent == true && reason.text.trim().length >= 20) {
+      await widget.api.startEmergencyAccess(ownerId, reason.text.trim());
+      await load();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: CircularProgressIndicator());
+    if (error != null) return _ErrorState(error!);
+    return RefreshIndicator(
+        onRefresh: load,
+        child: ListView(padding: const EdgeInsets.all(16), children: [
+          const _PageHeader(
+              eyebrow: 'SAFETY & INSPIRATION',
+              title: 'Trust center',
+              subtitle:
+                  'Protect important life records and follow the people who inspire you.'),
+          _section('Star Members',
+              'Two independent Stars must verify an emergency.', stars, 'STAR'),
+          _section(
+              'My Role Models',
+              'Members you endorse while their contact details remain private.',
+              models,
+              'ROLE_MODEL'),
+          if (owners.isNotEmpty)
+            Card(
+                child: ListTile(
+                    leading:
+                        const Icon(Icons.emergency_rounded, color: Colors.red),
+                    title: const Text('Report an emergency'),
+                    subtitle: const Text(
+                        'Requests expire after 24 hours; approved access lasts one hour.'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: requestEmergency)),
+          const Padding(
+              padding: EdgeInsets.only(top: 18, bottom: 6),
+              child: Text('Discover Role Models',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+          ...discover.map((x) => Card(
+              child: ListTile(
+                  leading:
+                      const CircleAvatar(child: Icon(Icons.workspace_premium)),
+                  title: Text('${x['displayName']}'),
+                  subtitle: Text(
+                      '${x['followerCount'] ?? 0} followers · contact details private'),
+                  trailing: FilledButton(
+                      onPressed: () async {
+                        await widget.api.followRoleModel(x['userId'] as int);
+                        await load();
+                      },
+                      child: const Text('Follow'))))),
+          const Padding(
+              padding: EdgeInsets.only(top: 18, bottom: 6),
+              child: Text('Emergency requests',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+          ...emergencies.map((x) => Card(
+              child: ListTile(
+                  title: Text('${x['requesterName']} → ${x['ownerName']}'),
+                  subtitle: Text(
+                      '${x['reason']}\n${x['approvals']}/${x['requiredApprovals']} approvals · ${x['status']}'),
+                  isThreeLine: true,
+                  trailing: x['status'] == 'PENDING'
+                      ? PopupMenuButton<bool>(
+                          onSelected: (approved) async {
+                            await widget.api.decideEmergencyAccess(
+                                x['id'] as int, approved);
+                            await load();
+                          },
+                          itemBuilder: (_) => const [
+                                PopupMenuItem(
+                                    value: true,
+                                    child: Text('Verify & approve')),
+                                PopupMenuItem(
+                                    value: false, child: Text('Reject'))
+                              ])
+                      : null)))
+        ]));
+  }
+
+  Widget _section(String title, String subtitle,
+          List<Map<String, dynamic>> items, String kind) =>
+      Card(
+          child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Expanded(
+                          child: Text(title,
+                              style: const TextStyle(
+                                  fontSize: 19, fontWeight: FontWeight.w900))),
+                      IconButton(
+                          onPressed: () => add(kind),
+                          icon: const Icon(Icons.person_add_alt_1),
+                          tooltip: 'Add $title')
+                    ]),
+                    Text(subtitle),
+                    ...items.map((x) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                            kind == 'STAR'
+                                ? Icons.star_rounded
+                                : Icons.workspace_premium_rounded,
+                            color: AppTheme.primary),
+                        title: Text('${x['displayName']}'),
+                        subtitle: kind == 'ROLE_MODEL'
+                            ? Text('${x['followerCount'] ?? 0} followers')
+                            : null,
+                        trailing: IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () async {
+                              await widget.api.removeTrustedPerson(
+                                  x['userId'] as int, kind);
+                              await load();
+                            })))
+                  ])));
 }
 
 class ReportsScreen extends StatelessWidget {
-  const ReportsScreen({super.key, required this.api}); final CircleNetApi api;
-  @override Widget build(BuildContext context)=>FutureBuilder<List<Map<String,dynamic>>>(future:api.myReports(),builder:(context,snapshot){if(snapshot.connectionState!=ConnectionState.done)return const Center(child:CircularProgressIndicator());if(snapshot.hasError)return _ErrorState('${snapshot.error}');final reports=snapshot.data??[];if(reports.isEmpty)return const Center(child:Text('No reports submitted.'));return ListView.builder(padding:const EdgeInsets.all(16),itemCount:reports.length,itemBuilder:(context,index){final report=reports[index];return Card(child:ListTile(leading:const Icon(Icons.flag_outlined),title:Text((report['reason']??'Report').toString()),subtitle:Text('${report['status']??'OPEN'} · Report #${report['id']}')));});});
+  const ReportsScreen({super.key, required this.api});
+  final CircleNetApi api;
+  @override
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<Map<String, dynamic>>>(
+          future: api.myReports(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) return _ErrorState('${snapshot.error}');
+            final reports = snapshot.data ?? [];
+            if (reports.isEmpty) {
+              return const Center(child: Text('No reports submitted.'));
+            }
+            return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: reports.length,
+                itemBuilder: (context, index) {
+                  final report = reports[index];
+                  return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.flag_outlined),
+                          title:
+                              Text((report['reason'] ?? 'Report').toString()),
+                          subtitle: Text(
+                              '${report['status'] ?? 'OPEN'} · Report #${report['id']}')));
+                });
+          });
 }
 
 class ModerationScreen extends StatelessWidget {
-  const ModerationScreen({super.key,required this.api});final CircleNetApi api;
-  @override Widget build(BuildContext context)=>FutureBuilder<List<Map<String,dynamic>>>(future:api.moderationReports(),builder:(context,snapshot){if(snapshot.connectionState!=ConnectionState.done)return const Center(child:CircularProgressIndicator());if(snapshot.hasError)return Center(child:Padding(padding:const EdgeInsets.all(24),child:Text('Moderation is available to administrators only.\n\n${snapshot.error}',textAlign:TextAlign.center)));final reports=snapshot.data??[];return ListView.builder(padding:const EdgeInsets.all(16),itemCount:reports.length,itemBuilder:(context,index){final report=reports[index];return Card(child:ListTile(leading:const Icon(Icons.gavel_rounded),title:Text((report['reason']??'Report').toString()),subtitle:Text('${report['status']??'OPEN'} · #${report['id']}')));});});
+  const ModerationScreen({super.key, required this.api});
+  final CircleNetApi api;
+  @override
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<Map<String, dynamic>>>(
+          future: api.moderationReports(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(
+                  child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                          'Moderation is available to administrators only.\n\n${snapshot.error}',
+                          textAlign: TextAlign.center)));
+            }
+            final reports = snapshot.data ?? [];
+            return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: reports.length,
+                itemBuilder: (context, index) {
+                  final report = reports[index];
+                  return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.gavel_rounded),
+                          title:
+                              Text((report['reason'] ?? 'Report').toString()),
+                          subtitle: Text(
+                              '${report['status'] ?? 'OPEN'} · #${report['id']}')));
+                });
+          });
 }
 
 class SessionScreen extends StatelessWidget {
-  const SessionScreen({super.key,required this.session,required this.onSignOut});final AuthTokenBundle session;final VoidCallback onSignOut;
-  @override Widget build(BuildContext context)=>ListView(padding:const EdgeInsets.all(16),children:[Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Icon(Icons.verified_user_rounded,size:42,color:AppTheme.primary),const SizedBox(height:12),const Text('Current device is signed in',style:TextStyle(fontWeight:FontWeight.w900,fontSize:18)),const SizedBox(height:6),Text('Access session lifetime: ${session.expiresIn} seconds'),const SizedBox(height:18),FilledButton.icon(onPressed:onSignOut,icon:const Icon(Icons.logout_rounded),label:const Text('Sign out of this device'))]))) ]);
+  const SessionScreen(
+      {super.key, required this.session, required this.onSignOut});
+  final AuthTokenBundle session;
+  final VoidCallback onSignOut;
+  @override
+  Widget build(BuildContext context) =>
+      ListView(padding: const EdgeInsets.all(16), children: [
+        Card(
+            child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.verified_user_rounded,
+                          size: 42, color: AppTheme.primary),
+                      const SizedBox(height: 12),
+                      const Text('Current device is signed in',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w900, fontSize: 18)),
+                      const SizedBox(height: 6),
+                      Text(
+                          'Access session lifetime: ${session.expiresIn} seconds'),
+                      const SizedBox(height: 18),
+                      FilledButton.icon(
+                          onPressed: onSignOut,
+                          icon: const Icon(Icons.logout_rounded),
+                          label: const Text('Sign out of this device'))
+                    ])))
+      ]);
 }
 
 class NotificationsScreen extends StatefulWidget {
@@ -1777,8 +2461,7 @@ class RelationshipTile extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (_) => DirectChatScreen(
-                                      api: api,
-                                      person: relationship.person)));
+                                      api: api, person: relationship.person)));
                         }),
                     _ConnectAction(
                         icon: Icons.call_rounded,
@@ -1821,20 +2504,21 @@ class RelationshipTile extends StatelessWidget {
                         })
                   ]))));
 
-  Future<void> _showCommunicationUnavailable(BuildContext context) =>
-      showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-                  icon: const Icon(Icons.pending_actions_outlined,
-                      color: AppTheme.primary),
-                  title: const Text('Communication not active yet'),
-                  content: Text(
-                      '${relationship.person.displayName} can receive messages and calls after activating their CircleNet account. The communication options will remain available here.'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Got it'))
-                  ]));
+  Future<
+      void> _showCommunicationUnavailable(BuildContext context) => showDialog<
+          void>(
+      context: context,
+      builder: (context) => AlertDialog(
+              icon: const Icon(Icons.pending_actions_outlined,
+                  color: AppTheme.primary),
+              title: const Text('Communication not active yet'),
+              content: Text(
+                  '${relationship.person.displayName} can receive messages and calls after activating their CircleNet account. The communication options will remain available here.'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Got it'))
+              ]));
 
   Future<void> _addRelationship(BuildContext context) async {
     final name = TextEditingController();
@@ -1849,11 +2533,13 @@ class RelationshipTile extends StatelessWidget {
         builder: (context) => StatefulBuilder(
             builder: (context, setModal) => SafeArea(
                 child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        20, 0, 20, 24 + MediaQuery.viewInsetsOf(context).bottom),
+                    padding: EdgeInsets.fromLTRB(20, 0, 20,
+                        24 + MediaQuery.viewInsetsOf(context).bottom),
                     child: SingleChildScrollView(
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text('Add relationship to ${relationship.person.displayName}',
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text(
+                          'Add relationship to ${relationship.person.displayName}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                               fontSize: 20, fontWeight: FontWeight.w900)),
@@ -1890,13 +2576,32 @@ class RelationshipTile extends StatelessWidget {
                               labelText:
                                   'Relationship to ${relationship.person.displayName}'),
                           items: const [
-                            'Father', 'Mother', 'Husband', 'Wife', 'Son',
-                            'Daughter', 'Brother', 'Sister', 'Grandfather',
-                            'Grandmother', 'Grandson', 'Granddaughter', 'Uncle',
-                            'Aunt', 'Nephew', 'Niece', 'Cousin', 'Guardian',
-                            'Relative', 'Friend', 'Colleague', 'Other'
-                          ].map((value) => DropdownMenuItem(
-                              value: value, child: Text(value))).toList(),
+                            'Father',
+                            'Mother',
+                            'Husband',
+                            'Wife',
+                            'Son',
+                            'Daughter',
+                            'Brother',
+                            'Sister',
+                            'Grandfather',
+                            'Grandmother',
+                            'Grandson',
+                            'Granddaughter',
+                            'Uncle',
+                            'Aunt',
+                            'Nephew',
+                            'Niece',
+                            'Cousin',
+                            'Guardian',
+                            'Relative',
+                            'Friend',
+                            'Colleague',
+                            'Other'
+                          ]
+                              .map((value) => DropdownMenuItem(
+                                  value: value, child: Text(value)))
+                              .toList(),
                           onChanged: (value) => setModal(() => type = value!)),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
@@ -1958,6 +2663,7 @@ class RelationshipTile extends StatelessWidget {
       email.dispose();
     }
   }
+
   void _startCall(BuildContext context, String type) {
     Navigator.pop(context);
     Navigator.push(
@@ -2376,8 +3082,8 @@ class _FeedImageAttachment extends StatelessWidget {
               context,
               MaterialPageRoute(
                   fullscreenDialog: true,
-                  builder: (_) => _FullScreenImageViewer(
-                      bytes: bytes, name: name))),
+                  builder: (_) =>
+                      _FullScreenImageViewer(bytes: bytes, name: name))),
           child: Stack(alignment: Alignment.bottomRight, children: [
             Container(
                 width: double.infinity,
@@ -2406,8 +3112,7 @@ class _FullScreenImageViewer extends StatefulWidget {
   final String name;
 
   @override
-  State<_FullScreenImageViewer> createState() =>
-      _FullScreenImageViewerState();
+  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
 }
 
 class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
@@ -2432,8 +3137,8 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
       appBar: AppBar(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
-          title: Text(widget.name,
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+          title:
+              Text(widget.name, maxLines: 1, overflow: TextOverflow.ellipsis),
           actions: [
             IconButton(
                 tooltip: 'Reset zoom',
@@ -2447,8 +3152,8 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                 minScale: .5,
                 maxScale: 8,
                 boundaryMargin: const EdgeInsets.all(120),
-                onInteractionEnd: (_) => setState(() =>
-                    scale = controller.value.getMaxScaleOnAxis()),
+                onInteractionEnd: (_) => setState(
+                    () => scale = controller.value.getMaxScaleOnAxis()),
                 child: Center(child: Image.memory(widget.bytes)))),
         Positioned(
             left: 0,
@@ -2685,13 +3390,68 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
     final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: const [
-          'jpg','jpeg','jfif','png','webp','gif','bmp','tif','tiff','avif',
-          'heic','heif','ico','svg','psd','dng','cr2','nef','arw',
-          'glb','gltf','obj','stl','fbx','3mf','dae','ply','usdz','blend',
-          'mp4','m4v','mov','avi','mkv','webm','mpeg','mpg','ogv','3gp','3g2',
-          'flv','mp3','m4a','aac','wav','flac','ogg','oga','opus','amr','aif',
-          'aiff','mid','midi','pdf','txt','doc','docx',
-          'xls','xlsx','ppt','pptx'
+          'jpg',
+          'jpeg',
+          'jfif',
+          'png',
+          'webp',
+          'gif',
+          'bmp',
+          'tif',
+          'tiff',
+          'avif',
+          'heic',
+          'heif',
+          'ico',
+          'svg',
+          'psd',
+          'dng',
+          'cr2',
+          'nef',
+          'arw',
+          'glb',
+          'gltf',
+          'obj',
+          'stl',
+          'fbx',
+          '3mf',
+          'dae',
+          'ply',
+          'usdz',
+          'blend',
+          'mp4',
+          'm4v',
+          'mov',
+          'avi',
+          'mkv',
+          'webm',
+          'mpeg',
+          'mpg',
+          'ogv',
+          '3gp',
+          '3g2',
+          'flv',
+          'mp3',
+          'm4a',
+          'aac',
+          'wav',
+          'flac',
+          'ogg',
+          'oga',
+          'opus',
+          'amr',
+          'aif',
+          'aiff',
+          'mid',
+          'midi',
+          'pdf',
+          'txt',
+          'doc',
+          'docx',
+          'xls',
+          'xlsx',
+          'ppt',
+          'pptx'
         ],
         withData: true);
     if (result != null && mounted) {
@@ -2705,7 +3465,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
     try {
       await widget.api.createSocialPost(caption.text.trim(), audience,
           circleId: audience == 'CIRCLE' ? selectedCircleId : null,
-          bytes: selected?.bytes, fileName: selected?.name);
+          bytes: selected?.bytes,
+          fileName: selected?.name);
       caption.clear();
       selected = null;
       await load();
@@ -2882,12 +3643,12 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                             onTap: () => viewStory(s),
                             onLongPress: s['mine'] == true
                                 ? () async {
-                                    final remove =
-                                        await _confirmDestructiveAction(context,
-                                            title: 'Delete story?',
-                                            message:
-                                                'This story will be removed immediately and people will no longer be able to view it. This action cannot be undone.',
-                                            confirmLabel: 'Delete story');
+                                    final remove = await _confirmDestructiveAction(
+                                        context,
+                                        title: 'Delete story?',
+                                        message:
+                                            'This story will be removed immediately and people will no longer be able to view it. This action cannot be undone.',
+                                        confirmLabel: 'Delete story');
                                     if (remove == true) {
                                       await widget.api.deleteSocialStory(
                                           (s['id'] as num).toInt());
@@ -2931,24 +3692,35 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                       decoration: const InputDecoration(
                           labelText: 'Who can view this?'),
                       items: const [
-                        DropdownMenuItem(value: 'PRIVATE', child: Text('Private — only me')),
-                        DropdownMenuItem(value: 'PUBLIC', child: Text('Public — everyone')),
-                        DropdownMenuItem(value: 'FRIENDS', child: Text('Friends')),
-                        DropdownMenuItem(value: 'RELATIVES', child: Text('Relatives')),
-                        DropdownMenuItem(value: 'RELATIONSHIPS', child: Text('All relationships')),
-                        DropdownMenuItem(value: 'CIRCLE', child: Text('Selected circle')),
+                        DropdownMenuItem(
+                            value: 'PRIVATE', child: Text('Private — only me')),
+                        DropdownMenuItem(
+                            value: 'PUBLIC', child: Text('Public — everyone')),
+                        DropdownMenuItem(
+                            value: 'FRIENDS', child: Text('Friends')),
+                        DropdownMenuItem(
+                            value: 'RELATIVES', child: Text('Relatives')),
+                        DropdownMenuItem(
+                            value: 'RELATIONSHIPS',
+                            child: Text('All relationships')),
+                        DropdownMenuItem(
+                            value: 'CIRCLE', child: Text('Selected circle')),
                       ],
                       onChanged: (value) => setState(() {
-                        audience = value ?? 'PRIVATE';
-                        selectedCircleId = null;
-                      })),
+                            audience = value ?? 'PRIVATE';
+                            selectedCircleId = null;
+                          })),
                   if (audience == 'CIRCLE')
                     DropdownButtonFormField<int>(
                         initialValue: selectedCircleId,
-                        decoration: const InputDecoration(labelText: 'Select circle'),
-                        items: availableCircles.map((circle) => DropdownMenuItem(
-                            value: circle.id, child: Text(circle.name))).toList(),
-                        onChanged: (value) => setState(() => selectedCircleId = value)),
+                        decoration:
+                            const InputDecoration(labelText: 'Select circle'),
+                        items: availableCircles
+                            .map((circle) => DropdownMenuItem(
+                                value: circle.id, child: Text(circle.name)))
+                            .toList(),
+                        onChanged: (value) =>
+                            setState(() => selectedCircleId = value)),
                   Row(children: [
                     TextButton.icon(
                         onPressed: loading ? null : pick,
@@ -2956,8 +3728,14 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                         label: Text(selected?.name ?? 'Attach file')),
                     const Spacer(),
                     FilledButton(
-                        onPressed: loading || (audience == 'CIRCLE' && selectedCircleId == null) ? null : publish,
-                        child: Text(audience == 'PRIVATE' ? 'Save privately' : 'Share entry'))
+                        onPressed: loading ||
+                                (audience == 'CIRCLE' &&
+                                    selectedCircleId == null)
+                            ? null
+                            : publish,
+                        child: Text(audience == 'PRIVATE'
+                            ? 'Save privately'
+                            : 'Share entry'))
                   ])
                 ]))),
         if (error.isNotEmpty)
@@ -3229,12 +4007,12 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                         if (action == 'edit') {
                           await editPost(p);
                         } else if (action == 'delete') {
-                          final confirmed =
-                              await _confirmDestructiveAction(context,
-                                  title: 'Delete post?',
-                                  message:
-                                      'This diary post, its attachment, reactions, and comments will no longer appear in the feed. This action cannot be undone.',
-                                  confirmLabel: 'Delete post');
+                          final confirmed = await _confirmDestructiveAction(
+                              context,
+                              title: 'Delete post?',
+                              message:
+                                  'This diary post, its attachment, reactions, and comments will no longer appear in the feed. This action cannot be undone.',
+                              confirmLabel: 'Delete post');
                           if (!confirmed) return;
                           await widget.api.deleteSocialPost(id);
                           await load();
@@ -4043,7 +4821,8 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
     });
     try {
       final started = await widget.api.startContactOAuth(email, provider);
-      final authorizationUrl = Uri.parse(started['authorizationUrl'].toString());
+      final authorizationUrl =
+          Uri.parse(started['authorizationUrl'].toString());
       final resultKey = started['resultKey'].toString();
       if (!await launchUrl(authorizationUrl,
           mode: LaunchMode.externalApplication)) {
