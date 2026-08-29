@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const [taskGroups, setTaskGroups] = useState<any[]>([]);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [sessionUser, setSessionUser] = useState<{ username: string; email: string; role: string } | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [sessionError, setSessionError] = useState('');
   const [resourceType, setResourceType] = useState<ResourceType>('user');
   const [summary, setSummary] = useState({ userCount: 0, personCount: 0, circleCount: 0, relationshipCount: 0, permissionCount: 0 });
   const [status, setStatus] = useState('Ready to add a new record.');
@@ -68,6 +70,8 @@ export default function DashboardPage() {
   });
 
   const loadData = useCallback(async () => {
+    setSessionLoading(true);
+    setSessionError('');
     try {
       const profileData = await fetchSessionProfile();
       setSessionUser({ username: profileData.username, email: profileData.email, role: profileData.role });
@@ -89,6 +93,8 @@ export default function DashboardPage() {
         return;
       }
 
+      setSessionError(error instanceof Error ? error.message : 'The dashboard could not reach the server.');
+
       setUsers([]);
       setPeople([]);
       setCircles([]);
@@ -100,6 +106,8 @@ export default function DashboardPage() {
       setMilestones([]);
       setSessionUser(null);
       setSummary({ userCount: 0, personCount: 0, circleCount: 0, relationshipCount: 0, permissionCount: 0 });
+    } finally {
+      setSessionLoading(false);
     }
   }, [router]);
 
@@ -654,7 +662,9 @@ export default function DashboardPage() {
   const activeMilestones = milestones.filter((milestone) => milestone.status !== 'Completed').length;
 
   if (sessionUser?.role !== 'ADMIN') {
-    return sessionUser ? <UserNetworkDashboard username={sessionUser.username} /> : <main className="container"><p>Loading your network…</p></main>;
+    if (sessionUser) return <UserNetworkDashboard username={sessionUser.username} />;
+    if (sessionLoading) return <main className="container"><p>Loading your network…</p></main>;
+    return <main className="container"><section className="card social-empty"><h2>Dashboard could not load</h2><p>{sessionError || 'Your session is no longer available.'}</p><div><button className="btn btn-primary" onClick={()=>void loadData()}>Try again</button><button className="btn btn-secondary" onClick={()=>router.replace('/auth')}>Sign in again</button></div></section></main>;
   }
 
   return (
