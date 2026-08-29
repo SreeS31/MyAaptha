@@ -2,6 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import WorkspaceShell from './components/WorkspaceShell';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: {
     default: 'MyAaptha Intelligence Cloud',
