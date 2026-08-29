@@ -53,6 +53,9 @@ myaaptha:
       token: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:}
   ai:
     base-url: ${MYAAPTHA_BASE_URL:http://localhost:8081/api/v1}
+  health-ai:
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-4.1-mini}
   contact-oauth:
     public-api-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL:http://localhost:8080}
     web-origin: ${MYAAPTHA_WEB_ORIGIN:http://localhost:3000}
