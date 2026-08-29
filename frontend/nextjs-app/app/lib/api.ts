@@ -167,11 +167,17 @@ async function request<T>(path: string, init?: RequestOptions): Promise<T> {
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  if (init?.signal) init.signal.addEventListener('abort', () => controller.abort(), { once: true });
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, signal: controller.signal });
   } catch (error) {
+    if (controller.signal.aborted) throw new ApiError(0, 'The server took too long to respond. Try again or sign out and sign in again.');
     if (init?.body instanceof FormData) throw new ApiError(0, 'The browser could not read or upload this file. If it is stored in OneDrive or another cloud folder, download it to this device or start the cloud provider, then choose it again.');
     throw error;
+  } finally {
+    window.clearTimeout(timeout);
   }
 
   if (!response.ok) {

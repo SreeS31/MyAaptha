@@ -44,9 +44,11 @@
 .workspace-primary-action span { font-size:1.65rem; }
 .workspace-sidebar-divider { height:1px; margin:13px 8px; background:#dde1e5; }
 .workspace-sidebar>small { display:block; margin:18px 15px; color:#747775; white-space:nowrap; }
+.workspace-sidebar-sign-out{width:100%;height:42px;display:flex;align-items:center;gap:18px;margin-top:12px;padding:0 15px;border:0;border-radius:21px;color:#9d294f;background:transparent;white-space:nowrap;cursor:pointer}.workspace-sidebar-sign-out:hover{background:#f8e7ed}.workspace-sidebar-sign-out span{width:24px;flex:0 0 24px;text-align:center;font-size:1.2rem}.workspace-sidebar-sign-out b{overflow:hidden;font-size:.9rem;font-weight:650}.workspace-sidebar-sign-out:disabled{opacity:.6;cursor:wait}
 .nav-collapsed .workspace-sidebar { padding-inline:7px; }
 .nav-collapsed .workspace-sidebar nav a { width:56px; height:52px; padding:0 16px; border-radius:26px; }
 .nav-collapsed .workspace-sidebar nav a b,.nav-collapsed .workspace-primary-action b,.nav-collapsed .workspace-sidebar>small,.nav-collapsed .workspace-sidebar-divider,.nav-collapsed .workspace-nav-section>h2 { display:none; }
+.nav-collapsed .workspace-sidebar-sign-out{width:56px;height:52px;padding:0 16px;border-radius:26px}.nav-collapsed .workspace-sidebar-sign-out b{display:none}
 .nav-collapsed .workspace-primary-action { width:56px; padding:0 16px; }
 .workspace-content { min-height:100vh; padding:72px var(--shell-right) 28px var(--shell-left); transition:padding-left .2s ease; }
 .workspace-content>.container,.workspace-content>.social-page { width:min(100% - 32px,1440px); margin-inline:auto; }

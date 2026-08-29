@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { Route } from 'next';
 import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { logout } from '../lib/api';
 
 const navigationSections = [
   {
@@ -64,6 +65,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [upload, setUpload] = useState<{progress:number;status:string;message:string;fileName:string}|null>(null);
+  const [signingOut,setSigningOut]=useState(false);
   const isPublic = pathname === '/' || pathname === '/auth';
 
   useEffect(() => {
@@ -86,6 +88,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     event.preventDefault();
     router.push(query.trim() ? `/circle-search?q=${encodeURIComponent(query.trim())}` : '/circle-search');
   };
+  const signOut=()=>{setSigningOut(true);router.replace('/auth');void logout().catch(()=>{});};
 
   return <div className={`workspace-shell ${expanded ? 'nav-expanded' : 'nav-collapsed'}`}>
     {upload&&<section className={`global-upload-status upload-${upload.status}`} role="status" aria-live="polite"><div><strong>{upload.message}</strong><span>{upload.fileName}</span></div><b>{upload.progress}%</b><progress max="100" value={upload.progress}>{upload.progress}%</progress></section>}
@@ -101,7 +104,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     <aside className={`workspace-sidebar ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main navigation">
       <Link className="workspace-primary-action" href="/feed"><span>＋</span><b>New diary entry</b></Link>
       {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.map(item => <Link key={item.href} href={item.href as Route} title={item.label} className={isSelected(pathname, item.href) ? 'active' : ''}><span>{item.icon}</span><b>{item.label}</b></Link>)}</nav></section>)}
-      <small>Private by design</small>
+      <button type="button" className="workspace-sidebar-sign-out" disabled={signingOut} onClick={()=>void signOut()}><span>↪</span><b>{signingOut?'Signing out...':'Sign out'}</b></button>
     </aside>
     {mobileOpen && <button className="workspace-scrim" onClick={() => setMobileOpen(false)} aria-label="Close navigation" />}
     <div className="workspace-content">{children}</div>
