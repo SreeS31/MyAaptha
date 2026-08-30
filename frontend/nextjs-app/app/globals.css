@@ -1208,7 +1208,18 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(117, 103, 216, .
 .circle-search-results article:last-of-type { border-bottom:0; }
 .circle-search-results p,.circle-search-results small { margin:.15rem 0; }
 .circle-search-results small { color:var(--text-muted); }
+.global-search-results { margin:1rem 0 1.5rem; padding:1rem; }
+.global-search-results>header { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.25rem .35rem 1rem; border-bottom:1px solid var(--border); }
+.global-search-results>header h2,.page-search-section h2 { margin:.2rem 0 0; font-size:1.45rem; }
+.global-search-results>header>span { color:var(--text-muted); white-space:nowrap; }
+.global-result-group { padding:1rem .35rem .35rem; }
+.global-result-group h3 { margin:0 0 .45rem; font-size:.8rem; text-transform:uppercase; color:var(--text-muted); }
+.global-result-group article { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:1rem; padding:.7rem 0; border-bottom:1px solid var(--border); }
+.global-result-group article:last-child { border-bottom:0; }
+.global-result-group p { margin:.2rem 0 0; color:var(--text-muted); overflow-wrap:anywhere; }
+.page-search-section>header { margin:0 0 .65rem; }
 @media(max-width:700px){.circle-search-form { grid-template-columns:1fr; }.circle-search-results article { grid-template-columns:44px minmax(0,1fr); }.circle-search-results article .btn { grid-column:1/-1; }}
+@media(max-width:700px){.global-search-results>header { align-items:flex-start; flex-direction:column; }.global-result-group article { grid-template-columns:1fr; }.global-result-group article .btn { width:100%; }}
 .circle-unread-badge{display:inline-flex;align-items:center;border-radius:999px;background:#705bd1;color:#fff;padding:.28rem .55rem;font-size:.72rem;font-weight:800;white-space:nowrap}
 .circle-read-count{display:block;margin:.3rem 0;color:#6751c5;font-size:.72rem;font-weight:700}
 .social-share-dialog{width:min(520px,calc(100vw - 2rem));display:grid;gap:1rem;padding:1.25rem}.social-share-dialog>header{display:flex;align-items:center;justify-content:space-between}.social-share-dialog>label{display:grid;gap:.4rem}.social-share-dialog textarea{min-height:90px}
