@@ -88,7 +88,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     event.preventDefault();
     router.push(query.trim() ? `/circle-search?q=${encodeURIComponent(query.trim())}` : '/circle-search');
   };
-  const signOut=()=>{setSigningOut(true);router.replace('/auth');void logout().catch(()=>{});};
+  const signOut=()=>{setSigningOut(true);logout();window.location.replace('/auth');};
 
   return <div className={`workspace-shell ${expanded ? 'nav-expanded' : 'nav-collapsed'}`}>
     {upload&&<section className={`global-upload-status upload-${upload.status}`} role="status" aria-live="polite"><div><strong>{upload.message}</strong><span>{upload.fileName}</span></div><b>{upload.progress}%</b><progress max="100" value={upload.progress}>{upload.progress}%</progress></section>}

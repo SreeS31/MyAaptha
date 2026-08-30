@@ -267,21 +267,15 @@ export async function fetchSessionProfile() {
   return authenticatedRequest<SessionProfile>('/api/auth/me');
 }
 
-export async function logout() {
+export function logout() {
   const session = getStoredAuthSession();
-  if (!session?.refreshToken) {
-    clearAuthSession();
-    return;
-  }
-
-  try {
-    await request<void>('/api/auth/logout', {
+  clearAuthSession();
+  if (session?.refreshToken) {
+    void request<void>('/api/auth/logout', {
       method: 'POST',
       body: JSON.stringify({ refreshToken: session.refreshToken }),
       skipAuth: true,
-    });
-  } finally {
-    clearAuthSession();
+    }).catch(() => {});
   }
 }
 
