@@ -7,6 +7,64 @@ import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '../lib/api';
 
+const unsupportedControlCharacters = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+
+function useGlobalClientValidation() {
+  useEffect(() => {
+    const limits: Record<string, number> = { password: 128, email: 254, tel: 32, search: 200 };
+    const configure = (root: ParentNode) => {
+      const fields = Array.from(root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input,textarea'));
+      if (root instanceof HTMLInputElement || root instanceof HTMLTextAreaElement) fields.unshift(root);
+      fields.forEach(field => {
+        if (field instanceof HTMLInputElement && ['file', 'checkbox', 'radio', 'date', 'datetime-local', 'month', 'time', 'color', 'range'].includes(field.type)) return;
+        if (field.maxLength < 0) field.maxLength = field instanceof HTMLTextAreaElement ? 4000 : (limits[field.type] || 255);
+      });
+    };
+    const validate = (field: HTMLInputElement | HTMLTextAreaElement) => {
+      field.setCustomValidity('');
+      const value = field.value;
+      if (!value) return;
+      if (unsupportedControlCharacters.test(value)) {
+        field.setCustomValidity('Remove unsupported control characters.');
+      } else if (field instanceof HTMLInputElement && field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+        field.setCustomValidity('Enter a valid email address.');
+      } else if (field instanceof HTMLInputElement && field.type === 'tel') {
+        const digits = value.replace(/\D/g, '');
+        if (digits.length < 7 || digits.length > 15) field.setCustomValidity('Enter a valid phone number.');
+      } else if (field instanceof HTMLInputElement && field.type === 'number' && value && !Number.isFinite(Number(value))) {
+        field.setCustomValidity('Enter a valid number.');
+      }
+    };
+    const onInput = (event: Event) => {
+      const field = event.target;
+      if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) validate(field);
+    };
+    const onSubmit = (event: Event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      configure(form);
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input,textarea').forEach(validate);
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        form.reportValidity();
+      }
+    };
+    configure(document);
+    const observer = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
+      if (node instanceof Element) configure(node);
+    })));
+    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('input', onInput, true);
+    document.addEventListener('submit', onSubmit, true);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('input', onInput, true);
+      document.removeEventListener('submit', onSubmit, true);
+    };
+  }, []);
+}
+
 const navigationSections = [
   {
     label: 'Connect',
@@ -59,6 +117,7 @@ function isSelected(pathname: string, href: string) {
 }
 
 export default function WorkspaceShell({ children }: { children: ReactNode }) {
+  useGlobalClientValidation();
   const pathname = usePathname();
   const router = useRouter();
   const [expanded, setExpanded] = useState(true);

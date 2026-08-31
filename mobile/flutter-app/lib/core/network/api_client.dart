@@ -7,12 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   ApiClient({required this.baseUrl, http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+    : _httpClient = httpClient ?? http.Client();
 
   final String baseUrl;
   final http.Client _httpClient;
 
   Future<ApiResponse> get(String path, {String? bearerToken}) async {
+    _validatePath(path);
     final uri = Uri.parse('$baseUrl$path');
     final cacheable = !path.contains('/attachment');
     final cacheKey = _cacheKey(path, bearerToken);
@@ -27,7 +28,9 @@ class ApiClient {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(cacheKey, response.body);
         await prefs.setInt(
-            '${cacheKey}_saved', DateTime.now().millisecondsSinceEpoch);
+          '${cacheKey}_saved',
+          DateTime.now().millisecondsSinceEpoch,
+        );
       }
       return result;
     } catch (_) {
@@ -36,12 +39,14 @@ class ApiClient {
       final cached = prefs.getString(cacheKey);
       if (cached == null) rethrow;
       return ApiResponse(
-          statusCode: 200,
-          body: cached,
-          bodyBytes: Uint8List.fromList(utf8.encode(cached)),
-          fromCache: true,
-          cachedAt: DateTime.fromMillisecondsSinceEpoch(
-              prefs.getInt('${cacheKey}_saved') ?? 0));
+        statusCode: 200,
+        body: cached,
+        bodyBytes: Uint8List.fromList(utf8.encode(cached)),
+        fromCache: true,
+        cachedAt: DateTime.fromMillisecondsSinceEpoch(
+          prefs.getInt('${cacheKey}_saved') ?? 0,
+        ),
+      );
     }
   }
 
@@ -50,6 +55,8 @@ class ApiClient {
     Map<String, dynamic> body, {
     String? bearerToken,
   }) async {
+    _validatePath(path);
+    _validatePayload(body);
     final uri = Uri.parse('$baseUrl$path');
     final response = await _httpClient.post(
       uri,
@@ -59,16 +66,27 @@ class ApiClient {
     return ApiResponse.fromHttp(response);
   }
 
-  Future<ApiResponse> put(String path, Map<String, dynamic> body,
-      {String? bearerToken}) async {
-    final response = await _httpClient.put(Uri.parse('$baseUrl$path'),
-        headers: _headers(bearerToken: bearerToken), body: jsonEncode(body));
+  Future<ApiResponse> put(
+    String path,
+    Map<String, dynamic> body, {
+    String? bearerToken,
+  }) async {
+    _validatePath(path);
+    _validatePayload(body);
+    final response = await _httpClient.put(
+      Uri.parse('$baseUrl$path'),
+      headers: _headers(bearerToken: bearerToken),
+      body: jsonEncode(body),
+    );
     return ApiResponse.fromHttp(response);
   }
 
   Future<ApiResponse> delete(String path, {String? bearerToken}) async {
-    final response = await _httpClient.delete(Uri.parse('$baseUrl$path'),
-        headers: _headers(bearerToken: bearerToken));
+    _validatePath(path);
+    final response = await _httpClient.delete(
+      Uri.parse('$baseUrl$path'),
+      headers: _headers(bearerToken: bearerToken),
+    );
     return ApiResponse.fromHttp(response);
   }
 
@@ -80,14 +98,18 @@ class ApiClient {
     String? fileName,
     void Function(double progress)? onProgress,
   }) async {
+    _validatePath(path);
+    _validatePayload(fields);
+    if (fileBytes != null && fileBytes.length > 25 * 1024 * 1024) {
+      throw const FormatException('Attachment must be 25 MB or smaller.');
+    }
+    if (fileName != null) _validateString('fileName', fileName);
     final request = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
       ..fields.addAll(fields);
     if (fileBytes != null && fileName != null) {
-      request.files.add(http.MultipartFile.fromBytes(
-        'file',
-        fileBytes,
-        filename: fileName,
-      ));
+      request.files.add(
+        http.MultipartFile.fromBytes('file', fileBytes, filename: fileName),
+      );
     }
     if (bearerToken != null && bearerToken.isNotEmpty) {
       request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -112,11 +134,118 @@ class ApiClient {
         : token.substring(token.length > 16 ? token.length - 16 : 0);
     return 'api_cache_${base64Url.encode(utf8.encode('$identity:$path'))}';
   }
+
+  void _validatePath(String path) {
+    if (path.length > 8192 || !path.startsWith('/api/')) {
+      throw const FormatException('Invalid API request path.');
+    }
+    if (_controlCharacters.hasMatch(path)) {
+      throw const FormatException(
+        'Request path contains unsupported characters.',
+      );
+    }
+    final uri = Uri.tryParse(path);
+    if (uri == null) {
+      throw const FormatException('Invalid API request path.');
+    }
+    for (final entry in uri.queryParametersAll.entries) {
+      _validateString(entry.key, entry.key);
+      for (final value in entry.value) {
+        _validateString(entry.key, value);
+      }
+    }
+  }
+
+  void _validatePayload(
+    Object? value, [
+    String field = 'request',
+    int depth = 0,
+  ]) {
+    if (depth > 12) {
+      throw const FormatException('Request structure is too deeply nested.');
+    }
+    if (value == null || value is num || value is bool) return;
+    if (value is String) {
+      _validateString(field, value);
+      return;
+    }
+    if (value is List) {
+      if (value.length > 1000) {
+        throw FormatException('$field has too many items.');
+      }
+      for (var index = 0; index < value.length; index++) {
+        _validatePayload(value[index], '$field[$index]', depth + 1);
+      }
+      return;
+    }
+    if (value is Map) {
+      if (value.length > 1000) {
+        throw FormatException('$field has too many entries.');
+      }
+      for (final entry in value.entries) {
+        final key = entry.key.toString();
+        _validateString('fieldName', key);
+        _validatePayload(entry.value, key, depth + 1);
+      }
+      return;
+    }
+    throw FormatException('$field contains an unsupported value.');
+  }
+
+  void _validateString(String field, String value) {
+    final normalized = field.toLowerCase();
+    var limit = 10000;
+    if (normalized.contains('password')) {
+      limit = 128;
+    } else if (normalized.contains('email')) {
+      limit = 254;
+    } else if (normalized.contains('phone')) {
+      limit = 32;
+    } else if (normalized == 'q' ||
+        normalized.contains('query') ||
+        normalized.contains('search')) {
+      limit = 200;
+    } else if (normalized.contains('token') ||
+        normalized == 'code' ||
+        normalized == 'state') {
+      limit = 16384;
+    } else if (normalized.contains('sdp')) {
+      limit = 131072;
+    } else if (normalized.contains('url')) {
+      limit = 2048;
+    } else if (normalized.contains('name') ||
+        normalized.contains('title') ||
+        normalized.contains('type') ||
+        normalized.contains('status') ||
+        normalized.contains('kind') ||
+        normalized.contains('category')) {
+      limit = 255;
+    } else if (normalized.contains('message') ||
+        normalized.contains('caption') ||
+        normalized.contains('description') ||
+        normalized.contains('notes') ||
+        normalized.contains('reason') ||
+        normalized.contains('details') ||
+        normalized.contains('body') ||
+        normalized.contains('bio')) {
+      limit = 4000;
+    }
+    if (value.length > limit) {
+      throw FormatException('$field must be $limit characters or fewer.');
+    }
+    if (_controlCharacters.hasMatch(value)) {
+      throw FormatException('$field contains unsupported control characters.');
+    }
+  }
+
+  static final RegExp _controlCharacters = RegExp(
+    r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]',
+  );
 }
 
 class _ProgressRequest extends http.BaseRequest {
   _ProgressRequest(this.request, this.onProgress)
-      : super(request.method, request.url) {
+    : super(request.method, request.url) {
     headers.addAll(request.headers);
     contentLength = request.contentLength;
   }

@@ -117,6 +117,20 @@ class AuthControllerTest {
   }
 
   @Test
+  void shouldRejectUnknownAndMalformedInputBeforeAuthentication() throws Exception {
+    mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"email\":\"valid@example.com\",\"password\":\"secret123\",\"unexpected\":true}"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("Malformed JSON or unsupported request field"));
+
+    mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"email\":\"not-an-email\",\"password\":\"secret123\"}"))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void shouldRequireAccessTokenForDashboardSummary() throws Exception {
     createUser("auth-dashboard-user", "auth-dashboard@myaaptha.ai", "secret123");
 

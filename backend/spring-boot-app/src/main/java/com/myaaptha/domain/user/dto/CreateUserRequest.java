@@ -1,12 +1,24 @@
 package com.myaaptha.domain.user.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 public class CreateUserRequest {
+  @NotBlank @Size(min=3,max=64) @Pattern(regexp="^[A-Za-z0-9._-]+$",message="must use letters, numbers, dots, underscores, or hyphens")
   private String username;
+  @Email @Size(max=254)
   private String email;
+  @NotBlank @Pattern(regexp="^\\+?[0-9 ()-]{7,32}$",message="must be a valid phone number")
   private String phoneNumber;
+  @NotBlank @Size(min=8,max=128)
   private String password;
+  @Size(max=100)
   private String firstName;
+  @Size(max=100)
   private String surname;
+  @Size(max=255)
   private String location;
 
   public String getUsername() {

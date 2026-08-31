@@ -1,4 +1,9 @@
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+    parser:
+      strict-duplicate-detection: true
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
     username: ${POSTGRES_USER:myaaptha}
@@ -27,6 +32,7 @@ spring:
 
 server:
   port: 8080
+  max-http-request-header-size: 16KB
   tomcat:
     max-swallow-size: 12MB
 

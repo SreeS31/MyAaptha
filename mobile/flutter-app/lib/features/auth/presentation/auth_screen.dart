@@ -30,8 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   String _normalizeSignInIdentifier(String value) {
     final identifier = value.trim();
-    if (identifier.contains('@') ||
-        RegExp(r'[A-Za-z]').hasMatch(identifier)) {
+    if (identifier.contains('@') || RegExp(r'[A-Za-z]').hasMatch(identifier)) {
       return identifier;
     }
 
@@ -90,8 +89,9 @@ class _AuthScreenState extends State<AuthScreen> {
       await _sessionStore.save(refreshed);
       _session = refreshed;
 
-      final summary =
-          await _authApi.fetchDashboardSummary(refreshed.accessToken);
+      final summary = await _authApi.fetchDashboardSummary(
+        refreshed.accessToken,
+      );
 
       if (!mounted) {
         return;
@@ -200,16 +200,16 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final tokenBundle = await _authApi.login(
           LoginRequest(
-            identifier:
-                _normalizeSignInIdentifier(_emailController.text),
+            identifier: _normalizeSignInIdentifier(_emailController.text),
             password: _passwordController.text,
           ),
         );
         await _sessionStore.save(tokenBundle);
         _session = tokenBundle;
 
-        final summary =
-            await _authApi.fetchDashboardSummary(tokenBundle.accessToken);
+        final summary = await _authApi.fetchDashboardSummary(
+          tokenBundle.accessToken,
+        );
 
         if (!mounted) {
           return;
@@ -227,9 +227,10 @@ class _AuthScreenState extends State<AuthScreen> {
       }
       setState(() {
         _statusMessage = error is AuthApiException
-            ? (error.message.contains('401') || error.message.toLowerCase().contains('credential')
-                ? 'The mobile number/email or password is incorrect. Please check your details and try again.'
-                : error.message)
+            ? (error.message.contains('401') ||
+                      error.message.toLowerCase().contains('credential')
+                  ? 'The mobile number/email or password is incorrect. Please check your details and try again.'
+                  : error.message)
             : 'Unable to reach the server. Check your connection and try again.';
       });
     } finally {
@@ -289,6 +290,7 @@ class _AuthScreenState extends State<AuthScreen> {
               if (isSignUp)
                 TextFormField(
                   controller: _usernameController,
+                  maxLength: 255,
                   decoration: const InputDecoration(
                     labelText: 'Username',
                     border: OutlineInputBorder(),
@@ -300,15 +302,22 @@ class _AuthScreenState extends State<AuthScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Username is required';
                     }
+                    if (!RegExp(
+                      r'^[A-Za-z0-9._-]{3,64}$',
+                    ).hasMatch(value.trim())) {
+                      return 'Use 3-64 letters, numbers, dots, underscores, or hyphens';
+                    }
                     return null;
                   },
                 ),
               if (isSignUp) const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
+                maxLength: 254,
                 decoration: InputDecoration(
-                  labelText:
-                      isSignUp ? 'Email (optional)' : 'Email or mobile number',
+                  labelText: isSignUp
+                      ? 'Email (optional)'
+                      : 'Email or mobile number',
                   border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
@@ -318,8 +327,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (isSignUp &&
                       value != null &&
                       value.trim().isNotEmpty &&
-                      !value.contains('@')) {
+                      !RegExp(
+                        r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+                      ).hasMatch(value.trim())) {
                     return 'Enter a valid email';
+                  }
+                  if (!isSignUp && value != null && value.trim().length > 254) {
+                    return 'Email or mobile number is too long';
                   }
                   return null;
                 },
@@ -328,6 +342,7 @@ class _AuthScreenState extends State<AuthScreen> {
               if (isSignUp)
                 TextFormField(
                   controller: _phoneController,
+                  maxLength: 32,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'Mobile number',
@@ -337,20 +352,31 @@ class _AuthScreenState extends State<AuthScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Mobile number is required';
                     }
+                    final digits = value.replaceAll(RegExp(r'\D'), '');
+                    if (digits.length < 7 || digits.length > 15) {
+                      return 'Enter a valid mobile number';
+                    }
                     return null;
                   },
                 ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordController,
+                maxLength: 128,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                  if (value == null || value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  if (isSignUp &&
+                      (!RegExp(r'[A-Z]').hasMatch(value) ||
+                          !RegExp(r'[a-z]').hasMatch(value) ||
+                          !RegExp(r'\d').hasMatch(value))) {
+                    return 'Use uppercase, lowercase, and a number';
                   }
                   return null;
                 },
@@ -358,9 +384,11 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _loading ? null : _submit,
-                child: Text(_loading
-                    ? 'Please wait...'
-                    : (isSignUp ? 'Create Account' : 'Sign In')),
+                child: Text(
+                  _loading
+                      ? 'Please wait...'
+                      : (isSignUp ? 'Create Account' : 'Sign In'),
+                ),
               ),
               const SizedBox(height: 16),
               Text(

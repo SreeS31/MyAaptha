@@ -1,4 +1,5 @@
 package com.myaaptha.domain.health;
+import jakarta.validation.Valid;import jakarta.validation.constraints.DecimalMax;import jakarta.validation.constraints.DecimalMin;import jakarta.validation.constraints.NotBlank;import jakarta.validation.constraints.NotEmpty;import jakarta.validation.constraints.PastOrPresent;import jakarta.validation.constraints.Positive;import jakarta.validation.constraints.Size;
 import com.myaaptha.domain.social.SocialPostRepository;
 import java.math.*;import java.time.*;import java.util.*;
 import org.springframework.http.*;import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;import org.springframework.web.server.ResponseStatusException;
@@ -7,8 +8,8 @@ import org.springframework.http.*;import org.springframework.stereotype.Service;
 public class HealthService {
  private final HealthReportRepository reports;private final HealthMeasurementRepository measurements;private final SocialPostRepository posts;
  public HealthService(HealthReportRepository r,HealthMeasurementRepository m,SocialPostRepository p){reports=r;measurements=m;posts=p;}
- public record MeasurementInput(String metricName,BigDecimal value,String unit,BigDecimal referenceMin,BigDecimal referenceMax,String suggestion){}
- public record ReportInput(Long sourcePostId,String reportName,String laboratory,LocalDate collectedOn,String notes,List<MeasurementInput>measurements){}
+ public record MeasurementInput(@NotBlank @Size(max=150) String metricName,@DecimalMin("-1000000000") @DecimalMax("1000000000") BigDecimal value,@NotBlank @Size(max=50) String unit,@DecimalMin("-1000000000") @DecimalMax("1000000000") BigDecimal referenceMin,@DecimalMin("-1000000000") @DecimalMax("1000000000") BigDecimal referenceMax,@Size(max=1000) String suggestion){}
+ public record ReportInput(@Positive Long sourcePostId,@NotBlank @Size(max=200) String reportName,@Size(max=200) String laboratory,@PastOrPresent LocalDate collectedOn,@Size(max=4000) String notes,@NotEmpty @Size(max=500) List<@Valid MeasurementInput>measurements){}
  public record Measurement(Long id,String metricName,BigDecimal value,String unit,BigDecimal referenceMin,BigDecimal referenceMax,String rangeStatus,String suggestion){}
  public record Report(Long id,Long sourcePostId,String sourceMediaName,String sourceMediaUrl,String reportName,String laboratory,LocalDate collectedOn,String notes,List<Measurement>measurements){}
  public record TrendPoint(LocalDate date,BigDecimal value,BigDecimal referenceMin,BigDecimal referenceMax,Long reportId){}

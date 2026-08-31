@@ -1,4 +1,15 @@
 package com.myaaptha.domain.network.dto;
 
-public record UpdateRelationshipRequest(String contactName, String contactPhone, String contactEmail, String type,
-    String visibilityScope, String visibilityCompany, String milestoneDate, String dateOfBirth, String dateOfDeath) {}
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record UpdateRelationshipRequest(@NotBlank @Size(max=200) String contactName,
+    @Pattern(regexp="^$|\\+?[0-9 ()-]{7,32}",message="must be a valid phone number") String contactPhone,
+    @Email @Size(max=254) String contactEmail, @NotBlank @Size(max=80) String type,
+    @NotBlank @Pattern(regexp="PUBLIC|FRIENDS|RELATIVES|COLLEAGUES") String visibilityScope,
+    @Size(max=150) String visibilityCompany,
+    @Pattern(regexp="^$|\\d{4}-\\d{2}-\\d{2}") String milestoneDate,
+    @Pattern(regexp="^$|\\d{4}-\\d{2}-\\d{2}") String dateOfBirth,
+    @Pattern(regexp="^$|\\d{4}-\\d{2}-\\d{2}") String dateOfDeath) {}
