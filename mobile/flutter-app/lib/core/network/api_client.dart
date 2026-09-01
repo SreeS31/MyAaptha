@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   ApiClient({required this.baseUrl, http.Client? httpClient})
-    : _httpClient = httpClient ?? http.Client();
+      : _httpClient = httpClient ?? http.Client();
 
   final String baseUrl;
   final http.Client _httpClient;
@@ -103,7 +103,13 @@ class ApiClient {
     if (fileBytes != null && fileBytes.length > 25 * 1024 * 1024) {
       throw const FormatException('Attachment must be 25 MB or smaller.');
     }
-    if (fileName != null) _validateString('fileName', fileName);
+    if (fileBytes != null && fileBytes.isEmpty) {
+      throw const FormatException('Attachment must not be empty.');
+    }
+    if (fileName != null) {
+      _validateString('fileName', fileName);
+      _validateUploadFile(fileName, fileBytes);
+    }
     final request = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
       ..fields.addAll(fields);
     if (fileBytes != null && fileName != null) {
@@ -118,6 +124,135 @@ class ApiClient {
         ? await _httpClient.send(request)
         : await _httpClient.send(_ProgressRequest(request, onProgress));
     return ApiResponse.fromHttp(await http.Response.fromStream(streamed));
+  }
+
+  void _validateUploadFile(String fileName, Uint8List? bytes) {
+    const blocked = {
+      'exe',
+      'dll',
+      'com',
+      'scr',
+      'msi',
+      'bat',
+      'cmd',
+      'ps1',
+      'vbs',
+      'js',
+      'jar',
+      'war',
+      'class',
+      'sh',
+      'php',
+      'html',
+      'htm',
+      'svg',
+      'apk',
+      'ipa',
+      'dmg',
+      'iso',
+      'lnk',
+      'doc',
+      'xls',
+      'ppt',
+      'docm',
+      'xlsm',
+      'pptm'
+    };
+    const allowed = {
+      'jpg',
+      'jpeg',
+      'jfif',
+      'png',
+      'webp',
+      'gif',
+      'bmp',
+      'tif',
+      'tiff',
+      'avif',
+      'heic',
+      'heif',
+      'ico',
+      'psd',
+      'dng',
+      'cr2',
+      'nef',
+      'arw',
+      'mp3',
+      'm4a',
+      'aac',
+      'wav',
+      'flac',
+      'ogg',
+      'oga',
+      'opus',
+      'amr',
+      'aif',
+      'aiff',
+      'mid',
+      'midi',
+      'mp4',
+      'm4v',
+      'mov',
+      'avi',
+      'mkv',
+      'webm',
+      'mpeg',
+      'mpg',
+      'ogv',
+      '3gp',
+      '3g2',
+      'flv',
+      'pdf',
+      'txt',
+      'csv',
+      'vcf',
+      'docx',
+      'xlsx',
+      'pptx',
+      'glb',
+      'gltf',
+      'obj',
+      'stl',
+      'fbx',
+      '3mf',
+      'dae',
+      'ply',
+      'usdz',
+      'blend'
+    };
+    final parts = fileName.toLowerCase().split('.');
+    if (parts.length < 2 ||
+        parts.skip(1).any(blocked.contains) ||
+        !allowed.contains(parts.last)) {
+      throw const FormatException(
+          'This file type is blocked for security reasons.');
+    }
+    if (bytes != null &&
+        parts.last == 'pdf' &&
+        !_starts(bytes, [0x25, 0x50, 0x44, 0x46, 0x2d])) {
+      throw const FormatException(
+          'File contents do not match the PDF extension.');
+    }
+    if (bytes != null &&
+        {'jpg', 'jpeg', 'jfif'}.contains(parts.last) &&
+        !_starts(bytes, [0xff, 0xd8, 0xff])) {
+      throw const FormatException(
+          'File contents do not match the image extension.');
+    }
+    if (bytes != null &&
+        parts.last == 'png' &&
+        !_starts(bytes, [0x89, 0x50, 0x4e, 0x47])) {
+      throw const FormatException(
+          'File contents do not match the image extension.');
+    }
+  }
+
+  bool _starts(Uint8List bytes, List<int> signature) {
+    if (bytes.length < signature.length) return false;
+    for (var index = 0; index < signature.length; index++) {
+      if (bytes[index] != signature[index]) return false;
+    }
+    return true;
   }
 
   Map<String, String> _headers({String? bearerToken}) {
@@ -245,7 +380,7 @@ class ApiClient {
 
 class _ProgressRequest extends http.BaseRequest {
   _ProgressRequest(this.request, this.onProgress)
-    : super(request.method, request.url) {
+      : super(request.method, request.url) {
     headers.addAll(request.headers);
     contentLength = request.contentLength;
   }

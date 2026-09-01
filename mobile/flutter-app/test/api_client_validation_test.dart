@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:myaaptha_mobile/core/network/api_client.dart';
+import 'dart:typed_data';
 
 void main() {
   late ApiClient client;
@@ -39,5 +40,26 @@ void main() {
       ],
     });
     expect(response.statusCode, 200);
+  });
+
+  test('blocks executable names and disguised upload contents', () async {
+    await expectLater(
+      client.postMultipart(
+        '/api/test/upload',
+        {},
+        fileName: 'photo.jpg.exe',
+        fileBytes: Uint8List.fromList([0x4d, 0x5a, 0x00]),
+      ),
+      throwsA(isA<FormatException>()),
+    );
+    await expectLater(
+      client.postMultipart(
+        '/api/test/upload',
+        {},
+        fileName: 'report.pdf',
+        fileBytes: Uint8List.fromList('not a pdf'.codeUnits),
+      ),
+      throwsA(isA<FormatException>()),
+    );
   });
 }

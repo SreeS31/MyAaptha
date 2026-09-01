@@ -8,6 +8,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '../lib/api';
 
 const unsupportedControlCharacters = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+const blockedUploadExtensions = new Set(['exe','dll','com','scr','msi','msp','bat','cmd','ps1','psm1','vbs','vbe','js','jse','jar','war','class','sh','bash','zsh','php','phtml','asp','aspx','cgi','pl','py','rb','html','htm','hta','svg','apk','ipa','dmg','iso','img','deb','rpm','reg','lnk','url','scf','cpl','sys','drv','ocx','cab','appx','appxbundle','xll','doc','xls','ppt','docm','dotm','xlsm','xltm','pptm','potm','ppam','sldm']);
+const allowedUploadExtensions = new Set(['jpg','jpeg','jfif','png','webp','gif','bmp','tif','tiff','avif','heic','heif','ico','psd','dng','cr2','nef','arw','mp3','m4a','aac','wav','flac','ogg','oga','opus','amr','aif','aiff','mid','midi','mp4','m4v','mov','avi','mkv','webm','mpeg','mpg','ogv','3gp','3g2','flv','pdf','txt','csv','vcf','docx','xlsx','pptx','glb','gltf','obj','stl','fbx','3mf','dae','ply','usdz','blend']);
 
 function useGlobalClientValidation() {
   useEffect(() => {
@@ -39,6 +41,27 @@ function useGlobalClientValidation() {
       const field = event.target;
       if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) validate(field);
     };
+    const onFile = (event: Event) => {
+      const field = event.target;
+      if (!(field instanceof HTMLInputElement) || field.type !== 'file') return;
+      for (const file of Array.from(field.files || [])) {
+        const parts = file.name.toLowerCase().split('.');
+        const extension = parts.length > 1 ? parts.at(-1)! : '';
+        const unsafe = parts.slice(1).some(part => blockedUploadExtensions.has(part));
+        let message = '';
+        if (!extension || unsafe || !allowedUploadExtensions.has(extension)) message = 'This file type is blocked for security reasons.';
+        else if (!file.size || file.size > 25 * 1024 * 1024) message = 'Files must be non-empty and 25 MB or smaller.';
+        if (message) {
+          field.value = '';
+          field.setCustomValidity(message);
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          field.reportValidity();
+          return;
+        }
+      }
+      field.setCustomValidity('');
+    };
     const onSubmit = (event: Event) => {
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
@@ -56,10 +79,12 @@ function useGlobalClientValidation() {
     })));
     observer.observe(document.body, { childList: true, subtree: true });
     document.addEventListener('input', onInput, true);
+    document.addEventListener('change', onFile, true);
     document.addEventListener('submit', onSubmit, true);
     return () => {
       observer.disconnect();
       document.removeEventListener('input', onInput, true);
+      document.removeEventListener('change', onFile, true);
       document.removeEventListener('submit', onSubmit, true);
     };
   }, []);

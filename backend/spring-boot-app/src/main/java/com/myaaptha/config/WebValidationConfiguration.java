@@ -11,13 +11,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebValidationConfiguration implements WebMvcConfigurer {
   private final ApiValidationAdvice validationAdvice;
+  private final MultipartSecurityInterceptor multipartSecurity;
 
-  public WebValidationConfiguration(ApiValidationAdvice validationAdvice) {
+  public WebValidationConfiguration(ApiValidationAdvice validationAdvice, MultipartSecurityInterceptor multipartSecurity) {
     this.validationAdvice = validationAdvice;
+    this.multipartSecurity = multipartSecurity;
   }
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(multipartSecurity).addPathPatterns("/api/**");
     registry.addInterceptor(validationAdvice).addPathPatterns("/api/**");
   }
 

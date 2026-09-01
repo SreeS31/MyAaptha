@@ -56,6 +56,11 @@ public class ApiExceptionHandler {
     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(Map.of("message", "Upload exceeds the 25 MB limit"));
   }
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException exception) {
+    return badRequest(exception.getMessage() == null ? "The request is invalid" : exception.getMessage());
+  }
+
   private ResponseEntity<Map<String, String>> badRequest(String message) {
     return ResponseEntity.badRequest().body(Map.of("message", message));
   }
