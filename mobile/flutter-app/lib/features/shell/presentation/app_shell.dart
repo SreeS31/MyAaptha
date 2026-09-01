@@ -57,16 +57,16 @@ class _AppShellState extends State<AppShell> {
             onSignOut: signOut,
             onSelectPrimaryPage: (value) => setState(() => index = value))
       ];
-  static const mobileDestinationIndexes = <int>[0, 1, 2, 3, 7];
+  static const mobileDestinationIndexes = <int>[0, 2, 3, 1, 7];
   List<NavigationDestination> get destinations => [
         const NavigationDestination(
             icon: Icon(Icons.account_tree_outlined),
             selectedIcon: Icon(Icons.account_tree_rounded),
-            label: 'Network'),
+            label: 'Home'),
         const NavigationDestination(
             icon: Icon(Icons.dynamic_feed_outlined),
             selectedIcon: Icon(Icons.dynamic_feed_rounded),
-            label: 'Feed'),
+            label: 'Diary'),
         NavigationDestination(
             icon: Badge(
                 isLabelVisible: unreadMessages > 0,
@@ -102,11 +102,11 @@ class _AppShellState extends State<AppShell> {
                 label: Text(
                     unreadNotifications > 99 ? '99+' : '$unreadNotifications'),
                 child: const Icon(Icons.notifications_rounded)),
-            label: 'Alerts'),
+            label: 'Notifications'),
         const NavigationDestination(
             icon: Icon(Icons.person_search_outlined),
             selectedIcon: Icon(Icons.person_search_rounded),
-            label: 'Discover'),
+            label: 'Search'),
         const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
@@ -333,16 +333,24 @@ class MoreScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const _PageHeader(
-              eyebrow: 'PERSONAL ASSISTANT & SETTINGS',
-              title: 'Your life tools',
+              eyebrow: 'MYAAPTHA WORKSPACE',
+              title: 'All tools',
               subtitle:
-                  'Money, memories, safety, discovery, privacy and account controls.'),
-          _primaryTile(Icons.notifications_outlined, 'Notifications',
-              'Review activity and important alerts.', 4),
+                  'The same workspace sections and labels used on the web.'),
+          const _MenuSection('CONNECT'),
+          _primaryTile(Icons.home_outlined, 'Home dashboard',
+              'Relationships and workspace overview.', 0),
+          _primaryTile(Icons.mail_outline_rounded, 'Private messages',
+              'One-to-one conversations and shared files.', 2),
+          _primaryTile(Icons.forum_outlined, 'My circles',
+              'Group conversations and circle activity.', 3),
           _primaryTile(Icons.person_search_outlined, 'Find people & circles',
               'Discover people and communities.', 5),
-          _primaryTile(Icons.person_outline, 'My profile',
-              'Manage your identity and profile details.', 6),
+          _primaryTile(Icons.notifications_outlined, 'Notifications',
+              'Review activity and important alerts.', 4),
+          const _MenuSection('PERSONAL ASSISTANT'),
+          _primaryTile(Icons.edit_note_rounded, 'Diary & memories',
+              'Capture private entries and shared memories.', 1),
           _moreTile(
               context,
               Icons.timeline_rounded,
@@ -361,28 +369,41 @@ class MoreScreen extends StatelessWidget {
               'Health records',
               'Diagnostic reports, measurements and health trends.',
               HealthRecordsScreen(api: api)),
+          const _MenuSection('ACCOUNT'),
           _moreTile(
               context,
               Icons.stars_rounded,
               'Trust center',
               'Star Members, emergency access and Role Models.',
               TrustCenterScreen(api: api)),
+          _primaryTile(Icons.person_outline, 'My profile',
+              'Manage your identity and profile details.', 6),
           _moreTile(
               context,
               Icons.shield_outlined,
               'Privacy & settings',
               'Blocked accounts and privacy controls.',
               PrivacyCenterScreen(api: api)),
+          _moreTile(
+              context,
+              Icons.devices_rounded,
+              'Account sessions',
+              'Review this login and sign out securely.',
+              SessionScreen(session: session, onSignOut: onSignOut)),
+          const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
           _moreTile(context, Icons.admin_panel_settings_outlined, 'Moderation',
               'Admin trust and safety queue.', ModerationScreen(api: api)),
-          _moreTile(
-              context,
-              Icons.devices_rounded,
-              'Account session',
-              'Review this login and sign out securely.',
-              SessionScreen(session: session, onSignOut: onSignOut)),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text('Sign out'),
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFB4233F),
+                  minimumSize: const Size.fromHeight(48),
+                  side: const BorderSide(color: Color(0xFFE8B8C2)))),
         ],
       );
 
@@ -390,7 +411,7 @@ class MoreScreen extends StatelessWidget {
           IconData icon, String title, String subtitle, int pageIndex) =>
       Card(
           child: ListTile(
-              leading: CircleAvatar(child: Icon(icon)),
+              leading: Icon(icon, color: AppTheme.primary),
               title: Text(title,
                   style: const TextStyle(fontWeight: FontWeight.w800)),
               subtitle: Text(subtitle),
@@ -401,7 +422,7 @@ class MoreScreen extends StatelessWidget {
           String subtitle, Widget destination) =>
       Card(
           child: ListTile(
-              leading: CircleAvatar(child: Icon(icon)),
+              leading: Icon(icon, color: AppTheme.primary),
               title: Text(title,
                   style: const TextStyle(fontWeight: FontWeight.w800)),
               subtitle: Text(subtitle),
@@ -412,6 +433,22 @@ class MoreScreen extends StatelessWidget {
                       builder: (_) => Scaffold(
                           appBar: AppBar(title: Text(title)),
                           body: destination)))));
+}
+
+class _MenuSection extends StatelessWidget {
+  const _MenuSection(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+        child: Text(label,
+            style: const TextStyle(
+                color: AppTheme.muted,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0)),
+      );
 }
 
 class TimelineScreen extends StatelessWidget {
@@ -853,7 +890,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       child: const Text('Not now')),
                   FilledButton(
                       onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Agree and continue'))
+                      child: const Text('Agree and continue'))
                 ]));
     if (approved != true) return;
     final permission = await Permission.sms.request();
@@ -5788,8 +5825,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       if (selectedFile != null) {
         final bytes = selectedFile!.bytes;
         if (bytes == null) {
-          throw const MyAapthaApiException(
-              'Could not read the selected file.');
+          throw const MyAapthaApiException('Could not read the selected file.');
         }
         await widget.sendAttachment(
           text.text.trim(),

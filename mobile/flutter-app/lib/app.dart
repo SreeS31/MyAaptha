@@ -29,14 +29,19 @@ class _MyAapthaMobileAppState extends State<MyAapthaMobileApp> {
     AuthTokenBundle? valid;
     if (saved != null) {
       try {
-        valid = await AuthApi().refresh(
-            RefreshRequest(refreshToken: saved.refreshToken));
+        valid = await AuthApi()
+            .refresh(RefreshRequest(refreshToken: saved.refreshToken));
         await _store.save(valid);
       } catch (_) {
         await _store.clear();
       }
     }
-    if (mounted) setState(() { _session = valid; _restoring = false; });
+    if (mounted) {
+      setState(() {
+        _session = valid;
+        _restoring = false;
+      });
+    }
   }
 
   @override
@@ -62,23 +67,20 @@ class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: DecoratedBox(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xFF6251C8), Color(0xFFD47DA9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight)),
+        body: ColoredBox(
+          color: const Color(0xFFF4F7FA),
           child: Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Image.asset('assets/brand/myaaptha-logo.png', width: 96, height: 96),
+            Image.asset('assets/brand/myaaptha-logo.png',
+                width: 96, height: 96),
             const SizedBox(height: 16),
             const Text('MyAaptha',
                 style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.ink,
                     fontSize: 30,
                     fontWeight: FontWeight.w900)),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.white)
+            const CircularProgressIndicator(color: AppTheme.primary)
           ])),
         ),
       );
