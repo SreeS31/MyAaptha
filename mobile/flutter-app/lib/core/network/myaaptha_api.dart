@@ -591,6 +591,12 @@ class MyAapthaApi {
               bearerToken: _token)) as List)
           .map((item) => Map<String, dynamic>.from(item as Map))
           .toList();
+
+  Future<List<Map<String, dynamic>>> aiActivity() async =>
+      (await _json(_client.get('/api/ai/activity', bearerToken: _token))
+              as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
 }
 
 class MyAapthaApiException implements Exception {

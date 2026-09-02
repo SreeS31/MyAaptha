@@ -390,6 +390,12 @@ class MoreScreen extends StatelessWidget {
               'Account sessions',
               'Review this login and sign out securely.',
               SessionScreen(session: session, onSignOut: onSignOut)),
+          _moreTile(
+              context,
+              Icons.auto_awesome_outlined,
+              'AI activity',
+              'Review AI purposes, consent and outcomes.',
+              AiActivityScreen(api: api)),
           const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
@@ -1428,6 +1434,61 @@ class SessionScreen extends StatelessWidget {
                           label: const Text('Sign out of this device'))
                     ])))
       ]);
+}
+
+class AiActivityScreen extends StatelessWidget {
+  const AiActivityScreen({super.key, required this.api});
+  final MyAapthaApi api;
+
+  @override
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<Map<String, dynamic>>>(
+          future: api.aiActivity(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) return _ErrorState('${snapshot.error}');
+            final events = snapshot.data ?? [];
+            if (events.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                          'No AI activity has been recorded for this account.')));
+            }
+            return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: events.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final event = events[index];
+                  final capability = (event['capability'] ?? 'AI activity')
+                      .toString()
+                      .replaceAll('_', ' ')
+                      .toLowerCase();
+                  final consent = event['consentGranted'] == true
+                      ? 'Consent granted'
+                      : 'No sensitive consent required';
+                  return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.auto_awesome_outlined,
+                              color: AppTheme.primary),
+                          title: Text(capability,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w800)),
+                          subtitle: Text('${event['purpose'] ?? ''}\n'
+                              '${event['actionLevel'] ?? 'L0'} · $consent'),
+                          isThreeLine: true,
+                          trailing: Text(
+                              (event['status'] ?? '').toString().toLowerCase(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: event['status'] == 'FAILED'
+                                      ? const Color(0xFFB4233F)
+                                      : AppTheme.primary))));
+                });
+          });
 }
 
 class NotificationsScreen extends StatefulWidget {

@@ -117,6 +117,7 @@ const navigationSections = [
       { href: '/profile', icon: '♙', label: 'My profile' },
       { href: '/privacy', icon: '⚙', label: 'Privacy & settings' },
       { href: '/session', icon: '◌', label: 'Account sessions' },
+      { href: '/ai-activity', icon: 'AI', label: 'AI activity' },
     ],
   },
   {
