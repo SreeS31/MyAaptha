@@ -395,7 +395,7 @@ class MoreScreen extends StatelessWidget {
               Icons.auto_awesome_outlined,
               'AI activity',
               'Review AI purposes, consent and outcomes.',
-              AiActivityScreen(api: api)),
+              AiControlScreen(api: api)),
           const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
@@ -1434,6 +1434,145 @@ class SessionScreen extends StatelessWidget {
                           label: const Text('Sign out of this device'))
                     ])))
       ]);
+}
+
+class AiControlScreen extends StatefulWidget {
+  const AiControlScreen({super.key, required this.api});
+  final MyAapthaApi api;
+
+  @override
+  State<AiControlScreen> createState() => _AiControlScreenState();
+}
+
+class _AiControlScreenState extends State<AiControlScreen> {
+  bool loading = true;
+  bool saving = false;
+  bool aiEnabled = true;
+  bool allowSensitiveData = false;
+  bool allowPersonalization = false;
+  int retentionDays = 90;
+  String? status;
+
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  Future<void> load() async {
+    try {
+      final value = await widget.api.aiPreferences();
+      if (!mounted) return;
+      setState(() {
+        aiEnabled = value['aiEnabled'] == true;
+        allowSensitiveData = value['allowSensitiveData'] == true;
+        allowPersonalization = value['allowPersonalization'] == true;
+        retentionDays = (value['activityRetentionDays'] as num?)?.toInt() ?? 90;
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> save() async {
+    setState(() {
+      saving = true;
+      status = null;
+    });
+    try {
+      final value = await widget.api.updateAiPreferences({
+        'aiEnabled': aiEnabled,
+        'allowSensitiveData': aiEnabled && allowSensitiveData,
+        'allowPersonalization': aiEnabled && allowPersonalization,
+        'activityRetentionDays': retentionDays,
+      });
+      if (!mounted) return;
+      setState(() {
+        aiEnabled = value['aiEnabled'] == true;
+        allowSensitiveData = value['allowSensitiveData'] == true;
+        allowPersonalization = value['allowPersonalization'] == true;
+        status = 'AI controls saved. Server enforcement is active.';
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: CircularProgressIndicator());
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      Card(
+          child: Column(children: [
+        SwitchListTile(
+            secondary: const Icon(Icons.auto_awesome_outlined,
+                color: AppTheme.primary),
+            title: const Text('Enable AI assistance'),
+            subtitle: const Text('Master switch enforced by the API.'),
+            value: aiEnabled,
+            onChanged: saving
+                ? null
+                : (value) => setState(() {
+                      aiEnabled = value;
+                      if (!value) {
+                        allowSensitiveData = false;
+                        allowPersonalization = false;
+                      }
+                    })),
+        const Divider(height: 1),
+        SwitchListTile(
+            title: const Text('Allow sensitive-data assistance'),
+            subtitle: const Text(
+                'For contacts, relationships, profiles, health and wealth. Each operation still asks for consent.'),
+            value: allowSensitiveData,
+            onChanged: !aiEnabled || saving
+                ? null
+                : (value) => setState(() => allowSensitiveData = value)),
+        const Divider(height: 1),
+        SwitchListTile(
+            title: const Text('Allow personalization'),
+            subtitle: const Text('Does not permit model training.'),
+            value: allowPersonalization,
+            onChanged: !aiEnabled || saving
+                ? null
+                : (value) => setState(() => allowPersonalization = value)),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: DropdownButtonFormField<int>(
+                key: ValueKey(retentionDays),
+                initialValue: retentionDays,
+                decoration:
+                    const InputDecoration(labelText: 'Activity retention'),
+                items: const [
+                  DropdownMenuItem(value: 0, child: Text('Do not retain')),
+                  DropdownMenuItem(value: 30, child: Text('30 days')),
+                  DropdownMenuItem(value: 90, child: Text('90 days')),
+                  DropdownMenuItem(value: 180, child: Text('180 days')),
+                  DropdownMenuItem(value: 365, child: Text('365 days')),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) => setState(() => retentionDays = value ?? 90))),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: FilledButton.icon(
+                onPressed: saving ? null : save,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(saving ? 'Saving...' : 'Save AI controls'))),
+      ])),
+      if (status != null)
+        Padding(padding: const EdgeInsets.only(top: 12), child: Text(status!)),
+      const Padding(
+          padding: EdgeInsets.fromLTRB(0, 24, 0, 8),
+          child: Text('Recent activity',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
+      SizedBox(height: 480, child: AiActivityScreen(api: widget.api)),
+    ]);
+  }
 }
 
 class AiActivityScreen extends StatelessWidget {

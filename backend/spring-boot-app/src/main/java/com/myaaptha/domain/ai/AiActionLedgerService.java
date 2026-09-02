@@ -27,12 +27,25 @@ public class AiActionLedgerService {
     return events.save(event);
   }
 
-  @Transactional public void succeeded(AiActionEventEntity event) { finish(event, "SUCCEEDED", null); }
-  @Transactional public void failed(AiActionEventEntity event, String code) { finish(event, "FAILED", code); }
+  @Transactional
+  public AiActionEventEntity startIfRetained(Long userId, String capability, String actionLevel,
+      String purpose, boolean consentGranted, String approvalState, int retentionDays) {
+    if (retentionDays == 0) return null;
+    return start(userId, capability, actionLevel, purpose, consentGranted, approvalState);
+  }
+
+  @Transactional public void succeeded(AiActionEventEntity event) {
+    if (event != null) finish(event, "SUCCEEDED", null);
+  }
+  @Transactional public void failed(AiActionEventEntity event, String code) {
+    if (event != null) finish(event, "FAILED", code);
+  }
 
   @Transactional(readOnly = true)
-  public List<AiActionEventDto> recent(Long userId) {
-    return events.findTop50ByUserIdOrderByCreatedAtDesc(userId).stream()
+  public List<AiActionEventDto> recent(Long userId, int retentionDays) {
+    if (retentionDays == 0) return List.of();
+    Instant cutoff = Instant.now().minusSeconds(retentionDays * 86400L);
+    return events.findTop50ByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(userId, cutoff).stream()
         .map(AiActionEventDto::from).toList();
   }
 

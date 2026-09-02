@@ -1,7 +1,7 @@
 package com.myaaptha.domain.ai;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -48,9 +48,18 @@ class AiActionLedgerServiceTest {
 
   @Test
   void readsOnlyTheAuthenticatedUsersRecentActivity() {
-    when(repository.findTop50ByUserIdOrderByCreatedAtDesc(7L)).thenReturn(List.of());
-    assertThat(service.recent(7L)).isEmpty();
-    verify(repository).findTop50ByUserIdOrderByCreatedAtDesc(7L);
-    verify(repository, never()).findTop50ByUserIdOrderByCreatedAtDesc(8L);
+    assertThat(service.recent(7L, 90)).isEmpty();
+    verify(repository).findTop50ByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+        eq(7L), any());
+    verify(repository, never())
+        .findTop50ByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(eq(8L), any());
+  }
+
+  @Test
+  void zeroRetentionDoesNotPersistNewActivity() {
+    AiActionEventEntity result = service.startIfRetained(7L, "SEARCH_RANKING", "L0",
+        "Rank authorized search results", false, "NOT_REQUIRED", 0);
+    assertThat(result).isNull();
+    verify(repository, never()).save(any());
   }
 }

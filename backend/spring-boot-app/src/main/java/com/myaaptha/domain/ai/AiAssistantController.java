@@ -14,11 +14,14 @@ import org.springframework.web.server.ResponseStatusException;
 public class AiAssistantController {
   private final RestClient client;
   private final AiActionLedgerService ledger;
+  private final AiPreferenceService preferences;
 
   public AiAssistantController(RestClient.Builder builder, AiActionLedgerService ledger,
+      AiPreferenceService preferences,
       @Value("${myaaptha.ai.base-url:http://localhost:8081/api/v1}") String baseUrl) {
     this.client = builder.baseUrl(baseUrl).build();
     this.ledger = ledger;
+    this.preferences = preferences;
   }
 
   @PostMapping("/search/rank")
@@ -35,6 +38,7 @@ public class AiAssistantController {
 
   @PostMapping("/family/insights")
   public Object insights(Principal principal, @RequestBody Map<String, Object> request) {
+    preferences.requireSensitiveDataAllowed(userId(principal));
     requireConsent(request);
     return execute(principal, "FAMILY_INSIGHTS", "L1", "Suggest relationship graph improvements",
         true, "APPROVED", "/family/insights", request);
@@ -42,6 +46,7 @@ public class AiAssistantController {
 
   @PostMapping("/profiles/enrichment")
   public Object enrichment(Principal principal, @RequestBody Map<String, Object> request) {
+    preferences.requireSensitiveDataAllowed(userId(principal));
     requireConsent(request);
     return execute(principal, "PROFILE_ENRICHMENT", "L1", "Suggest profile fields for review",
         true, "APPROVED", "/profiles/enrichment", request);
@@ -49,6 +54,7 @@ public class AiAssistantController {
 
   @PostMapping("/contacts/organize")
   public Object organizeContacts(Principal principal, @RequestBody Map<String, Object> request) {
+    preferences.requireSensitiveDataAllowed(userId(principal));
     requireConsent(request);
     return execute(principal, "CONTACT_ORGANIZATION", "L1",
         "Suggest relationships and circles from selected contacts", true, "APPROVED",
@@ -57,14 +63,18 @@ public class AiAssistantController {
 
   @GetMapping("/activity")
   public List<AiActionLedgerService.AiActionEventDto> activity(Principal principal) {
-    return ledger.recent(userId(principal));
+    Long userId = userId(principal);
+    return ledger.recent(userId, preferences.get(userId).activityRetentionDays());
   }
 
   private Object execute(Principal principal, String capability, String actionLevel,
       String purpose, boolean consent, String approvalState, String path,
       Map<String, Object> request) {
-    AiActionEventEntity event = ledger.start(userId(principal), capability, actionLevel,
-        purpose, consent, approvalState);
+    preferences.requireEnabled(userId(principal));
+    Long userId = userId(principal);
+    int retentionDays = preferences.get(userId).activityRetentionDays();
+    AiActionEventEntity event = ledger.startIfRetained(userId, capability, actionLevel,
+        purpose, consent, approvalState, retentionDays);
     try {
       Object response = client.post().uri(path).body(request).retrieve().body(Object.class);
       ledger.succeeded(event);

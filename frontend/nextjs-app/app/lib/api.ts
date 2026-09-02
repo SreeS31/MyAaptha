@@ -666,3 +666,6 @@ export async function analyzeHealthReport(file:File){if(file.size>25*1024*1024)t
 export async function deleteHealthReport(id:number){return authenticatedRequest<void>(`/api/health/reports/${id}`,{method:'DELETE'});}
 export type AiActionEvent={requestId:string;capability:string;actionLevel:'L0'|'L1'|'L2'|'L3'|'L4';purpose:string;consentGranted:boolean;approvalState:string;status:'STARTED'|'SUCCEEDED'|'FAILED'|'REJECTED';failureCode?:string|null;createdAt:string;completedAt?:string|null};
 export async function fetchAiActivity(){return authenticatedRequest<AiActionEvent[]>('/api/ai/activity');}
+export type AiPreference={userId:number;aiEnabled:boolean;allowSensitiveData:boolean;allowPersonalization:boolean;activityRetentionDays:number;updatedAt?:string|null};
+export async function fetchAiPreferences(){return authenticatedRequest<AiPreference>('/api/ai/preferences');}
+export async function updateAiPreferences(payload:Omit<AiPreference,'userId'|'updatedAt'>){return authenticatedRequest<AiPreference>('/api/ai/preferences',{method:'PUT',body:JSON.stringify(payload)});}
