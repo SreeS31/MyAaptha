@@ -608,6 +608,19 @@ class MyAapthaApi {
       Map<String, dynamic>.from(await _json(_client.put(
           '/api/ai/preferences', preferences,
           bearerToken: _token)) as Map);
+
+  Future<List<Map<String, dynamic>>> aiApprovals() async =>
+      (await _json(_client.get('/api/ai/approvals', bearerToken: _token))
+              as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+
+  Future<Map<String, dynamic>> decideAiApproval(
+          String approvalId, String decision) async =>
+      Map<String, dynamic>.from(await _json(_client.put(
+          '/api/ai/approvals/${Uri.encodeComponent(approvalId)}/decision',
+          {'decision': decision, 'reason': null},
+          bearerToken: _token)) as Map);
 }
 
 class MyAapthaApiException implements Exception {

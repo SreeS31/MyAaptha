@@ -393,8 +393,8 @@ class MoreScreen extends StatelessWidget {
           _moreTile(
               context,
               Icons.auto_awesome_outlined,
-              'AI activity',
-              'Review AI purposes, consent and outcomes.',
+              'AI controls',
+              'Review permissions, approvals and AI outcomes.',
               AiControlScreen(api: api)),
           const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
@@ -1452,6 +1452,7 @@ class _AiControlScreenState extends State<AiControlScreen> {
   bool allowPersonalization = false;
   int retentionDays = 90;
   String? status;
+  List<Map<String, dynamic>> approvals = [];
 
   @override
   void initState() {
@@ -1461,13 +1462,16 @@ class _AiControlScreenState extends State<AiControlScreen> {
 
   Future<void> load() async {
     try {
-      final value = await widget.api.aiPreferences();
+      final result = await Future.wait(
+          [widget.api.aiPreferences(), widget.api.aiApprovals()]);
+      final value = result[0] as Map<String, dynamic>;
       if (!mounted) return;
       setState(() {
         aiEnabled = value['aiEnabled'] == true;
         allowSensitiveData = value['allowSensitiveData'] == true;
         allowPersonalization = value['allowPersonalization'] == true;
         retentionDays = (value['activityRetentionDays'] as num?)?.toInt() ?? 90;
+        approvals = (result[1] as List).cast<Map<String, dynamic>>();
       });
     } catch (exception) {
       if (mounted) setState(() => status = exception.toString());
@@ -1499,6 +1503,23 @@ class _AiControlScreenState extends State<AiControlScreen> {
       if (mounted) setState(() => status = exception.toString());
     } finally {
       if (mounted) setState(() => saving = false);
+    }
+  }
+
+  Future<void> decide(String approvalId, String decision) async {
+    try {
+      final updated = await widget.api.decideAiApproval(approvalId, decision);
+      if (!mounted) return;
+      setState(() {
+        approvals = approvals
+            .map((item) => item['id'] == approvalId ? updated : item)
+            .toList();
+        status = decision == 'APPROVED'
+            ? 'Action approved. Approval does not mean it has executed.'
+            : 'Action rejected.';
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
     }
   }
 
@@ -1566,6 +1587,47 @@ class _AiControlScreenState extends State<AiControlScreen> {
       ])),
       if (status != null)
         Padding(padding: const EdgeInsets.only(top: 12), child: Text(status!)),
+      const Padding(
+          padding: EdgeInsets.fromLTRB(0, 24, 0, 8),
+          child: Text('Agent approval inbox',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
+      if (approvals.isEmpty) const Text('No agent actions need review.'),
+      ...approvals.map((approval) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text((approval['title'] ?? 'AI action').toString(),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w800, fontSize: 16)),
+                        const SizedBox(height: 6),
+                        Text((approval['summary'] ?? '').toString()),
+                        const SizedBox(height: 6),
+                        Text(
+                            '${approval['actionLevel'] ?? 'L2'} | ${approval['status'] ?? 'PENDING'}',
+                            style: const TextStyle(color: AppTheme.muted)),
+                        if (approval['status'] == 'PENDING') ...[
+                          const SizedBox(height: 12),
+                          Row(children: [
+                            Expanded(
+                                child: FilledButton.icon(
+                                    onPressed: () => decide(
+                                        approval['id'].toString(), 'APPROVED'),
+                                    icon: const Icon(Icons.check_rounded),
+                                    label: const Text('Approve'))),
+                            const SizedBox(width: 8),
+                            Expanded(
+                                child: OutlinedButton.icon(
+                                    onPressed: () => decide(
+                                        approval['id'].toString(), 'REJECTED'),
+                                    icon: const Icon(Icons.close_rounded),
+                                    label: const Text('Reject'))),
+                          ])
+                        ]
+                      ]))))),
       const Padding(
           padding: EdgeInsets.fromLTRB(0, 24, 0, 8),
           child: Text('Recent activity',

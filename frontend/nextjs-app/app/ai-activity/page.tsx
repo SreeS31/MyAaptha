@@ -2,21 +2,23 @@
 
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
-import {AiActionEvent, AiPreference, fetchAiActivity, fetchAiPreferences, updateAiPreferences} from '../lib/api';
+import {AiActionApproval, AiActionEvent, AiPreference, decideAiApproval, fetchAiActivity, fetchAiApprovals, fetchAiPreferences, updateAiPreferences} from '../lib/api';
 
 const capabilityLabel=(value:string)=>value.toLowerCase().split('_').map(word=>word[0].toUpperCase()+word.slice(1)).join(' ');
 const defaults:AiPreference={userId:0,aiEnabled:true,allowSensitiveData:false,allowPersonalization:false,activityRetentionDays:90};
 
 export default function AiActivityPage(){
   const [events,setEvents]=useState<AiActionEvent[]>([]);
+  const [approvals,setApprovals]=useState<AiActionApproval[]>([]);
   const [preferences,setPreferences]=useState<AiPreference>(defaults);
   const [error,setError]=useState('');
   const [message,setMessage]=useState('');
   const [loading,setLoading]=useState(true);
   const [saving,setSaving]=useState(false);
-  useEffect(()=>{void Promise.all([fetchAiActivity(),fetchAiPreferences()]).then(([activity,settings])=>{setEvents(activity);setPreferences(settings);}).catch(reason=>setError(reason instanceof Error?reason.message:'AI controls could not be loaded.')).finally(()=>setLoading(false));},[]);
+  useEffect(()=>{void Promise.all([fetchAiActivity(),fetchAiPreferences(),fetchAiApprovals()]).then(([activity,settings,requests])=>{setEvents(activity);setPreferences(settings);setApprovals(requests);}).catch(reason=>setError(reason instanceof Error?reason.message:'AI controls could not be loaded.')).finally(()=>setLoading(false));},[]);
   const change=(patch:Partial<AiPreference>)=>setPreferences(value=>({...value,...patch}));
   const save=async()=>{if(preferences.activityRetentionDays<0||preferences.activityRetentionDays>365){setError('Choose an activity retention period from 0 to 365 days.');return;}setSaving(true);setError('');setMessage('');try{const updated=await updateAiPreferences({aiEnabled:preferences.aiEnabled,allowSensitiveData:preferences.aiEnabled&&preferences.allowSensitiveData,allowPersonalization:preferences.aiEnabled&&preferences.allowPersonalization,activityRetentionDays:preferences.activityRetentionDays});setPreferences(updated);if(updated.activityRetentionDays===0)setEvents([]);setMessage('AI controls saved. Server enforcement is active.');}catch(reason){setError(reason instanceof Error?reason.message:'AI controls could not be saved.');}finally{setSaving(false);}};
+  const decide=async(id:string,decision:'APPROVED'|'REJECTED')=>{setError('');try{const updated=await decideAiApproval(id,decision);setApprovals(items=>items.map(item=>item.id===id?updated:item));setMessage(decision==='APPROVED'?'Action approved. Approval does not mean it has executed.':'Action rejected.');}catch(reason){setError(reason instanceof Error?reason.message:'The approval decision could not be saved.');}};
   return <main className="container privacy-page">
     <header className="network-header"><div><p className="eyebrow">ACCOUNT · AI TRANSPARENCY</p><h1>AI control center</h1><p>Control AI access and inspect what MyAaptha processed. Private prompts and document contents are not stored in the activity ledger.</p></div><Link href="/dashboard" className="btn btn-secondary">Back to dashboard</Link></header>
     {error&&<p className="network-message" role="alert">{error}</p>}{message&&<p className="network-message" role="status">{message}</p>}
@@ -27,6 +29,7 @@ export default function AiActivityPage(){
       <label><span>AI activity retention</span><select value={preferences.activityRetentionDays} disabled={loading||saving} onChange={event=>change({activityRetentionDays:Number(event.target.value)})}><option value={0}>Do not retain activity</option><option value={30}>30 days</option><option value={90}>90 days</option><option value={180}>180 days</option><option value={365}>365 days</option></select></label>
       <button type="button" className="btn btn-primary" disabled={loading||saving} onClick={()=>void save()}>{saving?'Saving...':'Save AI controls'}</button>
     </section>
+    <section className="card privacy-list"><h2>Agent approval inbox</h2><p>Consequential AI actions wait here. Approval records permission only; execution is tracked separately.</p>{!loading&&!approvals.length&&<p>No agent actions need review.</p>}{approvals.map(approval=><article key={approval.id}><span><strong>{approval.title}</strong><small>{approval.summary}</small><small>{approval.actionLevel} · expires {new Date(approval.expiresAt).toLocaleString()}</small></span>{approval.status==='PENDING'?<span><button type="button" className="btn btn-primary" onClick={()=>void decide(approval.id,'APPROVED')}>Approve</button><button type="button" className="btn btn-secondary" onClick={()=>void decide(approval.id,'REJECTED')}>Reject</button></span>:<span className={`action-tag ${approval.status==='REJECTED'||approval.status==='EXPIRED'?'action-tag-danger':''}`}>{approval.status.toLowerCase()}</span>}</article>)}</section>
     <section className="card privacy-list" aria-busy={loading}><h2>Recent activity</h2>{loading&&<p>Loading AI activity...</p>}{!loading&&!events.length&&!error&&<p>No AI activity has been recorded for this account.</p>}{events.map(event=><article key={event.requestId}><span><strong>{capabilityLabel(event.capability)}</strong><small>{event.purpose}</small><small>{new Date(event.createdAt).toLocaleString()} · {event.actionLevel} · {event.consentGranted?'Consent granted':'No sensitive consent required'}</small></span><span className={`action-tag ${event.status==='FAILED'?'action-tag-danger':''}`}>{event.status.toLowerCase()}</span></article>)}</section>
   </main>;
 }

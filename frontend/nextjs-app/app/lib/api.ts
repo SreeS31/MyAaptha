@@ -669,3 +669,6 @@ export async function fetchAiActivity(){return authenticatedRequest<AiActionEven
 export type AiPreference={userId:number;aiEnabled:boolean;allowSensitiveData:boolean;allowPersonalization:boolean;activityRetentionDays:number;updatedAt?:string|null};
 export async function fetchAiPreferences(){return authenticatedRequest<AiPreference>('/api/ai/preferences');}
 export async function updateAiPreferences(payload:Omit<AiPreference,'userId'|'updatedAt'>){return authenticatedRequest<AiPreference>('/api/ai/preferences',{method:'PUT',body:JSON.stringify(payload)});}
+export type AiActionApproval={id:string;capability:string;actionLevel:'L2'|'L3';title:string;summary:string;resourceType?:string|null;resourceId?:string|null;status:'PENDING'|'APPROVED'|'REJECTED'|'EXPIRED'|'CANCELLED';decisionReason?:string|null;requestedAt:string;expiresAt:string;decidedAt?:string|null};
+export async function fetchAiApprovals(){return authenticatedRequest<AiActionApproval[]>('/api/ai/approvals');}
+export async function decideAiApproval(id:string,decision:'APPROVED'|'REJECTED',reason?:string){return authenticatedRequest<AiActionApproval>(`/api/ai/approvals/${encodeURIComponent(id)}/decision`,{method:'PUT',body:JSON.stringify({decision,reason:reason?.trim()||null})});}
