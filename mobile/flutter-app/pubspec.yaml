@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
   http: ^1.2.2
   shared_preferences: ^2.3.2
   flutter_secure_storage: ^10.3.1
