@@ -17,7 +17,7 @@ dependencies:
   file_picker: 10.3.10
   open_filex: ^4.7.0
   path_provider: ^2.1.6
-  flutter_webrtc: ^1.6.0
+  flutter_webrtc: ^1.6.2+hotfix.4
   connectivity_plus: ^7.3.1
   workmanager: ^0.10.7
   fast_contacts: ^6.0.0
