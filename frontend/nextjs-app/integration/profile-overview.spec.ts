@@ -1,0 +1,82 @@
+﻿import {test,expect} from './fixtures';
+import {randomUUID} from 'node:crypto';
+
+test('profile overview edits one section and shares saved data with mobile sessions',async({page,playwright},info)=>{
+ const api=await playwright.request.newContext({baseURL:'http://127.0.0.1:8080'});
+ const username=`profile-view-${randomUUID().slice(0,8)}`,password=`Secure-${randomUUID()}`;
+ try {
+  expect((await api.post('/api/users',{data:{username,password,phoneNumber:`+1884${String(Math.floor(Math.random()*1e10)).padStart(10,'0')}`}})).status()).toBe(200);
+  const auth=await api.post('/api/auth/login',{data:{identifier:username,password}});
+  const headers={Authorization:`Bearer ${(await auth.json()).accessToken}`};
+  const original=await (await api.get('/api/profile/me',{headers})).json();
+  expect((await api.put('/api/profile/me',{headers,data:{...original,firstName:'Asha',surname:'Rao',dateOfBirth:'1981-11-09',graduationYear:'2011',highestQualification:'M.Tech',institution:'Example University',jobTitle:'Engineer'}})).status()).toBe(200);
+  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
+  await page.goto('/profile');await expect(page.getByRole('heading',{name:'Asha Rao'})).toBeVisible();
+  await expect(page.locator('.profile-fields')).toHaveCount(0);
+  const education=page.getByRole('region',{name:'Education',exact:true});
+  await expect(education.getByText('M.Tech',{exact:true})).toBeVisible();
+  await education.getByRole('button',{name:'Edit Education',exact:true}).click();
+  await education.getByLabel('Highest qualification',{exact:true}).fill('Discarded draft');
+  await education.getByRole('button',{name:'Cancel',exact:true}).click();
+  await expect(education.getByText('M.Tech',{exact:true})).toBeVisible();
+  await education.getByRole('button',{name:'Edit Education',exact:true}).click();
+  await education.getByLabel('Highest qualification',{exact:true}).fill('PhD');
+  // A mobile session updates another section while the web form is open.
+  const latest=await (await api.get('/api/profile/me',{headers})).json();
+  expect((await api.put('/api/profile/me',{headers,data:{...latest,employer:'Mobile employer'}})).status()).toBe(200);
+  await education.getByRole('button',{name:'Save Education',exact:true}).click();
+  await expect(education.getByText('PhD',{exact:true})).toBeVisible();await expect(page.locator('.profile-fields')).toHaveCount(0);
+  const saved=await (await api.get('/api/profile/me',{headers})).json();expect(saved.highestQualification).toBe('PhD');expect(saved.employer).toBe('Mobile employer');expect(saved.firstName).toBe('Asha');
+  expect(await (await page.request.get('/api/profile/me')).json()).toEqual(saved);
+  expect((await api.put('/api/profile/me',{headers,data:{...saved,jobTitle:'Updated on mobile'}})).status()).toBe(200);
+  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(page.locator('.profile-identity')).toContainText('Updated on mobile');
+  await page.screenshot({path:`../../.tools/preview/profile-overview-${info.project.name}.png`,fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth)).toBe(false);
+  const policy=await (await api.get('/api/uploads/policy',{headers})).json();
+  await page.goto('/settings');
+  const meter=page.getByRole('progressbar',{name:'Storage used'});
+  await expect(meter).toHaveAttribute('aria-valuenow',String(Math.min(100,Math.max(0,policy.level.storageBytes>0?policy.usedBytes/policy.level.storageBytes*100:0))));
+  await expect(page.locator('#storage')).toContainText(`${(policy.level.uploadBytes/1048576).toFixed(1)} MB`);
+  await page.route('**/api/uploads/policy',route=>route.fulfill({json:{...policy,usedBytes:policy.level.storageBytes/2}}));
+  await page.reload();
+  await expect(meter).toHaveAttribute('aria-valuenow','50');
+  await expect(meter).toContainText('50.0%');
+  await page.screenshot({path:`../../.tools/preview/storage-ring-${info.project.name}.png`,fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth)).toBe(false);
+  await page.goto('/timeline');
+  const events=page.locator('.life-timeline-event');
+  await expect(events).toHaveCount(2);
+  await expect(events.first()).toContainText('PhD');
+  await expect(events.last()).toContainText('Born');
+  const bounds=await page.locator('.timeline-event-card').evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left};}));
+  expect(bounds[1].top).toBeGreaterThan(bounds[0].bottom);
+  if(info.project.name==='desktop')expect(bounds[1].left).toBeGreaterThan(bounds[0].left);else expect(Math.abs(bounds[1].left-bounds[0].left)).toBeLessThan(2);
+  await expect(page.locator('.timeline-kind-birth .timeline-event-card')).toHaveCSS('border-top-color','rgb(37, 99, 166)');
+  await page.screenshot({path:`../../.tools/preview/timeline-editor-debug-${info.project.name}.png`,fullPage:true});
+  expect(await page.locator('.life-timeline-track').evaluate(node=>node.scrollWidth-node.clientWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({path:`../../.tools/preview/vertical-timeline-${info.project.name}.png`,fullPage:true});
+  await expect(page.getByRole('link',{name:'Edit profile',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Add event',exact:true}).click();
+  let editor=page.getByRole('dialog',{name:'Add event',exact:true});
+  await editor.getByRole('combobox',{name:'Event type',exact:true}).selectOption('Employment');
+  await editor.getByLabel('Date',{exact:true}).fill('2026-10-08');
+  await editor.getByLabel('Title',{exact:true}).fill('Started a new role');
+  await editor.getByLabel('Details',{exact:true}).fill('A personal milestone');
+  await editor.getByRole('button',{name:'Save event',exact:true}).click();
+  await expect(events.first()).toContainText('Started a new role');
+  await events.first().getByRole('button',{name:'Edit Started a new role'}).click();
+  editor=page.getByRole('dialog',{name:'Edit event',exact:true});
+  await editor.getByLabel('Title',{exact:true}).fill('My updated milestone');
+  await editor.getByRole('button',{name:'Save event',exact:true}).click();
+  await expect(events.first()).toContainText('My updated milestone');
+  const persisted=await (await api.get('/api/timeline/events',{headers})).json();expect(persisted[0].title).toBe('My updated milestone');
+  await page.reload();await expect(events.first()).toContainText('My updated milestone',{timeout:15000});
+  await page.getByRole('button',{name:'Compact view',exact:true}).click();
+  await expect(page.locator('.timeline-dense')).toBeVisible();
+  const compactCards=await page.locator('.timeline-event-card').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().left));
+  expect(Math.abs(compactCards[0]-compactCards[1])).toBeLessThan(2);
+  await page.screenshot({path:`../../.tools/preview/timeline-compact-${info.project.name}.png`,fullPage:true});
+
+ } finally {await api.dispose();}
+});
+

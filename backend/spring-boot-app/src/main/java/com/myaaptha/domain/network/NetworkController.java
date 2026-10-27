@@ -138,16 +138,20 @@ public class NetworkController {
   }
 
   @GetMapping("/circles/{circleId}/posts")
-  public List<CirclePostDto> circlePosts(Principal principal,@PathVariable Long circleId){return circleConversationService.posts(userId(principal),circleId);}
+  public List<CirclePostDto> circlePosts(Principal principal,@PathVariable Long circleId,@RequestParam(defaultValue="9223372036854775807") Long beforeId,@RequestParam(defaultValue="50") int limit){return circleConversationService.posts(userId(principal),circleId,beforeId,limit);}
 
   @GetMapping("/circles/unread-counts") public java.util.Map<Long,Long> circleUnreadCounts(Principal principal){return circleConversationService.unreadCounts(userId(principal));}
 
   @PostMapping(value="/circles/{circleId}/posts",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
   public CirclePostDto createCirclePost(Principal principal,@PathVariable Long circleId,
+      @RequestParam(required=false) Integer levels,
       @RequestParam(value="message",required=false) String message,@RequestParam(value="parentPostId",required=false) Long parentPostId,
       @RequestPart(value="file",required=false) MultipartFile file){return circleConversationService.create(userId(principal),circleId,parentPostId,message,file);}
 
   @PutMapping("/circles/{circleId}/posts/{postId}") public CirclePostDto editCirclePost(Principal principal,@PathVariable Long circleId,@PathVariable Long postId,@RequestBody MessageTextRequest request){return circleConversationService.edit(userId(principal),circleId,postId,request.message());}
+  @DeleteMapping("/circles/{circleId}/posts/{postId}/for-me")
+  @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+  public void deleteCirclePostForMe(Principal principal,@PathVariable Long circleId,@PathVariable Long postId){circleConversationService.deleteForMe(userId(principal),circleId,postId);}
   @DeleteMapping("/circles/{circleId}/posts/{postId}") public CirclePostDto deleteCirclePost(Principal principal,@PathVariable Long circleId,@PathVariable Long postId){return circleConversationService.delete(userId(principal),circleId,postId);}
   @GetMapping("/circles/{circleId}/posts/search") public List<CirclePostDto> searchCirclePosts(Principal principal,@PathVariable Long circleId,@RequestParam String q){return circleConversationService.search(userId(principal),circleId,q);}
   @PostMapping("/circles/{circleId}/posts/{postId}/reaction") public CirclePostDto reactCirclePost(Principal principal,@PathVariable Long circleId,@PathVariable Long postId,@RequestBody MessageReactionRequest request){return circleConversationService.react(userId(principal),circleId,postId,request.emoji());}
@@ -156,7 +160,7 @@ public class NetworkController {
   public ResponseEntity<Resource> circleAttachment(Principal principal,@PathVariable Long circleId,@PathVariable Long postId){var attachment=circleConversationService.attachment(userId(principal),circleId,postId);return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"inline; filename=\""+attachment.name().replace("\"","")+"\"").contentType(MediaType.parseMediaType(attachment.type())).body(attachment.resource());}
 
   @GetMapping("/messages/with/{otherUserId}")
-  public List<DirectMessageDto> directMessages(Principal principal,@PathVariable Long otherUserId){return directMessageService.conversation(userId(principal),otherUserId);}
+  public List<DirectMessageDto> directMessages(Principal principal,@PathVariable Long otherUserId,@RequestParam(defaultValue="9223372036854775807") Long beforeId,@RequestParam(defaultValue="50") int limit){return directMessageService.conversation(userId(principal),otherUserId,beforeId,limit);}
 
   @GetMapping("/messages/conversations")
   public java.util.List<com.myaaptha.domain.network.dto.DirectConversationDto> directConversations(Principal principal){return directMessageService.conversations(userId(principal));}
@@ -165,11 +169,15 @@ public class NetworkController {
   public List<DirectMessageDto> searchDirectMessages(Principal principal,@PathVariable Long otherUserId,@RequestParam String q){return directMessageService.search(userId(principal),otherUserId,q);}
 
   @PostMapping(value="/messages/with/{otherUserId}",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-  public DirectMessageDto sendDirectMessage(Principal principal,@PathVariable Long otherUserId,@RequestParam(value="message",required=false) String message,@RequestParam(value="replyToMessageId",required=false) Long replyToMessageId,@RequestPart(value="file",required=false) MultipartFile file){return directMessageService.send(userId(principal),otherUserId,message,file,replyToMessageId);}
+  public DirectMessageDto sendDirectMessage(Principal principal,@PathVariable Long otherUserId,@RequestParam(required=false) Integer levels,
+      @RequestParam(value="message",required=false) String message,@RequestParam(value="replyToMessageId",required=false) Long replyToMessageId,@RequestPart(value="file",required=false) MultipartFile file){return directMessageService.send(userId(principal),otherUserId,message,file,replyToMessageId);}
 
   @PutMapping("/messages/with/{otherUserId}/{messageId}")
   public DirectMessageDto editDirectMessage(Principal principal,@PathVariable Long otherUserId,@PathVariable Long messageId,@RequestBody MessageTextRequest request){return directMessageService.edit(userId(principal),otherUserId,messageId,request.message());}
 
+  @DeleteMapping("/messages/with/{otherUserId}/{messageId}/for-me")
+  @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+  public void deleteDirectMessageForMe(Principal principal,@PathVariable Long otherUserId,@PathVariable Long messageId){directMessageService.deleteForMe(userId(principal),otherUserId,messageId);}
   @DeleteMapping("/messages/with/{otherUserId}/{messageId}")
   public DirectMessageDto deleteDirectMessage(Principal principal,@PathVariable Long otherUserId,@PathVariable Long messageId){return directMessageService.delete(userId(principal),otherUserId,messageId);}
 
@@ -191,8 +199,9 @@ public class NetworkController {
       @RequestParam(required=false) String audienceType,
       @RequestParam(name="type",required=false) String legacyAudienceType,
       @RequestParam(required=false) Long anchorUserId,
-      @RequestParam(required=false) String location) {
-    return broadcastService.preview(userId(principal), audienceType == null ? legacyAudienceType : audienceType, anchorUserId, location);
+      @RequestParam(required=false) String location,
+      @RequestParam(required=false) Integer levels) {
+    return broadcastService.preview(userId(principal), audienceType == null ? legacyAudienceType : audienceType, anchorUserId, location, levels);
   }
 
   @PostMapping(value="/broadcasts", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -201,9 +210,10 @@ public class NetworkController {
       @RequestParam(name="type",required=false) String legacyAudienceType,
       @RequestParam(required=false) Long anchorUserId,
       @RequestParam(required=false) String location,
+      @RequestParam(required=false) Integer levels,
       @RequestParam(value="message",required=false) String message,
       @RequestPart(value="file",required=false) MultipartFile file) {
-    return broadcastService.send(userId(principal), audienceType == null ? legacyAudienceType : audienceType, anchorUserId, location, message, file);
+    return broadcastService.send(userId(principal), audienceType == null ? legacyAudienceType : audienceType, anchorUserId, location, message, file, levels);
   }
 
   private Long userId(Principal principal) { return Long.valueOf(principal.getName()); }

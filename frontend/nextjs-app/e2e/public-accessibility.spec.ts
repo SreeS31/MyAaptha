@@ -2,9 +2,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 test('public landing remains usable without the API', async ({ page }) => {
+  await page.route('**/api/**',route=>route.abort());
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('collaborative intelligence');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Stay connected to what matters.');
   await expect(page.getByRole('link', { name: /sign in/i }).first()).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page })

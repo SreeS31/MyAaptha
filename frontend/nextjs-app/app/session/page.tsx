@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import PageHeading from '../components/PageHeading';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -109,35 +109,22 @@ export default function SessionPage() {
 
   return (
     <main className="container session-shell">
-      <div className="nav">
-        <div style={{ fontWeight: 800 }}>Session Control Center</div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <Link href="/dashboard">Dashboard</Link>
-        </div>
-      </div>
-
+      <PageHeading title="Account session" help="Check your signed-in account, refresh your session, or sign out." />
       <section className="card session-hero">
-        <p className="eyebrow">SECURITY & ACCESS</p>
-        <h1 style={{ marginTop: '.4rem' }}>Session control center</h1>
-        <p style={{ color: '#64748b' }}>
-          View current session identity and token lifetime, then refresh, revoke, or end the session safely.
-        </p>
-
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', marginTop: '1rem' }}>
           <div className="card session-stat" style={{ padding: '1rem' }}>
-            <h3 style={{ marginTop: 0 }}>Session Identity</h3>
+            <h3 style={{ marginTop: 0 }}>Signed-in account</h3>
             <p style={{ marginBottom: '0.35rem' }}><strong>User:</strong> {profile?.username || '-'}</p>
             <p style={{ marginBottom: 0 }}><strong>Email:</strong> {profile?.email || '-'}</p>
           </div>
           <div className="card session-stat" style={{ padding: '1rem' }}>
-            <h3 style={{ marginTop: 0 }}>Token Timing</h3>
+            <h3 style={{ marginTop: 0 }}>Session timing</h3>
             <p style={{ marginBottom: '0.35rem' }}><strong>Issued:</strong> {issuedAtLabel}</p>
             <p style={{ marginBottom: '0.35rem' }}><strong>Expires:</strong> {expiresAtLabel}</p>
             <p style={{ marginBottom: 0 }}><strong>Seconds Remaining:</strong> {secondsRemaining}</p>
           </div>
           <div className="card session-stat" style={{ padding: '1rem' }}>
-            <h3 style={{ marginTop: 0 }}>Service Health</h3>
+            <h3 style={{ marginTop: 0 }}>Connection status</h3>
             <p style={{ marginBottom: 0 }}><strong>Auth API:</strong> {authHealth}</p>
           </div>
         </div>

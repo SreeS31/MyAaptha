@@ -1,0 +1,170 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: MyAaptha regional ALB WAF. Validate false positives in staging before
+  public launch.
+Parameters:
+  LoadBalancerArn:
+    Type: String
+    Description: Existing application load balancer ARN in this region
+  AuthRequestsPerFiveMinutes:
+    Type: Number
+    Default: 120
+    MinValue: 10
+  RequestsPerFiveMinutes:
+    Type: Number
+    Default: 6000
+    MinValue: 10
+Resources:
+  WebAcl:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        SampledRequestsEnabled: false
+        MetricName: MyAapthaWebAcl
+      Rules:
+      - Name: AWSManagedRulesAmazonIpReputationList
+        Priority: 0
+        OverrideAction:
+          None: {}
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesAmazonIpReputationList
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: AWSManagedRulesAmazonIpReputationList
+      - Name: AWSManagedRulesKnownBadInputsRuleSet
+        Priority: 1
+        OverrideAction:
+          None: {}
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesKnownBadInputsRuleSet
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: AWSManagedRulesKnownBadInputsRuleSet
+      - Name: AWSManagedRulesCommonRuleSet
+        Priority: 2
+        OverrideAction:
+          None: {}
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesCommonRuleSet
+            RuleActionOverrides:
+            - Name: SizeRestrictions_BODY
+              ActionToUse:
+                Count: {}
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: AWSManagedRulesCommonRuleSet
+      - Name: AWSManagedRulesSQLiRuleSet
+        Priority: 3
+        OverrideAction:
+          None: {}
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesSQLiRuleSet
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: AWSManagedRulesSQLiRuleSet
+      - Name: AuthenticationRateLimit
+        Priority: 10
+        Action:
+          Block: {}
+        Statement:
+          RateBasedStatement:
+            Limit:
+              Ref: AuthRequestsPerFiveMinutes
+            AggregateKeyType: IP
+            EvaluationWindowSec: 300
+            ScopeDownStatement:
+              OrStatement:
+                Statements:
+                - ByteMatchStatement:
+                    SearchString: /api/auth/login
+                    FieldToMatch:
+                      UriPath: {}
+                    TextTransformations:
+                    - Priority: 0
+                      Type: NONE
+                    PositionalConstraint: EXACTLY
+                - ByteMatchStatement:
+                    SearchString: /api/users
+                    FieldToMatch:
+                      UriPath: {}
+                    TextTransformations:
+                    - Priority: 0
+                      Type: NONE
+                    PositionalConstraint: EXACTLY
+                - ByteMatchStatement:
+                    SearchString: /api/auth/refresh
+                    FieldToMatch:
+                      UriPath: {}
+                    TextTransformations:
+                    - Priority: 0
+                      Type: NONE
+                    PositionalConstraint: EXACTLY
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: AuthenticationRateLimit
+      - Name: GeneralRateLimit
+        Priority: 11
+        Action:
+          Block: {}
+        Statement:
+          RateBasedStatement:
+            Limit:
+              Ref: RequestsPerFiveMinutes
+            AggregateKeyType: IP
+            EvaluationWindowSec: 300
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: false
+          MetricName: GeneralRateLimit
+  Association:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn:
+        Ref: LoadBalancerArn
+      WebACLArn:
+        Fn::GetAtt:
+        - WebAcl
+        - Arn
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: aws-waf-logs-${AWS::StackName}
+      RetentionInDays: 30
+  Logging:
+    Type: AWS::WAFv2::LoggingConfiguration
+    Properties:
+      ResourceArn:
+        Fn::GetAtt:
+        - WebAcl
+        - Arn
+      LogDestinationConfigs:
+      - Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LogGroup}
+      RedactedFields:
+      - SingleHeader:
+          Name: authorization
+      - SingleHeader:
+          Name: cookie
+      - QueryString: {}
+Outputs:
+  WebAclArn:
+    Value:
+      Fn::GetAtt:
+      - WebAcl
+      - Arn

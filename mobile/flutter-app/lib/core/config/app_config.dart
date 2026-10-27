@@ -5,6 +5,12 @@ class AppConfig {
       String.fromEnvironment('API_BASE_URL');
 
   static String get apiBaseUrl {
+    if (kReleaseMode) {
+      final uri = Uri.tryParse(_configuredApiBaseUrl);
+      if (uri == null || uri.scheme != 'https' || uri.host.isEmpty || uri.userInfo.isNotEmpty) {
+        throw StateError('Release builds require an HTTPS API_BASE_URL.');
+      }
+    }
     if (_configuredApiBaseUrl.isNotEmpty) return _configuredApiBaseUrl;
     // Android emulators expose the host machine through 10.0.2.2. iOS
     // simulators can use localhost. Physical devices should pass API_BASE_URL.

@@ -1,0 +1,20 @@
+{
+  "adapterLoadAndSignedRead": true,
+  "automaticExpiryMeasured": false,
+  "customerDataUsed": false,
+  "disposableServiceRemoved": true,
+  "externalServicesContacted": false,
+  "imageId": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+  "lifecycleConfigurationRoundTrip": true,
+  "productionLifecycleAccepted": false,
+  "releaseApproved": false,
+  "restoredBytesMatch": true,
+  "schemaVersion": 1,
+  "serverSideEncryptionExercised": true,
+  "service": "disposable localhost S3-compatible storage",
+  "syntheticVersionsPurged": true,
+  "transportTls": true,
+  "unsignedReadDenied": true,
+  "untrustedTlsRejected": true,
+  "versionedDeleteMarker": true
+}

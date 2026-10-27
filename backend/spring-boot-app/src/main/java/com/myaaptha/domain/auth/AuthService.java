@@ -28,16 +28,18 @@ public class AuthService {
   private final UserRepository userRepository;
   private final JwtTokenService jwtTokenService;
   private final PasswordEncoder passwordEncoder;
+  private final PhoneVerificationService verification;
+  private final AdminMfaService mfa;
 
   public AuthService(
       AuthTokenRepository authTokenRepository,
       UserRepository userRepository,
       JwtTokenService jwtTokenService,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder,PhoneVerificationService verification,AdminMfaService mfa) {
     this.authTokenRepository = authTokenRepository;
     this.userRepository = userRepository;
     this.jwtTokenService = jwtTokenService;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordEncoder = passwordEncoder;this.verification=verification;this.mfa=mfa;
   }
 
   public List<AuthTokenEntity> listTokens() {
@@ -62,7 +64,7 @@ public class AuthService {
     }
 
     String normalizedIdentifier = identifier.trim();
-    UserEntity user = userRepository.findByEmail(normalizedIdentifier.toLowerCase())
+    UserEntity user = (verification.required()?java.util.Optional.<UserEntity>empty():userRepository.findByEmail(normalizedIdentifier.toLowerCase()))
       .or(() -> userRepository.findByPhoneNumber(normalizePhoneNumber(normalizedIdentifier)))
       .or(() -> userRepository.findByUsernameIgnoreCase(normalizedIdentifier))
       .orElseThrow(() -> new IllegalArgumentException("Invalid username, email, phone number, or password"));
@@ -75,6 +77,8 @@ public class AuthService {
       throw new IllegalArgumentException("Invalid username, email, phone number, or password");
     }
 
+    if(verification.required()&&!user.isPhoneVerified())throw new IllegalArgumentException("Verify your phone number using account recovery");
+    mfa.verify(user,request.getOtpCode());
     return issueNewSession(user, null);
   }
 
@@ -97,6 +101,8 @@ public class AuthService {
     UserEntity user = userRepository.findById(userId)
       .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+    if(verification.required()&&!user.isPhoneVerified())throw new IllegalArgumentException("Verified account required");
+    if(!"ACTIVE".equals(user.getAccountStatus()))throw new IllegalArgumentException("This profile cannot sign in");
     return issueNewSession(user, storedToken.getToken());
   }
 
@@ -134,16 +140,21 @@ public class AuthService {
     return response;
   }
 
-  private AuthTokenResponse issueNewSession(UserEntity user, String oldRefreshToken) {
-    String accessToken = jwtTokenService.createAccessToken(user);
-    String refreshToken = jwtTokenService.createRefreshToken(user);
+  private AuthTokenResponse issueNewSession(UserEntity user, String oldRefreshFingerprint) {
+    String sessionId=java.util.UUID.randomUUID().toString();
+    String accessToken = jwtTokenService.createAccessToken(user,sessionId);
+    String refreshToken = jwtTokenService.createRefreshToken(user,sessionId);
 
-    if (oldRefreshToken != null) {
-      authTokenRepository.deleteByToken(tokenFingerprint(oldRefreshToken));
+    if (oldRefreshFingerprint != null) {
+      if (authTokenRepository.consumeRefreshToken(oldRefreshFingerprint) != 1) {
+        throw new IllegalArgumentException("Refresh token was already consumed");
+      }
     }
-    authTokenRepository.deleteByUserIdAndTokenType(user.getId(), "refresh");
+    // A new device or a refresh must not revoke other active device sessions.
+    authTokenRepository.deleteByUserIdAndExpiresAtBefore(user.getId(), Instant.now());
 
     AuthTokenEntity refreshTokenEntity = new AuthTokenEntity();
+    refreshTokenEntity.setSessionId(sessionId);
     refreshTokenEntity.setUserId(user.getId());
     refreshTokenEntity.setTokenType("refresh");
     // Store only a one-way fingerprint. A database leak must not expose reusable sessions.

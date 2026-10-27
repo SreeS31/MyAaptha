@@ -117,7 +117,21 @@ class AuthControllerTest {
   }
 
   @Test
-  void shouldRequireAccessTokenForDashboardSummary() throws Exception {
+  void shouldRejectUnknownAndMalformedInputBeforeAuthentication() throws Exception {
+    mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"email\":\"valid@example.com\",\"password\":\"secret123\",\"unexpected\":true}"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("Malformed JSON or unsupported request field"));
+
+    mockMvc.perform(post("/api/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"email\":\"not-an-email\",\"password\":\"secret123\"}"))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldRequireAdministratorForDashboardSummary() throws Exception {
     createUser("auth-dashboard-user", "auth-dashboard@myaaptha.ai", "secret123");
 
     mockMvc.perform(get("/api/dashboard/summary"))
@@ -133,8 +147,7 @@ class AuthControllerTest {
 
     mockMvc.perform(get("/api/dashboard/summary")
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginPayload.accessToken))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.userCount", not(nullValue())));
+      .andExpect(status().isForbidden());
   }
 
   @Test
@@ -206,11 +219,86 @@ class AuthControllerTest {
       .andExpect(status().isUnauthorized());
   }
 
+  @Test
+  void unsignedForgedAndMalformedTokensCannotAuthenticate() throws Exception {
+    String unsigned = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
+        "{\"alg\":\"none\",\"typ\":\"JWT\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8)) + "." +
+        java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
+        "{\"sub\":\"1\",\"role\":\"ADMIN\",\"exp\":4102444800}".getBytes(java.nio.charset.StandardCharsets.UTF_8)) + ".";
+    for (String attack : java.util.List.of(unsigned, unsigned + "forged", "not-a-token", "a.b.c")) {
+      mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + attack))
+          .andExpect(status().isUnauthorized());
+    }
+  }
+
+  @Test
+  void browserMutationsRejectMissingOrHostileOriginAndMissingCsrfHeader() throws Exception {
+    String payload = "{\"identifier\":\"nobody\",\"password\":\"WrongPassword123!\"}";
+    mockMvc.perform(post("/api/web-auth/login").contentType(MediaType.APPLICATION_JSON).content(payload))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(post("/api/web-auth/login").header("Origin", "https://attacker.invalid")
+        .header("X-MyAaptha-Web", "1").contentType(MediaType.APPLICATION_JSON).content(payload))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(post("/api/web-auth/login").header("Origin", "http://localhost:3000")
+        .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void logoutImmediatelyInvalidatesAccessTokenAndRefreshReplay() throws Exception {
+    createUser("attack-revoke-user", "attack-revoke@myaaptha.ai", "secret123");
+    var login = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new LoginPayload("attack-revoke@myaaptha.ai", "secret123"))))
+        .andExpect(status().isOk()).andReturn();
+    var tokens = objectMapper.readValue(login.getResponse().getContentAsString(), TokenPayload.class);
+    mockMvc.perform(post("/api/auth/logout").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new RefreshPayload(tokens.refreshToken))))
+        .andExpect(status().isNoContent());
+    mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken))
+        .andExpect(status().isUnauthorized());
+    mockMvc.perform(post("/api/auth/refresh").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new RefreshPayload(tokens.refreshToken))))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void publicRegistrationCannotAssignAdministratorRole() throws Exception {
+    mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
+        .content("{\"username\":\"mass-assignment\",\"phoneNumber\":\"+15550112233\",\"password\":\"StrongTest123!\",\"role\":\"ADMIN\"}"))
+        .andExpect(status().isBadRequest());
+  }
+
   private void createUser(String username, String email, String password) throws Exception {
     mockMvc.perform(post("/api/users")
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(new CreateUserPayload(username, email, "+1555" + Math.abs(username.hashCode()), password))))
       .andExpect(status().isOk());
+  }
+
+  @Test
+  void independentDevicesSurviveLoginRefreshAndOtherDeviceLogout() throws Exception {
+    createUser("multi-device-user", "multi-device@myaaptha.ai", "secret123");
+    String body=objectMapper.writeValueAsString(new LoginPayload("multi-device@myaaptha.ai", "secret123"));
+    var first=mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isOk()).andReturn();
+    var mobile=objectMapper.readValue(first.getResponse().getContentAsString(),TokenPayload.class);
+    var second=mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isOk()).andReturn();
+    var web=objectMapper.readValue(second.getResponse().getContentAsString(),TokenPayload.class);
+    mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION,"Bearer "+mobile.accessToken))
+        .andExpect(status().isOk());
+    var refreshed=mockMvc.perform(post("/api/auth/refresh").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new RefreshPayload(web.refreshToken))))
+        .andExpect(status().isOk()).andReturn();
+    web=objectMapper.readValue(refreshed.getResponse().getContentAsString(),TokenPayload.class);
+    mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION,"Bearer "+mobile.accessToken))
+        .andExpect(status().isOk());
+    mockMvc.perform(post("/api/auth/logout").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(new RefreshPayload(web.refreshToken))))
+        .andExpect(status().isNoContent());
+    mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION,"Bearer "+web.accessToken))
+        .andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/api/auth/me").header(HttpHeaders.AUTHORIZATION,"Bearer "+mobile.accessToken))
+        .andExpect(status().isOk());
   }
 
   private record CreateUserPayload(String username, String email, String phoneNumber, String password) {

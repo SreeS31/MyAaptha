@@ -11,7 +11,7 @@ import java.util.List;
 public interface CircleRepository extends JpaRepository<CircleEntity, Long> {
   List<CircleEntity> findByOwnerUserId(Long ownerUserId);
 
-  @Query(value = "SELECT DISTINCT c.* FROM circles c LEFT JOIN circle_members cm ON cm.circle_id = c.id "
-      + "WHERE c.owner_user_id = :userId OR cm.user_id = :userId", nativeQuery = true)
+  @Query(value = "SELECT c.* FROM circles c WHERE c.owner_user_id = :userId UNION SELECT c.* FROM circles c JOIN circle_members cm ON cm.circle_id = c.id "
+      + "WHERE cm.user_id = :userId", nativeQuery = true)
   List<CircleEntity> findVisibleToUser(@Param("userId") Long userId);
 }

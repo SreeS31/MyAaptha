@@ -20,6 +20,13 @@ public class DirectMessageEntity {
   @Column(name="reply_to_message_id") private Long replyToMessageId;
   @Column(name="edited_at") private Instant editedAt;
   @Column(name="deleted_at") private Instant deletedAt;
+  @Column(nullable=false) private boolean forwarded;
+  public boolean isForwarded(){return forwarded;}
+  public void setForwarded(boolean value){forwarded=value;}
+  @Column(name="sender_hidden",nullable=false) private boolean senderHidden;
+  @Column(name="recipient_hidden",nullable=false) private boolean recipientHidden;
+  public boolean hiddenFor(Long user){return user.equals(senderUserId)?senderHidden:recipientHidden;}
+  public void hideFor(Long user){if(user.equals(senderUserId))senderHidden=true;else recipientHidden=true;}
   public Long getId(){return id;}
   public Long getSenderUserId(){return senderUserId;} public void setSenderUserId(Long value){senderUserId=value;}
   public Long getRecipientUserId(){return recipientUserId;} public void setRecipientUserId(Long value){recipientUserId=value;}

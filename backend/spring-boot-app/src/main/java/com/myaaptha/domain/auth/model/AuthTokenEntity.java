@@ -29,6 +29,10 @@ public class AuthTokenEntity {
   @Column(name = "expires_at", nullable = false)
   private Instant expiresAt;
 
+  @jakarta.persistence.Column(name="session_id",length=36) private String sessionId;
+  public String getSessionId(){return sessionId;}
+  public void setSessionId(String value){sessionId=value;}
+
   public Long getId() {
     return id;
   }

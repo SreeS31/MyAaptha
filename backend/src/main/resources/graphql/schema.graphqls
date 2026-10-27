@@ -1,0 +1,24 @@
+type Circle {
+    id: ID!
+    name: String!
+    category: String
+    nodeCount: Int
+}
+
+type PersonNode {
+    id: ID!
+    fullName: String!
+    gender: String
+    age: Int
+}
+
+type KinshipResult {
+    label: String!
+    path: [String!]!
+    distance: Int!
+}
+
+type Query {
+    circle(id: ID!): Circle
+    kinship(fromId: ID!, toId: ID!): KinshipResult
+}

@@ -1,0 +1,16 @@
+# Linux host only. Supply the protected Coturn configuration and issued certificates.
+services:
+  call-relay:
+    image: ${COTURN_IMAGE:?Set immutable Coturn image digest}
+    restart: unless-stopped
+    network_mode: host
+    command: [-c, /etc/coturn/turnserver.conf]
+    volumes:
+      - ./secrets/turnserver.conf:/etc/coturn/turnserver.conf:ro
+      - ./certs/turn-fullchain.pem:/etc/coturn/tls/fullchain.pem:ro
+      - ./certs/turn-key.pem:/etc/coturn/tls/key.pem:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 256m

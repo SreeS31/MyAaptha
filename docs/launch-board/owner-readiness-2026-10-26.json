@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "ownerInputSnapshotCurrent": true,
+  "confirmed": {
+    "legalEntity": "CPET Solutions Pvt. Ltd.",
+    "country": "India",
+    "preferredRegion": "India",
+    "hostingMonthlyInr": 6000,
+    "setupBudgetInr": 20000,
+    "aiMonthlyInr": 3000,
+    "launchTarget": "2026-11-09",
+    "domain": "www.myaaptha.com",
+    "healthAnalysisRequired": true,
+    "audioCallingRequired": true,
+    "videoCallingRequired": true,
+    "retentionDaysRaw": 180,
+    "retentionInterpretation": "awaiting clarification",
+    "rpoRtoRaw": "1 day",
+    "privacyOwner": "Manager, CPET Solutions",
+    "supportOwner": "Manager, CPET Solutions",
+    "moderationOwner": "CTO, CPET Solutions",
+    "emergencyDocumentOwner": "CTO, CPET Solutions",
+    "releaseApprover": "project owner",
+    "playOwner": "CPET Solutions",
+    "appleOwner": "project owner",
+    "macRunnerAvailable": false,
+    "smsCredentialsPromisedLater": true
+  },
+  "recommendations": {
+    "provider": "AWS Lightsail",
+    "region": "ap-south-1",
+    "memoryGiB": 8,
+    "vcpus": 2,
+    "databaseMode": "single-host PostgreSQL and Redis with TLS",
+    "stagingDomain": "staging.myaaptha.com",
+    "turnDomain": "turn.myaaptha.com",
+    "androidApplicationId": "com.myaaptha.app",
+    "iosBundleId": "com.myaaptha.app",
+    "emailProvider": "Amazon SES SMTP",
+    "pushProvider": "Firebase Cloud Messaging",
+    "helpModelCandidate": "gpt-6-luna",
+    "strongerModelCandidate": "gpt-6.1-sol",
+    "activeMediaGb": 100,
+    "recoveryAndVersionsGb": 100,
+    "snapshotGb": 20,
+    "monthlyEmails": 10000,
+    "usdInrPlanningRate": 95,
+    "taxAllowance": 0.18,
+    "computeMonthlyUsd": 44,
+    "storageUsdPerGb": 0.025,
+    "snapshotUsdPerGb": 0.05,
+    "emailUsdPerThousand": 0.1,
+    "dnsMonthlyUsd": 0.5,
+    "rpoHours": 24,
+    "rtoHours": 24
+  },
+  "initialBudgetScenario": {
+    "usd": 51.5,
+    "inr": 5773.15,
+    "withinBudget": true,
+    "headroomInr": 226.85,
+    "activeStorageGb": 100.0,
+    "recoveryAndVersionsGb": 100.0,
+    "usdItems": {
+      "compute": 44.0,
+      "activeStorage": 2.5,
+      "recoveryAndVersions": 2.5,
+      "snapshots": 1.0,
+      "outboundEmail": 1.0,
+      "dns": 0.5
+    },
+    "capacityAccepted": false,
+    "exclusions": [
+      "storage requests and internet egress",
+      "SMS",
+      "store fees and Mac runner",
+      "independent reviews",
+      "extra staging host",
+      "managed database/cache charges",
+      "AI (separate budget)"
+    ]
+  },
+  "full1000UserQuotaScenario": {
+    "usd": 96.5,
+    "inr": 10817.65,
+    "withinBudget": false,
+    "headroomInr": -4817.65,
+    "activeStorageGb": 1000.0,
+    "recoveryAndVersionsGb": 1000.0,
+    "usdItems": {
+      "compute": 44.0,
+      "activeStorage": 25.0,
+      "recoveryAndVersions": 25.0,
+      "snapshots": 1.0,
+      "outboundEmail": 1.0,
+      "dns": 0.5
+    },
+    "capacityAccepted": false,
+    "exclusions": [
+      "storage requests and internet egress",
+      "SMS",
+      "store fees and Mac runner",
+      "independent reviews",
+      "extra staging host",
+      "managed database/cache charges",
+      "AI (separate budget)"
+    ]
+  },
+  "protectedConfigurationPresence": {
+    "applicationKeys": {
+      "allFilesPresent": true,
+      "requiredReferences": [
+        "postgres_password",
+        "redis_password",
+        "jwt_secret",
+        "field_encryption_keys",
+        "admin_mfa_encryption_key"
+      ],
+      "liveValidated": false
+    },
+    "turnRelay": {
+      "allFilesPresent": true,
+      "requiredReferences": [
+        "integrations/myaaptha.calls.turn-secret"
+      ],
+      "liveValidated": false
+    },
+    "aiProvider": {
+      "allFilesPresent": false,
+      "requiredReferences": [
+        "integrations/myaaptha.help-ai.api-key",
+        "integrations/myaaptha.health-ai.api-key"
+      ],
+      "liveValidated": false
+    },
+    "googleContacts": {
+      "allFilesPresent": false,
+      "requiredReferences": [
+        "integrations/myaaptha.contact-oauth.google-client-id",
+        "integrations/myaaptha.contact-oauth.google-client-secret"
+      ],
+      "liveValidated": false
+    },
+    "microsoftContacts": {
+      "allFilesPresent": false,
+      "requiredReferences": [
+        "integrations/myaaptha.contact-oauth.microsoft-client-id",
+        "integrations/myaaptha.contact-oauth.microsoft-client-secret"
+      ],
+      "liveValidated": false
+    }
+  },
+  "externalServicesContacted": false,
+  "productionActivated": false,
+  "releaseApproved": false,
+  "remainingExternalDependencies": [
+    "delegated cloud and Porkbun DNS access",
+    "actual provider projects and credentials",
+    "real alert destination and test recipients",
+    "physical Android/iOS devices and Apple/Mac signing access",
+    "retention interpretation and approved policies",
+    "independent security and health-quality reviewers"
+  ]
+}

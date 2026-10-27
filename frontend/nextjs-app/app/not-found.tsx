@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="container empty-state">
       <div className="card" style={{ maxWidth: '32rem' }}>
         <p className="eyebrow">ERROR 404</p>
-        <h1 style={{ marginTop: '.5rem', fontSize: '2.5rem' }}>This page drifted out of the circle.</h1>
+        <h1 style={{ marginTop: '.5rem', fontSize: 'var(--text-size)' }}>This page drifted out of the circle.</h1>
         <p style={{ color: '#64748b' }}>The page you requested could not be found.</p>
         <Link href="/" className="btn btn-primary">
           Back home

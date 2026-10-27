@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-21",
+  "scope": "Local final production-built web UI; desktop and phone-browser projects",
+  "browserScenariosPassed": 12,
+  "routeAudit": {
+    "desktop": {
+      "uniqueRoutes": 28,
+      "observations": 31
+    },
+    "mobile-web": {
+      "uniqueRoutes": 28,
+      "observations": 31
+    }
+  },
+  "expandedFormStates": {
+    "desktop": 27,
+    "mobile-web": 27
+  },
+  "administratorDraftScenarios": 2,
+  "artifactsMatch": true,
+  "releaseApproved": false,
+  "logs": [
+    "ui-final-verification-20261021.log",
+    "ui-final-desktop-forms-20261021.log",
+    "ui-final-admin-desktop-20261021.log",
+    "ui-final-mobile-20261021.log"
+  ]
+}

@@ -1,0 +1,12 @@
+# Add to docker-compose.prod.yml after supplying the protected integration files.
+services:
+  backend:
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configtree:/run/secrets/,optional:configtree:/run/integrations/
+      MYAAPTHA_TURN_URLS: ${MYAAPTHA_TURN_URLS:-}
+      MYAAPTHA_CALLS_RELAY_REQUIRED: ${MYAAPTHA_CALLS_RELAY_REQUIRED:-true}
+      MYAAPTHA_TURN_CREDENTIAL_SECONDS: ${MYAAPTHA_TURN_CREDENTIAL_SECONDS:-3600}
+      # A launch requirement is not provider/consent acceptance. Enable deliberately after review.
+      MYAAPTHA_HEALTH_AI_ENABLED: ${MYAAPTHA_HEALTH_AI_ENABLED:-false}
+    volumes:
+      - ./secrets/integrations:/run/integrations:ro

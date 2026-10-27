@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const [taskGroups, setTaskGroups] = useState<any[]>([]);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [sessionUser, setSessionUser] = useState<{ username: string; email: string; role: string } | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [sessionError, setSessionError] = useState('');
   const [resourceType, setResourceType] = useState<ResourceType>('user');
   const [summary, setSummary] = useState({ userCount: 0, personCount: 0, circleCount: 0, relationshipCount: 0, permissionCount: 0 });
   const [status, setStatus] = useState('Ready to add a new record.');
@@ -68,6 +70,8 @@ export default function DashboardPage() {
   });
 
   const loadData = useCallback(async () => {
+    setSessionLoading(true);
+    setSessionError('');
     try {
       const profileData = await fetchSessionProfile();
       setSessionUser({ username: profileData.username, email: profileData.email, role: profileData.role });
@@ -89,6 +93,8 @@ export default function DashboardPage() {
         return;
       }
 
+      setSessionError(error instanceof Error ? error.message : 'The dashboard could not reach the server.');
+
       setUsers([]);
       setPeople([]);
       setCircles([]);
@@ -100,6 +106,8 @@ export default function DashboardPage() {
       setMilestones([]);
       setSessionUser(null);
       setSummary({ userCount: 0, personCount: 0, circleCount: 0, relationshipCount: 0, permissionCount: 0 });
+    } finally {
+      setSessionLoading(false);
     }
   }, [router]);
 
@@ -654,11 +662,13 @@ export default function DashboardPage() {
   const activeMilestones = milestones.filter((milestone) => milestone.status !== 'Completed').length;
 
   if (sessionUser?.role !== 'ADMIN') {
-    return sessionUser ? <UserNetworkDashboard username={sessionUser.username} /> : <main className="container"><p>Loading your network…</p></main>;
+    if (sessionUser) return <UserNetworkDashboard username={sessionUser.username} />;
+    if (sessionLoading) return <main className="container"><p>Loading your network…</p></main>;
+    return <main className="container"><section className="card social-empty"><h2>Dashboard could not load</h2><p>{sessionError || 'Your session is no longer available.'}</p><div><button className="btn btn-primary" onClick={()=>void loadData()}>Try again</button><button className="btn btn-secondary" onClick={()=>router.replace('/auth')}>Sign in again</button></div></section></main>;
   }
 
   return (
-    <main className="container" style={{ paddingTop: '3rem' }}>
+    <main className="container admin-workspace" style={{ paddingTop: '3rem' }}>
       {toast && (
         <div className={`toast toast-${toast.tone}`} role="status" aria-live="polite">
           <p style={{ margin: 0 }}>{toast.message}</p>
@@ -676,7 +686,7 @@ export default function DashboardPage() {
       <div className="nav">
         <div style={{ fontWeight: 800 }}>Dashboard</div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          {sessionUser && <span style={{ color: '#334155', fontSize: '0.9rem' }}>Signed in as {sessionUser.username}</span>}
+          {sessionUser && <span style={{ color: '#334155', fontSize: 'var(--text-size)' }}>Signed in as {sessionUser.username}</span>}
           <Link href="/">Back home</Link>
           <Link href="/session">Session</Link>
           <Link href="/moderation">Moderation</Link>
@@ -767,7 +777,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="card" style={{ marginTop: '1.5rem' }}>
+      <section className="card admin-record-form" style={{ marginTop: '1.5rem' }}>
         <h3>Create a new record</h3>
         <p style={{ color: '#64748b' }}>
           Use this form to post users, people, circles, projects, and tasks directly to the backend API.
@@ -1066,7 +1076,7 @@ export default function DashboardPage() {
         </form>
       </section>
 
-      <section className="grid" style={{ marginTop: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+      <section className="grid admin-records-grid" style={{ marginTop: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
         <div className="card">
           <h3>Users</h3>
           <ul>{users.map((user) => <li key={user.id || user.username}>{user.username || user.phoneNumber} {sessionUser?.role === 'ADMIN' && <button type="button" className="btn btn-secondary" style={{ padding: '0.2rem 0.45rem', marginLeft: '0.4rem' }} onClick={() => handleAdminEdit('user', user)}>Edit</button>}</li>)}</ul>
@@ -1118,7 +1128,7 @@ export default function DashboardPage() {
         <p style={{ color: '#64748b', marginTop: 0 }}>Timeline view of milestones with linked tasks.</p>
         <div style={{ display: 'grid', gap: '0.6rem', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginTop: '0.75rem' }}>
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontSize: '0.88rem', color: '#475569' }}>Filter by project</span>
+            <span style={{ fontSize: 'var(--text-size)', color: '#475569' }}>Filter by project</span>
             <select
               value={roadmapProjectFilter}
               onChange={(event) => setRoadmapProjectFilter(event.target.value)}
@@ -1133,7 +1143,7 @@ export default function DashboardPage() {
             </select>
           </label>
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontSize: '0.88rem', color: '#475569' }}>Filter by status</span>
+            <span style={{ fontSize: 'var(--text-size)', color: '#475569' }}>Filter by status</span>
             <select
               value={roadmapStatusFilter}
               onChange={(event) => setRoadmapStatusFilter(event.target.value)}
@@ -1147,7 +1157,7 @@ export default function DashboardPage() {
             </select>
           </label>
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontSize: '0.88rem', color: '#475569' }}>Sort milestones</span>
+            <span style={{ fontSize: 'var(--text-size)', color: '#475569' }}>Sort milestones</span>
             <select
               value={roadmapSort}
               onChange={(event) => setRoadmapSort(event.target.value)}
@@ -1159,7 +1169,7 @@ export default function DashboardPage() {
             </select>
           </label>
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontSize: '0.88rem', color: '#475569' }}>Search milestones</span>
+            <span style={{ fontSize: 'var(--text-size)', color: '#475569' }}>Search milestones</span>
             <input
               value={roadmapQuery}
               onChange={(event) => setRoadmapQuery(event.target.value)}
@@ -1206,15 +1216,15 @@ export default function DashboardPage() {
             >
               Mark Selected Blocked
             </button>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 700 }}>
+            <span style={{ fontSize: 'var(--text-size)', color: '#64748b', fontWeight: 700 }}>
               {selectedMilestoneIds.length} selected
             </span>
           </div>
         </div>
         <div style={{ display: 'grid', gap: '0.85rem', marginTop: '0.8rem' }}>
-          {milestones.length === 0 && <p style={{ margin: 0, color: '#94a3b8' }}>No milestones yet.</p>}
+          {milestones.length === 0 && <p style={{ margin: 0, color: 'var(--text-muted)' }}>No milestones yet.</p>}
           {milestones.length > 0 && sortedRoadmapMilestones.length === 0 && (
-            <p style={{ margin: 0, color: '#94a3b8' }}>No milestones match your current filters.</p>
+            <p style={{ margin: 0, color: 'var(--text-muted)' }}>No milestones match your current filters.</p>
           )}
           {sortedRoadmapMilestones.map((milestone) => {
             const linkedTasks = tasks.filter((task) => task.milestoneId === milestone.id);
@@ -1225,7 +1235,7 @@ export default function DashboardPage() {
             return (
               <div key={milestone.id || milestone.name} style={{ border: '1px solid #dbe3ee', borderRadius: '0.85rem', padding: '0.9rem 1rem', background: '#f8fbff' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.8rem' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#334155', fontSize: '0.84rem', fontWeight: 700 }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#334155', fontSize: 'var(--text-size)', fontWeight: 700 }}>
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -1238,17 +1248,17 @@ export default function DashboardPage() {
                     <>
                       <div>
                         <p style={{ margin: 0, fontWeight: 700 }}>{milestone.name}</p>
-                        <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.92rem' }}>{milestone.description}</p>
-                        <p style={{ margin: '0.35rem 0 0', color: isOverdue ? '#b91c1c' : '#475569', fontSize: '0.82rem', fontWeight: 700 }}>
+                        <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: 'var(--text-size)' }}>{milestone.description}</p>
+                        <p style={{ margin: '0.35rem 0 0', color: isOverdue ? '#b91c1c' : '#475569', fontSize: 'var(--text-size)', fontWeight: 700 }}>
                           {milestone.dueDate ? `Due ${milestone.dueDate}${isOverdue ? ' (overdue)' : ''}` : 'No due date'}
                         </p>
                         {milestone.status === 'Blocked' && milestone.blockedReason && (
-                          <p style={{ margin: '0.35rem 0 0', color: '#92400e', fontSize: '0.82rem', fontWeight: 700 }}>
+                          <p style={{ margin: '0.35rem 0 0', color: '#92400e', fontSize: 'var(--text-size)', fontWeight: 700 }}>
                             Blocked: {milestone.blockedReason}
                           </p>
                         )}
                       </div>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, padding: '0.3rem 0.6rem', borderRadius: '999px', background: '#dbeafe', color: '#1e3a8a' }}>
+                      <span style={{ fontSize: 'var(--text-size)', fontWeight: 700, padding: '0.3rem 0.6rem', borderRadius: '999px', background: '#dbeafe', color: '#1e3a8a' }}>
                         {milestone.status}
                       </span>
                     </>
@@ -1304,11 +1314,11 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-                <div style={{ marginTop: '0.55rem', color: '#475569', fontSize: '0.9rem' }}>
+                <div style={{ marginTop: '0.55rem', color: '#475569', fontSize: 'var(--text-size)' }}>
                   {linkedTasks.length === 0 ? 'No linked tasks yet.' : `${linkedTasks.length} linked task(s): ${linkedTasks.map((task) => task.title).join(', ')}`}
                 </div>
                 <div style={{ marginTop: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-size)', color: '#64748b', marginBottom: '0.25rem' }}>
                     <span>Task progress</span>
                     <span>{progress.completedTasks}/{progress.totalTasks} done ({progress.percent}%)</span>
                   </div>

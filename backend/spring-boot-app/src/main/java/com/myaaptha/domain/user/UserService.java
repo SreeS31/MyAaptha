@@ -16,10 +16,11 @@ import com.myaaptha.domain.user.model.UserEntity;
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final com.myaaptha.domain.auth.PhoneVerificationService verification;
 
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,com.myaaptha.domain.auth.PhoneVerificationService verification) {
     this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordEncoder = passwordEncoder;this.verification=verification;
   }
 
   public List<UserDto> listUsers() {
@@ -41,6 +42,13 @@ public class UserService {
     }
     UserEntity invitedUser = userRepository.findByPhoneNumber(phoneNumber)
         .filter(user -> "INVITED".equals(user.getAccountStatus())).orElse(null);
+    // A typed phone number is not proof of ownership. Do not attach an
+    // existing invitation and its private relationships to an unverified caller.
+    boolean verified=verification.verify(phoneNumber,request.getVerificationCode());
+    if (invitedUser != null && !verified) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "This number has an invitation. Verified invitation claiming is not available yet; contact support.");
+    }
     if (email != null && userRepository.findByEmail(email)
         .filter(user -> invitedUser == null || !user.getId().equals(invitedUser.getId())).isPresent()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use");
@@ -53,11 +61,13 @@ public class UserService {
     entity.setUsername(username);
     entity.setEmail(email);
     entity.setPhoneNumber(phoneNumber);
+    entity.setPhoneVerified(verified);
     entity.setPasswordHash(passwordEncoder.encode(password));
     entity.setFirstName(optionalText(request.getFirstName()));
     entity.setSurname(optionalText(request.getSurname()));
     entity.setLocation(optionalText(request.getLocation()));
     entity.setAccountStatus("ACTIVE");
+    if(invitedUser!=null)entity.setClaimStatus("CLAIMED");
     return toDto(userRepository.save(entity));
   }
 

@@ -1,0 +1,32 @@
+name: myaaptha-preview
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: myaaptha
+      POSTGRES_USER: myaaptha
+      POSTGRES_PASSWORD: myaaptha-local-preview-only
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - preview-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U myaaptha -d myaaptha"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  clamav:
+    image: clamav/clamav:stable
+    ports:
+      - "127.0.0.1:53310:3310"
+    volumes:
+      - preview-signatures:/var/lib/clamav
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --requirepass, myaaptha-local-preview-only]
+    ports:
+      - "127.0.0.1:${MYAAPTHA_PREVIEW_REDIS_PORT:-16379}:6379"
+volumes:
+  preview-data:
+  preview-signatures:

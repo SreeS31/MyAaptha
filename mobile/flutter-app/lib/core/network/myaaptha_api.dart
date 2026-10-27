@@ -3,13 +3,81 @@ import 'package:myaaptha_mobile/core/models/network_models.dart';
 import 'package:myaaptha_mobile/core/network/api_client.dart';
 import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 import 'dart:typed_data';
+import 'package:myaaptha_mobile/features/auth/data/session_refresher.dart';
 
 class MyAapthaApi {
+  Future<List<Map<String,dynamic>>> timelineEvents() async=>(await _json(_client.get('/api/timeline/events',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<void> deleteTimelineEvent(String key) async => _json(_client.delete('/api/timeline/events/${Uri.encodeComponent(key)}',bearerToken:_token));
+  Future<Map<String,dynamic>> saveTimelineEvent(Map<String,dynamic> event) async=>Map<String,dynamic>.from(await _json(_client.put('/api/timeline/events/${Uri.encodeComponent(event['eventKey'] as String)}',event,bearerToken:_token)) as Map);
+  Future<List<Map<String,dynamic>>> timelineRelationships() async=>(await _json(_client.get('/api/network/relationships',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+
+  Future<CircleModel> createChatGroup(String name, List<int> members) async => CircleModel.fromJson(Map<String, dynamic>.from(await _json(_client.post('/api/network/chats/groups', {'name': name, 'memberIds': members}, bearerToken: _token)) as Map));
+  Future<List<Map<String, dynamic>>> searchAllChats(String query) async => (await _json(_client.get('/api/network/chats/search?q=${Uri.encodeQueryComponent(query)}', bearerToken: _token)) as List).map((v) => Map<String, dynamic>.from(v as Map)).toList();
+  Future<Map<String, dynamic>> uploadPolicy() async => Map<String, dynamic>.from(await _json(_client.get('/api/uploads/policy', bearerToken: _token)) as Map);
+  Future<Map<String, dynamic>> sessionProfile() async => Map<String, dynamic>.from(await _json(_client.get('/api/auth/me', bearerToken: _token)) as Map);
+  Future<List<Map<String, dynamic>>> uploadLevels() async => (await _json(_client.get('/api/admin/upload-levels', bearerToken: _token)) as List).map((v) => Map<String, dynamic>.from(v as Map)).toList();
+  Future<void> saveUploadLevel(Map<String, dynamic> level) async => _json(_client.put('/api/admin/upload-levels', level, bearerToken: _token));
+  Future<void> assignUploadLevel(int userId, int levelId) async => _json(_client.put('/api/admin/upload-levels/users/$userId', {'levelId': levelId}, bearerToken: _token));
+  Future<List<CircleConversation>> circleConversations() async => (await _json(_client.get('/api/network/chats/circles',bearerToken:_token)) as List).map((v)=>CircleConversation.fromJson(Map<String,dynamic>.from(v as Map))).toList();
+  Future<void> forwardChatMessage(String type,int conversation,int message,List<ChatTarget> targets) async => _json(_client.post('/api/network/chats/forward',{'sourceType':type,'conversationId':conversation,'messageId':message,'targets':targets.map((t)=>t.toJson()).toList()},bearerToken:_token));
+  Future<void> setCircleMessageFlags(int circle,int id,bool? starred,bool? pinned) async => _json(_client.put('/api/network/chats/circles/$circle/$id/flags',{if(starred!=null)'starred':starred,if(pinned!=null)'pinned':pinned},bearerToken:_token));
+  Future<List<ChatTarget>> forwardTargets() async {
+    final relations=await relationships();final chats=await directConversations();final groups=await circles();
+    final people=<int,String>{for(final chat in chats)chat.userId:chat.displayName};
+    for(final relation in relations){if(relation.person.accountStatus=='ACTIVE'&&relation.person.identityType!='MANAGED')people[relation.person.id]=relation.person.displayName;}
+    return [...people.entries.map((entry)=>ChatTarget(type:'DIRECT',id:entry.key,name:entry.value)),...groups.where((c)=>c.currentUserCanPost).map((c)=>ChatTarget(type:'CIRCLE',id:c.id,name:c.name))];
+  }
+
+  Future<Map<String,dynamic>> addressBook({String query='',int afterId=0,int? circleId}) async => Map<String,dynamic>.from(await _json(_client.get('/api/address-book?q=${Uri.encodeQueryComponent(query)}&afterId=$afterId&limit=50${circleId==null?'':'&circleId=$circleId'}',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> importReviewedAddressBook(List<Map<String,dynamic>> contacts,String source,bool organize) async => Map<String,dynamic>.from(await _json(_client.post('/api/address-book/import-reviewed',{'consent':true,'source':source,'contacts':contacts.map((row)=>{'contact':{for(final e in row.entries) if(e.key!='selected'&&e.key!='circleNames') e.key:e.value},'circleNames':organize?(row['circleNames'] as List).cast<String>().map((n)=>n.trim()).where((n)=>n.isNotEmpty).toList():<String>[]}).toList()},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> importAddressBook(List<Map<String,dynamic>> contacts,String source,bool organize) async => Map<String,dynamic>.from(await _json(_client.post('/api/address-book/import',{'consent':true,'contacts':contacts,'source':source,'organize':organize},bearerToken:_token)) as Map);
+  Future<void> removeAddressContact(int id) async => _json(_client.delete('/api/address-book/$id',bearerToken:_token));
+  Future<void> clearAddressBook() async => _json(_client.delete('/api/address-book?confirm=true',bearerToken:_token));
+  Future<Map<String,dynamic>> addressBookProviders() async => Map<String,dynamic>.from(await _json(_client.get('/api/address-book/providers',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> connectAddressBook(String email,String provider,bool organize) async => Map<String,dynamic>.from(await _json(_client.post('/api/address-book/oauth/start',{'consent':true,'email':email,'provider':provider,'organize':organize},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> addressBookOAuthResult(String key) async => Map<String,dynamic>.from(await _json(_client.get('/api/address-book/oauth/results/${Uri.encodeComponent(key)}',bearerToken:_token)) as Map);
+  Future<List<Map<String,dynamic>>> addressCircles() async => (await _json(_client.get('/api/address-book/circles',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<void> assignAddressCircles(int id,List<int> circles) async => _json(_client.put('/api/address-book/$id/circles',{'circleIds':circles},bearerToken:_token));
+  Future<void> relateAddressContact(int id,String relationship,String? phone) async => _json(_client.post('/api/address-book/$id/relation',{'consent':true,'relationship':relationship,'phone':phone},bearerToken:_token));
+
+  Future<void> forwardDirectMessage(int other,int id,int recipientId) async => _json(_client.post('/api/network/messages/with/$other/$id/forward',{'recipientId':recipientId},bearerToken:_token));
+  Future<void> setMessageFlags(int other,int id,bool? starred,bool? pinned) async => _json(_client.put('/api/network/messages/with/$other/$id/flags', {if(starred!=null)'starred':starred,if(pinned!=null)'pinned':pinned},bearerToken:_token));
+  Future<List<ConversationMessage>> savedMessages(int other,String kind,{int? beforeId}) async => (await _json(_client.get('/api/network/messages/with/$other/saved?kind=$kind&limit=50${beforeId==null?'':'&beforeId=$beforeId'}',bearerToken:_token)) as List).map((v)=>ConversationMessage.fromJson(Map<String,dynamic>.from(v as Map))).toList();
+  Future<void> acknowledgeMessages(int other,List<int> ids) async => _json(_client.post('/api/network/messages/with/$other/read',{'messageIds':ids},bearerToken:_token));
+  Future<void> saveChatSettings(int other,{bool? archived,bool? muted,bool? markedUnread}) async => _json(_client.put('/api/network/messages/with/$other/settings',{if(archived!=null)'archived':archived,if(muted!=null)'muted':muted,if(markedUnread!=null)'markedUnread':markedUnread},bearerToken:_token));
+  Future<void> pinConversation(int other,bool pinned) async => _json(_client.put('/api/network/messages/with/$other/pin',{'pinned':pinned},bearerToken:_token));
+  Future<bool> messagePreferences() async => (await _json(_client.get('/api/network/messages/preferences',bearerToken:_token)) as Map)['readReceipts']==true;
+  Future<void> saveMessagePreferences(bool readReceipts) async => _json(_client.put('/api/network/messages/preferences',{'readReceipts':readReceipts},bearerToken:_token));
+
+  Future<Map<String, dynamic>> helpStatus() async => Map<String, dynamic>.from(await _json(_client.get('/api/ai/help', bearerToken: _token)) as Map);
+  Future<void> setHelpEnhanced(bool enabled) async { await _json(_client.put('/api/ai/help/admin/settings',{'enhancedEnabled':enabled},bearerToken:_token)); }
+  Future<void> clearSharedHelp() async { await _json(_client.delete('/api/ai/help/admin/answers',bearerToken:_token)); }
+  Future<void> publishHelpAnswer(String question,String answer,List<String> sources) async { await _json(_client.post('/api/ai/help/admin/answers',{'question':question,'answer':answer,'sourceIds':sources,'confirmedPublic':true},bearerToken:_token)); }
+  Future<Map<String, dynamic>> retryHelp(String exchangeId) async => Map<String,dynamic>.from(await _json(_client.post('/api/ai/help/chat', {'message':'Retry my saved question','history':[],'useAi':true,'retryOf':exchangeId},bearerToken:_token)) as Map);
+  Future<void> clearHelpHistory() async { await _json(_client.delete('/api/ai/help/history',bearerToken:_token)); }
+  Future<Map<String, dynamic>> askHelp(String message, List<Map<String, String>> history, bool useAi) async => Map<String, dynamic>.from(await _json(_client.post('/api/ai/help/chat', {'message':message,'history':history,'useAi':useAi}, bearerToken:_token)) as Map);
   MyAapthaApi(this.session, {ApiClient? client})
-      : _client = client ?? ApiClient(baseUrl: AppConfig.apiBaseUrl);
+      : _client = client ?? ApiClient(baseUrl: AppConfig.apiBaseUrl,
+          accessTokenProvider: () => SessionRefresher.shared.accessToken(session));
   final AuthTokenBundle session;
   final ApiClient _client;
   String get _token => session.accessToken;
+  Future<PeopleDiscovery> discoverPeople(String query) async => PeopleDiscovery.fromJson(
+      Map<String,dynamic>.from(await _json(_client.get('/api/network/discover?q=${Uri.encodeQueryComponent(query)}',bearerToken:_token)) as Map));
+  Future<Map<String,dynamic>> applicationSettings() async => Map<String,dynamic>.from(
+      await _json(_client.get('/api/settings/me',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> updateApplicationSettings(Map<String,dynamic> values) async => Map<String,dynamic>.from(
+      await _json(_client.put('/api/settings/me',values,bearerToken:_token)) as Map);
+
+  Future<Map<String,dynamic>> healthAnalysisPolicy() async => Map<String,dynamic>.from(await _json(_client.get('/api/health/ai-status',bearerToken:_token)) as Map);
+  Future<void> analyzeHealthReport(Uint8List bytes,String name,{required bool processingConsent}) async {
+    if(!processingConsent)throw const FormatException('Consent to external processing is required for this report.');
+    if(bytes.isEmpty||bytes.length>25*1024*1024)throw const FormatException('Choose a non-empty report of 25 MB or smaller.');
+    final extension=name.split('.').last.toLowerCase();
+    final type={'pdf':'application/pdf','jpg':'image/jpeg','jpeg':'image/jpeg','png':'image/png'}[extension];
+    if(type==null)throw const FormatException('Choose a PDF, JPEG or PNG report.');
+    await _json(_client.postMultipart('/api/health/reports/analyze',{'processingConsent':'true'},bearerToken:_token,fileBytes:bytes,fileName:name,fileContentType:type,requestRetention:false));
+  }
   Future<Map<String, dynamic>> healthDashboard() async =>
       Map<String, dynamic>.from(await _json(
           _client.get('/api/health/dashboard', bearerToken: _token)) as Map);
@@ -17,6 +85,19 @@ class MyAapthaApi {
       _json(_client.post('/api/health/reports', value, bearerToken: _token));
   Future<void> deleteHealthReport(int id) async =>
       _json(_client.delete('/api/health/reports/$id', bearerToken: _token));
+  Future<List<Map<String,dynamic>>> renewals() async => (await _json(_client.get('/api/finance/renewals',bearerToken:_token)) as List).map((row)=>Map<String,dynamic>.from(row as Map)).toList();
+  Future<Map<String,dynamic>> saveRenewal(Map<String,dynamic> value,{int? id}) async {
+    final input={for(final key in ['kind','title','provider','referenceNumber','amount','purchasedOn','expiresOn','timezone','notes','remindersEnabled','archived']) if(value.containsKey(key)) key:value[key]};
+    return Map<String,dynamic>.from(await _json(id==null?_client.post('/api/finance/renewals',input,bearerToken:_token):_client.put('/api/finance/renewals/$id',input,bearerToken:_token)) as Map);
+  }
+  Future<Map<String,dynamic>> setRenewalState(int id,{bool? archived,bool? remindersEnabled}) async => Map<String,dynamic>.from(await _json(_client.put('/api/finance/renewals/$id/state',{if(archived!=null)'archived':archived,if(remindersEnabled!=null)'remindersEnabled':remindersEnabled},bearerToken:_token)) as Map);
+  Future<void> deleteRenewal(int id) async => _json(_client.delete('/api/finance/renewals/$id',bearerToken:_token));
+  Future<void> removeRenewalReceipt(int id) async => _json(_client.delete('/api/finance/renewals/$id/attachment',bearerToken:_token));
+  Future<void> attachRenewalReceipt(int id,Uint8List bytes,String name) async {
+    final type={'pdf':'application/pdf','jpg':'image/jpeg','jpeg':'image/jpeg','png':'image/png','webp':'image/webp'}[name.split('.').last.toLowerCase()];
+    if(type==null||bytes.isEmpty||bytes.length>25*1024*1024)throw const FormatException('Choose a PDF, JPG, PNG or WebP receipt up to 25 MB.');
+    await _json(_client.postMultipart('/api/finance/renewals/$id/attachment',{},bearerToken:_token,fileBytes:bytes,fileName:name,fileContentType:type));
+  }
   Future<Map<String, dynamic>> financialSummary(String month) async =>
       Map<String, dynamic>.from(await _json(_client.get(
           '/api/finance/summary?month=$month',
@@ -49,6 +130,8 @@ class MyAapthaApi {
               as List)
           .map((x) => Map<String, dynamic>.from(x as Map))
           .toList();
+  Future<Map<String,dynamic>> followConnections(String kind,int page) async => Map<String,dynamic>.from(await _json(_client.get('/api/trust/$kind?page=$page',bearerToken:_token)) as Map);
+  Future<void> unfollowRoleModel(int id) async => _json(_client.delete('/api/trust/role-models/$id/follow',bearerToken:_token));
   Future<void> followRoleModel(int userId) async =>
       _json(_client.post('/api/trust/role-models/$userId/follow', const {},
           bearerToken: _token));
@@ -103,7 +186,7 @@ class MyAapthaApi {
             ? (body['message'] ?? body['error'] ?? message).toString()
             : message;
       } catch (_) {}
-      throw MyAapthaApiException(message);
+      throw MyAapthaApiException(message, statusCode: response.statusCode);
     }
     return response.decodeJson();
   }
@@ -157,6 +240,8 @@ class MyAapthaApi {
       Map<String, dynamic>.from(await _json(_client.post(
           '/api/social/posts/$id/save', const {},
           bearerToken: _token)) as Map);
+  Future<Map<String,dynamic>> reactSocialPost(int id,String? emoji) async => Map<String,dynamic>.from(await _json(_client.put('/api/social/posts/$id/reaction',{'emoji':emoji},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> pinSocialPost(int id,bool pinned) async => Map<String,dynamic>.from(await _json(_client.put('/api/social/posts/$id/pin',{'pinned':pinned},bearerToken:_token)) as Map);
   Future<void> shareSocialPost(
           int id, String destinationType, int targetId, String message) async =>
       _json(_client.post(
@@ -188,6 +273,7 @@ class MyAapthaApi {
           as List)
       .map((item) => Map<String, dynamic>.from(item as Map))
       .toList();
+  Future<Map<String,dynamic>> moderationPage({String status='OPEN',int? beforeId}) async => Map<String,dynamic>.from(await _json(_client.get('/api/moderation/reports/queue?status=${Uri.encodeQueryComponent(status)}${beforeId==null?'':'&beforeId=$beforeId'}',bearerToken:_token)) as Map);
   Future<List<Map<String, dynamic>>> moderationReports() async =>
       (await _json(_client.get('/api/moderation/reports', bearerToken: _token))
               as List)
@@ -356,8 +442,10 @@ class MyAapthaApi {
       CircleModel.fromJson(await _json(_client.delete(
           '/api/network/circles/$id/admins/$userId',
           bearerToken: _token)) as Map<String, dynamic>);
-  Future<List<ConversationMessage>> circleMessages(int id) async =>
-      (await _json(_client.get('/api/network/circles/$id/posts',
+  Future<List<ConversationMessage>> circleMessages(int id,
+          {int? beforeId}) async =>
+      (await _json(_client.get(
+              '/api/network/circles/$id/posts?limit=50${beforeId == null ? '' : '&beforeId=$beforeId'}',
               bearerToken: _token)) as List)
           .map((item) =>
               ConversationMessage.fromJson(item as Map<String, dynamic>))
@@ -377,6 +465,8 @@ class MyAapthaApi {
       _json(_client.put('/api/network/circles/$circleId/posts/$messageId',
           {'message': message},
           bearerToken: _token));
+  Future<void> deleteCircleMessageForMe(int circleId,int messageId) async =>
+      _json(_client.delete('/api/network/circles/$circleId/posts/$messageId/for-me',bearerToken:_token));
   Future<void> deleteCircleMessage(int circleId, int messageId) async =>
       _json(_client.delete('/api/network/circles/$circleId/posts/$messageId',
           bearerToken: _token));
@@ -414,8 +504,10 @@ class MyAapthaApi {
         fileName: fileName,
         onProgress: onProgress,
       ));
-  Future<List<ConversationMessage>> directMessages(int userId) async =>
-      (await _json(_client.get('/api/network/messages/with/$userId',
+  Future<List<ConversationMessage>> directMessages(int userId,
+          {int? beforeId}) async =>
+      (await _json(_client.get(
+              '/api/network/messages/with/$userId?limit=50${beforeId == null ? '' : '&beforeId=$beforeId'}',
               bearerToken: _token)) as List)
           .map((item) =>
               ConversationMessage.fromJson(item as Map<String, dynamic>))
@@ -466,6 +558,8 @@ class MyAapthaApi {
       _json(_client.put(
           '/api/network/messages/with/$userId/$messageId', {'message': message},
           bearerToken: _token));
+  Future<void> deleteDirectMessageForMe(int userId,int messageId) async =>
+      _json(_client.delete('/api/network/messages/with/$userId/$messageId/for-me',bearerToken:_token));
   Future<void> deleteDirectMessage(int userId, int messageId) async =>
       _json(_client.delete('/api/network/messages/with/$userId/$messageId',
           bearerToken: _token));
@@ -476,8 +570,9 @@ class MyAapthaApi {
           {'emoji': emoji},
           bearerToken: _token));
   Future<Map<String, dynamic>> previewBroadcast(String audienceType,
-      {int? anchorUserId, String? location}) async {
+      {int? anchorUserId, String? location, int? levels}) async {
     final query = <String, String>{'audienceType': audienceType};
+    if(levels!=null)query['levels']='$levels';
     if (anchorUserId != null) query['anchorUserId'] = '$anchorUserId';
     if (location != null && location.trim().isNotEmpty) {
       query['location'] = location.trim();
@@ -490,6 +585,7 @@ class MyAapthaApi {
   Future<Map<String, dynamic>> sendBroadcast(
       String audienceType, String message,
       {int? anchorUserId,
+      int? levels,
       String? location,
       Uint8List? bytes,
       String? fileName,
@@ -498,6 +594,7 @@ class MyAapthaApi {
       'audienceType': audienceType,
       'message': message
     };
+    if(levels!=null)fields['levels']='$levels';
     if (anchorUserId != null) fields['anchorUserId'] = '$anchorUserId';
     if (location != null && location.trim().isNotEmpty) {
       fields['location'] = location.trim();
@@ -509,6 +606,8 @@ class MyAapthaApi {
         fileName: fileName,
         onProgress: onProgress)) as Map);
   }
+
+  Future<Map<String,dynamic>> callIceConfiguration() async => Map<String,dynamic>.from(await _json(_client.get('/api/network/calls/ice',bearerToken:_token)) as Map);
 
   Future<DirectCallModel> startCall(
           int recipientId, String callType, String offerSdp) async =>
@@ -557,6 +656,22 @@ class MyAapthaApi {
   Future<UserProfileModel> profile() async => UserProfileModel.fromJson(
       await _json(_client.get('/api/profile/me', bearerToken: _token))
           as Map<String, dynamic>);
+  static void validateProfilePhoto(Uint8List bytes,String name) {
+    if(bytes.isEmpty || bytes.length>5*1024*1024) throw const FormatException('Choose a photo up to 5 MB.');
+    if(!{'jpg','jpeg','png','webp'}.contains(name.split('.').last.toLowerCase())) throw const FormatException('Choose a JPG, PNG or WebP photo.');
+  }
+  Future<UserProfileModel> uploadProfilePhoto(Uint8List bytes,String name,{bool gallery=false}) async {
+    validateProfilePhoto(bytes,name);
+    return UserProfileModel.fromJson(Map<String,dynamic>.from(await _json(_client.postMultipart('/api/profile/me/${gallery?'photos':'photo'}',{},bearerToken:_token,fileBytes:bytes,fileName:name)) as Map));
+  }
+  Future<UserProfileModel> removeProfilePhoto({int? galleryIndex}) async => UserProfileModel.fromJson(Map<String,dynamic>.from(await _json(_client.delete(galleryIndex==null?'/api/profile/me/photo':'/api/profile/me/photos/$galleryIndex',bearerToken:_token)) as Map));
+  String profilePhotoUrl(String value) {
+    final uri=Uri.tryParse(value);
+    // Profile media is served by the API. Use its configured host so Android emulators
+    // do not resolve a server-generated localhost URL against the device itself.
+    if(uri==null || !uri.path.startsWith('/api/profile/media/')) return value;
+    return Uri.parse(_client.baseUrl).resolve(uri.path).toString();
+  }
   Future<UserProfileModel> saveProfile(Map<String, dynamic> data) async =>
       UserProfileModel.fromJson(
           await _json(_client.put('/api/profile/me', data, bearerToken: _token))
@@ -584,17 +699,55 @@ class MyAapthaApi {
           {'email': email, 'provider': provider},
           bearerToken: _token)) as Map);
 
-  Future<List<Map<String, dynamic>>> contactOAuthResult(
-          String resultKey) async =>
-      (await _json(_client.get(
-              '/api/contact-organizer/oauth/results/${Uri.encodeComponent(resultKey)}',
-              bearerToken: _token)) as List)
+  Future<List<Map<String, dynamic>>> contactOAuthResult(String resultKey) async {
+    final value = await _json(_client.get('/api/contact-organizer/oauth/results/${Uri.encodeComponent(resultKey)}', bearerToken: _token));
+    if (value is Map && value['status'] == 'failed') {
+      throw MyAapthaApiException('${value['message'] ?? 'Contact authorization failed. Nothing was saved.'}', statusCode: 422);
+    }
+    if (value is! List) throw const MyAapthaApiException('The contact provider returned an invalid result. Please try again.', statusCode: 502);
+    return value.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> aiActivity() async =>
+      (await _json(_client.get('/api/ai/activity', bearerToken: _token))
+              as List)
           .map((item) => Map<String, dynamic>.from(item as Map))
           .toList();
+
+  Future<Map<String, dynamic>> aiPreferences() async =>
+      Map<String, dynamic>.from(
+          await _json(_client.get('/api/ai/preferences', bearerToken: _token))
+              as Map);
+
+  Future<Map<String, dynamic>> updateAiPreferences(
+          Map<String, dynamic> preferences) async =>
+      Map<String, dynamic>.from(await _json(_client.put(
+          '/api/ai/preferences', preferences,
+          bearerToken: _token)) as Map);
+
+  Future<List<Map<String, dynamic>>> aiApprovals() async =>
+      (await _json(_client.get('/api/ai/approvals', bearerToken: _token))
+              as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+
+  Future<List<Map<String, dynamic>>> aiExecutions() async =>
+      (await _json(_client.get('/api/ai/executions', bearerToken: _token))
+              as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+
+  Future<Map<String, dynamic>> decideAiApproval(
+          String approvalId, String decision) async =>
+      Map<String, dynamic>.from(await _json(_client.put(
+          '/api/ai/approvals/${Uri.encodeComponent(approvalId)}/decision',
+          {'decision': decision, 'reason': null},
+          bearerToken: _token)) as Map);
 }
 
 class MyAapthaApiException implements Exception {
-  const MyAapthaApiException(this.message);
+  const MyAapthaApiException(this.message, {this.statusCode});
+  final int? statusCode;
   final String message;
   @override
   String toString() => message;

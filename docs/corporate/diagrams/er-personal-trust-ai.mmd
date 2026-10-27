@@ -1,0 +1,79 @@
+erDiagram
+    users |o--o{ ai_action_approvals : "user_id"
+    users |o--o{ ai_action_events : "user_id"
+    ai_action_approvals |o--o{ ai_action_executions : "approval_id"
+    users |o--o{ ai_action_executions : "user_id"
+    users |o--o{ ai_user_preferences : "user_id"
+    users |o--o{ app_settings : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    users |o--o{ emergency_access_approvals : "approver_user_id"
+    emergency_access_requests |o--o{ emergency_access_approvals : "request_id"
+    users |o--o{ emergency_access_events : "actor_user_id"
+    emergency_access_requests |o--o{ emergency_access_events : "request_id"
+    users |o--o{ emergency_access_requests : "owner_user_id"
+    users |o--o{ emergency_access_requests : "requester_user_id"
+    health_reports |o--o{ health_measurements : "report_id"
+    social_posts |o--o{ health_reports : "source_post_id"
+    users |o--o{ health_reports : "user_id"
+    users |o--o{ timeline_events : "user_id"
+    users |o--o{ trusted_people : "owner_user_id"
+    users |o--o{ trusted_people : "trusted_user_id"
+    user_profiles |o--o{ user_profile_photos : "CONSTRAINT"
+    user_profiles |o--o{ user_profile_photos : "user_id"
+    users |o--o{ user_profiles : "CONSTRAINT"
+    users |o--o{ user_profiles : "user_id"
+    ai_action_approvals {
+        string id_or_composite_key
+    }
+    ai_action_events {
+        string id_or_composite_key
+    }
+    ai_action_executions {
+        string id_or_composite_key
+    }
+    ai_user_preferences {
+        string id_or_composite_key
+    }
+    app_settings {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    emergency_access_approvals {
+        string id_or_composite_key
+    }
+    emergency_access_events {
+        string id_or_composite_key
+    }
+    emergency_access_requests {
+        string id_or_composite_key
+    }
+    health_measurements {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    help_ai_settings {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    timeline_events {
+        string id_or_composite_key
+    }
+    trusted_people {
+        string id_or_composite_key
+    }
+    user_profile_photos {
+        string id_or_composite_key
+    }
+    user_profiles {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }

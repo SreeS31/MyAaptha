@@ -1,0 +1,31 @@
+import {expect,test} from './fixtures';
+import {randomUUID} from 'node:crypto';
+
+test('entire private address book imports, reuses circles and syncs without adding relations',async({page,playwright})=>{
+  test.setTimeout(240_000);
+  const api=await playwright.request.newContext({baseURL:'http://127.0.0.1:8080'});
+  const username=`book-${randomUUID().slice(0,10)}`,password=`Book-${randomUUID()}`;
+  const registered=await api.post('/api/users',{data:{username,password,phoneNumber:`+1776${String(Math.floor(Math.random()*1e10)).padStart(10,'0')}`}});expect(registered.status()).toBe(200);
+  const login=await api.post('/api/auth/login',{data:{identifier:username,password}});expect(login.status()).toBe(200);const headers={Authorization:`Bearer ${(await login.json()).accessToken}`};
+  const family=await api.post('/api/network/circles',{headers,data:{name:'Family',description:'Pre-existing circle'}});expect(family.status()).toBe(200);const familyId=(await family.json()).id;
+  expect((await api.put('/api/ai/preferences',{headers,data:{aiEnabled:true,allowSensitiveData:true,allowPersonalization:false,activityRetentionDays:0}})).status()).toBe(200);
+  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
+  await page.goto('/contacts');await expect(page.getByRole('heading',{name:'My contacts',exact:true})).toBeVisible();await page.locator('summary').filter({hasText:'Import contacts'}).click();
+  const count=test.info().project.name==='desktop'?2007:107;
+  const csv='Name,Phone 1 - Value,E-mail 1 - Value,Group Membership\n'+Array.from({length:count},(_,i)=>`${i===0?'Mom':`Contact ${i}`},+15551234567,person${i}@example.test,${i===0?'Family':''}`).join('\n');
+  await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'contacts.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});
+  const importButton=page.getByRole('button',{name:`Import selected (${count.toLocaleString('en-US')})`,exact:true});await expect(importButton).toBeDisabled();
+  expect((await (await api.get('/api/address-book',{headers})).json()).total).toBe(0);
+  await page.getByRole('checkbox',{name:'I allow these contacts to be saved'}).check();await importButton.click();
+  await expect(page.getByRole('heading',{name:`${count.toLocaleString('en-US')} saved contacts`,exact:true})).toBeVisible({timeout:120_000});
+  const saved=await (await api.get('/api/address-book',{headers})).json();expect(saved.total).toBe(count);
+  const relations=await api.get('/api/network/relationships',{headers});expect(await relations.json()).toEqual([]);
+  const circles=await (await api.get('/api/address-book/circles',{headers})).json();expect(circles.filter((c:{name:string})=>c.name==='Family')).toHaveLength(1);expect(circles.find((c:{id:number})=>c.id===familyId).privateContactCount).toBe(1);
+  await page.getByLabel('Filter contacts by circle',{exact:true}).selectOption(String(familyId));await expect(page.getByRole('heading',{name:'Mom',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Contact 1',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Edit circles',exact:true}).click();await page.getByRole('dialog').getByRole('checkbox',{name:'Family',exact:true}).uncheck();await page.getByRole('button',{name:'Save circles',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('heading',{name:'Mom',exact:true})).toHaveCount(0);
+  await page.getByLabel('Filter contacts by circle',{exact:true}).selectOption('');
+  await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'retry.csv',mimeType:'text/csv',buffer:Buffer.from('Name,Phone 1 - Value,E-mail 1 - Value,Group Membership\nMom,+15551234567,person0@example.test,Family')});
+  await page.getByRole('button',{name:'Import selected (1)',exact:true}).click();await expect(page.getByRole('status')).toContainText('1 duplicates unchanged');
+  const retry=await (await api.get('/api/address-book?q=Mom',{headers})).json();expect(retry.total).toBe(count);expect(retry.items[0].circleIds).toEqual([]);
+  await page.screenshot({path:`../../.tools/preview/contacts-${test.info().project.name}.png`,fullPage:false});await api.dispose();
+});

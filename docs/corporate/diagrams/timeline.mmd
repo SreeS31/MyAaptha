@@ -1,0 +1,11 @@
+flowchart TD
+    Profile[Profile milestones] --> Merge[Compose by stable event key]
+    Relations[Relationship milestones] --> Merge
+    Saved[Saved timeline events] --> Merge
+    Merge --> Sort[Newest date first]
+    Sort --> View[Wave / compact presentation]
+    View --> Edit[Add or edit event]
+    Edit --> Valid{Valid payload and owner?}
+    Valid -->|Yes| Put[PUT event by key]
+    Valid -->|No| Error[Show validation error]
+    Put --> Saved

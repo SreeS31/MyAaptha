@@ -1,0 +1,496 @@
+{
+  "aws_s3": {
+    "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/ap-south-1/index.json",
+    "publicationDate": "2026-10-15T17:35:40Z",
+    "rates": [
+      {
+        "attributes": {
+          "servicecode": "AmazonS3",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "availability": "99.99%",
+          "storageClass": "General Purpose",
+          "volumeType": "Standard",
+          "usagetype": "APS3-TimedStorage-ByteHrs",
+          "operation": "",
+          "durability": "99.999999999%",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Simple Storage Service"
+        },
+        "description": "$0.025 per GB - first 50 TB / month of storage used",
+        "unit": "GB-Mo",
+        "begin": "0",
+        "end": "51200",
+        "price": {
+          "USD": "0.0250000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonS3",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "availability": "99.99%",
+          "storageClass": "General Purpose",
+          "volumeType": "Standard",
+          "usagetype": "APS3-TimedStorage-ByteHrs",
+          "operation": "",
+          "durability": "99.999999999%",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Simple Storage Service"
+        },
+        "description": "$0.024 per GB - next 450 TB / month of storage used",
+        "unit": "GB-Mo",
+        "begin": "51200",
+        "end": "512000",
+        "price": {
+          "USD": "0.0240000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonS3",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "availability": "99.99%",
+          "storageClass": "General Purpose",
+          "volumeType": "Standard",
+          "usagetype": "APS3-TimedStorage-ByteHrs",
+          "operation": "",
+          "durability": "99.999999999%",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Simple Storage Service"
+        },
+        "description": "$0.023 per GB - storage used / month over 500 TB",
+        "unit": "GB-Mo",
+        "begin": "512000",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0230000000"
+        }
+      }
+    ]
+  },
+  "aws_fargate": {
+    "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonECS/current/ap-south-1/index.json",
+    "publicationDate": "2026-10-19T22:43:17Z",
+    "rates": [
+      {
+        "attributes": {
+          "servicecode": "AmazonECS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "usagetype": "APS3-Fargate-EphemeralStorage-GB-Hours",
+          "operation": "",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Elastic Container Service",
+          "storagetype": "default"
+        },
+        "description": "AWS Fargate - Ephemeral Storage - Asia Pacific (Mumbai)",
+        "unit": "GB-Hours",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0001270000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonECS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "tenancy": "Shared",
+          "usagetype": "APS3-Fargate-vCPU-Hours:perCPU",
+          "operation": "",
+          "cputype": "perCPU",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Elastic Container Service"
+        },
+        "description": "AWS Fargate - vCPU  - Asia Pacific (Mumbai)",
+        "unit": "hours",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0425600000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonECS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "tenancy": "Shared",
+          "usagetype": "APS3-Fargate-GB-Hours",
+          "operation": "",
+          "memorytype": "perGB",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Elastic Container Service"
+        },
+        "description": "AWS Fargate - Memory  - Asia Pacific (Mumbai)",
+        "unit": "hours",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0046550000"
+        }
+      }
+    ]
+  },
+  "aws_database": {
+    "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonRDS/current/ap-south-1/index.json",
+    "publicationDate": "2026-10-20T00:32:32Z",
+    "rates": [
+      {
+        "attributes": {
+          "servicecode": "AmazonRDS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "instanceType": "db.m6g.xlarge",
+          "currentGeneration": "Yes",
+          "instanceFamily": "General purpose",
+          "vcpu": "4",
+          "physicalProcessor": "AWS Graviton2",
+          "memory": "16 GiB",
+          "storage": "EBS Only",
+          "networkPerformance": "Up to 10 Gigabit",
+          "processorArchitecture": "64-bit",
+          "engineCode": "14",
+          "databaseEngine": "PostgreSQL",
+          "licenseModel": "No license required",
+          "deploymentOption": "Multi-AZ",
+          "usagetype": "APS3-Multi-AZUsage:db.m6g.xl",
+          "operation": "CreateDBInstance:0014",
+          "instanceTypeFamily": "M6G",
+          "normalizationSizeFactor": "16",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Relational Database Service",
+          "unbundledLicensing": "FALSE"
+        },
+        "description": "$ 0.904 per RDS db.m6g.xlarge Multi-AZ instance hour (or partial hour) running PostgreSQL",
+        "unit": "Hrs",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.9040000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonRDS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "instanceType": "db.m6g.large",
+          "currentGeneration": "Yes",
+          "instanceFamily": "General purpose",
+          "vcpu": "2",
+          "physicalProcessor": "AWS Graviton2",
+          "memory": "8 GiB",
+          "storage": "EBS Only",
+          "networkPerformance": "Up to 10 Gigabit",
+          "processorArchitecture": "64-bit",
+          "engineCode": "14",
+          "databaseEngine": "PostgreSQL",
+          "licenseModel": "No license required",
+          "deploymentOption": "Multi-AZ",
+          "usagetype": "APS3-Multi-AZUsage:db.m6g.large",
+          "operation": "CreateDBInstance:0014",
+          "instanceTypeFamily": "M6G",
+          "normalizationSizeFactor": "8",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Relational Database Service",
+          "unbundledLicensing": "FALSE"
+        },
+        "description": "$ 0.452 per RDS db.m6g.large Multi-AZ instance hour (or partial hour) running PostgreSQL",
+        "unit": "Hrs",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.4520000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonRDS",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "instanceType": "db.t4g.medium",
+          "currentGeneration": "Yes",
+          "instanceFamily": "General purpose",
+          "vcpu": "2",
+          "physicalProcessor": "AWS Graviton2",
+          "memory": "4 GiB",
+          "storage": "EBS Only",
+          "networkPerformance": "Up to 5 Gigabit",
+          "processorArchitecture": "64-bit",
+          "engineCode": "14",
+          "databaseEngine": "PostgreSQL",
+          "licenseModel": "No license required",
+          "deploymentOption": "Multi-AZ",
+          "usagetype": "APS3-Multi-AZUsage:db.t4g.medium",
+          "operation": "CreateDBInstance:0014",
+          "instanceTypeFamily": "T4G",
+          "normalizationSizeFactor": "4",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon Relational Database Service",
+          "unbundledLicensing": "FALSE"
+        },
+        "description": "$ 0.167 per RDS db.t4g.medium Multi-AZ instance hour (or partial hour) running PostgreSQL",
+        "unit": "Hrs",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.1670000000"
+        }
+      }
+    ]
+  },
+  "aws_cache": {
+    "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonElastiCache/current/ap-south-1/index.json",
+    "publicationDate": "2026-10-14T22:11:39Z",
+    "rates": [
+      {
+        "attributes": {
+          "servicecode": "AmazonElastiCache",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "instanceType": "cache.t4g.medium",
+          "currentGeneration": "Yes",
+          "instanceFamily": "Standard",
+          "vcpu": "2",
+          "memory": "3.09 GiB",
+          "networkPerformance": "Up to 5 Gigabit",
+          "cacheEngine": "Valkey",
+          "usagetype": "APS3-NodeUsage:cache.t4g.medium",
+          "operation": "CreateCacheCluster:Valkey",
+          "normalizationSizeFactor": "1.6",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon ElastiCache"
+        },
+        "description": "$0.0648 per T4G Medium Cache node-hour (or partial hour) running Valkey",
+        "unit": "Hrs",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0648000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AmazonElastiCache",
+          "location": "Asia Pacific (Mumbai)",
+          "locationType": "AWS Region",
+          "instanceType": "cache.t4g.small",
+          "currentGeneration": "Yes",
+          "instanceFamily": "Standard",
+          "vcpu": "2",
+          "memory": "1.37 GiB",
+          "networkPerformance": "Up to 5 Gigabit",
+          "cacheEngine": "Valkey",
+          "usagetype": "APS3-NodeUsage:cache.t4g.small",
+          "operation": "CreateCacheCluster:Valkey",
+          "normalizationSizeFactor": "0.8",
+          "regionCode": "ap-south-1",
+          "servicename": "Amazon ElastiCache"
+        },
+        "description": "$0.0328 per T4G Small Cache node-hour (or partial hour) running Valkey",
+        "unit": "Hrs",
+        "begin": "0",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0328000000"
+        }
+      }
+    ]
+  },
+  "aws_transfer": {
+    "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSDataTransfer/current/ap-south-1/index.json",
+    "publicationDate": "2026-09-16T13:22:08Z",
+    "rates": [
+      {
+        "attributes": {
+          "servicecode": "AWSDataTransfer",
+          "transferType": "AWS Outbound",
+          "fromLocation": "Global",
+          "fromLocationType": "AWS Region",
+          "toLocation": "External",
+          "toLocationType": "Other",
+          "usagetype": "Global-DataTransfer-Out-Bytes",
+          "operation": "",
+          "fromRegionCode": "",
+          "servicename": "AWS Data Transfer",
+          "toRegionCode": ""
+        },
+        "description": "$0 for 100GB of data transfer out to the internet, aggregated globally, each month",
+        "unit": "GB",
+        "begin": "0",
+        "end": "100",
+        "price": {
+          "USD": "0.0000000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AWSDataTransfer",
+          "transferType": "AWS Outbound",
+          "fromLocation": "Asia Pacific (Mumbai)",
+          "fromLocationType": "AWS Region",
+          "toLocation": "External",
+          "toLocationType": "Other",
+          "usagetype": "APS3-DataTransfer-Out-Bytes",
+          "operation": "",
+          "fromRegionCode": "ap-south-1",
+          "servicename": "AWS Data Transfer",
+          "toRegionCode": ""
+        },
+        "description": "$0.1093 per GB - first 10 TB / month data transfer out beyond the global free tier",
+        "unit": "GB",
+        "begin": "0",
+        "end": "10240",
+        "price": {
+          "USD": "0.1093000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AWSDataTransfer",
+          "transferType": "AWS Outbound",
+          "fromLocation": "Asia Pacific (Mumbai)",
+          "fromLocationType": "AWS Region",
+          "toLocation": "External",
+          "toLocationType": "Other",
+          "usagetype": "APS3-DataTransfer-Out-Bytes",
+          "operation": "",
+          "fromRegionCode": "ap-south-1",
+          "servicename": "AWS Data Transfer",
+          "toRegionCode": ""
+        },
+        "description": "$0.085 per GB - next 40 TB / month data transfer out",
+        "unit": "GB",
+        "begin": "10240",
+        "end": "51200",
+        "price": {
+          "USD": "0.0850000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AWSDataTransfer",
+          "transferType": "AWS Outbound",
+          "fromLocation": "Asia Pacific (Mumbai)",
+          "fromLocationType": "AWS Region",
+          "toLocation": "External",
+          "toLocationType": "Other",
+          "usagetype": "APS3-DataTransfer-Out-Bytes",
+          "operation": "",
+          "fromRegionCode": "ap-south-1",
+          "servicename": "AWS Data Transfer",
+          "toRegionCode": ""
+        },
+        "description": "$0.082 per GB - next 100 TB / month data transfer out",
+        "unit": "GB",
+        "begin": "51200",
+        "end": "153600",
+        "price": {
+          "USD": "0.0820000000"
+        }
+      },
+      {
+        "attributes": {
+          "servicecode": "AWSDataTransfer",
+          "transferType": "AWS Outbound",
+          "fromLocation": "Asia Pacific (Mumbai)",
+          "fromLocationType": "AWS Region",
+          "toLocation": "External",
+          "toLocationType": "Other",
+          "usagetype": "APS3-DataTransfer-Out-Bytes",
+          "operation": "",
+          "fromRegionCode": "ap-south-1",
+          "servicename": "AWS Data Transfer",
+          "toRegionCode": ""
+        },
+        "description": "$0.080 per GB - greater than 150 TB / month data transfer out",
+        "unit": "GB",
+        "begin": "153600",
+        "end": "Inf",
+        "price": {
+          "USD": "0.0800000000"
+        }
+      }
+    ]
+  },
+  "hetzner_base": {
+    "source": "https://website-price-api.hetzner.com/api/v1/products/CLOUD_84",
+    "response": {
+      "productId": "CLOUD_84",
+      "locations": [
+        {
+          "active": true,
+          "datacenter": "ALL",
+          "prices": {
+            "hourly": {
+              "USD": "0.012800",
+              "EUR": "0.010400"
+            },
+            "monthly": {
+              "USD": "7.99",
+              "EUR": "6.49"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hetzner_extra": {
+    "source": "https://website-price-api.hetzner.com/api/v1/products/CLOUD_85",
+    "response": {
+      "productId": "CLOUD_85",
+      "locations": [
+        {
+          "active": true,
+          "datacenter": "ALL",
+          "prices": {
+            "hourly": {
+              "EUR": "0.008700",
+              "USD": "0.012300"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hetzner_transfer": {
+    "source": "https://website-price-api.hetzner.com/api/v1/products/CLOUD_86",
+    "response": {
+      "productId": "CLOUD_86",
+      "locations": [
+        {
+          "active": true,
+          "datacenter": "ALL",
+          "prices": {
+            "hourly": {
+              "USD": "1.200000",
+              "EUR": "1.000000"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "reviewed": "2026-10-23",
+  "digitalocean_anchors": {
+    "sources": [
+      "https://www.digitalocean.com/pricing/droplets",
+      "https://docs.digitalocean.com/products/databases/postgresql/details/pricing/",
+      "https://docs.digitalocean.com/products/spaces/details/pricing/"
+    ],
+    "basic_4vcpu_8gib_usd_month": 48,
+    "dedicated_2vcpu_8gib_usd_month": 63,
+    "advanced_postgresql_8gib_primary_usd_month": 130,
+    "matching_standby_usd_month": 130,
+    "spaces_base_usd_month": 5,
+    "spaces_included_gib": 250,
+    "spaces_extra_usd_gib_month": 0.02,
+    "spaces_included_transfer_gib": 1024,
+    "spaces_extra_transfer_usd_gib": 0.01
+  }
+}

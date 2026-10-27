@@ -1,0 +1,62 @@
+import {test,expect} from './fixtures';
+import {randomUUID} from 'node:crypto';
+
+test('bills, warranty receipts and renewal dates stay in sync across web and native API sessions',async({page,playwright},info)=>{
+  const api=await playwright.request.newContext({baseURL:'http://127.0.0.1:8080'});
+  const username=`renewal-web-${randomUUID().slice(0,8)}`,password=`Renewal-${randomUUID()}`;
+  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+  let id:number|undefined,headers:Record<string,string>={};
+  const after=(days:number)=>{const date=new Date();date.setUTCDate(date.getUTCDate()+days);return date.toISOString().slice(0,10);};
+  const initialExpiry=after(60),renewedExpiry=after(365);
+  try{
+    expect((await api.post('/api/users',{data:{username,password,phoneNumber:`+1886${String(Math.floor(Math.random()*1e10)).padStart(10,'0')}`}})).status()).toBe(200);
+    const auth=await api.post('/api/auth/login',{data:{identifier:username,password}});headers={Authorization:`Bearer ${(await auth.json()).accessToken}`};
+    await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/,{timeout:15000});
+    await page.goto('/finance');const tracker=page.getByRole('region',{name:'Bills & warranties'});
+    await tracker.getByRole('button',{name:'+ Add bill or warranty',exact:true}).click();
+    let editor=page.getByRole('dialog',{name:'Add bill or warranty',exact:true});
+    await editor.getByRole('combobox',{name:'Item type',exact:true}).selectOption('WARRANTY');
+    await editor.getByLabel('Title',{exact:true}).fill('Washing machine warranty');
+    await editor.getByLabel('Provider or store',{exact:true}).fill('Synthetic service centre');
+    await editor.getByLabel('Invoice or reference number',{exact:true}).fill('TEST-INVOICE-1');
+    await editor.getByLabel('Expiry date',{exact:true}).fill(initialExpiry);
+    await editor.getByRole('combobox',{name:'Reminder time zone',exact:true}).selectOption('Asia/Kolkata');
+    await editor.getByLabel('Receipt (optional)',{exact:true}).setInputFiles({name:'invoice.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.7\n1 0 obj\n<<>>\nendobj')});
+    await editor.getByRole('button',{name:'Save item',exact:true}).click();
+    // Use the account-wide attachment-retention control, preserving its policy.
+    await page.getByRole('dialog',{name:'Keep this attachment',exact:true}).getByRole('button',{name:'Continue upload',exact:true}).click();
+    await expect(editor).not.toBeVisible({timeout:15000});
+    let card=tracker.getByRole('article',{name:'Washing machine warranty',exact:true});
+    await expect(card.getByText('TEST-INVOICE-1',{exact:true})).toBeVisible();
+    await expect(card.getByRole('button',{name:'Receipt: invoice.pdf'})).toBeVisible();
+    await expect(tracker.getByRole('img',{name:'Expired: 0, Due soon: 0, Later: 1',exact:true})).toBeVisible();
+    let rows=await(await api.get('/api/finance/renewals',{headers})).json();expect(rows).toHaveLength(1);id=rows[0].id;
+    expect(rows[0].reminderDays).toEqual([30,15,7,3,1]);expect(rows[0].attachmentName).toBe('invoice.pdf');
+    const receipt=await api.get(`/api/finance/renewals/${id}/attachment`,{headers});expect(receipt.status()).toBe(200);expect(receipt.headers()['cache-control']).toBe('no-store');
+    await card.getByRole('button',{name:'Edit',exact:true}).click();editor=page.getByRole('dialog',{name:'Edit bill or warranty',exact:true});
+    await editor.getByLabel('Remind me before expiry',{exact:true}).uncheck();await editor.getByRole('button',{name:'Save item',exact:true}).click();await expect(editor).not.toBeVisible();await expect(card).toContainText('Reminders paused');
+    // A mobile bearer session updates the shared API; browser focus refreshes it.
+    rows=await(await api.get('/api/finance/renewals',{headers})).json();
+    const {kind,title,referenceNumber,amount,purchasedOn,expiresOn,timezone,notes,archived}=rows[0];
+    expect((await api.put(`/api/finance/renewals/${id}`,{headers,data:{kind,title,referenceNumber,amount,purchasedOn,expiresOn,timezone,notes,archived,provider:'Updated from native session',remindersEnabled:true}})).status()).toBe(200);
+    await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(card).toContainText('Updated from native session',{timeout:15000});
+    await card.getByRole('button',{name:'Renew',exact:true}).click();editor=page.getByRole('dialog',{name:'Renew item',exact:true});await expect(editor.getByLabel('Expiry date',{exact:true})).toHaveValue('');
+    await editor.getByLabel('Expiry date',{exact:true}).fill(renewedExpiry);await editor.getByRole('button',{name:'Save renewal',exact:true}).click();await expect(editor).not.toBeVisible();
+    rows=await(await api.get('/api/finance/renewals',{headers})).json();expect(rows[0].expiresOn).toBe(renewedExpiry);expect(rows[0].remindersEnabled).toBe(true);
+    await card.getByRole('button',{name:'Archive',exact:true}).click();await expect(card).not.toBeVisible();
+    await tracker.getByRole('combobox',{name:'Show',exact:true}).selectOption('archived');card=tracker.getByRole('article',{name:'Washing machine warranty',exact:true});await expect(card).toContainText('Reminders stopped');
+    await card.getByRole('button',{name:'Restore',exact:true}).click();await tracker.getByRole('combobox',{name:'Show',exact:true}).selectOption('active');
+    await expect(card).toBeVisible();
+    rows=await(await api.get('/api/finance/renewals',{headers})).json();expect(rows[0].expiresOn).toBe(renewedExpiry);
+    const trackerBounds=await tracker.boundingBox(),headingBounds=await page.locator('.page-heading').boundingBox(),metricsBounds=await page.locator('.finance-metrics').boundingBox();
+    expect(Math.abs(trackerBounds!.width-headingBounds!.width)).toBeLessThanOrEqual(2);expect(trackerBounds!.y).toBeGreaterThanOrEqual(metricsBounds!.y+metricsBounds!.height);
+    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.screenshot({path:`../../.tools/preview/finance-renewals-${info.project.name}.png`,fullPage:true});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
+    await card.getByRole('button',{name:'Delete Washing machine warranty',exact:true}).click();
+    await page.getByRole('dialog',{name:'Delete this item?',exact:true}).getByRole('button',{name:'Delete item',exact:true}).click();await expect(card).not.toBeVisible();
+    expect(await(await api.get('/api/finance/renewals',{headers})).json()).toHaveLength(0);id=undefined;
+    await expect(tracker.locator('.renewal-distribution')).toHaveCount(0);
+    expect(errors).toEqual([]);
+  }finally{if(id)await api.delete(`/api/finance/renewals/${id}`,{headers});await api.dispose();}
+});

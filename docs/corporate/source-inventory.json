@@ -1,0 +1,4678 @@
+{
+  "snapshot": "2026-10-18",
+  "controllers": 39,
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/ai/approvals",
+      "controller": "AiActionApprovalController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiActionApprovalController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/ai/approvals/{approvalId}/decision",
+      "controller": "AiActionApprovalController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiActionApprovalController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/executions",
+      "controller": "AiActionExecutionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiActionExecutionController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/search/rank",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/duplicates",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/family/insights",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/profiles/enrichment",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/contacts/organize",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/activity",
+      "controller": "AiAssistantController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiAssistantController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/preferences",
+      "controller": "AiPreferenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiPreferenceController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/ai/preferences",
+      "controller": "AiPreferenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/AiPreferenceController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/contact-organizer/analyze",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/contact-organizer/accept",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/contact-organizer/oauth/start",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/contact-organizer/oauth/callback/{provider}",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/contact-organizertext/html",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/contact-organizer/oauth/results/{resultKey}",
+      "controller": "ContactOrganizerController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/ContactOrganizerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/help",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/help/chat",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/help/history",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/ai/help/admin/settings",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/help/admin/answers",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/help/admin/answers",
+      "controller": "HelpChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/ai/HelpChatController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/health",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/revoke",
+      "controller": "AuthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/security-policy",
+      "controller": "PhoneVerificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/PhoneVerificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/phone/start",
+      "controller": "PhoneVerificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/PhoneVerificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/reset-password",
+      "controller": "PhoneVerificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/PhoneVerificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/web-auth/login",
+      "controller": "WebSessionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/WebSessionController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/web-auth/refresh",
+      "controller": "WebSessionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/WebSessionController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/web-auth/logout",
+      "controller": "WebSessionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/WebSessionController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/web-auth/revoke",
+      "controller": "WebSessionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/WebSessionController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/circles",
+      "controller": "CircleController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/circles/{id}",
+      "controller": "CircleController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/circles",
+      "controller": "CircleController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/circles/{id}",
+      "controller": "CircleController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/circles/{id}",
+      "controller": "CircleController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/address-book/providers",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/address-book/oauth/start",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/address-book/oauth/results/{key}",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/address-book/import-reviewed",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/address-book/import",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/address-book",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/address-book/circles",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/address-book/{id}/circles",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/address-book/{id}",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/address-book",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/address-book/{id}/relation",
+      "controller": "AddressBookController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard/summary",
+      "controller": "DashboardSummaryController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/dashboard/DashboardSummaryController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/finance/summary",
+      "controller": "FinanceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/finance/FinanceController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/finance/transactions",
+      "controller": "FinanceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/finance/FinanceController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/finance/transactions/{id}",
+      "controller": "FinanceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/finance/FinanceController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health/ai-status",
+      "controller": "HealthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health/dashboard",
+      "controller": "HealthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/health/reports",
+      "controller": "HealthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/health/reports/analyze",
+      "controller": "HealthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/health/reports/{id}",
+      "controller": "HealthController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/chats/groups",
+      "controller": "ChatDiscoveryController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/ChatDiscoveryController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/chats/search",
+      "controller": "ChatDiscoveryController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/ChatDiscoveryController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/messages/with/{other}/{message}/forward",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/messages/with/{other}/{message}/flags",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/with/{other}/saved",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/messages/with/{other}/read",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/messages/with/{other}/pin",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/messages/with/{other}/settings",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/preferences",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/messages/preferences",
+      "controller": "MessagePersonalizationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/MessagePersonalizationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/chats/circles",
+      "controller": "UnifiedChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/UnifiedChatController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/chats/circles/{circleId}/{messageId}/flags",
+      "controller": "UnifiedChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/UnifiedChatController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/chats/forward",
+      "controller": "UnifiedChatController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/UnifiedChatController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/milestones",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/milestones/{id}",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/milestones",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/milestones/{id}",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/milestones/bulk-status",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/milestones/{id}",
+      "controller": "MilestoneController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/milestone/MilestoneController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/moderation/reports",
+      "controller": "ModerationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/moderation/ModerationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/moderation/reports/mine",
+      "controller": "ModerationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/moderation/ModerationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/moderation/reports",
+      "controller": "ModerationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/moderation/ModerationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/moderation/reports/queue",
+      "controller": "ModerationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/moderation/ModerationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/moderation/reports/{reportId}",
+      "controller": "ModerationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/moderation/ModerationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/search",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/relationships",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/relationship-types",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/relationships",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/relationships/add-person",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/relationships/{id}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/relationships/{id}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/relationships/bulk-import",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/relationships/bulk-import/template",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/circles",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/circles",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/circles/{circleId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/circles/{circleId}/members",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/circles/{circleId}/members/{userId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/circles/{circleId}/admins/{memberUserId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/circles/{circleId}/admins/{memberUserId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/circles/{circleId}/posts",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/circles/unread-counts",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/circles/{circleId}/posts",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/circles/{circleId}/posts/{postId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/circles/{circleId}/posts/{postId}/for-me",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/circles/{circleId}/posts/{postId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/circles/{circleId}/posts/search",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/circles/{circleId}/posts/{postId}/reaction",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/circles/{circleId}/posts/{postId}/attachment",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/with/{otherUserId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/conversations",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/with/{otherUserId}/search",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/messages/with/{otherUserId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network/messages/with/{otherUserId}/{messageId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/messages/with/{otherUserId}/{messageId}/for-me",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network/messages/with/{otherUserId}/{messageId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/messages/with/{otherUserId}/{messageId}/reaction",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/messages/with/{otherUserId}/{messageId}/attachment",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/calls",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/calls/incoming",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/calls/{callId}",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/calls/{callId}/accept",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/calls/{callId}/reject",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/calls/{callId}/end",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/broadcasts/preview",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/broadcasts",
+      "controller": "NetworkController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/discover",
+      "controller": "PeopleDiscoveryController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/PeopleDiscoveryController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/unread-count",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications/{id}/read",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications/read-all",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/preferences",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/notifications/preferences",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications/devices",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/notifications/devices",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/unsubscribe/{token}",
+      "controller": "NotificationController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/permissions",
+      "controller": "PermissionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/permission/PermissionController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/permissions/{id}",
+      "controller": "PermissionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/permission/PermissionController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/permissions",
+      "controller": "PermissionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/permission/PermissionController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/permissions/{id}",
+      "controller": "PermissionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/permission/PermissionController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/permissions/{id}",
+      "controller": "PermissionController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/permission/PermissionController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/people",
+      "controller": "PersonController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/people/{id}",
+      "controller": "PersonController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/people",
+      "controller": "PersonController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/people/{id}",
+      "controller": "PersonController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/people/{id}",
+      "controller": "PersonController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/people/{personId}/profile",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/people/{personId}/record",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/people/{personId}/photo",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/people/{personId}/memories",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/people/{personId}/memories/{memoryId}",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/people/{personId}/memories/{memoryId}/media",
+      "controller": "PersonProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/presence/heartbeat",
+      "controller": "PresenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/presence/PresenceController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/presence/direct/{userId}",
+      "controller": "PresenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/presence/PresenceController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/presence/direct/{userId}/typing",
+      "controller": "PresenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/presence/PresenceController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/presence/circles/{circleId}",
+      "controller": "PresenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/presence/PresenceController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/presence/circles/{circleId}/typing",
+      "controller": "PresenceController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/presence/PresenceController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/privacy/blocks",
+      "controller": "PrivacyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/privacy/PrivacyController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/privacy/blocks",
+      "controller": "PrivacyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/privacy/PrivacyController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/privacy/blocks/{userId}",
+      "controller": "PrivacyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/privacy/PrivacyController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile/me",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/profile/me",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/profile/me/photo",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/profile/me/photo",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/profile/me/photos",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/profile/me/photos/{index}",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile/media/{name}",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile/me/media-usage",
+      "controller": "ProfileController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects",
+      "controller": "ProjectController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/project/ProjectController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects",
+      "controller": "ProjectController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/project/ProjectController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/projects/{id}",
+      "controller": "ProjectController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/project/ProjectController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/relationships",
+      "controller": "RelationshipController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/relationship/RelationshipController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/relationships/{id}",
+      "controller": "RelationshipController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/relationship/RelationshipController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/relationships",
+      "controller": "RelationshipController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/relationship/RelationshipController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/relationships/{id}",
+      "controller": "RelationshipController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/relationship/RelationshipController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/relationships/{id}",
+      "controller": "RelationshipController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/relationship/RelationshipController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings/me",
+      "controller": "AppSettingsController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/settings/AppSettingsController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/settings/me",
+      "controller": "AppSettingsController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/settings/AppSettingsController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social/feed",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social/saved",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/posts",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/social/posts/{postId}",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/social/posts/{postId}",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/posts/{postId}/like",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/posts/{postId}/save",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/posts/{postId}/share",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/posts/{postId}/comments",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/social/posts/{postId}/comments/{commentId}",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social/posts/{postId}/media",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social/stories",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/stories",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/social/stories/{storyId}/view",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/social/stories/{storyId}",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social/stories/{storyId}/media",
+      "controller": "SocialController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks",
+      "controller": "TaskController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/task/TaskController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks",
+      "controller": "TaskController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/task/TaskController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/{id}",
+      "controller": "TaskController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/task/TaskController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/task-groups",
+      "controller": "TaskGroupController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/taskgroup/TaskGroupController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/task-groups",
+      "controller": "TaskGroupController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/taskgroup/TaskGroupController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/timeline/events",
+      "controller": "TimelineController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/timeline/TimelineController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/timeline/events/{key}",
+      "controller": "TimelineController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/timeline/TimelineController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/timeline/events/{key}",
+      "controller": "TimelineController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/timeline/TimelineController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/people",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/people/inbound",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/trust/people",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/trust/people/{userId}",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/following",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/followers",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/role-models",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/trust/role-models/{userId}/follow",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/trust/role-models/{userId}/follow",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/emergencies",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/trust/emergencies",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/trust/emergencies/{requestId}/decision",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/emergencies/{requestId}/documents",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/trust/emergencies/{requestId}/documents/{postId}/media",
+      "controller": "TrustController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "controller": "UserController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/user/UserController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/{id}",
+      "controller": "UserController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/user/UserController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "controller": "UserController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/user/UserController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/users/{id}",
+      "controller": "UserController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/user/UserController.java"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/users/{id}",
+      "controller": "UserController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/user/UserController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/uploads/policy",
+      "controller": "UploadPolicyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/media/UploadPolicyController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/upload-levels",
+      "controller": "UploadPolicyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/media/UploadPolicyController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/upload-levels",
+      "controller": "UploadPolicyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/media/UploadPolicyController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/upload-levels/users/{id}",
+      "controller": "UploadPolicyController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/media/UploadPolicyController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/security",
+      "controller": "SecurityReportsController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/security/SecurityReportsController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/security/{id}/resolve",
+      "controller": "SecurityReportsController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/security/SecurityReportsController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/security/{id}/unblock",
+      "controller": "SecurityReportsController",
+      "source": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/security/SecurityReportsController.java"
+    }
+  ],
+  "routes": [
+    "/.",
+    "/ai-activity",
+    "/auth",
+    "/circle-search",
+    "/circles",
+    "/contacts",
+    "/dashboard",
+    "/discover",
+    "/feed",
+    "/finance",
+    "/following",
+    "/health",
+    "/help",
+    "/messages",
+    "/moderation",
+    "/notifications",
+    "/people/[id]",
+    "/privacy",
+    "/profile",
+    "/recover-account",
+    "/relationship-tree",
+    "/reports",
+    "/security-reports",
+    "/session",
+    "/settings",
+    "/timeline",
+    "/trust",
+    "/verify-phone"
+  ],
+  "migrations": [
+    "V1__create_core_tables.sql",
+    "V3__add_indexes_and_foreign_keys.sql",
+    "V4__add_data_quality_constraints.sql",
+    "V5__add_auth_tokens_table.sql",
+    "V6__add_unique_user_email.sql",
+    "V7__add_user_phone_identity.sql",
+    "V8__add_user_roles.sql",
+    "V9__add_task_groups.sql",
+    "V10__add_person_gender.sql",
+    "V11__add_social_network.sql",
+    "V12__add_invited_user_status.sql",
+    "V13__add_relationship_display_name.sql",
+    "V14__add_circle_admins.sql",
+    "V15__add_user_profiles.sql",
+    "V16__add_relationship_visibility.sql",
+    "V17__add_private_relationship_contacts.sql",
+    "V18__backfill_private_relationship_contacts.sql",
+    "V19__add_managed_people.sql",
+    "V20__add_relationship_anchor.sql",
+    "V21__add_circle_conversations.sql",
+    "V22__add_direct_messages.sql",
+    "V23__add_direct_calls.sql",
+    "V24__add_notifications.sql",
+    "V25__add_media_assets.sql",
+    "V26__add_audit_and_abuse.sql",
+    "V27__add_relationship_broadcasts.sql",
+    "V28__canonical_relationship_types.sql",
+    "V29__add_social_feed.sql",
+    "V30__add_direct_message_receipts.sql",
+    "V31__add_user_blocks.sql",
+    "V32__add_direct_message_interactions.sql",
+    "V33__add_social_notification_preference.sql",
+    "V34__add_circle_message_lifecycle.sql",
+    "V35__add_circle_message_reactions.sql",
+    "V36__add_circle_message_reads.sql",
+    "V37__add_social_post_saves.sql",
+    "V38__add_social_story_views.sql",
+    "V39__add_person_records_and_memories.sql",
+    "V40__add_relationship_milestone_dates.sql",
+    "V41__add_structured_person_dates.sql",
+    "V42__add_profile_hobbies.sql",
+    "V43__expand_social_post_audiences.sql",
+    "V44__add_trusted_people.sql",
+    "V45__add_financial_tracking.sql",
+    "V46__add_health_reports.sql",
+    "V47__add_health_measurement_suggestions.sql",
+    "V48__add_ai_action_ledger.sql",
+    "V49__add_ai_user_preferences.sql",
+    "V50__add_ai_action_approvals.sql",
+    "V51__add_ai_action_execution_guard.sql",
+    "V52__scaling_indexes_and_delivery_leases.sql",
+    "V53__scheduled_job_locks.sql",
+    "V54__revocable_sessions.sql",
+    "V55__verified_phone_and_admin_mfa.sql",
+    "V56__encrypted_sensitive_fields.sql",
+    "V57__application_settings.sql",
+    "V58__message_personalization.sql",
+    "V59__private_address_book.sql",
+    "V61__direct_chat_settings.sql",
+    "V62__forwarded_direct_messages.sql",
+    "V63__private_message_deletions.sql",
+    "V64__circle_message_flags.sql",
+    "V65__help_answer_memory.sql",
+    "V66__security_incidents.sql",
+    "V67__upload_levels.sql",
+    "V68__timeline_events.sql",
+    "V69__moderation_queue_cursor.sql"
+  ],
+  "tables": {
+    "users": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "username": {
+          "definition": "VARCHAR(255) NOT NULL UNIQUE",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "email": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "password_hash": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "phone_number": {
+          "definition": "VARCHAR(32)",
+          "migration": "V7__add_user_phone_identity.sql"
+        },
+        "role": {
+          "definition": "VARCHAR(32) NOT NULL DEFAULT 'USER'",
+          "migration": "V8__add_user_roles.sql"
+        },
+        "first_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V11__add_social_network.sql"
+        },
+        "surname": {
+          "definition": "VARCHAR(255)",
+          "migration": "V11__add_social_network.sql"
+        },
+        "location": {
+          "definition": "VARCHAR(255)",
+          "migration": "V11__add_social_network.sql"
+        },
+        "account_status": {
+          "definition": "VARCHAR(32) NOT NULL DEFAULT 'ACTIVE'",
+          "migration": "V12__add_invited_user_status.sql"
+        },
+        "identity_type": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'ACCOUNT'",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "managed_category": {
+          "definition": "VARCHAR(24)",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "guardian_user_id": {
+          "definition": "BIGINT",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "claim_status": {
+          "definition": "VARCHAR(48) NOT NULL DEFAULT 'NONE'",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "managed_date_of_birth": {
+          "definition": "VARCHAR(10)",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "managed_date_of_death": {
+          "definition": "VARCHAR(10)",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "managed_notes": {
+          "definition": "VARCHAR(2000)",
+          "migration": "V19__add_managed_people.sql"
+        },
+        "phone_verified": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V55__verified_phone_and_admin_mfa.sql"
+        },
+        "upload_level_id": {
+          "definition": "INTEGER NOT NULL DEFAULT 1 REFERENCES upload_levels(id)",
+          "migration": "V67__upload_levels.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_users_username_not_blank\n  CHECK (CHAR_LENGTH(TRIM(username)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_users_email_not_blank\n  CHECK (CHAR_LENGTH(TRIM(email)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_users_password_hash_not_blank\n  CHECK (CHAR_LENGTH(TRIM(password_hash)) > 0)",
+        "V6__add_unique_user_email.sql: ADD CONSTRAINT uq_users_email UNIQUE (email)",
+        "V7__add_user_phone_identity.sql: ALTER COLUMN phone_number SET NOT NULL",
+        "V7__add_user_phone_identity.sql: ADD CONSTRAINT uq_users_phone_number UNIQUE (phone_number)",
+        "V7__add_user_phone_identity.sql: ALTER COLUMN email DROP NOT NULL",
+        "V19__add_managed_people.sql: ALTER COLUMN phone_number DROP NOT NULL",
+        "V19__add_managed_people.sql: ADD CONSTRAINT fk_users_guardian\n  FOREIGN KEY (guardian_user_id) REFERENCES users(id)",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN managed_notes TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN managed_date_of_birth TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN managed_date_of_death TYPE TEXT"
+      ]
+    },
+    "people": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "full_name": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "email": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "gender": {
+          "definition": "VARCHAR(32) NOT NULL DEFAULT 'Unspecified'",
+          "migration": "V10__add_person_gender.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_people_full_name_not_blank\n  CHECK (CHAR_LENGTH(TRIM(full_name)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_people_email_not_blank\n  CHECK (CHAR_LENGTH(TRIM(email)) > 0)"
+      ]
+    },
+    "circles": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(255) NOT NULL UNIQUE",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT",
+          "migration": "V11__add_social_network.sql"
+        },
+        "posting_permission": {
+          "definition": "VARCHAR(32) NOT NULL DEFAULT 'ALL_MEMBERS'",
+          "migration": "V21__add_circle_conversations.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_circles_name_not_blank\n  CHECK (CHAR_LENGTH(TRIM(name)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_circles_description_not_blank\n  CHECK (CHAR_LENGTH(TRIM(description)) > 0)",
+        "V11__add_social_network.sql: ADD CONSTRAINT fk_circle_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "relationships": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "type": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT",
+          "migration": "V11__add_social_network.sql"
+        },
+        "related_user_id": {
+          "definition": "BIGINT",
+          "migration": "V11__add_social_network.sql"
+        },
+        "contact_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V13__add_relationship_display_name.sql"
+        },
+        "visibility_scope": {
+          "definition": "VARCHAR(20) NOT NULL DEFAULT 'FRIENDS'",
+          "migration": "V16__add_relationship_visibility.sql"
+        },
+        "visibility_company": {
+          "definition": "VARCHAR(255)",
+          "migration": "V16__add_relationship_visibility.sql"
+        },
+        "contact_phone": {
+          "definition": "VARCHAR(40)",
+          "migration": "V17__add_private_relationship_contacts.sql"
+        },
+        "contact_email": {
+          "definition": "VARCHAR(255)",
+          "migration": "V17__add_private_relationship_contacts.sql"
+        },
+        "relative_to_user_id": {
+          "definition": "BIGINT",
+          "migration": "V20__add_relationship_anchor.sql"
+        },
+        "milestone_date": {
+          "definition": "VARCHAR(10)",
+          "migration": "V40__add_relationship_milestone_dates.sql"
+        },
+        "related_birth_date": {
+          "definition": "VARCHAR(10)",
+          "migration": "V40__add_relationship_milestone_dates.sql"
+        },
+        "related_death_date": {
+          "definition": "VARCHAR(10)",
+          "migration": "V40__add_relationship_milestone_dates.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_relationships_type_not_blank\n  CHECK (CHAR_LENGTH(TRIM(type)) > 0)",
+        "V11__add_social_network.sql: ADD CONSTRAINT fk_relationship_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE",
+        "V11__add_social_network.sql: ADD CONSTRAINT fk_relationship_related FOREIGN KEY (related_user_id) REFERENCES users(id) ON DELETE CASCADE",
+        "V11__add_social_network.sql: ADD CONSTRAINT uq_relationship_pair UNIQUE (owner_user_id, related_user_id)",
+        "V20__add_relationship_anchor.sql: ADD CONSTRAINT fk_relationship_relative_to\n  FOREIGN KEY (relative_to_user_id) REFERENCES users(id)",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN contact_name TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN contact_phone TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN contact_email TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN milestone_date TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN related_birth_date TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN related_death_date TYPE TEXT"
+      ]
+    },
+    "permissions": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(255) NOT NULL UNIQUE",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_permissions_name_not_blank\n  CHECK (CHAR_LENGTH(TRIM(name)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_permissions_description_not_blank\n  CHECK (CHAR_LENGTH(TRIM(description)) > 0)"
+      ]
+    },
+    "projects": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        }
+      },
+      "constraints": [
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_projects_name_not_blank\n  CHECK (CHAR_LENGTH(TRIM(name)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_projects_description_not_blank\n  CHECK (CHAR_LENGTH(TRIM(description)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_projects_status_allowed\n  CHECK (status IN ('Active', 'Planning', 'Completed'))"
+      ]
+    },
+    "tasks": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "title": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "details": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "project_id": {
+          "definition": "BIGINT",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "milestone_id": {
+          "definition": "BIGINT",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "task_group_id": {
+          "definition": "BIGINT",
+          "migration": "V9__add_task_groups.sql"
+        }
+      },
+      "constraints": [
+        "V3__add_indexes_and_foreign_keys.sql: ADD CONSTRAINT fk_tasks_project\n  FOREIGN KEY (project_id)\n  REFERENCES projects(id)\n  ON DELETE SET NULL",
+        "V3__add_indexes_and_foreign_keys.sql: ADD CONSTRAINT fk_tasks_milestone\n  FOREIGN KEY (milestone_id)\n  REFERENCES milestones(id)\n  ON DELETE SET NULL",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_tasks_title_not_blank\n  CHECK (CHAR_LENGTH(TRIM(title)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_tasks_details_not_blank\n  CHECK (CHAR_LENGTH(TRIM(details)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_tasks_status_allowed\n  CHECK (status IN ('Todo', 'In Progress', 'Done'))",
+        "V9__add_task_groups.sql: ADD CONSTRAINT fk_tasks_task_group FOREIGN KEY (task_group_id) REFERENCES task_groups(id) ON DELETE SET NULL"
+      ]
+    },
+    "milestones": {
+      "created": "V1__create_core_tables.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "project_id": {
+          "definition": "BIGINT",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "due_date": {
+          "definition": "DATE",
+          "migration": "V1__create_core_tables.sql"
+        },
+        "blocked_reason": {
+          "definition": "VARCHAR(1024)",
+          "migration": "V1__create_core_tables.sql"
+        }
+      },
+      "constraints": [
+        "V3__add_indexes_and_foreign_keys.sql: ADD CONSTRAINT fk_milestones_project\n  FOREIGN KEY (project_id)\n  REFERENCES projects(id)\n  ON DELETE SET NULL",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_milestones_name_not_blank\n  CHECK (CHAR_LENGTH(TRIM(name)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_milestones_description_not_blank\n  CHECK (CHAR_LENGTH(TRIM(description)) > 0)",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_milestones_status_allowed\n  CHECK (status IN ('Planned', 'In Progress', 'Blocked', 'Completed'))",
+        "V4__add_data_quality_constraints.sql: ADD CONSTRAINT chk_milestones_blocked_reason_semantics\n  CHECK (\n    (status = 'Blocked' AND blocked_reason IS NOT NULL AND CHAR_LENGTH(TRIM(blocked_reason)) > 0)\n    OR\n    (status <> 'Blocked' AND (blocked_reason IS NULL OR CHAR_LENGTH(TRIM(blocked_reason)) = 0))\n  )"
+      ]
+    },
+    "auth_tokens": {
+      "created": "V5__add_auth_tokens_table.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V5__add_auth_tokens_table.sql"
+        },
+        "token": {
+          "definition": "VARCHAR(2048) NOT NULL UNIQUE",
+          "migration": "V5__add_auth_tokens_table.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT",
+          "migration": "V5__add_auth_tokens_table.sql"
+        },
+        "token_type": {
+          "definition": "VARCHAR(32) NOT NULL",
+          "migration": "V5__add_auth_tokens_table.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP NOT NULL",
+          "migration": "V5__add_auth_tokens_table.sql"
+        },
+        "session_id": {
+          "definition": "VARCHAR(36)",
+          "migration": "V54__revocable_sessions.sql"
+        }
+      },
+      "constraints": [
+        "V5__add_auth_tokens_table.sql: ADD CONSTRAINT fk_auth_tokens_user\n  FOREIGN KEY (user_id)\n  REFERENCES users(id)\n  ON DELETE CASCADE"
+      ]
+    },
+    "task_groups": {
+      "created": "V9__add_task_groups.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V9__add_task_groups.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(255) NOT NULL UNIQUE",
+          "migration": "V9__add_task_groups.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(1024) NOT NULL",
+          "migration": "V9__add_task_groups.sql"
+        }
+      },
+      "constraints": []
+    },
+    "circle_members": {
+      "created": "V11__add_social_network.sql",
+      "columns": {
+        "circle_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V11__add_social_network.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V11__add_social_network.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (circle_id, user_id)",
+        "CONSTRAINT fk_circle_member_circle FOREIGN KEY (circle_id) REFERENCES circles(id) ON DELETE CASCADE",
+        "CONSTRAINT fk_circle_member_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "circle_admins": {
+      "created": "V14__add_circle_admins.sql",
+      "columns": {
+        "circle_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V14__add_circle_admins.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V14__add_circle_admins.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (circle_id, user_id)",
+        "CONSTRAINT fk_circle_admin_circle FOREIGN KEY (circle_id) REFERENCES circles(id) ON DELETE CASCADE",
+        "CONSTRAINT fk_circle_admin_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "user_profiles": {
+      "created": "V15__add_user_profiles.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "date_of_birth": {
+          "definition": "VARCHAR(20)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "gender": {
+          "definition": "VARCHAR(40)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "bio": {
+          "definition": "TEXT",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "address_line1": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "address_line2": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "city": {
+          "definition": "VARCHAR(120)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "state": {
+          "definition": "VARCHAR(120)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "postal_code": {
+          "definition": "VARCHAR(30)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "country": {
+          "definition": "VARCHAR(120)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "alternate_phone": {
+          "definition": "VARCHAR(40)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "website": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "whatsapp": {
+          "definition": "VARCHAR(120)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "linkedin": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "facebook": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "instagram": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "x_handle": {
+          "definition": "VARCHAR(120)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "highest_qualification": {
+          "definition": "VARCHAR(180)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "institution": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "field_of_study": {
+          "definition": "VARCHAR(180)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "graduation_year": {
+          "definition": "VARCHAR(10)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "employment_status": {
+          "definition": "VARCHAR(80)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "employer": {
+          "definition": "VARCHAR(255)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "job_title": {
+          "definition": "VARCHAR(180)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "industry": {
+          "definition": "VARCHAR(180)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "work_location": {
+          "definition": "VARCHAR(180)",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "profile_photo": {
+          "definition": "TEXT",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "hobbies": {
+          "definition": "TEXT",
+          "migration": "V42__add_profile_hobbies.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_user_profile_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "user_profile_photos": {
+      "created": "V15__add_user_profiles.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "photo_order": {
+          "definition": "INTEGER NOT NULL",
+          "migration": "V15__add_user_profiles.sql"
+        },
+        "photo_data": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V15__add_user_profiles.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (user_id, photo_order)",
+        "CONSTRAINT fk_user_profile_photo_user FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE"
+      ]
+    },
+    "circle_posts": {
+      "created": "V21__add_circle_conversations.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "circle_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "author_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "parent_post_id": {
+          "definition": "BIGINT",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "message": {
+          "definition": "VARCHAR(4000) NOT NULL DEFAULT ''",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "attachment_key": {
+          "definition": "VARCHAR(255)",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "attachment_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "attachment_type": {
+          "definition": "VARCHAR(255)",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "attachment_size": {
+          "definition": "BIGINT",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V21__add_circle_conversations.sql"
+        },
+        "edited_at": {
+          "definition": "TIMESTAMP NULL",
+          "migration": "V34__add_circle_message_lifecycle.sql"
+        },
+        "deleted_at": {
+          "definition": "TIMESTAMP NULL",
+          "migration": "V34__add_circle_message_lifecycle.sql"
+        },
+        "forwarded": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V64__circle_message_flags.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_circle_post_circle FOREIGN KEY (circle_id) REFERENCES circles(id) ON DELETE CASCADE",
+        "CONSTRAINT fk_circle_post_author FOREIGN KEY (author_user_id) REFERENCES users(id)",
+        "CONSTRAINT fk_circle_post_parent FOREIGN KEY (parent_post_id) REFERENCES circle_posts(id) ON DELETE CASCADE"
+      ]
+    },
+    "direct_messages": {
+      "created": "V22__add_direct_messages.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "sender_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "recipient_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "message": {
+          "definition": "VARCHAR(4000) NOT NULL DEFAULT ''",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "attachment_key": {
+          "definition": "VARCHAR(255)",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "attachment_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "attachment_type": {
+          "definition": "VARCHAR(255)",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "attachment_size": {
+          "definition": "BIGINT",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V22__add_direct_messages.sql"
+        },
+        "delivered_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V30__add_direct_message_receipts.sql"
+        },
+        "read_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V30__add_direct_message_receipts.sql"
+        },
+        "reply_to_message_id": {
+          "definition": "BIGINT REFERENCES direct_messages(id) ON DELETE SET NULL",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "edited_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "deleted_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "forwarded": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V62__forwarded_direct_messages.sql"
+        },
+        "sender_hidden": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V63__private_message_deletions.sql"
+        },
+        "recipient_hidden": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V63__private_message_deletions.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_direct_message_sender FOREIGN KEY (sender_user_id) REFERENCES users(id)",
+        "CONSTRAINT fk_direct_message_recipient FOREIGN KEY (recipient_user_id) REFERENCES users(id)",
+        "CONSTRAINT chk_direct_message_participants CHECK (sender_user_id <> recipient_user_id)"
+      ]
+    },
+    "direct_calls": {
+      "created": "V23__add_direct_calls.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "caller_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "recipient_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "call_type": {
+          "definition": "VARCHAR(16) NOT NULL",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'RINGING'",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "offer_sdp": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "answer_sdp": {
+          "definition": "TEXT",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V23__add_direct_calls.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V23__add_direct_calls.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_direct_call_caller FOREIGN KEY (caller_user_id) REFERENCES users(id)",
+        "CONSTRAINT fk_direct_call_recipient FOREIGN KEY (recipient_user_id) REFERENCES users(id)",
+        "CONSTRAINT chk_direct_call_participants CHECK (caller_user_id <> recipient_user_id)",
+        "CONSTRAINT chk_direct_call_type CHECK (call_type IN ('AUDIO','VIDEO'))",
+        "CONSTRAINT chk_direct_call_status CHECK (status IN ('RINGING','ACCEPTED','REJECTED','ENDED'))"
+      ]
+    },
+    "notification_preferences": {
+      "created": "V24__add_notifications.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY",
+          "migration": "V24__add_notifications.sql"
+        },
+        "email_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "sms_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "push_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "messages_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "circles_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "relationships_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "calls_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "invitations_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "unsubscribe_token": {
+          "definition": "VARCHAR(96) NOT NULL UNIQUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "social_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V33__add_social_notification_preference.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_notification_preferences_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "notification_device_tokens": {
+      "created": "V24__add_notifications.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V24__add_notifications.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "token": {
+          "definition": "VARCHAR(512) NOT NULL UNIQUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "platform": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V24__add_notifications.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_notification_device_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "notifications": {
+      "created": "V24__add_notifications.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V24__add_notifications.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "type": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "title": {
+          "definition": "VARCHAR(180) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "body": {
+          "definition": "VARCHAR(2000) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "action_url": {
+          "definition": "VARCHAR(500)",
+          "migration": "V24__add_notifications.sql"
+        },
+        "entity_type": {
+          "definition": "VARCHAR(40)",
+          "migration": "V24__add_notifications.sql"
+        },
+        "entity_id": {
+          "definition": "BIGINT",
+          "migration": "V24__add_notifications.sql"
+        },
+        "read_at": {
+          "definition": "TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+      ]
+    },
+    "notification_deliveries": {
+      "created": "V24__add_notifications.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V24__add_notifications.sql"
+        },
+        "notification_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "channel": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "destination": {
+          "definition": "VARCHAR(512) NOT NULL",
+          "migration": "V24__add_notifications.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'PENDING'",
+          "migration": "V24__add_notifications.sql"
+        },
+        "attempts": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V24__add_notifications.sql"
+        },
+        "next_attempt_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "provider_message_id": {
+          "definition": "VARCHAR(255)",
+          "migration": "V24__add_notifications.sql"
+        },
+        "last_error": {
+          "definition": "VARCHAR(1000)",
+          "migration": "V24__add_notifications.sql"
+        },
+        "sent_at": {
+          "definition": "TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V24__add_notifications.sql"
+        },
+        "lease_until": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V52__scaling_indexes_and_delivery_leases.sql"
+        },
+        "claim_token": {
+          "definition": "VARCHAR(36)",
+          "migration": "V52__scaling_indexes_and_delivery_leases.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_notification_delivery_notification FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE",
+        "CONSTRAINT uq_notification_delivery UNIQUE (notification_id, channel, destination)"
+      ]
+    },
+    "media_assets": {
+      "created": "V25__add_media_assets.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "storage_key": {
+          "definition": "VARCHAR(700) NOT NULL UNIQUE",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "category": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "original_name": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "content_type": {
+          "definition": "VARCHAR(150) NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "size_bytes": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "sha256": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "scan_status": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'CLEAN'",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "thumbnail_key": {
+          "definition": "VARCHAR(700)",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "deleted_at": {
+          "definition": "TIMESTAMP",
+          "migration": "V25__add_media_assets.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V25__add_media_assets.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_media_asset_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE",
+        "CONSTRAINT ck_media_asset_size CHECK (size_bytes >= 0)"
+      ]
+    },
+    "audit_events": {
+      "created": "V26__add_audit_and_abuse.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "actor_user_id": {
+          "definition": "BIGINT",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "action": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "request_path": {
+          "definition": "VARCHAR(700) NOT NULL",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "resource_type": {
+          "definition": "VARCHAR(80)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "resource_id": {
+          "definition": "VARCHAR(120)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "response_status": {
+          "definition": "INTEGER NOT NULL",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "ip_address": {
+          "definition": "VARCHAR(64)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "user_agent": {
+          "definition": "VARCHAR(500)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "occurred_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V26__add_audit_and_abuse.sql"
+        }
+      },
+      "constraints": []
+    },
+    "abuse_reports": {
+      "created": "V26__add_audit_and_abuse.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "reporter_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "reported_user_id": {
+          "definition": "BIGINT",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "entity_type": {
+          "definition": "VARCHAR(40)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "entity_id": {
+          "definition": "BIGINT",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "reason": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "details": {
+          "definition": "VARCHAR(2000)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'OPEN'",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "moderator_user_id": {
+          "definition": "BIGINT",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "moderator_notes": {
+          "definition": "VARCHAR(2000)",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V26__add_audit_and_abuse.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V26__add_audit_and_abuse.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_abuse_reporter FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE",
+        "CONSTRAINT fk_abuse_reported_user FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE SET NULL"
+      ]
+    },
+    "relationship_broadcasts": {
+      "created": "V27__add_relationship_broadcasts.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "sender_user_id": {
+          "definition": "BIGINT NOT NULL",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "audience_type": {
+          "definition": "VARCHAR(24) NOT NULL",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "anchor_user_id": {
+          "definition": "BIGINT",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "location_query": {
+          "definition": "VARCHAR(255)",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "message_preview": {
+          "definition": "VARCHAR(500)",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "recipient_count": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "failed_count": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V27__add_relationship_broadcasts.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT fk_relationship_broadcast_sender FOREIGN KEY (sender_user_id) REFERENCES users(id)",
+        "CONSTRAINT fk_relationship_broadcast_anchor FOREIGN KEY (anchor_user_id) REFERENCES users(id)",
+        "CONSTRAINT chk_relationship_broadcast_audience CHECK (audience_type IN ('HORIZONTAL','VERTICAL','LOCATION'))"
+      ]
+    },
+    "social_posts": {
+      "created": "V29__add_social_feed.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "author_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "caption": {
+          "definition": "VARCHAR(4000) NOT NULL DEFAULT ''",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "audience": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'RELATIONSHIPS'",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "circle_id": {
+          "definition": "BIGINT REFERENCES circles(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_key": {
+          "definition": "VARCHAR(255)",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_type": {
+          "definition": "VARCHAR(255)",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_size": {
+          "definition": "BIGINT",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V29__add_social_feed.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_social_post_audience CHECK (audience IN ('PUBLIC','RELATIONSHIPS','CIRCLE'))",
+        "CONSTRAINT chk_social_post_circle CHECK ((audience = 'CIRCLE' AND circle_id IS NOT NULL) OR (audience <> 'CIRCLE' AND circle_id IS NULL))",
+        "V43__expand_social_post_audiences.sql: ADD CONSTRAINT chk_social_post_audience\n  CHECK (audience IN ('PRIVATE','PUBLIC','FRIENDS','RELATIVES','RELATIONSHIPS','CIRCLE'))"
+      ]
+    },
+    "social_post_likes": {
+      "created": "V29__add_social_feed.sql",
+      "columns": {
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V29__add_social_feed.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (post_id, user_id)"
+      ]
+    },
+    "social_comments": {
+      "created": "V29__add_social_feed.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "author_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "message": {
+          "definition": "VARCHAR(1000) NOT NULL",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V29__add_social_feed.sql"
+        }
+      },
+      "constraints": []
+    },
+    "social_stories": {
+      "created": "V29__add_social_feed.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "author_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "caption": {
+          "definition": "VARCHAR(1000) NOT NULL DEFAULT ''",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "audience": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'RELATIONSHIPS'",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_key": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_type": {
+          "definition": "VARCHAR(255) NOT NULL",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "media_size": {
+          "definition": "BIGINT",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V29__add_social_feed.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V29__add_social_feed.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_social_story_audience CHECK (audience IN ('PUBLIC','RELATIONSHIPS'))"
+      ]
+    },
+    "user_blocks": {
+      "created": "V31__add_user_blocks.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V31__add_user_blocks.sql"
+        },
+        "blocker_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V31__add_user_blocks.sql"
+        },
+        "blocked_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V31__add_user_blocks.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V31__add_user_blocks.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_user_block UNIQUE(blocker_user_id,blocked_user_id)",
+        "CONSTRAINT chk_user_block_self CHECK(blocker_user_id<>blocked_user_id)"
+      ]
+    },
+    "direct_message_reactions": {
+      "created": "V32__add_direct_message_interactions.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "message_id": {
+          "definition": "BIGINT NOT NULL REFERENCES direct_messages(id) ON DELETE CASCADE",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "emoji": {
+          "definition": "VARCHAR(16) NOT NULL",
+          "migration": "V32__add_direct_message_interactions.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V32__add_direct_message_interactions.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_direct_message_reaction UNIQUE(message_id,user_id)"
+      ]
+    },
+    "circle_post_reactions": {
+      "created": "V35__add_circle_message_reactions.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V35__add_circle_message_reactions.sql"
+        },
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circle_posts(id) ON DELETE CASCADE",
+          "migration": "V35__add_circle_message_reactions.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V35__add_circle_message_reactions.sql"
+        },
+        "emoji": {
+          "definition": "VARCHAR(16) NOT NULL",
+          "migration": "V35__add_circle_message_reactions.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V35__add_circle_message_reactions.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_circle_post_reaction UNIQUE(post_id,user_id)"
+      ]
+    },
+    "circle_post_reads": {
+      "created": "V36__add_circle_message_reads.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V36__add_circle_message_reads.sql"
+        },
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circle_posts(id) ON DELETE CASCADE",
+          "migration": "V36__add_circle_message_reads.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V36__add_circle_message_reads.sql"
+        },
+        "read_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V36__add_circle_message_reads.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_circle_post_read UNIQUE(post_id,user_id)"
+      ]
+    },
+    "social_post_saves": {
+      "created": "V37__add_social_post_saves.sql",
+      "columns": {
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE",
+          "migration": "V37__add_social_post_saves.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V37__add_social_post_saves.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V37__add_social_post_saves.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (post_id, user_id)"
+      ]
+    },
+    "social_story_views": {
+      "created": "V38__add_social_story_views.sql",
+      "columns": {
+        "story_id": {
+          "definition": "BIGINT NOT NULL REFERENCES social_stories(id) ON DELETE CASCADE",
+          "migration": "V38__add_social_story_views.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V38__add_social_story_views.sql"
+        },
+        "viewed_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V38__add_social_story_views.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (story_id, user_id)"
+      ]
+    },
+    "person_records": {
+      "created": "V39__add_person_records_and_memories.sql",
+      "columns": {
+        "owner_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "person_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "nickname": {
+          "definition": "VARCHAR(255)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "contact_phone": {
+          "definition": "VARCHAR(40)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "contact_email": {
+          "definition": "VARCHAR(255)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "address": {
+          "definition": "TEXT",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "city": {
+          "definition": "VARCHAR(120)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "country": {
+          "definition": "VARCHAR(120)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "occupation": {
+          "definition": "VARCHAR(255)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "important_dates": {
+          "definition": "TEXT",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "notes": {
+          "definition": "TEXT",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "date_of_birth": {
+          "definition": "VARCHAR(10)",
+          "migration": "V41__add_structured_person_dates.sql"
+        },
+        "marriage_date": {
+          "definition": "VARCHAR(10)",
+          "migration": "V41__add_structured_person_dates.sql"
+        },
+        "date_of_death": {
+          "definition": "VARCHAR(10)",
+          "migration": "V41__add_structured_person_dates.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (owner_user_id, person_user_id)",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN nickname TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN contact_phone TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN contact_email TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN address TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN city TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN country TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN occupation TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN date_of_birth TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN marriage_date TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN date_of_death TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN important_dates TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN notes TYPE TEXT"
+      ]
+    },
+    "person_memories": {
+      "created": "V39__add_person_records_and_memories.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "person_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "title": {
+          "definition": "VARCHAR(255)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "note": {
+          "definition": "TEXT",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "media_key": {
+          "definition": "VARCHAR(512)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "media_name": {
+          "definition": "VARCHAR(255)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "media_type": {
+          "definition": "VARCHAR(160)",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "media_size": {
+          "definition": "BIGINT",
+          "migration": "V39__add_person_records_and_memories.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V39__add_person_records_and_memories.sql"
+        }
+      },
+      "constraints": []
+    },
+    "trusted_people": {
+      "created": "V44__add_trusted_people.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "trusted_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "kind": {
+          "definition": "VARCHAR(20) NOT NULL CHECK (kind IN ('STAR','ROLE_MODEL'))",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V44__add_trusted_people.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_trusted_people UNIQUE (owner_user_id, trusted_user_id, kind)",
+        "CONSTRAINT chk_trusted_people_distinct CHECK (owner_user_id <> trusted_user_id)"
+      ]
+    },
+    "role_model_follows": {
+      "created": "V44__add_trusted_people.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "follower_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "role_model_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V44__add_trusted_people.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT uq_role_model_follow UNIQUE (follower_user_id, role_model_user_id)",
+        "CONSTRAINT chk_role_model_follow_distinct CHECK (follower_user_id <> role_model_user_id)"
+      ]
+    },
+    "emergency_access_requests": {
+      "created": "V44__add_trusted_people.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "owner_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "requester_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "reason": {
+          "definition": "VARCHAR(1000) NOT NULL",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','APPROVED','REJECTED','EXPIRED'))",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "required_approvals": {
+          "definition": "INTEGER NOT NULL DEFAULT 2",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "granted_until": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V44__add_trusted_people.sql"
+        }
+      },
+      "constraints": []
+    },
+    "emergency_access_approvals": {
+      "created": "V44__add_trusted_people.sql",
+      "columns": {
+        "request_id": {
+          "definition": "BIGINT NOT NULL REFERENCES emergency_access_requests(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "approver_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "approved": {
+          "definition": "BOOLEAN NOT NULL",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "decided_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V44__add_trusted_people.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (request_id, approver_user_id)"
+      ]
+    },
+    "emergency_access_events": {
+      "created": "V44__add_trusted_people.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "request_id": {
+          "definition": "BIGINT NOT NULL REFERENCES emergency_access_requests(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "actor_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "action": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "resource_id": {
+          "definition": "BIGINT",
+          "migration": "V44__add_trusted_people.sql"
+        },
+        "occurred_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V44__add_trusted_people.sql"
+        }
+      },
+      "constraints": []
+    },
+    "financial_transactions": {
+      "created": "V45__add_financial_tracking.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "amount": {
+          "definition": "DECIMAL(15,2) NOT NULL",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "direction": {
+          "definition": "VARCHAR(12) NOT NULL",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "category": {
+          "definition": "VARCHAR(32) NOT NULL",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "merchant": {
+          "definition": "VARCHAR(160)",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "description": {
+          "definition": "VARCHAR(500)",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "occurred_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "source": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "source_fingerprint": {
+          "definition": "VARCHAR(64)",
+          "migration": "V45__add_financial_tracking.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V45__add_financial_tracking.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT financial_direction_check CHECK (direction IN ('EXPENSE','INCOME'))",
+        "CONSTRAINT financial_amount_check CHECK (amount > 0)",
+        "CONSTRAINT financial_source_check CHECK (source IN ('MANUAL','SMS','IMPORT'))",
+        "CONSTRAINT financial_source_unique UNIQUE (user_id, source_fingerprint)",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN merchant TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN description TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN amount TYPE TEXT"
+      ]
+    },
+    "health_reports": {
+      "created": "V46__add_health_reports.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "source_post_id": {
+          "definition": "BIGINT REFERENCES social_posts(id) ON DELETE SET NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "report_name": {
+          "definition": "VARCHAR(200) NOT NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "laboratory": {
+          "definition": "VARCHAR(200)",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "collected_on": {
+          "definition": "DATE NOT NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "notes": {
+          "definition": "VARCHAR(1000)",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V46__add_health_reports.sql"
+        }
+      },
+      "constraints": [
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN report_name TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN laboratory TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN notes TYPE TEXT"
+      ]
+    },
+    "health_measurements": {
+      "created": "V46__add_health_reports.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "report_id": {
+          "definition": "BIGINT NOT NULL REFERENCES health_reports(id) ON DELETE CASCADE",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "metric_name": {
+          "definition": "VARCHAR(120) NOT NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "measured_value": {
+          "definition": "DECIMAL(18,4) NOT NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "unit": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "reference_min": {
+          "definition": "DECIMAL(18,4)",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "reference_max": {
+          "definition": "DECIMAL(18,4)",
+          "migration": "V46__add_health_reports.sql"
+        },
+        "suggestion": {
+          "definition": "VARCHAR(500)",
+          "migration": "V47__add_health_measurement_suggestions.sql"
+        }
+      },
+      "constraints": [
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN metric_name TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN unit TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN suggestion TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN measured_value TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN reference_min TYPE TEXT",
+        "V56__encrypted_sensitive_fields.sql: ALTER COLUMN reference_max TYPE TEXT"
+      ]
+    },
+    "ai_action_events": {
+      "created": "V48__add_ai_action_ledger.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGSERIAL PRIMARY KEY",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "request_id": {
+          "definition": "UUID NOT NULL UNIQUE",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "capability": {
+          "definition": "VARCHAR(80) NOT NULL",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "action_level": {
+          "definition": "VARCHAR(2) NOT NULL",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "purpose": {
+          "definition": "VARCHAR(240) NOT NULL",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "consent_granted": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "approval_state": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "failure_code": {
+          "definition": "VARCHAR(80)",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V48__add_ai_action_ledger.sql"
+        },
+        "completed_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V48__add_ai_action_ledger.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_ai_action_level CHECK (action_level IN ('L0', 'L1', 'L2', 'L3', 'L4'))",
+        "CONSTRAINT chk_ai_approval_state CHECK (approval_state IN ('NOT_REQUIRED', 'REQUIRED', 'APPROVED', 'REJECTED'))",
+        "CONSTRAINT chk_ai_action_status CHECK (status IN ('STARTED', 'SUCCEEDED', 'FAILED', 'REJECTED'))"
+      ]
+    },
+    "ai_user_preferences": {
+      "created": "V49__add_ai_user_preferences.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V49__add_ai_user_preferences.sql"
+        },
+        "ai_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V49__add_ai_user_preferences.sql"
+        },
+        "allow_sensitive_data": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V49__add_ai_user_preferences.sql"
+        },
+        "allow_personalization": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V49__add_ai_user_preferences.sql"
+        },
+        "activity_retention_days": {
+          "definition": "INTEGER NOT NULL DEFAULT 90",
+          "migration": "V49__add_ai_user_preferences.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V49__add_ai_user_preferences.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_ai_activity_retention CHECK (activity_retention_days BETWEEN 0 AND 365)"
+      ]
+    },
+    "ai_action_approvals": {
+      "created": "V50__add_ai_action_approvals.sql",
+      "columns": {
+        "id": {
+          "definition": "UUID PRIMARY KEY",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "capability": {
+          "definition": "VARCHAR(80) NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "action_level": {
+          "definition": "VARCHAR(2) NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "title": {
+          "definition": "VARCHAR(120) NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "summary": {
+          "definition": "VARCHAR(500) NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "resource_type": {
+          "definition": "VARCHAR(80)",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "resource_id": {
+          "definition": "VARCHAR(120)",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "action_fingerprint": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "pending_fingerprint": {
+          "definition": "VARCHAR(64)",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(20) NOT NULL DEFAULT 'PENDING'",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "decision_reason": {
+          "definition": "VARCHAR(240)",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "requested_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "decided_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "version": {
+          "definition": "BIGINT NOT NULL DEFAULT 0",
+          "migration": "V50__add_ai_action_approvals.sql"
+        },
+        "authorization_expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_ai_approval_level CHECK (action_level IN ('L2', 'L3'))",
+        "CONSTRAINT chk_ai_action_approval_status CHECK (\n        status IN ('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', 'CANCELLED'))",
+        "CONSTRAINT chk_ai_action_approval_expiry CHECK (expires_at > requested_at)"
+      ]
+    },
+    "ai_action_executions": {
+      "created": "V51__add_ai_action_execution_guard.sql",
+      "columns": {
+        "id": {
+          "definition": "UUID PRIMARY KEY",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "approval_id": {
+          "definition": "UUID NOT NULL UNIQUE REFERENCES ai_action_approvals(id) ON DELETE CASCADE",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "idempotency_key_hash": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "status": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "failure_code": {
+          "definition": "VARCHAR(80)",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "result_reference": {
+          "definition": "VARCHAR(240)",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "started_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "completed_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        },
+        "version": {
+          "definition": "BIGINT NOT NULL DEFAULT 0",
+          "migration": "V51__add_ai_action_execution_guard.sql"
+        }
+      },
+      "constraints": [
+        "CONSTRAINT chk_ai_action_execution_status CHECK (\n        status IN ('RUNNING', 'SUCCEEDED', 'FAILED'))"
+      ]
+    },
+    "scheduled_job_locks": {
+      "created": "V53__scheduled_job_locks.sql",
+      "columns": {
+        "name": {
+          "definition": "VARCHAR(80) PRIMARY KEY",
+          "migration": "V53__scheduled_job_locks.sql"
+        }
+      },
+      "constraints": []
+    },
+    "admin_mfa": {
+      "created": "V55__verified_phone_and_admin_mfa.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V55__verified_phone_and_admin_mfa.sql"
+        },
+        "encrypted_secret": {
+          "definition": "VARCHAR(512) NOT NULL",
+          "migration": "V55__verified_phone_and_admin_mfa.sql"
+        },
+        "last_counter": {
+          "definition": "BIGINT NOT NULL DEFAULT -1",
+          "migration": "V55__verified_phone_and_admin_mfa.sql"
+        }
+      },
+      "constraints": []
+    },
+    "app_settings": {
+      "created": "V57__application_settings.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V57__application_settings.sql"
+        },
+        "discoverable": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V57__application_settings.sql"
+        },
+        "share_interests": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V57__application_settings.sql"
+        },
+        "settings_json": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V57__application_settings.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V57__application_settings.sql"
+        }
+      },
+      "constraints": []
+    },
+    "direct_message_flags": {
+      "created": "V58__message_personalization.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V58__message_personalization.sql"
+        },
+        "message_id": {
+          "definition": "BIGINT NOT NULL REFERENCES direct_messages(id) ON DELETE CASCADE",
+          "migration": "V58__message_personalization.sql"
+        },
+        "starred": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V58__message_personalization.sql"
+        },
+        "pinned": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V58__message_personalization.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (user_id, message_id)"
+      ]
+    },
+    "direct_chat_pins": {
+      "created": "V58__message_personalization.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V58__message_personalization.sql"
+        },
+        "other_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V58__message_personalization.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY(user_id, other_user_id)"
+      ]
+    },
+    "message_preferences": {
+      "created": "V58__message_personalization.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V58__message_personalization.sql"
+        },
+        "read_receipts": {
+          "definition": "BOOLEAN NOT NULL DEFAULT TRUE",
+          "migration": "V58__message_personalization.sql"
+        }
+      },
+      "constraints": []
+    },
+    "address_book_contacts": {
+      "created": "V59__private_address_book.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V59__private_address_book.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V59__private_address_book.sql"
+        },
+        "fingerprint": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V59__private_address_book.sql"
+        },
+        "display_name": {
+          "definition": "VARCHAR(200) NOT NULL",
+          "migration": "V59__private_address_book.sql"
+        },
+        "contact_data": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V59__private_address_book.sql"
+        },
+        "source": {
+          "definition": "VARCHAR(20) NOT NULL",
+          "migration": "V59__private_address_book.sql"
+        },
+        "relationship_id": {
+          "definition": "BIGINT REFERENCES relationships(id) ON DELETE SET NULL",
+          "migration": "V59__private_address_book.sql"
+        },
+        "circles_reviewed": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V59__private_address_book.sql"
+        },
+        "updated_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V59__private_address_book.sql"
+        }
+      },
+      "constraints": [
+        "UNIQUE(user_id, fingerprint)"
+      ]
+    },
+    "address_book_circle_contacts": {
+      "created": "V59__private_address_book.sql",
+      "columns": {
+        "contact_id": {
+          "definition": "BIGINT NOT NULL REFERENCES address_book_contacts(id) ON DELETE CASCADE",
+          "migration": "V59__private_address_book.sql"
+        },
+        "circle_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circles(id) ON DELETE CASCADE",
+          "migration": "V59__private_address_book.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY(contact_id,circle_id)"
+      ]
+    },
+    "direct_chat_settings": {
+      "created": "V61__direct_chat_settings.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V61__direct_chat_settings.sql"
+        },
+        "other_user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V61__direct_chat_settings.sql"
+        },
+        "archived": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V61__direct_chat_settings.sql"
+        },
+        "muted": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V61__direct_chat_settings.sql"
+        },
+        "marked_unread": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V61__direct_chat_settings.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (user_id, other_user_id)",
+        "CHECK (user_id <> other_user_id)"
+      ]
+    },
+    "circle_post_hidden": {
+      "created": "V63__private_message_deletions.sql",
+      "columns": {
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circle_posts(id) ON DELETE CASCADE",
+          "migration": "V63__private_message_deletions.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V63__private_message_deletions.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY(post_id,user_id)"
+      ]
+    },
+    "circle_post_stars": {
+      "created": "V64__circle_message_flags.sql",
+      "columns": {
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circle_posts(id) ON DELETE CASCADE",
+          "migration": "V64__circle_message_flags.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V64__circle_message_flags.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY(post_id,user_id)"
+      ]
+    },
+    "circle_post_pins": {
+      "created": "V64__circle_message_flags.sql",
+      "columns": {
+        "post_id": {
+          "definition": "BIGINT NOT NULL REFERENCES circle_posts(id) ON DELETE CASCADE",
+          "migration": "V64__circle_message_flags.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V64__circle_message_flags.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY(post_id,user_id)"
+      ]
+    },
+    "help_ai_settings": {
+      "created": "V65__help_answer_memory.sql",
+      "columns": {
+        "id": {
+          "definition": "INTEGER PRIMARY KEY CHECK (id = 1)",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "enhanced_enabled": {
+          "definition": "BOOLEAN NOT NULL DEFAULT FALSE",
+          "migration": "V65__help_answer_memory.sql"
+        }
+      },
+      "constraints": []
+    },
+    "help_exchanges": {
+      "created": "V65__help_answer_memory.sql",
+      "columns": {
+        "id": {
+          "definition": "VARCHAR(36) PRIMARY KEY",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "cache_key": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "tier": {
+          "definition": "VARCHAR(16) NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "mode": {
+          "definition": "VARCHAR(16) NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "model": {
+          "definition": "VARCHAR(80) NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "input_tokens": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "output_tokens": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "payload": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "created_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        }
+      },
+      "constraints": []
+    },
+    "help_shared_answers": {
+      "created": "V65__help_answer_memory.sql",
+      "columns": {
+        "question_key": {
+          "definition": "VARCHAR(64) PRIMARY KEY",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "knowledge_version": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "payload": {
+          "definition": "TEXT NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "approved_by": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V65__help_answer_memory.sql"
+        },
+        "expires_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V65__help_answer_memory.sql"
+        }
+      },
+      "constraints": []
+    },
+    "security_incidents": {
+      "created": "V66__security_incidents.sql",
+      "columns": {
+        "id": {
+          "definition": "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+          "migration": "V66__security_incidents.sql"
+        },
+        "occurred_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        },
+        "category": {
+          "definition": "VARCHAR(40) NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        },
+        "summary": {
+          "definition": "VARCHAR(300) NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        },
+        "request_path": {
+          "definition": "VARCHAR(300) NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        },
+        "ip_address": {
+          "definition": "VARCHAR(64) NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        },
+        "actor": {
+          "definition": "VARCHAR(80)",
+          "migration": "V66__security_incidents.sql"
+        },
+        "blocked_until": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V66__security_incidents.sql"
+        },
+        "resolved_at": {
+          "definition": "TIMESTAMP WITH TIME ZONE",
+          "migration": "V66__security_incidents.sql"
+        },
+        "email_status": {
+          "definition": "VARCHAR(24) NOT NULL DEFAULT 'PENDING'",
+          "migration": "V66__security_incidents.sql"
+        },
+        "email_attempts": {
+          "definition": "INTEGER NOT NULL DEFAULT 0",
+          "migration": "V66__security_incidents.sql"
+        },
+        "email_next_attempt": {
+          "definition": "TIMESTAMP WITH TIME ZONE NOT NULL",
+          "migration": "V66__security_incidents.sql"
+        }
+      },
+      "constraints": []
+    },
+    "upload_levels": {
+      "created": "V67__upload_levels.sql",
+      "columns": {
+        "id": {
+          "definition": "INTEGER PRIMARY KEY CHECK (id BETWEEN 1 AND 5)",
+          "migration": "V67__upload_levels.sql"
+        },
+        "name": {
+          "definition": "VARCHAR(50) NOT NULL",
+          "migration": "V67__upload_levels.sql"
+        },
+        "storage_bytes": {
+          "definition": "BIGINT NOT NULL CHECK (storage_bytes >= 0)",
+          "migration": "V67__upload_levels.sql"
+        },
+        "upload_bytes": {
+          "definition": "BIGINT NOT NULL CHECK (upload_bytes BETWEEN 1 AND 26214400)",
+          "migration": "V67__upload_levels.sql"
+        },
+        "max_retention_days": {
+          "definition": "INTEGER NOT NULL CHECK (max_retention_days BETWEEN 1 AND 36500)",
+          "migration": "V67__upload_levels.sql"
+        },
+        "allow_never": {
+          "definition": "BOOLEAN NOT NULL",
+          "migration": "V67__upload_levels.sql"
+        }
+      },
+      "constraints": []
+    },
+    "timeline_events": {
+      "created": "V68__timeline_events.sql",
+      "columns": {
+        "user_id": {
+          "definition": "BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE",
+          "migration": "V68__timeline_events.sql"
+        },
+        "event_key": {
+          "definition": "VARCHAR(100) NOT NULL",
+          "migration": "V68__timeline_events.sql"
+        },
+        "event_date": {
+          "definition": "VARCHAR(10) NOT NULL",
+          "migration": "V68__timeline_events.sql"
+        },
+        "kind": {
+          "definition": "VARCHAR(30) NOT NULL",
+          "migration": "V68__timeline_events.sql"
+        },
+        "title": {
+          "definition": "VARCHAR(200) NOT NULL",
+          "migration": "V68__timeline_events.sql"
+        },
+        "detail": {
+          "definition": "VARCHAR(2000) NOT NULL",
+          "migration": "V68__timeline_events.sql"
+        }
+      },
+      "constraints": [
+        "PRIMARY KEY (user_id, event_key)"
+      ]
+    }
+  },
+  "foreign_keys": [
+    [
+      "abuse_reports",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "abuse_reports",
+      "reported_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "abuse_reports",
+      "reporter_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "address_book_circle_contacts",
+      "circle_id",
+      "circles",
+      "id"
+    ],
+    [
+      "address_book_circle_contacts",
+      "contact_id",
+      "address_book_contacts",
+      "id"
+    ],
+    [
+      "address_book_contacts",
+      "relationship_id",
+      "relationships",
+      "id"
+    ],
+    [
+      "address_book_contacts",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "admin_mfa",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "ai_action_approvals",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "ai_action_events",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "ai_action_executions",
+      "approval_id",
+      "ai_action_approvals",
+      "id"
+    ],
+    [
+      "ai_action_executions",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "ai_user_preferences",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "app_settings",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_admins",
+      "CONSTRAINT",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_admins",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "circle_admins",
+      "circle_id",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_admins",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_members",
+      "CONSTRAINT",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_members",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "circle_members",
+      "circle_id",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_members",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_post_hidden",
+      "post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_post_hidden",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_post_pins",
+      "post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_post_pins",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_post_reactions",
+      "post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_post_reactions",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_post_reads",
+      "post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_post_reads",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_post_stars",
+      "post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_post_stars",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "CONSTRAINT",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "CONSTRAINT",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "author_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "circle_id",
+      "circles",
+      "id"
+    ],
+    [
+      "circle_posts",
+      "parent_post_id",
+      "circle_posts",
+      "id"
+    ],
+    [
+      "direct_calls",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "direct_calls",
+      "caller_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_calls",
+      "recipient_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_chat_pins",
+      "other_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_chat_pins",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_chat_settings",
+      "other_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_chat_settings",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_message_flags",
+      "message_id",
+      "direct_messages",
+      "id"
+    ],
+    [
+      "direct_message_flags",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_message_reactions",
+      "message_id",
+      "direct_messages",
+      "id"
+    ],
+    [
+      "direct_message_reactions",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_messages",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "direct_messages",
+      "recipient_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "direct_messages",
+      "reply_to_message_id",
+      "direct_messages",
+      "id"
+    ],
+    [
+      "direct_messages",
+      "sender_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "emergency_access_approvals",
+      "approver_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "emergency_access_approvals",
+      "request_id",
+      "emergency_access_requests",
+      "id"
+    ],
+    [
+      "emergency_access_events",
+      "actor_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "emergency_access_events",
+      "request_id",
+      "emergency_access_requests",
+      "id"
+    ],
+    [
+      "emergency_access_requests",
+      "owner_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "emergency_access_requests",
+      "requester_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "financial_transactions",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "health_measurements",
+      "report_id",
+      "health_reports",
+      "id"
+    ],
+    [
+      "health_reports",
+      "source_post_id",
+      "social_posts",
+      "id"
+    ],
+    [
+      "health_reports",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "help_exchanges",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "help_shared_answers",
+      "approved_by",
+      "users",
+      "id"
+    ],
+    [
+      "media_assets",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "media_assets",
+      "owner_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "message_preferences",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "notification_deliveries",
+      "CONSTRAINT",
+      "notifications",
+      "id"
+    ],
+    [
+      "notification_deliveries",
+      "notification_id",
+      "notifications",
+      "id"
+    ],
+    [
+      "notification_device_tokens",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "notification_device_tokens",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "notification_preferences",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "notification_preferences",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "notifications",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "notifications",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "person_memories",
+      "owner_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "person_memories",
+      "person_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "person_records",
+      "owner_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "person_records",
+      "person_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "relationship_broadcasts",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "relationship_broadcasts",
+      "anchor_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "relationship_broadcasts",
+      "sender_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "role_model_follows",
+      "follower_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "role_model_follows",
+      "role_model_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_comments",
+      "author_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_comments",
+      "post_id",
+      "social_posts",
+      "id"
+    ],
+    [
+      "social_post_likes",
+      "post_id",
+      "social_posts",
+      "id"
+    ],
+    [
+      "social_post_likes",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_post_saves",
+      "post_id",
+      "social_posts",
+      "id"
+    ],
+    [
+      "social_post_saves",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_posts",
+      "author_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_posts",
+      "circle_id",
+      "circles",
+      "id"
+    ],
+    [
+      "social_stories",
+      "author_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "social_story_views",
+      "story_id",
+      "social_stories",
+      "id"
+    ],
+    [
+      "social_story_views",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "timeline_events",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "trusted_people",
+      "owner_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "trusted_people",
+      "trusted_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "user_blocks",
+      "blocked_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "user_blocks",
+      "blocker_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "user_profile_photos",
+      "CONSTRAINT",
+      "user_profiles",
+      "user_id"
+    ],
+    [
+      "user_profile_photos",
+      "user_id",
+      "user_profiles",
+      "user_id"
+    ],
+    [
+      "user_profiles",
+      "CONSTRAINT",
+      "users",
+      "id"
+    ],
+    [
+      "user_profiles",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "users",
+      "upload_level_id",
+      "upload_levels",
+      "id"
+    ]
+  ]
+}

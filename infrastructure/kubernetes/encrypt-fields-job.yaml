@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myaaptha-encrypt-fields
+  namespace: myaaptha
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: encrypt-fields
+        image: ghcr.io/OWNER/myaaptha-backend:VERSION
+        command:
+        - java
+        - -Dloader.main=com.myaaptha.release.EncryptSensitiveFields
+        - -cp
+        - app.jar
+        - org.springframework.boot.loader.launch.PropertiesLauncher
+        envFrom:
+        - secretRef:
+            name: myaaptha-secrets
+        - configMapRef:
+            name: myaaptha-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: '1'
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: postgres-ca
+          mountPath: /home/myaaptha/.postgresql
+          readOnly: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: postgres-ca
+        configMap:
+          name: myaaptha-postgres-ca
+  activeDeadlineSeconds: 3600

@@ -71,7 +71,7 @@ public class NetworkService {
   public List<NetworkPersonDto> search(Long currentUserId, String query) {
     String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
     LinkedHashMap<Long, UserEntity> matches = new LinkedHashMap<>();
-    userRepository.searchPeople(currentUserId, normalizedQuery).forEach(user -> matches.put(user.getId(), user));
+    if(!normalizedQuery.isBlank())userRepository.searchPeople(currentUserId, normalizedQuery,org.springframework.data.domain.PageRequest.of(0,200)).forEach(user -> matches.put(user.getId(), user));
     List<RelationshipEntity> ownedRelationships = relationshipRepository.findByOwnerUserId(currentUserId);
     ownedRelationships.stream()
         .map(RelationshipEntity::getRelatedUserId).filter(id -> id != null)
@@ -83,9 +83,22 @@ public class NetworkService {
 
   @Transactional(readOnly = true)
   public List<NetworkRelationshipDto> relationships(Long currentUserId) {
-    return relationshipRepository.findByOwnerUserId(currentUserId).stream()
-        .map(entity -> relationshipDto(entity, requireUser(entity.getRelatedUserId())))
-        .toList();
+    var owned = relationshipRepository.findByOwnerUserId(currentUserId);
+    if (owned.isEmpty()) return List.of();
+    var ids = owned.stream().map(RelationshipEntity::getRelatedUserId).filter(java.util.Objects::nonNull).distinct().toList();
+    var people = new LinkedHashMap<Long, UserEntity>();
+    var profiles = new LinkedHashMap<Long, UserProfileEntity>();
+    // Bound IN-list sizes and avoid per-person queries for large networks.
+    for (int offset = 0; offset < ids.size(); offset += 500) {
+      var batch = ids.subList(offset, Math.min(ids.size(), offset + 500));
+      userRepository.findAllById(batch).forEach(person -> people.put(person.getId(), person));
+      profileRepository.findAllById(batch).forEach(profile -> profiles.put(profile.getUserId(), profile));
+    }
+    return owned.stream().map(entity -> {
+      var person = people.get(entity.getRelatedUserId());
+      if (person == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Related person is unavailable");
+      return relationshipDto(entity, person, profiles.get(person.getId()));
+    }).toList();
   }
 
   @Transactional(readOnly = true)
@@ -98,6 +111,7 @@ public class NetworkService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose another user");
     }
     UserEntity related = requireUser(request.relatedUserId());
+    if(blockRepository.blockedEitherWay(currentUserId,related.getId()))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Person is unavailable");
     String type = normalizeRelationshipType(request.type());
     RelationshipEntity relationship = relationshipRepository
         .findByOwnerUserIdAndRelatedUserId(currentUserId, related.getId())
@@ -109,8 +123,7 @@ public class NetworkService {
     relationship.setRelatedBirthDate(cleanDate(request.dateOfBirth(), "Date of birth"));
     relationship.setRelatedDeathDate(cleanDate(request.dateOfDeath(), "Date of death"));
     relationship.setContactName(profileDisplayName(related));
-    if (relationship.getContactPhone() == null) relationship.setContactPhone(related.getPhoneNumber());
-    if (relationship.getContactEmail() == null) relationship.setContactEmail(related.getEmail());
+    // Linking a public profile does not grant access to private login identifiers.
     applyVisibility(currentUserId, relationship, request.visibilityScope(), request.visibilityCompany());
     relationship = relationshipRepository.save(relationship);
     UserEntity owner=requireUser(currentUserId);
@@ -172,6 +185,7 @@ public class NetworkService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot add yourself");
     }
     Long relativeToUserId = request.relativeToUserId();
+    if(blockRepository.blockedEitherWay(currentUserId,person.getId()))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Person is unavailable");
     if (relativeToUserId != null) {
       if (relativeToUserId.equals(person.getId())) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A person cannot be related to themselves");
@@ -235,15 +249,14 @@ public class NetworkService {
 
   @Transactional(readOnly = true)
   public List<NetworkCircleDto> circles(Long currentUserId) {
-    return circleRepository.findVisibleToUser(currentUserId).stream()
-        .map(circle -> toCircle(circle, currentUserId)).toList();
+    return toCircles(circleRepository.findVisibleToUser(currentUserId), currentUserId);
   }
 
   public NetworkCircleDto createCircle(Long currentUserId, CreateNetworkCircleRequest request) {
     String name = requireText(request.name(), "Circle name");
     CircleEntity entity = new CircleEntity();
     entity.setName(name);
-    entity.setDescription(request.description() == null ? "" : request.description().trim());
+    entity.setDescription(request.description() == null || request.description().isBlank() ? "Circle conversation" : request.description().trim());
     entity.setOwnerUserId(currentUserId);
     entity.getMemberUserIds().add(currentUserId);
     entity.getAdminUserIds().add(currentUserId);
@@ -253,7 +266,7 @@ public class NetworkService {
   public NetworkCircleDto updateCircle(Long currentUserId, Long circleId, UpdateNetworkCircleRequest request) {
     CircleEntity circle = administeredCircle(currentUserId, circleId);
     circle.setName(requireText(request.name(), "Circle name"));
-    circle.setDescription(request.description() == null ? "" : request.description().trim());
+    circle.setDescription(request.description() == null || request.description().isBlank() ? "Circle conversation" : request.description().trim());
     String postingPermission=request.postingPermission()==null?circle.getPostingPermission():request.postingPermission().trim().toUpperCase();
     if (!Set.of("ALL_MEMBERS","ADMINS_ONLY").contains(postingPermission)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Choose who can post in this circle");
     circle.setPostingPermission(postingPermission);
@@ -319,38 +332,83 @@ public class NetworkService {
   }
 
   private NetworkCircleDto toCircle(CircleEntity circle, Long currentUserId) {
-    List<RelationshipEntity> relationships = relationshipRepository.findByOwnerUserId(circle.getOwnerUserId());
-    List<NetworkCircleMemberDto> members = circle.getMemberUserIds().stream().map(this::requireUser)
-        .map(user -> new NetworkCircleMemberDto(toPerson(user, relationshipName(relationships, user.getId())),
-            circle.getAdminUserIds().contains(user.getId()), circle.getOwnerUserId().equals(user.getId()))).toList();
-    String ownerName = profileDisplayName(requireUser(circle.getOwnerUserId()));
-    String ownerPhoto = profileRepository.findById(circle.getOwnerUserId()).map(profile -> profile.getProfilePhoto()).orElse(null);
-    return new NetworkCircleDto(circle.getId(), circle.getName(), circle.getDescription(), members,
-        ownerName, ownerPhoto, currentUserId.equals(circle.getOwnerUserId()), circle.getAdminUserIds().contains(currentUserId),
-        circle.getPostingPermission(), "ALL_MEMBERS".equals(circle.getPostingPermission()) || circle.getAdminUserIds().contains(currentUserId));
+    return toCircles(List.of(circle), currentUserId).getFirst();
+  }
+
+  private List<NetworkCircleDto> toCircles(List<CircleEntity> circles, Long currentUserId) {
+    if (circles.isEmpty()) return List.of();
+    var ids = new LinkedHashSet<Long>();
+    var ownerIds = new LinkedHashSet<Long>();
+    for (var circle : circles) {
+      ids.addAll(circle.getMemberUserIds());
+      ids.add(circle.getOwnerUserId());
+      ownerIds.add(circle.getOwnerUserId());
+    }
+    var people = new LinkedHashMap<Long, UserEntity>();
+    var profiles = new LinkedHashMap<Long, UserProfileEntity>();
+    var names = new java.util.HashMap<Long, java.util.Map<Long, String>>();
+    var allIds = List.copyOf(ids);
+    var owners = List.copyOf(ownerIds);
+    for (int offset = 0; offset < allIds.size(); offset += 500) {
+      var batch = allIds.subList(offset, Math.min(allIds.size(), offset + 500));
+      userRepository.findAllById(batch).forEach(user -> people.put(user.getId(), user));
+      profileRepository.findAllById(batch).forEach(profile -> profiles.put(profile.getUserId(), profile));
+      for (int start = 0; start < owners.size(); start += 100) {
+        var ownerBatch = owners.subList(start, Math.min(owners.size(), start + 100));
+        for (var relation : relationshipRepository.findByOwnerUserIdInAndRelatedUserIdIn(ownerBatch, batch)) {
+          String name = relation.getContactName();
+          if (name != null && !name.isBlank()) names.computeIfAbsent(relation.getOwnerUserId(), key -> new java.util.HashMap<>())
+              .putIfAbsent(relation.getRelatedUserId(), name);
+        }
+      }
+    }
+    return circles.stream().map(circle -> {
+      var owner = people.get(circle.getOwnerUserId());
+      if (owner == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Circle owner is unavailable");
+      var contactNames = names.getOrDefault(circle.getOwnerUserId(), java.util.Map.of());
+      var members = circle.getMemberUserIds().stream().map(id -> {
+        var user = people.get(id);
+        if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Circle member is unavailable");
+        return new NetworkCircleMemberDto(toPerson(user, contactNames.get(id), profiles.get(id)),
+            circle.getAdminUserIds().contains(id), circle.getOwnerUserId().equals(id));
+      }).toList();
+      var profile = profiles.get(circle.getOwnerUserId());
+      return new NetworkCircleDto(circle.getId(), circle.getName(), circle.getDescription(), members,
+          profileDisplayName(owner), profile == null ? null : profile.getProfilePhoto(),
+          currentUserId.equals(circle.getOwnerUserId()), circle.getAdminUserIds().contains(currentUserId),
+          circle.getPostingPermission(), "ALL_MEMBERS".equals(circle.getPostingPermission()) || circle.getAdminUserIds().contains(currentUserId));
+    }).toList();
   }
 
   private NetworkPersonDto toPerson(UserEntity user) { return toPerson(user, null); }
 
   private NetworkPersonDto toPerson(UserEntity user, String contactName) {
+    return toPerson(user, contactName, profileRepository.findById(user.getId()).orElse(null));
+  }
+
+  private NetworkPersonDto toPerson(UserEntity user, String contactName, UserProfileEntity profile) {
     String displayName = String.join(" ",
         user.getFirstName() == null ? "" : user.getFirstName(),
         user.getSurname() == null ? "" : user.getSurname()).trim();
     if (contactName != null && !contactName.isBlank()) displayName = contactName.trim();
     if (displayName.isBlank()) displayName = profileDisplayName(user);
-    String gender = profileRepository.findById(user.getId()).map(profile -> profile.getGender()).orElse(null);
+    String gender = profile == null ? null : profile.getGender();
     return new NetworkPersonDto(user.getId(), user.getFirstName(), user.getSurname(),
         displayName, null, user.getLocation(), user.getAccountStatus(),
-        profileRepository.findById(user.getId()).map(profile -> profile.getProfilePhoto()).orElse(null),
+        profile == null ? null : profile.getProfilePhoto(),
         user.getIdentityType(), user.getManagedCategory(), user.getClaimStatus(), gender);
   }
 
   private NetworkRelationshipDto relationshipDto(RelationshipEntity relationship, UserEntity person) {
-    String profileBirth=profileRepository.findById(person.getId()).map(UserProfileEntity::getDateOfBirth).orElse(null);
+    return relationshipDto(relationship, person, profileRepository.findById(person.getId()).orElse(null));
+  }
+
+  private NetworkRelationshipDto relationshipDto(RelationshipEntity relationship, UserEntity person, UserProfileEntity profile) {
+    String profileBirth=profile == null ? null : profile.getDateOfBirth();
     String birth=profileBirth!=null&&!profileBirth.isBlank()?profileBirth:(person.getManagedDateOfBirth()!=null?person.getManagedDateOfBirth():relationship.getRelatedBirthDate());
     String death=person.getManagedDateOfDeath()!=null?person.getManagedDateOfDeath():relationship.getRelatedDeathDate();
     return new NetworkRelationshipDto(relationship.getId(), relationship.getType(), relationship.getVisibilityScope(), relationship.getContactPhone(), relationship.getContactEmail(),
-        relationship.getVisibilityCompany(), relationship.getRelativeToUserId(), relationship.getMilestoneDate(), birth, death, toPerson(person, relationship.getContactName()));
+        relationship.getVisibilityCompany(), relationship.getRelativeToUserId(), relationship.getMilestoneDate(), birth, death, toPerson(person, relationship.getContactName(), profile));
   }
 
   private String cleanEmail(String email) {

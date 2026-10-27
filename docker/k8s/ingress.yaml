@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myaaptha-ingress
+  namespace: myaaptha
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - myaaptha.example.com
+        - api.myaaptha.example.com
+      secretName: myaaptha-tls
+  rules:
+    - host: myaaptha.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myaaptha-frontend
+                port:
+                  number: 3000
+    - host: api.myaaptha.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myaaptha-backend
+                port:
+                  number: 8080

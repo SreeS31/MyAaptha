@@ -1,0 +1,23 @@
+const { chromium } = require('../../frontend/nextjs-app/node_modules/@playwright/test');
+const path = require('path');
+const { pathToFileURL } = require('url');
+(async () => {
+  const browser = await chromium.launch({headless:true});
+  const page = await browser.newPage({viewport:{width:1440,height:1000}});
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(pathToFileURL(path.join(__dirname,'PROJECT-HANDBOOK.html')).href);
+  await page.waitForFunction(()=>Array.from(document.images).every(i=>i.complete));
+  const broken=await page.locator('img').evaluateAll(imgs=>imgs.filter(i=>!i.naturalWidth).map(i=>i.src));
+  if(broken.length || errors.length) throw new Error(JSON.stringify({broken,errors}));
+  const desktopOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+  await page.screenshot({path:path.join(__dirname,'handbook-preview.png')});
+  await page.pdf({path:path.join(__dirname,'PROJECT-HANDBOOK.pdf'),format:'A4',printBackground:true,displayHeaderFooter:true,headerTemplate:'<div></div>',footerTemplate:'<div style="font-size:8px;width:100%;padding:0 18mm;color:#52657c;display:flex;justify-content:space-between"><span>MyAaptha | Internal | 2026-10-20</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',margin:{top:'16mm',bottom:'18mm',left:'16mm',right:'16mm'}});
+  await page.setViewportSize({width:390,height:844});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const mobileOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+  const overflowElements=await page.locator('body *').evaluateAll(nodes=>nodes.filter(n=>n.getBoundingClientRect().right>innerWidth+1).slice(0,8).map(n=>({tag:n.tagName,text:n.textContent.slice(0,90),width:n.getBoundingClientRect().width})));
+  console.log(JSON.stringify({desktopOverflow,mobileOverflow,brokenImages:broken.length,pageErrors:errors.length,overflowElements,dimensions:await page.evaluate(()=>({innerWidth,scroll:document.documentElement.scrollWidth,body:document.body.scrollWidth}))}));
+  if(desktopOverflow || mobileOverflow)throw new Error('Document horizontal overflow');
+  await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

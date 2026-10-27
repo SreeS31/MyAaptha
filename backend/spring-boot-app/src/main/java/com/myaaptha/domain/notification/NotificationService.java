@@ -20,16 +20,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class NotificationService {
+  @org.springframework.beans.factory.annotation.Autowired private com.myaaptha.domain.finance.RenewalNoticeGuard renewalNoticeGuard;
   private final NotificationRepository notifications;
   private final NotificationPreferenceRepository preferences;
   private final NotificationDeviceTokenRepository devices;
   private final NotificationDeliveryRepository deliveries;
   private final UserRepository users;
+  private final com.myaaptha.domain.message.MessagePersonalization chatSettings;
+  private final com.myaaptha.domain.message.DirectMessageRepository directMessages;
 
   public NotificationService(NotificationRepository notifications, NotificationPreferenceRepository preferences,
-      NotificationDeviceTokenRepository devices, NotificationDeliveryRepository deliveries, UserRepository users) {
+      NotificationDeviceTokenRepository devices, NotificationDeliveryRepository deliveries, UserRepository users, com.myaaptha.domain.message.MessagePersonalization chatSettings, com.myaaptha.domain.message.DirectMessageRepository directMessages) {
     this.notifications=notifications; this.preferences=preferences; this.devices=devices;
-    this.deliveries=deliveries; this.users=users;
+    this.deliveries=deliveries; this.users=users; this.chatSettings=chatSettings; this.directMessages=directMessages;
   }
 
   @Transactional
@@ -59,8 +62,21 @@ public class NotificationService {
 
   @Transactional
   public void markAllRead(Long userId) {
-    var now=Instant.now();
-    for(var item:notifications.findTop100ByUserIdOrderByCreatedAtDesc(userId)) if(item.getReadAt()==null){item.setReadAt(now); notifications.save(item);}
+    notifications.markAllRead(userId,Instant.now());
+  }
+
+  @Transactional(readOnly=true)
+  public boolean deliveryEnabled(NotificationEntity item,String channel) {
+    if("FINANCE_RENEWAL".equals(item.getType())&&!renewalNoticeGuard.enabled(item))return false;
+    if("DIRECT_MESSAGE".equals(item.getType()) && item.getEntityId()!=null) {
+      var message=directMessages.findById(item.getEntityId()).orElse(null);
+      if(message==null || chatSettings.muted(item.getUserId(),message.getSenderUserId()))return false;
+    }
+    var p=preferences.findById(item.getUserId()).orElse(null);
+    if(p==null)return false;
+    return categoryEnabled(p,item.getType()) && switch(channel.toUpperCase(Locale.ROOT)) {
+      case "EMAIL" -> p.isEmailEnabled(); case "SMS" -> p.isSmsEnabled(); case "PUSH" -> p.isPushEnabled(); default -> false;
+    };
   }
 
   @Transactional public NotificationPreferenceDto preferences(Long userId){return preferenceDto(preference(userId));}

@@ -1,92 +1,388 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: backend, namespace: myaaptha }
+metadata:
+  name: backend
+  namespace: myaaptha
 spec:
   replicas: 2
-  selector: { matchLabels: { app: backend } }
+  selector:
+    matchLabels:
+      app: backend
   template:
-    metadata: { labels: { app: backend } }
+    metadata:
+      labels:
+        app: backend
     spec:
       serviceAccountName: myaaptha-backend
-      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
-        - name: backend
-          image: ghcr.io/OWNER/myaaptha-backend:VERSION
-          ports: [{ containerPort: 8080 }]
-          envFrom: [{ secretRef: { name: myaaptha-secrets } }, { configMapRef: { name: myaaptha-config } }]
-          resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: '1', memory: 1Gi } }
-          readinessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 20, periodSeconds: 10 }
-          livenessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 45, periodSeconds: 20 }
-          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: [ALL] } }
-          volumeMounts: [{ name: tmp, mountPath: /tmp }]
-      volumes: [{ name: tmp, emptyDir: {} }]
+      - name: backend
+        image: ghcr.io/OWNER/myaaptha-backend:VERSION
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: myaaptha-secrets
+        - configMapRef:
+            name: myaaptha-config
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: '1'
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 45
+          periodSeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: postgres-ca
+          mountPath: /home/myaaptha/.postgresql
+          readOnly: true
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          failureThreshold: 60
+          periodSeconds: 5
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: postgres-ca
+        configMap:
+          name: myaaptha-postgres-ca
+      automountServiceAccountToken: true
+      terminationGracePeriodSeconds: 45
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: backend, namespace: myaaptha }
-spec: { selector: { app: backend }, ports: [{ port: 8080, targetPort: 8080 }] }
+metadata:
+  name: backend
+  namespace: myaaptha
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: frontend, namespace: myaaptha }
+metadata:
+  name: frontend
+  namespace: myaaptha
 spec:
   replicas: 2
-  selector: { matchLabels: { app: frontend } }
+  selector:
+    matchLabels:
+      app: frontend
   template:
-    metadata: { labels: { app: frontend } }
+    metadata:
+      labels:
+        app: frontend
     spec:
-      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
-        - name: frontend
-          image: ghcr.io/OWNER/myaaptha-frontend:VERSION
-          ports: [{ containerPort: 3000 }]
-          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
-          readinessProbe: { httpGet: { path: /, port: 3000 }, initialDelaySeconds: 10 }
-          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: [ALL] } }
-          volumeMounts: [{ name: tmp, mountPath: /tmp }]
-      volumes: [{ name: tmp, emptyDir: {} }]
+      - name: frontend
+        image: ghcr.io/OWNER/myaaptha-frontend:VERSION
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/.next/cache
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir: {}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: frontend, namespace: myaaptha }
-spec: { selector: { app: frontend }, ports: [{ port: 3000, targetPort: 3000 }] }
+metadata:
+  name: frontend
+  namespace: myaaptha
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: ai-agent, namespace: myaaptha }
+metadata:
+  name: ai-agent
+  namespace: myaaptha
 spec:
   replicas: 2
-  selector: { matchLabels: { app: ai-agent } }
+  selector:
+    matchLabels:
+      app: ai-agent
   template:
-    metadata: { labels: { app: ai-agent } }
+    metadata:
+      labels:
+        app: ai-agent
     spec:
-      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
-        - name: ai-agent
-          image: ghcr.io/OWNER/myaaptha-agent:VERSION
-          ports: [{ containerPort: 8081 }]
-          env: [{ name: AI_ENV, value: production }, { name: AI_LOG_LEVEL, value: INFO }]
-          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
-          readinessProbe: { httpGet: { path: /api/v1/ready, port: 8081 }, initialDelaySeconds: 8, periodSeconds: 10 }
-          livenessProbe: { httpGet: { path: /api/v1/health, port: 8081 }, initialDelaySeconds: 20, periodSeconds: 20 }
-          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: [ALL] } }
-          volumeMounts: [{ name: tmp, mountPath: /tmp }]
-      volumes: [{ name: tmp, emptyDir: {} }]
+      - name: ai-agent
+        image: ghcr.io/OWNER/myaaptha-ai-agent:VERSION
+        ports:
+        - containerPort: 8081
+        env:
+        - name: AI_ENV
+          value: production
+        - name: AI_LOG_LEVEL
+          value: INFO
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /api/v1/ready
+            port: 8081
+          initialDelaySeconds: 8
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: ai-agent
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: ai-agent, namespace: myaaptha }
-spec: { selector: { app: ai-agent }, ports: [{ port: 8081, targetPort: 8081 }] }
+metadata:
+  name: ai-agent
+  namespace: myaaptha
+spec:
+  selector:
+    app: ai-agent
+  ports:
+  - port: 8081
+    targetPort: 8081
 ---
 apiVersion: v1
 kind: ServiceAccount
-metadata: { name: myaaptha-backend, namespace: myaaptha }
+metadata:
+  name: myaaptha-backend
+  namespace: myaaptha
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
-metadata: { name: backend, namespace: myaaptha }
+metadata:
+  name: backend
+  namespace: myaaptha
 spec:
-  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: backend }
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
   minReplicas: 2
   maxReplicas: 10
-  metrics: [{ type: Resource, resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } } }]
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend
+  namespace: myaaptha
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend
+  namespace: myaaptha
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ai-agent
+  namespace: myaaptha
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ai-agent
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend
+  namespace: myaaptha
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-agent
+  namespace: myaaptha
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-agent
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300

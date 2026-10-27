@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-24",
+  "scope": "Web relationship-chain branch click targets",
+  "localFixVerified": true,
+  "releaseApproved": false,
+  "reproducedBeforeFix": true,
+  "trigger": "Select/hover the person name, then click the visible plus marker",
+  "layoutTestsPassed": 4,
+  "responsiveScenariosPassed": 2,
+  "browserProjects": [
+    "desktop",
+    "mobile-web"
+  ],
+  "interactions": [
+    "mouse",
+    "touch",
+    "keyboard",
+    "nested expansion",
+    "details-panel collapse/expand",
+    "Expand all"
+  ],
+  "pageErrors": 0,
+  "webProductionBuild": "passed",
+  "apiContractsChanged": false,
+  "relationshipDataChanged": false,
+  "httpStatus": {
+    "tree": 200,
+    "api": 200
+  },
+  "artifacts": {
+    "record": ".tools/launch-board/build-identities-tree-branch-20261024.json",
+    "allPresent": true,
+    "matches": true,
+    "releaseApproved": false
+  }
+}

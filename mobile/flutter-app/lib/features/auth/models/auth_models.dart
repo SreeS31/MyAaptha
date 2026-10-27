@@ -8,15 +8,18 @@ class LoginRequest {
   LoginRequest({
     required this.identifier,
     required this.password,
+    this.otpCode,
   });
 
   final String identifier;
   final String password;
+  final String? otpCode;
 
   Map<String, dynamic> toJson() {
     return {
       'identifier': identifier,
       'password': password,
+      if (otpCode != null && otpCode!.isNotEmpty) 'otpCode': otpCode,
     };
   }
 }
@@ -40,9 +43,20 @@ class AuthTokenBundle {
   });
 
   final String tokenType;
-  final String accessToken;
-  final String refreshToken;
-  final int expiresIn;
+  String accessToken;
+  String refreshToken;
+  int expiresIn;
+  DateTime _receivedAt = DateTime.now();
+
+  bool get needsRefresh => DateTime.now().isAfter(
+      _receivedAt.add(Duration(seconds: expiresIn - 60)));
+
+  void replaceWith(AuthTokenBundle updated) {
+    accessToken = updated.accessToken;
+    refreshToken = updated.refreshToken;
+    expiresIn = updated.expiresIn;
+    _receivedAt = updated._receivedAt;
+  }
 
   factory AuthTokenBundle.fromJson(Map<String, dynamic> json) {
     return AuthTokenBundle(
@@ -86,12 +100,14 @@ class RegisterUserRequest {
     required this.phoneNumber,
     this.email,
     required this.password,
+    this.verificationCode,
   });
 
   final String username;
   final String phoneNumber;
   final String? email;
   final String password;
+  final String? verificationCode;
 
   Map<String, dynamic> toJson() {
     return {
@@ -99,6 +115,7 @@ class RegisterUserRequest {
       'phoneNumber': phoneNumber,
       if (email != null && email!.isNotEmpty) 'email': email,
       'password': password,
+      if(verificationCode!=null&&verificationCode!.isNotEmpty)'verificationCode':verificationCode,
     };
   }
 }

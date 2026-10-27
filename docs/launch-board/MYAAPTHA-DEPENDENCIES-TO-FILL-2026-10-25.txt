@@ -1,0 +1,228 @@
+MYAAPTHA - DEPENDENCIES / OWNER INPUTS
+Prepared: 25 October 2026 (India time)
+
+Purpose: Fill in the answers below and send this text file back.
+You may answer "Not selected", "Need recommendation", or "Not for launch".
+Provide shared inputs once; you do not need to approve 29 tasks separately.
+Engineering will handle configuration, integration, tests and fixes once the
+necessary environment/accounts and business decisions are available.
+
+Do not include passwords, API keys, private signing keys, recovery codes or
+signed access links. Give account/project names and protected configuration
+or secret-manager references instead.
+
+PRIORITY 1 - HOSTING AND STAGING
+Provider / project / existing server: Cloud hosting, need suggestions
+Preferred region / country: India
+Monthly budget and one-time setup budget (currency): ~ 6000 INR & 20000 INR
+Domain / staging subdomain: www.myaaptha.com
+DNS administrator / access reference: ns1.myaaptha.com, ns2.myaaptha.com
+Deployment account / registry namespace / access reference: ns1.myaaptha.com, ns2.myaaptha.com
+If none exists, may engineering prepare a recommendation within this budget?:
+Unlocks: staging setup, release regressions, performance and security testing.
+
+PRIORITY 2 - DATABASE, STORAGE AND RECOVERY
+Existing database / Redis service references (or "Need setup"): Need setup
+Private storage bucket / region / identity reference (or "Need setup"): Need setup
+Backup / point-in-time recovery service reference: need setup
+Required retention period for files and deleted versions: 180 days
+Deletion policy / recovery window: need setup
+Maximum acceptable data loss (RPO) and recovery downtime (RTO): 1 day
+Monitoring destination / alert recipient / on-call owner: need setup
+Unlocks: real storage/scanner validation, backup restore, alerts and rollback.
+
+PRIORITY 3 - NOTIFICATIONS AND CONTACT IMPORT
+SMS provider / approved sender / configuration reference: I have API, I will submit later
+Email provider / sending domain / configuration reference: Need setup, send emails from Myaaptha domain name itself - need setup
+Push provider project reference (for example Firebase): need suggestions
+Controlled test email / phone / device-token configuration references: need suggestions
+Emergency and security alert recipient / responsible person: myself and I give one mobile number
+Google contact-import app registration / approved scopes / callback reference: need setup
+Microsoft contact-import app registration / approved scopes / callback reference: need setup
+If not configured, which channels/import providers are required at launch?: need suggestions
+Unlocks: actual verification, recovery, notification delivery and OAuth tests.
+
+PRIORITY 4 - AI AND HEALTH
+AI provider / account / protected configuration reference: need suggestions
+Approved model(s), or "Need recommendation": need recommendation
+Monthly AI budget and separate evaluation/test budget (currency): 3000 INR
+Permitted test data / data-processing restrictions: need suggestions
+Named reviewer for answer quality: need suggestions
+Health analysis required at launch? Yes / No: Yes
+Health consent / processing policy owner and decision: need suggestions
+Unlocks: provider/budget checks, model evaluation and controlled health review.
+
+PRIORITY 5 - MOBILE AND DISTRIBUTION
+Android phone model / OS / availability for controlled testing: need suggestions
+iPhone model / iOS / availability for controlled testing:need suggestions
+Calling required at launch? Audio / Video / Both / Neither: Yes both required
+Relay/TURN service configuration reference, if already available: need suggestions
+Final Android application ID (or "Need recommendation"):need recommendation
+Google Play account / distribution owner: CPET Solutions
+Android upload-key reference / public certificate fingerprint, if existing: need suggestions
+Final iOS bundle ID (or "Need recommendation"):need recommendation
+Apple Developer team / distribution owner: myself
+Mac / Xcode build runner and provisioning references (or "Unavailable"): unavailable
+Distribution target: Android APK testing / Play Store / iOS TestFlight / App Store:need setup
+Unlocks: physical-device checks, signed builds and store readiness.
+Current Android testing APK exists; this is separate from production signing.
+Engineering handles test execution where device access permits. If remote
+physical-device access is unavailable, only device-specific observations may
+need your help; you do not need to test every module yourself.
+
+PRIORITY 6 - BUSINESS POLICIES AND RESPONSIBLE PEOPLE
+Legal entity name / country / business contact: CPET Solutions Pvt. Ltd. India
+Privacy contact: Manager, CPET Solutions
+Support contact / accountable person: Manager, CPET Solutions
+Moderation operator / escalation and appeal contact: CTO, CPET Solutions
+Privacy / terms / retention / deletion policy owner and approved references: need suggestions
+Sensitive emergency-document policy owner:CTO
+Eligible emergency documents / access duration / retention decision: CTO
+Independent security reviewer (or "Need reviewer recommendation"): need reviewer recommendation
+Unlocks: operating-policy review, moderation rehearsal and independent review.
+Engineering can draft policies for review; accountable owners approve them.
+
+PRIORITY 7 - RELEASE DECISION
+Named final release approver: myself
+Intended launch date / countries: 9 Nov 2026
+Features explicitly deferred from launch: Need suggestions
+Other constraints / questions: none
+Production promotion and store submission need explicit approval of the final
+reviewable release. A named approver now is not approval to release now.
+
+WHY TASKS REMAIN PENDING
+The recorded launch audit has 29 remaining acceptance tasks. Many share the
+same missing environment/provider input; these are not 29 coding permissions.
+Local automated checks cannot prove actual provider delivery, physical-device
+behavior, recovery on selected infrastructure, or independent policy approval.
+The sections below preserve the complete task mapping from the latest recorded
+24 October acceptance audit. They are recorded requirements, not a new live
+verification that any external account is absent or provisioned today.
+
+COMPLETE TASK MAPPING
+
+STAGING ENVIRONMENT (7)
+M01.5 Release account-security regression (Backend / Security)
+  Required: Selected release URL/digests and provider-backed account fixtures
+  Engineering next action: Run login, refresh, logout, recovery and isolation against that release.
+
+M06.4 Staging membership and removed-member access regression (Messaging)
+  Required: Selected staging build and disposable membership fixtures
+  Engineering next action: Run removed-member history, search and attachment denial on staging.
+
+M07.6 Release read/delete race and cross-client regression (Messaging)
+  Required: Selected staging build and two real client/device sessions
+  Engineering next action: Run concurrent read/delete and cross-client redaction checks.
+
+M10.4 Release import and time-boundary acceptance (Finance)
+  Required: Selected staging build and representative sanitized import fixtures
+  Engineering next action: Verify import deduplication and UTC boundary outcomes on staging.
+
+M15.4 Provision staging cloud, DNS, TLS, secrets and registry (DevOps)
+  Required: Provider/project or cluster, region, budget, domain and deployment identity
+  Engineering next action: Provision or validate the selected staging environment and record its endpoint/digests.
+
+M15.5 Repeat capacity acceptance on representative infrastructure (DevOps)
+  Required: Representative staging resources, load-generator capacity and target workload
+  Engineering next action: Run the agreed capacity profile and accept measured error/latency limits.
+
+M16.6 Rerun exact-release cookie/bearer and accessibility suite (QA / Mobile)
+  Required: Selected staging release with exact image/build identities
+  Engineering next action: Run cookie, bearer, responsive and accessibility acceptance on those artifacts.
+
+
+PROVIDER AND MODEL VALIDATION (7)
+M01.4 Validate real verification / recovery delivery (Backend / Security)
+  Required: SMS/verification provider, approved sender, challenge configuration and test recipients
+  Engineering next action: Verify real registration/recovery delivery and ownership end to end.
+
+M04.4 Activate Google / Microsoft OAuth in staging (Integrations)
+  Required: Google/Microsoft registrations, exact callbacks, approved scopes and configured secret references
+  Engineering next action: Verify real provider consent, import review, cancellation and shared routing on staging.
+
+M11.3 Validate owner emergency alert delivery (Trust / Security)
+  Required: Approved emergency alert channels and controlled recipient/device fixtures
+  Engineering next action: Deliver a real emergency notification and verify owner receipt.
+
+M12.5 Set provider secrets, budget alerts and data policy (AI / Backend)
+  Required: Production AI secret references, spend limits/alerts and approved data policy
+  Engineering next action: Configure and validate budgets, processing policy and provider readiness.
+
+M12.6 Evaluate stronger model before enabling retries (AI / Backend)
+  Required: Approved model candidates, evaluation budget and named quality reviewer
+  Engineering next action: Collect representative model answers, score the rubric and approve or reject retries.
+
+M13.3 Configure and prove real email/SMS/push delivery (Integrations)
+  Required: Email/SMS/push providers, sender identities, callbacks and test device tokens
+  Engineering next action: Verify actual delivery, failure handling, retry and deduplication.
+
+M13.4 Validate security-alert delivery and on-call route (Integrations)
+  Required: Security-alert recipient, provider route and on-call owner
+  Engineering next action: Trigger a controlled security alert and record delivery and acknowledgement.
+
+
+DEVICES AND DISTRIBUTION (5)
+M04.5 Validate device contacts permissions (Integrations)
+  Required: Physical Android/iOS access with OS permission and revocation coverage
+  Engineering next action: Validate denied/limited/full permissions and selected-contact persistence on devices.
+
+M07.5 Validate real-device calling / network behavior (Messaging)
+  Required: Calling scope decision and physical devices on representative networks
+  Engineering next action: Validate permission, connectivity, audio/video and network changes if calling is included.
+
+M16.3 Physical Android/iOS acceptance and native parity review (QA / Mobile)
+  Required: Physical Android/iOS devices and an agreed acceptance matrix
+  Engineering next action: Execute important flows, permissions, lifecycle and native parity acceptance.
+
+M16.4 Android production signing and store submission (QA / Mobile)
+  Required: Final application ID, owner upload key, Play identity and approved disclosures
+  Engineering next action: Build with the owner signing identity, verify its fingerprint and complete store submission.
+
+M16.5 iOS archive, signing and App Store submission (QA / Mobile)
+  Required: macOS/Xcode runner, Apple team, final bundle ID, signing profiles and store disclosures
+  Engineering next action: Archive, sign, validate on devices and complete App Store submission.
+
+
+POLICY AND INDEPENDENT REVIEW (5)
+M08.4 Launch content/abuse operating policy (Social)
+  Required: Named moderation staff, approved policy, escalation and appeal routes
+  Engineering next action: Approve the operating policy and rehearse real moderation roles.
+
+M09.4 Enable health analysis only after provider/consent validation (Health / Privacy)
+  Required: Approved health processing/consent policy, provider quality and spend acceptance
+  Engineering next action: Complete provider quality/privacy review and controlled device acceptance before enablement.
+
+M11.4 Approve sensitive-document emergency policy (Trust / Security)
+  Required: Policy owner approval for eligible emergency documents, retention and access windows
+  Engineering next action: Approve the sensitive-document policy and verify operating/audit procedures.
+
+M18.3 Approve privacy, terms, consent, support and moderation owners (Product / Security / Owner)
+  Required: Legal entity/contact details, accountable policy/support owners and recorded approvals
+  Engineering next action: Approve privacy, terms, consent, deletion/retention, support and moderation ownership.
+
+M18.4 Independent staging security review and remediation acceptance (Product / Security / Owner)
+  Required: Selected staging build and an independent security reviewer
+  Engineering next action: Perform independent account/upload/integration testing and accept remediation.
+
+
+PRODUCTION OPERATIONS (5)
+M14.5 Provision private storage and production scanner (Platform / Security)
+  Required: Approved private bucket/IAM/encryption and production antivirus infrastructure
+  Engineering next action: Verify private storage, scanner pinning, signatures and monitoring on the selected platform.
+
+M14.6 Validate retention, object deletion and media recovery (Platform / Security)
+  Required: Actual storage lifecycle/recovery setup and isolated synthetic object fixtures
+  Engineering next action: Verify retention, deletion/version behavior and media restoration without customer data.
+
+M15.6 Record production-like backup/PITR restore drill (DevOps)
+  Required: Managed database/PITR and media backups plus an isolated recovery environment
+  Engineering next action: Measure representative DB/media recovery, integrity, RPO and RTO.
+
+M15.7 Activate monitoring, alert routes and rollback rehearsal (DevOps)
+  Required: Selected runtime, monitoring system, alert recipients and rollout identity
+  Engineering next action: Activate alerts and execute a reviewed rollback rehearsal with recovery timestamps.
+
+M15.8 Approve exact release artifact and production promotion (DevOps)
+  Required: Immutable production digests, signing/scans, accepted prerequisites and named approver
+  Engineering next action: Review the exact release evidence and record production promotion approval.
+

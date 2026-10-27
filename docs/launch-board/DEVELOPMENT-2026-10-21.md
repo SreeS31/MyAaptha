@@ -1,0 +1,9 @@
+# Development continuation - 21 October 2026
+
+The web UI continuation is recorded in [the 28-route/form review](WEB-UX-REVIEW-2026-10-21.md). This follow-up implements reproducible object-storage integration and recovery checks for M14.5/M14.6.
+
+The new opt-in Java drill uses the real S3MediaObjectStorage adapter. A Python harness creates a cached-image, loopback-only service with synthetic credentials and a new bucket. The final TLS mode verifies trusted transport and rejection by an untrusted client; actual adapter AES256 writes, private/signed downloads, versioned delete markers, byte-identical encrypted restoration and explicit fixture-version purging all passed. Lifecycle configuration round-trips, but automatic multi-day expiry is not measured. Cleanup succeeds before a positive result is emitted; no existing bucket/container is accepted or reused.
+
+Final results: one real TLS integration test, six existing media/scanner regressions and all 68 infrastructure checks passed. The infrastructure scope includes ten new fixture/credential/cleanup/TLS safety checks. Logs and exact limitations are listed in [the storage report](S3-RECOVERY-2026-10-21.md). No application runtime source or existing API/web/mobile artifact was changed or rebuilt for this storage batch.
+
+The owner was asked for consolidated hosting, infrastructure, provider, AI-budget, device/signing and policy/reviewer inputs while local work continued. [The fillable checklist](LAUNCH-INPUTS-2026-10-21.md) distinguishes those inputs from engineering-owned testing and integration. Real provider/selected-platform/physical-device/independent-review acceptance remains pending. Launch closure count stays 60/89 with 29 open; coding counts remain 68/68 applicable because this work adds integration evidence rather than a new product scope item.

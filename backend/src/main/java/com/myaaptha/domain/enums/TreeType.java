@@ -1,0 +1,6 @@
+package com.myaaptha.domain.enums;
+
+public enum TreeType {
+    PRIVATE, PUBLIC, FRIENDS, FAMILY, RELATIVES, COMMUNITY,
+    ORGANIZATION, INVITATION_ONLY, HIDDEN, PASSWORD_PROTECTED
+}

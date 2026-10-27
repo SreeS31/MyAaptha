@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-26",
+  "scope": "Local desktop/mobile web route and form audits; native widget checks",
+  "releaseApproved": false,
+  "routes": {
+    "desktop": {
+      "count": 28,
+      "horizontalOverflow": 0
+    },
+    "mobile-web": {
+      "count": 28,
+      "horizontalOverflow": 0
+    }
+  },
+  "forms": {
+    "desktop": {
+      "views": 27,
+      "violations": 0
+    },
+    "mobile-web": {
+      "views": 27,
+      "violations": 0
+    }
+  },
+  "nativeWidgetTestsPassed": 7,
+  "androidPhysicalDeviceVerified": false,
+  "browserEvidence": [
+    "inline-help-browser-reviewed-20261026.log",
+    "inline-help-browser-20261026.log",
+    "inline-help-final-focused-20261026.log"
+  ],
+  "finalBroadcastAlignmentRecheck": "passed: desktop and mobile",
+  "finalFocusedBrowserTestsPassed": 2
+}

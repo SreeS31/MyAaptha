@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/myaaptha?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+myaaptha:
+  jwt:
+    secret: dev-secret-key-for-local-development-only-not-for-production
+
+logging:
+  level:
+    com.myaaptha: DEBUG

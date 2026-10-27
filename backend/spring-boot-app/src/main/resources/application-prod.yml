@@ -1,9 +1,20 @@
+ADMIN_MFA_ENCRYPTION_KEY: ${admin_mfa_encryption_key:}
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}?sslmode=${POSTGRES_SSLMODE:verify-full}
     username: ${POSTGRES_USER:myaaptha}
     password: ${POSTGRES_PASSWORD:${postgres_password}}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: 2000
+      validation-timeout: 1000
+      max-lifetime: 1500000
+      data-source-properties:
+        socketTimeout: 30
+        connectTimeout: 5
+        options: -c statement_timeout=10000 -c lock_timeout=2000
   sql:
     init:
       mode: never
@@ -12,16 +23,50 @@ spring:
     locations: classpath:db/migration/common
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    properties:
+      hibernate.default_batch_fetch_size: 50
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_updates: true
   h2:
     console:
       enabled: false
-
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:${redis_password}}
+      ssl:
+        enabled: ${REDIS_TLS:true}
+      connect-timeout: 2s
+      timeout: 500ms
+      repositories:
+        enabled: false
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 security:
+  fields:
+    enabled: true
+    active-key-id: ${MYAAPTHA_FIELD_ACTIVE_KEY_ID:primary}
+    keys: ${MYAAPTHA_FIELD_ENCRYPTION_KEYS:${field_encryption_keys:}}
+    allow-legacy-reads: false
+  admin-mfa:
+    required: true
+  web-cookie:
+    secure: true
   jwt:
     secret: ${JWT_SECRET:${jwt_secret}}
-
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+    org.springframework.web: INFO
+    org.springframework.jdbc: WARN
+    org.springframework.boot.autoconfigure: INFO
 management:
   endpoints:
     web:
@@ -32,13 +77,23 @@ management:
       probes:
         enabled: true
       show-details: never
+      group:
+        readiness:
+          include: readinessState,db,redis
   metrics:
     tags:
       application: myaaptha-backend
-
+  health:
+    redis:
+      enabled: true
 myaaptha:
+  storage:
+    provider: s3
+    public-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL}
+  contact-oauth:
+    public-api-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL}
+    web-origin: ${MYAAPTHA_WEB_ORIGIN}
   rate-limit:
-    # Enable only when the load balancer strips client-supplied forwarding headers.
     trust-forwarded-for: ${MYAAPTHA_TRUST_FORWARDED_FOR:false}
     auth-per-minute: ${MYAAPTHA_AUTH_RATE_LIMIT:10}
     api-per-minute: ${MYAAPTHA_API_RATE_LIMIT:300}
@@ -51,3 +106,31 @@ myaaptha:
       channel: ${MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL:}
       url: ${MYAAPTHA_NOTIFICATION_WEBHOOK_URL:https://sms-provider.invalid/api/messages}
       token: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:}
+  state:
+    provider: redis
+    namespace: ${MYAAPTHA_STATE_NAMESPACE:myaaptha}
+  capacity:
+    requests: ${MAX_INFLIGHT_REQUESTS:100}
+    uploads: ${MAX_INFLIGHT_UPLOADS:4}
+server:
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 120
+      min-spare: 10
+    # Idle keep-alive sockets are separate from the bounded in-flight request budget.
+    max-connections: ${MAX_CONNECTIONS:8192}
+    accept-count: 100
+    connection-timeout: 5s
+    # Keep polling clients alive beyond their five-second request interval.
+    keep-alive-timeout: ${HTTP_KEEP_ALIVE_TIMEOUT:30s}
+    remoteip:
+      internal-proxies: ${TRUSTED_PROXY_REGEX}
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+  compression:
+    enabled: true
+    min-response-size: 2KB
+  forward-headers-strategy: native
+debug: false
+trace: false

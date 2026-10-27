@@ -50,6 +50,8 @@ public class JwtTokenService {
     return createToken(user, "access", Duration.ofMinutes(accessTokenMinutes));
   }
 
+  public String createAccessToken(UserEntity user,String sessionId){return createToken(user,"access",Duration.ofMinutes(accessTokenMinutes),sessionId);}
+  public String createRefreshToken(UserEntity user,String sessionId){return createToken(user,"refresh",Duration.ofDays(refreshTokenDays),sessionId);}
   public String createRefreshToken(UserEntity user) {
     return createToken(user, "refresh", Duration.ofDays(refreshTokenDays));
   }
@@ -81,7 +83,8 @@ public class JwtTokenService {
     return Instant.now().plus(Duration.ofDays(refreshTokenDays));
   }
 
-  private String createToken(UserEntity user, String tokenType, Duration duration) {
+  private String createToken(UserEntity user,String tokenType,Duration duration){return createToken(user,tokenType,duration,UUID.randomUUID().toString());}
+  private String createToken(UserEntity user, String tokenType, Duration duration,String sessionId) {
     Instant now = Instant.now();
     Instant expiresAt = now.plus(duration);
 
@@ -91,6 +94,7 @@ public class JwtTokenService {
       .claim("username", user.getUsername())
       .claim("role", user.getRole())
       .claim("type", tokenType)
+      .claim("sid",sessionId)
       .issuedAt(Date.from(now))
       .expiration(Date.from(expiresAt))
       .signWith(signingKey())

@@ -33,11 +33,16 @@ public class RelationshipBroadcastService {
   }
 
   public BroadcastAudienceDto preview(Long senderId, String audienceType, Long anchorUserId, String location) {
+    return preview(senderId,audienceType,anchorUserId,location,null);
+  }
+
+  public BroadcastAudienceDto preview(Long senderId, String audienceType, Long anchorUserId, String location, Integer levels) {
+    if(levels != null && (levels < 1 || levels > 10)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Choose between 1 and 10 levels");
     String type = normalizeType(audienceType);
     List<RelationshipEntity> owned = relationships.findByOwnerUserId(senderId);
     LinkedHashSet<Long> selected = switch (type) {
-      case "HORIZONTAL" -> horizontal(senderId, owned, anchorUserId);
-      case "VERTICAL" -> vertical(senderId, owned, anchorUserId);
+      case "HORIZONTAL" -> selectTree(senderId, owned, anchorUserId, levels == null ? 1 : levels, true);
+      case "VERTICAL" -> selectTree(senderId, owned, anchorUserId, levels, false);
       case "LOCATION" -> location(owned, location);
       default -> throw new IllegalStateException();
     };
@@ -61,7 +66,11 @@ public class RelationshipBroadcastService {
 
   public BroadcastResultDto send(Long senderId, String audienceType, Long anchorUserId, String location,
       String message, MultipartFile file) {
-    BroadcastAudienceDto audience = preview(senderId, audienceType, anchorUserId, location);
+    return send(senderId,audienceType,anchorUserId,location,message,file,null);
+  }
+
+  public BroadcastResultDto send(Long senderId,String audienceType,Long anchorUserId,String location,String message,MultipartFile file,Integer levels) {
+    BroadcastAudienceDto audience = preview(senderId, audienceType, anchorUserId, location,levels);
     if (audience.recipients().isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
         "No active MyAaptha accounts match this audience");
     String cleanMessage = message == null ? "" : message.trim();
@@ -82,26 +91,25 @@ public class RelationshipBroadcastService {
         failures.size(), failures, record.getCreatedAt());
   }
 
-  private LinkedHashSet<Long> horizontal(Long senderId, List<RelationshipEntity> owned, Long anchor) {
-    if (anchor == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose the parent node");
-    assertAnchor(senderId, owned, anchor);
-    LinkedHashSet<Long> result = new LinkedHashSet<>();
-    for (RelationshipEntity item : owned) {
-      boolean anchored = anchor.equals(senderId) ? item.getRelativeToUserId() == null : anchor.equals(item.getRelativeToUserId());
-      if (anchored && item.getType() != null && CHILD_TYPES.contains(item.getType().toLowerCase())) result.add(item.getRelatedUserId());
+  // Traverse only edges owned by the sender. A visited set prevents cycles and duplicate delivery.
+  private LinkedHashSet<Long> selectTree(Long senderId,List<RelationshipEntity> owned,Long anchor,Integer levels,boolean exactLevel) {
+    if(anchor==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Choose the starting person");
+    assertAnchor(senderId,owned,anchor);
+    Map<Long,List<Long>> children=new LinkedHashMap<>();
+    for(var edge:owned){
+      if(exactLevel&&(edge.getType()==null||!CHILD_TYPES.contains(edge.getType().toLowerCase(Locale.ROOT)))) continue;
+      Long parent=edge.getRelativeToUserId()==null?senderId:edge.getRelativeToUserId();
+      children.computeIfAbsent(parent,key->new ArrayList<>()).add(edge.getRelatedUserId());
     }
-    return result;
-  }
-
-  private LinkedHashSet<Long> vertical(Long senderId, List<RelationshipEntity> owned, Long anchor) {
-    if (anchor == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose the starting node");
-    assertAnchor(senderId, owned, anchor);
-    LinkedHashSet<Long> result = new LinkedHashSet<>();
-    ArrayDeque<Long> queue = new ArrayDeque<>(); queue.add(anchor);
-    while (!queue.isEmpty()) {
-      Long current = queue.removeFirst();
-      if (!current.equals(senderId)) result.add(current);
-      for (RelationshipEntity item : owned) if (current.equals(item.getRelativeToUserId()) && result.add(item.getRelatedUserId())) queue.add(item.getRelatedUserId());
+    record Node(Long id,int depth){}
+    var queue=new ArrayDeque<Node>();queue.add(new Node(anchor,0));
+    var visited=new HashSet<Long>();visited.add(anchor);visited.add(senderId);
+    var result=new LinkedHashSet<Long>();
+    while(!queue.isEmpty()){
+      var current=queue.removeFirst();
+      if(!current.id().equals(senderId)&&(!exactLevel||current.depth()==levels))result.add(current.id());
+      if(levels!=null&&current.depth()>=levels)continue;
+      for(Long child:children.getOrDefault(current.id(),List.of()))if(visited.add(child))queue.add(new Node(child,current.depth()+1));
     }
     return result;
   }

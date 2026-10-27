@@ -1,0 +1,67 @@
+MYAAPTHA - REMAINING ACCOUNT / POLICY INPUTS
+26 October 2026. Your earlier answers have been read and preserved.
+Do not paste passwords, API keys, private keys or recovery codes into this file.
+Give protected configuration references or delegated account access instead.
+
+Already received: India hosting; approximately INR 6000/month infrastructure,
+INR 20000 setup and INR 3000/month AI; CPET Solutions company/role owners;
+9 November launch target; health analysis plus audio/video calling required.
+Engineering has generated the application-owned secrets locally. You do not
+need to invent database/JWT/encryption passwords or test each module yourself.
+
+1. CLOUD AND DOMAIN ACCESS (unlocks most staging/integration tasks)
+Recommended: AWS Lightsail Mumbai 8 GB + private S3, initially self-managed DB/cache.
+Planning baseline approximately INR 5773/month at stated storage/FX assumptions;
+usage/egress/SMS/additional infrastructure can exceed that. See the setup report.
+AWS account/project reference and delegated deployment access:
+Porkbun DNS delegated access/reference:
+GitHub/container-registry organization or repository access reference:
+Existing account preferred instead of the recommendation (if any):
+DNS currently resolves through Porkbun; ns1/ns2 entries are not account access.
+
+2. PROVIDER PROJECTS / CREDENTIAL REFERENCES
+SMS provider name + API documentation + protected credential reference:
+AWS SES project/account access (can share the hosting AWS account):
+Firebase project / service-account configuration reference:
+Google OAuth project / registration access reference:
+Microsoft Entra registration / access reference:
+OpenAI project / protected credential reference:
+If these accounts do not exist, the owner must create/accept account terms and
+grant access; engineering will configure and validate the integrations.
+
+3. CONTROLLED ALERT DESTINATIONS
+Your test/recovery phone number reference:
+Verified owner/security alert email:
+Second controlled test recipient (for delivery and isolation checks):
+Support mailbox / forwarding destination for the Manager:
+Privacy mailbox / forwarding destination for the Manager:
+
+4. RETENTION AND EMERGENCY POLICY
+Does 180 days mean (a) active files expire after upload,
+(b) deleted versions remain recoverable, or (c) both?:
+RPO and RTO: may engineering use 24 hours for each, as provisional targets?:
+CTO-approved eligible emergency document categories:
+CTO-approved grant duration / revocation policy:
+Policy reviewer who can approve the prepared privacy/terms/consent drafts:
+
+5. DEVICES AND STORE ACCESS
+Android device available to connect/authorize over USB:
+iPhone available for controlled testing:
+Google Play organization account / delegated access reference:
+Apple team ID / account access reference:
+Hosted macOS runner or other Mac access reference:
+Proposed new store identifiers: com.myaaptha.app (availability to be checked).
+Existing development app IDs have been preserved; store registration/signing
+will be completed against the final recorded identity before submission.
+
+6. INDEPENDENT REVIEWERS / OPERATING COVERAGE
+Independent security reviewer (or ask for sourcing options):
+Qualified clinician/lab-data reviewer for health extraction:
+Backup moderation/support contact and coverage:
+Appeals reviewer distinct from the original moderation decision:
+
+Supply these in stages. Cloud + DNS access is the first shared dependency.
+No need to confirm all 29 tasks individually. Engineering will handle setup,
+testing, integration, failure fixes and evidence updates after access exists.
+The 9 November target remains conditional on required acceptance and final
+release approval. No provider account was purchased or production activated.

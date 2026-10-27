@@ -18,6 +18,7 @@ class SessionStore {
     await _secureStorage.write(key: _sessionKey, value: payload);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
+    for (final key in prefs.getKeys().where((key) => key.startsWith('api_cache_')).toList()) { await prefs.remove(key); }
   }
 
   Future<AuthTokenBundle?> load() async {
@@ -47,5 +48,6 @@ class SessionStore {
     final prefs = await SharedPreferences.getInstance();
     await _secureStorage.delete(key: _sessionKey);
     await prefs.remove(_sessionKey);
+    for (final key in prefs.getKeys().where((key) => key.startsWith('api_cache_')).toList()) { await prefs.remove(key); }
   }
 }

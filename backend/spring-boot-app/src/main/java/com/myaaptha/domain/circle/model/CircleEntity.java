@@ -20,7 +20,7 @@ public class CircleEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String name;
 
   @Column(nullable = false)
@@ -32,11 +32,13 @@ public class CircleEntity {
   @Column(name = "posting_permission", nullable = false)
   private String postingPermission = "ALL_MEMBERS";
 
+  @org.hibernate.annotations.BatchSize(size = 64)
   @ElementCollection
   @CollectionTable(name = "circle_members", joinColumns = @JoinColumn(name = "circle_id"))
   @Column(name = "user_id")
   private Set<Long> memberUserIds = new HashSet<>();
 
+  @org.hibernate.annotations.BatchSize(size = 64)
   @ElementCollection
   @CollectionTable(name = "circle_admins", joinColumns = @JoinColumn(name = "circle_id"))
   @Column(name = "user_id")

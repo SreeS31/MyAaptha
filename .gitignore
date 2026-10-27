@@ -1,4 +1,19 @@
 # OS files
+.integration/
+infrastructure/release.json
+frontend/nextjs-app/deployment-audit.json
+.tools/
+infrastructure/production/secrets/
+infrastructure/production/certs/
+infrastructure/production/owner-settings.env
+infrastructure/production/rendered/
+infrastructure/kubernetes/rendered/
+*.dump
+*.jks
+*.keystore
+key.properties
+.dart_tool/
+.flutter-plugins-dependencies
 .DS_Store
 Thumbs.db
 

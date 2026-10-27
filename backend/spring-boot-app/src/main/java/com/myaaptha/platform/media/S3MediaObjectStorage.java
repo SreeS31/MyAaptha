@@ -4,7 +4,7 @@ import java.net.URI;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -23,7 +23,14 @@ public class S3MediaObjectStorage implements MediaObjectStorage {
     this.bucket=bucket;var credentials=DefaultCredentialsProvider.create();var client=S3Client.builder().region(Region.of(region)).credentialsProvider(credentials);var signer=S3Presigner.builder().region(Region.of(region)).credentialsProvider(credentials);if(endpoint!=null&&!endpoint.isBlank()){client.endpointOverride(URI.create(endpoint));signer.endpointOverride(URI.create(endpoint));}s3=client.build();presigner=signer.build();
   }
   public void put(String key,byte[] bytes,String contentType,String originalName){s3.putObject(PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).contentDisposition("inline; filename=\""+safe(originalName)+"\"").serverSideEncryption(ServerSideEncryption.AES256).build(),RequestBody.fromBytes(bytes));}
-  public Resource load(String key){byte[] bytes=s3.getObjectAsBytes(GetObjectRequest.builder().bucket(bucket).key(key).build()).asByteArray();return new ByteArrayResource(bytes);}
+  public Resource load(String key){
+    long length=s3.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build()).contentLength();
+    return new AbstractResource(){
+      public String getDescription(){return "Private media object";}
+      public long contentLength(){return length;}
+      public java.io.InputStream getInputStream(){return s3.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());}
+    };
+  }
   public void delete(String key){s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());}
   public URI signedGetUrl(String key,Duration validity){var get=GetObjectRequest.builder().bucket(bucket).key(key).build();return URI.create(presigner.presignGetObject(GetObjectPresignRequest.builder().signatureDuration(validity).getObjectRequest(get).build()).url().toString());}
   private String safe(String value){return value==null?"file":value.replace("\"","").replace("\r","").replace("\n","");}

@@ -1,32 +1,51 @@
 package com.myaaptha.domain.notification;
 
-import com.myaaptha.domain.notification.model.NotificationDeliveryEntity;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+/** Durable at-least-once outbox: claim quickly, send outside the DB transaction. */
 @Service
 public class NotificationDeliveryDispatcher {
-  private final NotificationDeliveryRepository deliveries;
+  private final NotificationDeliveryLease leases;
   private final NotificationRepository notifications;
   private final List<NotificationChannelProvider> providers;
-  public NotificationDeliveryDispatcher(NotificationDeliveryRepository deliveries,NotificationRepository notifications,List<NotificationChannelProvider> providers){this.deliveries=deliveries;this.notifications=notifications;this.providers=providers;}
-
-  @Scheduled(fixedDelayString="${myaaptha.notifications.dispatch-delay-ms:5000}")
-  @Transactional
-  public void dispatch(){for(var delivery:deliveries.findDue(Instant.now(),PageRequest.of(0,50))) dispatch(delivery);}
-
-  private void dispatch(NotificationDeliveryEntity delivery){
-    var provider=providers.stream().filter(p->p.channel().equalsIgnoreCase(delivery.getChannel())).findFirst().orElse(null);
-    if(provider==null||!provider.configured()){delivery.setStatus("SKIPPED");delivery.setLastError("No "+delivery.getChannel()+" provider is configured");delivery.setUpdatedAt(Instant.now());deliveries.save(delivery);return;}
-    try{var notification=notifications.findById(delivery.getNotificationId()).orElseThrow();delivery.setProviderMessageId(provider.send(notification,delivery));delivery.setAttempts(delivery.getAttempts()+1);delivery.setStatus("SENT");delivery.setSentAt(Instant.now());delivery.setLastError(null);}
-    catch(Exception error){int attempts=delivery.getAttempts()+1;delivery.setAttempts(attempts);delivery.setLastError(safe(error.getMessage()));if(attempts>=5)delivery.setStatus("FAILED");else{delivery.setStatus("RETRY");delivery.setNextAttemptAt(Instant.now().plus(backoff(attempts)));}}
-    delivery.setUpdatedAt(Instant.now());deliveries.save(delivery);
+  private final boolean enabled;
+  private final NotificationService service;
+  private final com.myaaptha.domain.settings.AppSettingsService settings;
+  public NotificationDeliveryDispatcher(NotificationDeliveryLease leases,NotificationRepository notifications,
+      List<NotificationChannelProvider> providers,@Value("${myaaptha.notifications.dispatch-enabled:true}") boolean enabled,
+      NotificationService service,com.myaaptha.domain.settings.AppSettingsService settings) {
+    this.leases=leases;this.notifications=notifications;this.providers=providers;this.enabled=enabled;this.service=service;this.settings=settings;
   }
-  private Duration backoff(int attempt){return switch(attempt){case 1->Duration.ofMinutes(1);case 2->Duration.ofMinutes(5);case 3->Duration.ofMinutes(30);default->Duration.ofHours(2);};}
-  private String safe(String value){if(value==null)return "Provider delivery failed";return value.length()>1000?value.substring(0,1000):value;}
+  @Scheduled(fixedDelayString="${myaaptha.notifications.dispatch-delay-ms:5000}")
+  public void dispatch() {
+    if(!enabled)return;
+    for(int i=0;i<50;i++) {
+      var claimed=leases.claim();if(claimed.isEmpty())return;
+      var delivery=claimed.get();
+      var provider=providers.stream().filter(p->p.channel().equalsIgnoreCase(delivery.getChannel())).findFirst().orElse(null);
+      if(provider==null||!provider.configured()) {
+        leases.finish(delivery,"SKIPPED",null,"No provider is configured",Instant.now());continue;
+      }
+      try {
+        var notification=notifications.findById(delivery.getNotificationId()).orElseThrow();
+        if(!service.deliveryEnabled(notification,delivery.getChannel())) {
+          leases.finish(delivery,"SKIPPED",null,"Disabled in notification preferences",Instant.now());continue;
+        }
+        var preference=settings.get(notification.getUserId());var now=Instant.now();
+        var next=com.myaaptha.domain.settings.AppSettingsService.deliveryTime(preference,now);
+        if(next.isAfter(now)){leases.defer(delivery,next);continue;}
+        String id=provider.send(preference.notificationPreviews()?notification:notification.withoutPreview(),delivery);
+        leases.finish(delivery,"SENT",id,null,Instant.now());
+      } catch(Exception error) {
+        int attempt=delivery.getAttempts();
+        long seconds=switch(attempt){case 1->60;case 2->300;case 3->1800;default->7200;};
+        // Do not persist provider error bodies, which can contain credentials/PII.
+        leases.finish(delivery,attempt>=5?"FAILED":"RETRY",null,"Provider delivery failed",Instant.now().plusSeconds(seconds));
+      }
+    }
+  }
 }

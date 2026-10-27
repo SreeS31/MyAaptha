@@ -1,0 +1,1152 @@
+# Physical relationship diagrams
+
+These diagrams include explicit migration references only. Each entity shows at most ten columns; the data dictionary holds the wider declaration inventory. Optional cardinality is conservative; inspect NOT NULL and uniqueness for exact multiplicity.
+
+```mermaid
+erDiagram
+    abuse_reports {
+        bigint id
+        bigint reporter_user_id
+        bigint reported_user_id
+        varchar entity_type
+        bigint entity_id
+        varchar reason
+        varchar details
+        varchar status
+        bigint moderator_user_id
+        varchar moderator_notes
+    }
+    address_book_circle_contacts {
+        bigint contact_id
+        bigint circle_id
+    }
+    address_book_contacts {
+        bigint id
+        bigint user_id
+        varchar fingerprint
+        varchar display_name
+        text contact_data
+        varchar source
+        bigint relationship_id
+        boolean circles_reviewed
+        timestamp updated_at
+    }
+    admin_mfa {
+        bigint user_id
+        varchar encrypted_secret
+        bigint last_counter
+    }
+    ai_action_approvals {
+        uuid id
+        bigint user_id
+        varchar capability
+        varchar action_level
+        varchar title
+        varchar summary
+        varchar resource_type
+        varchar resource_id
+        varchar action_fingerprint
+        varchar pending_fingerprint
+    }
+    ai_action_events {
+        bigserial id
+        uuid request_id
+        bigint user_id
+        varchar capability
+        varchar action_level
+        varchar purpose
+        boolean consent_granted
+        varchar approval_state
+        varchar status
+        varchar failure_code
+    }
+    ai_action_executions {
+        uuid id
+        uuid approval_id
+        bigint user_id
+        varchar idempotency_key_hash
+        varchar status
+        varchar failure_code
+        varchar result_reference
+        timestamp started_at
+        timestamp completed_at
+        bigint version
+    }
+    ai_user_preferences {
+        bigint user_id
+        boolean ai_enabled
+        boolean allow_sensitive_data
+        boolean allow_personalization
+        integer activity_retention_days
+        timestamp updated_at
+    }
+    app_settings {
+        bigint user_id
+        boolean discoverable
+        boolean share_interests
+        text settings_json
+        timestamp updated_at
+    }
+    audit_events {
+        bigint id
+        bigint actor_user_id
+        varchar action
+        varchar request_path
+        varchar resource_type
+        varchar resource_id
+        integer response_status
+        varchar ip_address
+        varchar user_agent
+        timestamp occurred_at
+    }
+    auth_tokens {
+        bigint id
+        varchar token
+        bigint user_id
+        varchar token_type
+        timestamp expires_at
+        varchar session_id
+    }
+    circle_admins {
+        bigint circle_id
+        bigint user_id
+    }
+    circle_members {
+        bigint circle_id
+        bigint user_id
+    }
+    circle_post_hidden {
+        bigint post_id
+        bigint user_id
+    }
+    circle_post_pins {
+        bigint post_id
+        bigint user_id
+    }
+    circle_post_reactions {
+        bigint id
+        bigint post_id
+        bigint user_id
+        varchar emoji
+        timestamp created_at
+    }
+    circle_post_reads {
+        bigint id
+        bigint post_id
+        bigint user_id
+        timestamp read_at
+    }
+    circle_post_stars {
+        bigint post_id
+        bigint user_id
+    }
+    circle_posts {
+        bigint id
+        bigint circle_id
+        bigint author_user_id
+        bigint parent_post_id
+        varchar message
+        varchar attachment_key
+        varchar attachment_name
+        varchar attachment_type
+        bigint attachment_size
+        timestamp created_at
+    }
+    circles {
+        bigint id
+        varchar name
+        varchar description
+        bigint owner_user_id
+        varchar posting_permission
+    }
+    direct_calls {
+        bigint id
+        bigint caller_user_id
+        bigint recipient_user_id
+        varchar call_type
+        varchar status
+        text offer_sdp
+        text answer_sdp
+        timestamp created_at
+        timestamp updated_at
+    }
+    direct_chat_pins {
+        bigint user_id
+        bigint other_user_id
+    }
+    direct_chat_settings {
+        bigint user_id
+        bigint other_user_id
+        boolean archived
+        boolean muted
+        boolean marked_unread
+    }
+    direct_message_flags {
+        bigint user_id
+        bigint message_id
+        boolean starred
+        boolean pinned
+    }
+    direct_message_reactions {
+        bigint id
+        bigint message_id
+        bigint user_id
+        varchar emoji
+        timestamp created_at
+    }
+    direct_messages {
+        bigint id
+        bigint sender_user_id
+        bigint recipient_user_id
+        varchar message
+        varchar attachment_key
+        varchar attachment_name
+        varchar attachment_type
+        bigint attachment_size
+        timestamp created_at
+        timestamp delivered_at
+    }
+    emergency_access_approvals {
+        bigint request_id
+        bigint approver_user_id
+        boolean approved
+        timestamp decided_at
+    }
+    emergency_access_events {
+        bigint id
+        bigint request_id
+        bigint actor_user_id
+        varchar action
+        bigint resource_id
+        timestamp occurred_at
+    }
+    emergency_access_requests {
+        bigint id
+        bigint owner_user_id
+        bigint requester_user_id
+        varchar reason
+        varchar status
+        integer required_approvals
+        timestamp created_at
+        timestamp expires_at
+        timestamp granted_until
+    }
+    financial_transactions {
+        bigint id
+        bigint user_id
+        decimal amount
+        varchar direction
+        varchar category
+        varchar merchant
+        varchar description
+        timestamp occurred_at
+        varchar source
+        varchar source_fingerprint
+    }
+    health_measurements {
+        bigint id
+        bigint report_id
+        varchar metric_name
+        decimal measured_value
+        varchar unit
+        decimal reference_min
+        decimal reference_max
+        varchar suggestion
+    }
+    health_reports {
+        bigint id
+        bigint user_id
+        bigint source_post_id
+        varchar report_name
+        varchar laboratory
+        date collected_on
+        varchar notes
+        timestamp created_at
+    }
+    help_ai_settings {
+        integer id
+        boolean enhanced_enabled
+    }
+    help_exchanges {
+        varchar id
+        bigint user_id
+        varchar cache_key
+        varchar tier
+        varchar mode
+        varchar model
+        integer input_tokens
+        integer output_tokens
+        text payload
+        timestamp created_at
+    }
+    help_shared_answers {
+        varchar question_key
+        varchar knowledge_version
+        text payload
+        bigint approved_by
+        timestamp expires_at
+    }
+    media_assets {
+        bigint id
+        bigint owner_user_id
+        varchar storage_key
+        varchar category
+        varchar original_name
+        varchar content_type
+        bigint size_bytes
+        varchar sha256
+        varchar scan_status
+        varchar thumbnail_key
+    }
+    message_preferences {
+        bigint user_id
+        boolean read_receipts
+    }
+    milestones {
+        bigint id
+        varchar name
+        varchar description
+        varchar status
+        bigint project_id
+        date due_date
+        varchar blocked_reason
+    }
+    notification_deliveries {
+        bigint id
+        bigint notification_id
+        varchar channel
+        varchar destination
+        varchar status
+        integer attempts
+        timestamp next_attempt_at
+        varchar provider_message_id
+        varchar last_error
+        timestamp sent_at
+    }
+    notification_device_tokens {
+        bigint id
+        bigint user_id
+        varchar token
+        varchar platform
+        boolean enabled
+        timestamp created_at
+        timestamp updated_at
+    }
+    notification_preferences {
+        bigint user_id
+        boolean email_enabled
+        boolean sms_enabled
+        boolean push_enabled
+        boolean messages_enabled
+        boolean circles_enabled
+        boolean relationships_enabled
+        boolean calls_enabled
+        boolean invitations_enabled
+        varchar unsubscribe_token
+    }
+    notifications {
+        bigint id
+        bigint user_id
+        varchar type
+        varchar title
+        varchar body
+        varchar action_url
+        varchar entity_type
+        bigint entity_id
+        timestamp read_at
+        timestamp created_at
+    }
+    people {
+        bigint id
+        varchar full_name
+        varchar email
+        varchar gender
+    }
+    permissions {
+        bigint id
+        varchar name
+        varchar description
+    }
+    person_memories {
+        bigint id
+        bigint owner_user_id
+        bigint person_user_id
+        varchar title
+        text note
+        varchar media_key
+        varchar media_name
+        varchar media_type
+        bigint media_size
+        timestamp created_at
+    }
+    person_records {
+        bigint owner_user_id
+        bigint person_user_id
+        varchar nickname
+        varchar contact_phone
+        varchar contact_email
+        text address
+        varchar city
+        varchar country
+        varchar occupation
+        text important_dates
+    }
+    projects {
+        bigint id
+        varchar name
+        varchar description
+        varchar status
+    }
+    relationship_broadcasts {
+        bigint id
+        bigint sender_user_id
+        varchar audience_type
+        bigint anchor_user_id
+        varchar location_query
+        varchar message_preview
+        integer recipient_count
+        integer failed_count
+        timestamp created_at
+    }
+    relationships {
+        bigint id
+        varchar type
+        bigint owner_user_id
+        bigint related_user_id
+        varchar contact_name
+        varchar visibility_scope
+        varchar visibility_company
+        varchar contact_phone
+        varchar contact_email
+        bigint relative_to_user_id
+    }
+    role_model_follows {
+        bigint id
+        bigint follower_user_id
+        bigint role_model_user_id
+        timestamp created_at
+    }
+    scheduled_job_locks {
+        varchar name
+    }
+    security_incidents {
+        bigint id
+        timestamp occurred_at
+        varchar category
+        varchar summary
+        varchar request_path
+        varchar ip_address
+        varchar actor
+        timestamp blocked_until
+        timestamp resolved_at
+        varchar email_status
+    }
+    social_comments {
+        bigint id
+        bigint post_id
+        bigint author_user_id
+        varchar message
+        timestamp created_at
+    }
+    social_post_likes {
+        bigint post_id
+        bigint user_id
+        timestamp created_at
+    }
+    social_post_saves {
+        bigint post_id
+        bigint user_id
+        timestamp created_at
+    }
+    social_posts {
+        bigint id
+        bigint author_user_id
+        varchar caption
+        varchar audience
+        bigint circle_id
+        varchar media_key
+        varchar media_name
+        varchar media_type
+        bigint media_size
+        timestamp created_at
+    }
+    social_stories {
+        bigint id
+        bigint author_user_id
+        varchar caption
+        varchar audience
+        varchar media_key
+        varchar media_name
+        varchar media_type
+        bigint media_size
+        timestamp created_at
+        timestamp expires_at
+    }
+    social_story_views {
+        bigint story_id
+        bigint user_id
+        timestamp viewed_at
+    }
+    task_groups {
+        bigint id
+        varchar name
+        varchar description
+    }
+    tasks {
+        bigint id
+        varchar title
+        varchar details
+        varchar status
+        bigint project_id
+        bigint milestone_id
+        bigint task_group_id
+    }
+    timeline_events {
+        bigint user_id
+        varchar event_key
+        varchar event_date
+        varchar kind
+        varchar title
+        varchar detail
+    }
+    trusted_people {
+        bigint id
+        bigint owner_user_id
+        bigint trusted_user_id
+        varchar kind
+        timestamp created_at
+    }
+    upload_levels {
+        integer id
+        varchar name
+        bigint storage_bytes
+        bigint upload_bytes
+        integer max_retention_days
+        boolean allow_never
+    }
+    user_blocks {
+        bigint id
+        bigint blocker_user_id
+        bigint blocked_user_id
+        timestamp created_at
+    }
+    user_profile_photos {
+        bigint user_id
+        integer photo_order
+        text photo_data
+    }
+    user_profiles {
+        bigint user_id
+        varchar date_of_birth
+        varchar gender
+        text bio
+        varchar address_line1
+        varchar address_line2
+        varchar city
+        varchar state
+        varchar postal_code
+        varchar country
+    }
+    users {
+        bigint id
+        varchar username
+        varchar email
+        varchar password_hash
+        varchar phone_number
+        varchar role
+        varchar first_name
+        varchar surname
+        varchar location
+        varchar account_status
+    }
+    users |o--o{ abuse_reports : "CONSTRAINT"
+    users |o--o{ abuse_reports : "reported_user_id"
+    users |o--o{ abuse_reports : "reporter_user_id"
+    circles |o--o{ address_book_circle_contacts : "circle_id"
+    address_book_contacts |o--o{ address_book_circle_contacts : "contact_id"
+    relationships |o--o{ address_book_contacts : "relationship_id"
+    users |o--o{ address_book_contacts : "user_id"
+    users |o--o{ admin_mfa : "user_id"
+    users |o--o{ ai_action_approvals : "user_id"
+    users |o--o{ ai_action_events : "user_id"
+    ai_action_approvals |o--o{ ai_action_executions : "approval_id"
+    users |o--o{ ai_action_executions : "user_id"
+    users |o--o{ ai_user_preferences : "user_id"
+    users |o--o{ app_settings : "user_id"
+    circles |o--o{ circle_admins : "CONSTRAINT"
+    users |o--o{ circle_admins : "CONSTRAINT"
+    circles |o--o{ circle_admins : "circle_id"
+    users |o--o{ circle_admins : "user_id"
+    circles |o--o{ circle_members : "CONSTRAINT"
+    users |o--o{ circle_members : "CONSTRAINT"
+    circles |o--o{ circle_members : "circle_id"
+    users |o--o{ circle_members : "user_id"
+    circle_posts |o--o{ circle_post_hidden : "post_id"
+    users |o--o{ circle_post_hidden : "user_id"
+    circle_posts |o--o{ circle_post_pins : "post_id"
+    users |o--o{ circle_post_pins : "user_id"
+    circle_posts |o--o{ circle_post_reactions : "post_id"
+    users |o--o{ circle_post_reactions : "user_id"
+    circle_posts |o--o{ circle_post_reads : "post_id"
+    users |o--o{ circle_post_reads : "user_id"
+    circle_posts |o--o{ circle_post_stars : "post_id"
+    users |o--o{ circle_post_stars : "user_id"
+    circle_posts |o--o{ circle_posts : "CONSTRAINT"
+    circles |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "author_user_id"
+    circles |o--o{ circle_posts : "circle_id"
+    circle_posts |o--o{ circle_posts : "parent_post_id"
+    users |o--o{ direct_calls : "CONSTRAINT"
+    users |o--o{ direct_calls : "caller_user_id"
+    users |o--o{ direct_calls : "recipient_user_id"
+    users |o--o{ direct_chat_pins : "other_user_id"
+    users |o--o{ direct_chat_pins : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    direct_messages |o--o{ direct_message_flags : "message_id"
+    users |o--o{ direct_message_flags : "user_id"
+    direct_messages |o--o{ direct_message_reactions : "message_id"
+    users |o--o{ direct_message_reactions : "user_id"
+    users |o--o{ direct_messages : "CONSTRAINT"
+    users |o--o{ direct_messages : "recipient_user_id"
+    direct_messages |o--o{ direct_messages : "reply_to_message_id"
+    users |o--o{ direct_messages : "sender_user_id"
+    users |o--o{ emergency_access_approvals : "approver_user_id"
+    emergency_access_requests |o--o{ emergency_access_approvals : "request_id"
+    users |o--o{ emergency_access_events : "actor_user_id"
+    emergency_access_requests |o--o{ emergency_access_events : "request_id"
+    users |o--o{ emergency_access_requests : "owner_user_id"
+    users |o--o{ emergency_access_requests : "requester_user_id"
+    users |o--o{ financial_transactions : "user_id"
+    health_reports |o--o{ health_measurements : "report_id"
+    social_posts |o--o{ health_reports : "source_post_id"
+    users |o--o{ health_reports : "user_id"
+    users |o--o{ help_exchanges : "user_id"
+    users |o--o{ help_shared_answers : "approved_by"
+    users |o--o{ media_assets : "CONSTRAINT"
+    users |o--o{ media_assets : "owner_user_id"
+    users |o--o{ message_preferences : "user_id"
+    notifications |o--o{ notification_deliveries : "CONSTRAINT"
+    notifications |o--o{ notification_deliveries : "notification_id"
+    users |o--o{ notification_device_tokens : "CONSTRAINT"
+    users |o--o{ notification_device_tokens : "user_id"
+    users |o--o{ notification_preferences : "CONSTRAINT"
+    users |o--o{ notification_preferences : "user_id"
+    users |o--o{ notifications : "CONSTRAINT"
+    users |o--o{ notifications : "user_id"
+    users |o--o{ person_memories : "owner_user_id"
+    users |o--o{ person_memories : "person_user_id"
+    users |o--o{ person_records : "owner_user_id"
+    users |o--o{ person_records : "person_user_id"
+    users |o--o{ relationship_broadcasts : "CONSTRAINT"
+    users |o--o{ relationship_broadcasts : "anchor_user_id"
+    users |o--o{ relationship_broadcasts : "sender_user_id"
+    users |o--o{ role_model_follows : "follower_user_id"
+    users |o--o{ role_model_follows : "role_model_user_id"
+    users |o--o{ social_comments : "author_user_id"
+    social_posts |o--o{ social_comments : "post_id"
+    social_posts |o--o{ social_post_likes : "post_id"
+    users |o--o{ social_post_likes : "user_id"
+    social_posts |o--o{ social_post_saves : "post_id"
+    users |o--o{ social_post_saves : "user_id"
+    users |o--o{ social_posts : "author_user_id"
+    circles |o--o{ social_posts : "circle_id"
+    users |o--o{ social_stories : "author_user_id"
+    social_stories |o--o{ social_story_views : "story_id"
+    users |o--o{ social_story_views : "user_id"
+    users |o--o{ timeline_events : "user_id"
+    users |o--o{ trusted_people : "owner_user_id"
+    users |o--o{ trusted_people : "trusted_user_id"
+    users |o--o{ user_blocks : "blocked_user_id"
+    users |o--o{ user_blocks : "blocker_user_id"
+    user_profiles |o--o{ user_profile_photos : "CONSTRAINT"
+    user_profiles |o--o{ user_profile_photos : "user_id"
+    users |o--o{ user_profiles : "CONSTRAINT"
+    users |o--o{ user_profiles : "user_id"
+    upload_levels |o--o{ users : "upload_level_id"
+```
+
+## identity-network
+
+```mermaid
+erDiagram
+    users |o--o{ abuse_reports : "CONSTRAINT"
+    users |o--o{ abuse_reports : "reported_user_id"
+    users |o--o{ abuse_reports : "reporter_user_id"
+    circles |o--o{ address_book_circle_contacts : "circle_id"
+    address_book_contacts |o--o{ address_book_circle_contacts : "contact_id"
+    relationships |o--o{ address_book_contacts : "relationship_id"
+    users |o--o{ address_book_contacts : "user_id"
+    users |o--o{ admin_mfa : "user_id"
+    users |o--o{ ai_action_approvals : "user_id"
+    users |o--o{ ai_action_events : "user_id"
+    users |o--o{ ai_action_executions : "user_id"
+    users |o--o{ ai_user_preferences : "user_id"
+    users |o--o{ app_settings : "user_id"
+    circles |o--o{ circle_admins : "CONSTRAINT"
+    users |o--o{ circle_admins : "CONSTRAINT"
+    circles |o--o{ circle_admins : "circle_id"
+    users |o--o{ circle_admins : "user_id"
+    circles |o--o{ circle_members : "CONSTRAINT"
+    users |o--o{ circle_members : "CONSTRAINT"
+    circles |o--o{ circle_members : "circle_id"
+    users |o--o{ circle_members : "user_id"
+    circle_posts |o--o{ circle_post_hidden : "post_id"
+    users |o--o{ circle_post_hidden : "user_id"
+    circle_posts |o--o{ circle_post_pins : "post_id"
+    users |o--o{ circle_post_pins : "user_id"
+    circle_posts |o--o{ circle_post_reactions : "post_id"
+    users |o--o{ circle_post_reactions : "user_id"
+    circle_posts |o--o{ circle_post_reads : "post_id"
+    users |o--o{ circle_post_reads : "user_id"
+    circle_posts |o--o{ circle_post_stars : "post_id"
+    users |o--o{ circle_post_stars : "user_id"
+    circle_posts |o--o{ circle_posts : "CONSTRAINT"
+    circles |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "author_user_id"
+    circles |o--o{ circle_posts : "circle_id"
+    circle_posts |o--o{ circle_posts : "parent_post_id"
+    users |o--o{ direct_calls : "CONSTRAINT"
+    users |o--o{ direct_calls : "caller_user_id"
+    users |o--o{ direct_calls : "recipient_user_id"
+    users |o--o{ direct_chat_pins : "other_user_id"
+    users |o--o{ direct_chat_pins : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    users |o--o{ direct_message_flags : "user_id"
+    users |o--o{ direct_message_reactions : "user_id"
+    users |o--o{ direct_messages : "CONSTRAINT"
+    users |o--o{ direct_messages : "recipient_user_id"
+    users |o--o{ direct_messages : "sender_user_id"
+    users |o--o{ emergency_access_approvals : "approver_user_id"
+    users |o--o{ emergency_access_events : "actor_user_id"
+    users |o--o{ emergency_access_requests : "owner_user_id"
+    users |o--o{ emergency_access_requests : "requester_user_id"
+    users |o--o{ financial_transactions : "user_id"
+    users |o--o{ health_reports : "user_id"
+    users |o--o{ help_exchanges : "user_id"
+    users |o--o{ help_shared_answers : "approved_by"
+    users |o--o{ media_assets : "CONSTRAINT"
+    users |o--o{ media_assets : "owner_user_id"
+    users |o--o{ message_preferences : "user_id"
+    users |o--o{ notification_device_tokens : "CONSTRAINT"
+    users |o--o{ notification_device_tokens : "user_id"
+    users |o--o{ notification_preferences : "CONSTRAINT"
+    users |o--o{ notification_preferences : "user_id"
+    users |o--o{ notifications : "CONSTRAINT"
+    users |o--o{ notifications : "user_id"
+    users |o--o{ person_memories : "owner_user_id"
+    users |o--o{ person_memories : "person_user_id"
+    users |o--o{ person_records : "owner_user_id"
+    users |o--o{ person_records : "person_user_id"
+    users |o--o{ relationship_broadcasts : "CONSTRAINT"
+    users |o--o{ relationship_broadcasts : "anchor_user_id"
+    users |o--o{ relationship_broadcasts : "sender_user_id"
+    users |o--o{ role_model_follows : "follower_user_id"
+    users |o--o{ role_model_follows : "role_model_user_id"
+    users |o--o{ social_comments : "author_user_id"
+    users |o--o{ social_post_likes : "user_id"
+    users |o--o{ social_post_saves : "user_id"
+    users |o--o{ social_posts : "author_user_id"
+    circles |o--o{ social_posts : "circle_id"
+    users |o--o{ social_stories : "author_user_id"
+    users |o--o{ social_story_views : "user_id"
+    users |o--o{ timeline_events : "user_id"
+    users |o--o{ trusted_people : "owner_user_id"
+    users |o--o{ trusted_people : "trusted_user_id"
+    users |o--o{ user_blocks : "blocked_user_id"
+    users |o--o{ user_blocks : "blocker_user_id"
+    user_profiles |o--o{ user_profile_photos : "CONSTRAINT"
+    user_profiles |o--o{ user_profile_photos : "user_id"
+    users |o--o{ user_profiles : "CONSTRAINT"
+    users |o--o{ user_profiles : "user_id"
+    upload_levels |o--o{ users : "upload_level_id"
+    abuse_reports {
+        string id_or_composite_key
+    }
+    address_book_circle_contacts {
+        string id_or_composite_key
+    }
+    address_book_contacts {
+        string id_or_composite_key
+    }
+    admin_mfa {
+        string id_or_composite_key
+    }
+    ai_action_approvals {
+        string id_or_composite_key
+    }
+    ai_action_events {
+        string id_or_composite_key
+    }
+    ai_action_executions {
+        string id_or_composite_key
+    }
+    ai_user_preferences {
+        string id_or_composite_key
+    }
+    app_settings {
+        string id_or_composite_key
+    }
+    auth_tokens {
+        string id_or_composite_key
+    }
+    circle_admins {
+        string id_or_composite_key
+    }
+    circle_members {
+        string id_or_composite_key
+    }
+    circle_post_hidden {
+        string id_or_composite_key
+    }
+    circle_post_pins {
+        string id_or_composite_key
+    }
+    circle_post_reactions {
+        string id_or_composite_key
+    }
+    circle_post_reads {
+        string id_or_composite_key
+    }
+    circle_post_stars {
+        string id_or_composite_key
+    }
+    circle_posts {
+        string id_or_composite_key
+    }
+    circles {
+        string id_or_composite_key
+    }
+    direct_calls {
+        string id_or_composite_key
+    }
+    direct_chat_pins {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    direct_message_flags {
+        string id_or_composite_key
+    }
+    direct_message_reactions {
+        string id_or_composite_key
+    }
+    direct_messages {
+        string id_or_composite_key
+    }
+    emergency_access_approvals {
+        string id_or_composite_key
+    }
+    emergency_access_events {
+        string id_or_composite_key
+    }
+    emergency_access_requests {
+        string id_or_composite_key
+    }
+    financial_transactions {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    help_exchanges {
+        string id_or_composite_key
+    }
+    help_shared_answers {
+        string id_or_composite_key
+    }
+    media_assets {
+        string id_or_composite_key
+    }
+    message_preferences {
+        string id_or_composite_key
+    }
+    notification_device_tokens {
+        string id_or_composite_key
+    }
+    notification_preferences {
+        string id_or_composite_key
+    }
+    notifications {
+        string id_or_composite_key
+    }
+    people {
+        string id_or_composite_key
+    }
+    permissions {
+        string id_or_composite_key
+    }
+    person_memories {
+        string id_or_composite_key
+    }
+    person_records {
+        string id_or_composite_key
+    }
+    relationship_broadcasts {
+        string id_or_composite_key
+    }
+    relationships {
+        string id_or_composite_key
+    }
+    role_model_follows {
+        string id_or_composite_key
+    }
+    social_comments {
+        string id_or_composite_key
+    }
+    social_post_likes {
+        string id_or_composite_key
+    }
+    social_post_saves {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    social_stories {
+        string id_or_composite_key
+    }
+    social_story_views {
+        string id_or_composite_key
+    }
+    timeline_events {
+        string id_or_composite_key
+    }
+    trusted_people {
+        string id_or_composite_key
+    }
+    upload_levels {
+        string id_or_composite_key
+    }
+    user_blocks {
+        string id_or_composite_key
+    }
+    user_profile_photos {
+        string id_or_composite_key
+    }
+    user_profiles {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }
+```
+
+## communication-media
+
+```mermaid
+erDiagram
+    circle_posts |o--o{ circle_post_hidden : "post_id"
+    users |o--o{ circle_post_hidden : "user_id"
+    circle_posts |o--o{ circle_post_pins : "post_id"
+    users |o--o{ circle_post_pins : "user_id"
+    circle_posts |o--o{ circle_post_reactions : "post_id"
+    users |o--o{ circle_post_reactions : "user_id"
+    circle_posts |o--o{ circle_post_reads : "post_id"
+    users |o--o{ circle_post_reads : "user_id"
+    circle_posts |o--o{ circle_post_stars : "post_id"
+    users |o--o{ circle_post_stars : "user_id"
+    circle_posts |o--o{ circle_posts : "CONSTRAINT"
+    circles |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "author_user_id"
+    circles |o--o{ circle_posts : "circle_id"
+    circle_posts |o--o{ circle_posts : "parent_post_id"
+    users |o--o{ direct_calls : "CONSTRAINT"
+    users |o--o{ direct_calls : "caller_user_id"
+    users |o--o{ direct_calls : "recipient_user_id"
+    users |o--o{ direct_chat_pins : "other_user_id"
+    users |o--o{ direct_chat_pins : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    direct_messages |o--o{ direct_message_flags : "message_id"
+    users |o--o{ direct_message_flags : "user_id"
+    direct_messages |o--o{ direct_message_reactions : "message_id"
+    users |o--o{ direct_message_reactions : "user_id"
+    users |o--o{ direct_messages : "CONSTRAINT"
+    users |o--o{ direct_messages : "recipient_user_id"
+    direct_messages |o--o{ direct_messages : "reply_to_message_id"
+    users |o--o{ direct_messages : "sender_user_id"
+    social_posts |o--o{ health_reports : "source_post_id"
+    users |o--o{ media_assets : "CONSTRAINT"
+    users |o--o{ media_assets : "owner_user_id"
+    users |o--o{ message_preferences : "user_id"
+    notifications |o--o{ notification_deliveries : "CONSTRAINT"
+    notifications |o--o{ notification_deliveries : "notification_id"
+    users |o--o{ notification_device_tokens : "CONSTRAINT"
+    users |o--o{ notification_device_tokens : "user_id"
+    users |o--o{ notification_preferences : "CONSTRAINT"
+    users |o--o{ notification_preferences : "user_id"
+    users |o--o{ notifications : "CONSTRAINT"
+    users |o--o{ notifications : "user_id"
+    social_posts |o--o{ social_comments : "post_id"
+    social_posts |o--o{ social_post_likes : "post_id"
+    users |o--o{ social_post_likes : "user_id"
+    social_posts |o--o{ social_post_saves : "post_id"
+    users |o--o{ social_post_saves : "user_id"
+    users |o--o{ social_posts : "author_user_id"
+    circles |o--o{ social_posts : "circle_id"
+    circle_post_hidden {
+        string id_or_composite_key
+    }
+    circle_post_pins {
+        string id_or_composite_key
+    }
+    circle_post_reactions {
+        string id_or_composite_key
+    }
+    circle_post_reads {
+        string id_or_composite_key
+    }
+    circle_post_stars {
+        string id_or_composite_key
+    }
+    circle_posts {
+        string id_or_composite_key
+    }
+    circles {
+        string id_or_composite_key
+    }
+    direct_calls {
+        string id_or_composite_key
+    }
+    direct_chat_pins {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    direct_message_flags {
+        string id_or_composite_key
+    }
+    direct_message_reactions {
+        string id_or_composite_key
+    }
+    direct_messages {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    media_assets {
+        string id_or_composite_key
+    }
+    message_preferences {
+        string id_or_composite_key
+    }
+    notification_deliveries {
+        string id_or_composite_key
+    }
+    notification_device_tokens {
+        string id_or_composite_key
+    }
+    notification_preferences {
+        string id_or_composite_key
+    }
+    notifications {
+        string id_or_composite_key
+    }
+    social_comments {
+        string id_or_composite_key
+    }
+    social_post_likes {
+        string id_or_composite_key
+    }
+    social_post_saves {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }
+```
+
+## personal-trust-ai
+
+```mermaid
+erDiagram
+    users |o--o{ ai_action_approvals : "user_id"
+    users |o--o{ ai_action_events : "user_id"
+    ai_action_approvals |o--o{ ai_action_executions : "approval_id"
+    users |o--o{ ai_action_executions : "user_id"
+    users |o--o{ ai_user_preferences : "user_id"
+    users |o--o{ app_settings : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    users |o--o{ emergency_access_approvals : "approver_user_id"
+    emergency_access_requests |o--o{ emergency_access_approvals : "request_id"
+    users |o--o{ emergency_access_events : "actor_user_id"
+    emergency_access_requests |o--o{ emergency_access_events : "request_id"
+    users |o--o{ emergency_access_requests : "owner_user_id"
+    users |o--o{ emergency_access_requests : "requester_user_id"
+    health_reports |o--o{ health_measurements : "report_id"
+    social_posts |o--o{ health_reports : "source_post_id"
+    users |o--o{ health_reports : "user_id"
+    users |o--o{ timeline_events : "user_id"
+    users |o--o{ trusted_people : "owner_user_id"
+    users |o--o{ trusted_people : "trusted_user_id"
+    user_profiles |o--o{ user_profile_photos : "CONSTRAINT"
+    user_profiles |o--o{ user_profile_photos : "user_id"
+    users |o--o{ user_profiles : "CONSTRAINT"
+    users |o--o{ user_profiles : "user_id"
+    ai_action_approvals {
+        string id_or_composite_key
+    }
+    ai_action_events {
+        string id_or_composite_key
+    }
+    ai_action_executions {
+        string id_or_composite_key
+    }
+    ai_user_preferences {
+        string id_or_composite_key
+    }
+    app_settings {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    emergency_access_approvals {
+        string id_or_composite_key
+    }
+    emergency_access_events {
+        string id_or_composite_key
+    }
+    emergency_access_requests {
+        string id_or_composite_key
+    }
+    health_measurements {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    help_ai_settings {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    timeline_events {
+        string id_or_composite_key
+    }
+    trusted_people {
+        string id_or_composite_key
+    }
+    user_profile_photos {
+        string id_or_composite_key
+    }
+    user_profiles {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }
+```

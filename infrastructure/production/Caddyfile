@@ -7,7 +7,16 @@
     Referrer-Policy strict-origin-when-cross-origin
     Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
   }
-  handle /api/* { reverse_proxy backend:8080 }
-  handle /actuator/health { reverse_proxy backend:8080 }
-  handle { reverse_proxy frontend:3000 }
+  handle /api/* {
+    request_body {
+      max_size 30MB
+    }
+    reverse_proxy backend:8080
+  }
+  handle /actuator/health {
+    reverse_proxy backend:8080
+  }
+  handle {
+    reverse_proxy frontend:3000
+  }
 }

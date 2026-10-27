@@ -1,0 +1,32 @@
+# Planning template. Do not run with placeholders. Render into secrets/turnserver.conf.
+listening-port=3478
+tls-listening-port=5349
+min-port=49160
+max-port=49200
+realm=turn.myaaptha.com
+server-name=turn.myaaptha.com
+fingerprint
+use-auth-secret
+static-auth-secret=REPLACE_WITH_PROTECTED_SHARED_SECRET
+# Use the instance's actual public/private mapping when behind Lightsail NAT.
+external-ip=REPLACE_PUBLIC_IPV4/REPLACE_PRIVATE_IPV4
+cert=/etc/coturn/tls/fullchain.pem
+pkey=/etc/coturn/tls/key.pem
+no-cli
+no-multicast-peers
+stale-nonce=600
+max-allocate-lifetime=3600
+user-quota=4
+total-quota=40
+max-bps=1000000
+denied-peer-ip=0.0.0.0-0.255.255.255
+denied-peer-ip=10.0.0.0-10.255.255.255
+denied-peer-ip=127.0.0.0-127.255.255.255
+denied-peer-ip=169.254.0.0-169.254.255.255
+denied-peer-ip=172.16.0.0-172.31.255.255
+denied-peer-ip=192.168.0.0-192.168.255.255
+denied-peer-ip=224.0.0.0-255.255.255.255
+denied-peer-ip=::1
+denied-peer-ip=fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+denied-peer-ip=fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+denied-peer-ip=ff00::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff

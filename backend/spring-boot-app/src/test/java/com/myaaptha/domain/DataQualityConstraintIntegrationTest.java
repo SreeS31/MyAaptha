@@ -33,7 +33,7 @@ class DataQualityConstraintIntegrationTest {
   private String cachedAccessToken;
 
   @Test
-  void shouldRejectProjectWithInvalidStatusViaDbConstraint() {
+  void shouldRejectProjectWithInvalidStatusViaDbConstraint() throws Exception {
     CreateProjectRequest request = new CreateProjectRequest();
     request.setName("Constraint Test Project");
     request.setDescription("Project should fail with invalid status");
@@ -43,7 +43,7 @@ class DataQualityConstraintIntegrationTest {
   }
 
   @Test
-  void shouldRejectTaskWithBlankTitleViaDbConstraint() {
+  void shouldRejectTaskWithBlankTitleViaDbConstraint() throws Exception {
     CreateTaskRequest request = new CreateTaskRequest();
     request.setTitle("   ");
     request.setDetails("Task should fail because title is blank after trim");
@@ -53,7 +53,7 @@ class DataQualityConstraintIntegrationTest {
   }
 
   @Test
-  void shouldRejectMilestoneWithInvalidStatusViaDbConstraint() {
+  void shouldRejectMilestoneWithInvalidStatusViaDbConstraint() throws Exception {
     CreateMilestoneRequest request = new CreateMilestoneRequest();
     request.setName("Constraint Test Milestone");
     request.setDescription("Milestone should fail with invalid status");
@@ -62,14 +62,15 @@ class DataQualityConstraintIntegrationTest {
     assertConstraintViolationOnCreate("/api/milestones", request, "chk_milestones_status_allowed");
   }
 
-  private void assertConstraintViolationOnCreate(String endpoint, Object payload, String constraintName) {
-    Exception exception = assertThrows(Exception.class, () -> mockMvc.perform(post(endpoint)
+  private void assertConstraintViolationOnCreate(String endpoint, Object payload, String constraintName) throws Exception {
+    var result = mockMvc.perform(post(endpoint)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + issueAccessToken())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(payload)))
-      .andReturn());
-
-    String fullMessage = collectMessages(exception).toLowerCase(Locale.ROOT);
+      .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isInternalServerError())
+      .andReturn();
+    org.junit.jupiter.api.Assertions.assertFalse(result.getResponse().getContentAsString().contains(constraintName));
+    String fullMessage = collectMessages(result.getResolvedException()).toLowerCase(Locale.ROOT);
     assertTrue(
       fullMessage.contains(constraintName.toLowerCase(Locale.ROOT)),
       () -> "Expected constraint name '" + constraintName + "' in exception chain, but got: " + fullMessage

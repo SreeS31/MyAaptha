@@ -2,6 +2,7 @@
 
 import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
 import { useMemo, useState } from 'react';
+import countryNames from '../lib/country-names.json';
 
 type Props = {
   value: string;
@@ -12,15 +13,15 @@ type Props = {
   ariaLabel?: string;
 };
 
-const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames
-  ? new Intl.DisplayNames(['en'], { type: 'region' })
-  : null;
-
+// One checked-in English inventory keeps SSR and browser ICU versions identical.
 const countries = getCountries().map(code => ({
   code,
-  name: regionNames?.of(code) || code,
+  name: (countryNames as Record<string,string>)[code] || code,
   callingCode: getCountryCallingCode(code),
-})).sort((left, right) => left.name.localeCompare(right.name));
+})).sort((left, right) => {
+  const a=left.name.normalize('NFKD').toLowerCase(), b=right.name.normalize('NFKD').toLowerCase();
+  return a<b?-1:a>b?1:left.code<right.code?-1:left.code>right.code?1:0;
+});
 
 function initialCountry(value: string): CountryCode {
   return parsePhoneNumberFromString(value)?.country || 'IN';

@@ -1,0 +1,10 @@
+flowchart TD
+    Open[Open conversation] --> Access{Authorized participant?}
+    Access -->|No| Deny[Reject]
+    Access -->|Yes| Send[Send / fetch message]
+    Send --> Choice{Deletion choice}
+    Choice -->|For me| Hide[Persist participant-specific hide]
+    Choice -->|For all| Eligible{Authorized and age under 24h and unread recipients?}
+    Eligible -->|Yes| Redact[Server transaction deletes / redacts]
+    Eligible -->|No| Reject[Keep message; explain denial]
+    Hide --> Refresh[Refresh history without restoring hidden content]

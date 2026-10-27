@@ -18,6 +18,20 @@ public class CirclePostEntity {
   @Column(name="created_at",nullable=false) private Instant createdAt = Instant.now();
   @Column(name="edited_at") private Instant editedAt;
   @Column(name="deleted_at") private Instant deletedAt;
+  @org.hibernate.annotations.BatchSize(size=100)
+  @ElementCollection
+  @CollectionTable(name="circle_post_hidden",joinColumns=@JoinColumn(name="post_id"))
+  @Column(name="user_id") private java.util.Set<Long> hiddenForUsers=new java.util.HashSet<>();
+  public java.util.Set<Long> getHiddenForUsers(){return hiddenForUsers;}
+  @Column(nullable=false) private boolean forwarded;
+  public boolean isForwarded(){return forwarded;} public void setForwarded(boolean value){forwarded=value;}
+  @org.hibernate.annotations.BatchSize(size=100) @ElementCollection
+  @CollectionTable(name="circle_post_stars",joinColumns=@JoinColumn(name="post_id"))
+  @Column(name="user_id") private java.util.Set<Long> starredBy=new java.util.HashSet<>();
+  @org.hibernate.annotations.BatchSize(size=100) @ElementCollection
+  @CollectionTable(name="circle_post_pins",joinColumns=@JoinColumn(name="post_id"))
+  @Column(name="user_id") private java.util.Set<Long> pinnedBy=new java.util.HashSet<>();
+  public java.util.Set<Long> getStarredBy(){return starredBy;} public java.util.Set<Long> getPinnedBy(){return pinnedBy;}
   public Long getId(){return id;} public Long getCircleId(){return circleId;} public void setCircleId(Long v){circleId=v;}
   public Long getAuthorUserId(){return authorUserId;} public void setAuthorUserId(Long v){authorUserId=v;}
   public Long getParentPostId(){return parentPostId;} public void setParentPostId(Long v){parentPostId=v;}

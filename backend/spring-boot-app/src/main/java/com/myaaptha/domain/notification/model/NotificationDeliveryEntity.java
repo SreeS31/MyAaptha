@@ -14,6 +14,10 @@ public class NotificationDeliveryEntity {
   @Column(name="next_attempt_at",nullable=false) private Instant nextAttemptAt=Instant.now();
   @Column(name="provider_message_id") private String providerMessageId;
   @Column(name="last_error",length=1000) private String lastError;
+  @Column(name="lease_until") private Instant leaseUntil;
+  @Column(name="claim_token",length=36) private String claimToken;
+  public Instant getLeaseUntil(){return leaseUntil;} public void setLeaseUntil(Instant value){leaseUntil=value;}
+  public String getClaimToken(){return claimToken;} public void setClaimToken(String value){claimToken=value;}
   @Column(name="sent_at") private Instant sentAt;
   @Column(name="created_at",nullable=false) private Instant createdAt=Instant.now();
   @Column(name="updated_at",nullable=false) private Instant updatedAt=Instant.now();

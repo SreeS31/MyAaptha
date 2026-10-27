@@ -1,0 +1,6 @@
+# Copy to ignored android/key.properties, or use the documented CI environment variables.
+# Use your own protected upload key. Never commit credentials or use the debug key.
+storeFile=/absolute/path/to/owner-upload.p12
+storePassword=CONFIGURE_LOCALLY
+keyAlias=CONFIGURE_LOCALLY
+keyPassword=CONFIGURE_LOCALLY

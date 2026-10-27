@@ -8,13 +8,13 @@ class HealthResponse(BaseModel):
 
 class PersonCandidate(BaseModel):
     id: int | str
-    name: str = ""
-    surname: str = ""
-    location: str = ""
-    company: str = ""
-    phone: str | None = None
-    email: str | None = None
-    relationship: str = ""
+    name: str = Field(default="", max_length=240)
+    surname: str = Field(default="", max_length=240)
+    location: str = Field(default="", max_length=240)
+    company: str = Field(default="", max_length=240)
+    phone: str | None = Field(default=None, max_length=40)
+    email: str | None = Field(default=None, max_length=254)
+    relationship: str = Field(default="", max_length=80)
 
 class SearchRankRequest(BaseModel):
     query: str = Field(min_length=1, max_length=160)
@@ -69,7 +69,7 @@ class ImportedContact(BaseModel):
     display_name: str = Field(min_length=1, max_length=240)
     phones: list[str] = Field(default_factory=list, max_length=10)
     emails: list[str] = Field(default_factory=list, max_length=10)
-    organization: str = Field(default="", max_length=240)
+    organization: str = Field(default="", max_length=300)
     job_title: str = Field(default="", max_length=160)
     labels: list[str] = Field(default_factory=list, max_length=20)
 

@@ -1,9 +1,10 @@
 package com.myaaptha.domain.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class AuthRefreshRequest {
-  @NotBlank
+  @NotBlank @Size(max=16384)
   private String refreshToken;
 
   public String getRefreshToken() {

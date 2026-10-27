@@ -1,11 +1,11 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN groupadd --system myaaptha && useradd --system --gid myaaptha --home-dir /app myaaptha
+RUN apk upgrade --no-cache && addgroup -S -g 10001 myaaptha && adduser -S -D -H -u 10001 -G myaaptha -h /app myaaptha
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src ./src
 
 RUN chown -R myaaptha:myaaptha /app
-USER myaaptha
+USER 10001:10001
 
 EXPOSE 8081
 

@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-24",
+  "scope": "Local navigation reorganization; existing API contracts and data retained",
+  "localImplementationVerified": true,
+  "releaseApproved": false,
+  "primaryCategories": [
+    "Dashboard",
+    "Relationships",
+    "Diary & Memories",
+    "Health",
+    "Finance",
+    "Career",
+    "Interests",
+    "Messages",
+    "Online Feed"
+  ],
+  "previousWebMenuDestinationsRetained": 19,
+  "mobileLegacyShortcutsExplained": [
+    "Notifications",
+    "Search",
+    "More / All tools",
+    "Sign out"
+  ],
+  "verification": {
+    "browserScenariosPassed": 4,
+    "browserProjects": [
+      "desktop",
+      "mobile-web"
+    ],
+    "nativeWidgetAndRegressionCasesPassed": 8,
+    "flutterAnalysis": "no issues",
+    "webProductionBuild": "passed",
+    "androidVariant": "debug",
+    "androidBuild": "passed",
+    "physicalDeviceAndIosAcceptance": "not performed in this scope"
+  },
+  "comparison": "http://localhost:3000/menu-comparison",
+  "guide": "docs/navigation-reorganization.md",
+  "httpStatus": {
+    "finance": 200,
+    "comparison": 200,
+    "api": 200,
+    "board": 200
+  },
+  "launchTotals": {
+    "total": 90,
+    "complete": 61,
+    "pending": 29
+  },
+  "artifacts": {
+    "record": ".tools/launch-board/build-identities-navigation-20261024.json",
+    "allPresent": true,
+    "matches": true,
+    "releaseApproved": false
+  }
+}

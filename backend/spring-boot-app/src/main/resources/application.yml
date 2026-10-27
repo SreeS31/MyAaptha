@@ -1,4 +1,9 @@
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+    parser:
+      strict-duplicate-detection: true
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:myaaptha}
     username: ${POSTGRES_USER:myaaptha}
@@ -27,6 +32,7 @@ spring:
 
 server:
   port: 8080
+  max-http-request-header-size: 16KB
   tomcat:
     max-swallow-size: 12MB
 
@@ -36,6 +42,7 @@ spring.servlet.multipart:
 
 myaaptha:
   storage:
+    scanner: ${MYAAPTHA_MEDIA_SCANNER:clamav}
     provider: ${MYAAPTHA_STORAGE_PROVIDER:local}
     user-quota-bytes: ${MYAAPTHA_MEDIA_USER_QUOTA_BYTES:1073741824}
     retention-cleanup-cron: ${MYAAPTHA_MEDIA_CLEANUP_CRON:0 30 2 * * *}
@@ -53,6 +60,20 @@ myaaptha:
       token: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:}
   ai:
     base-url: ${MYAAPTHA_BASE_URL:http://localhost:8081/api/v1}
+  health-ai:
+    enabled: ${MYAAPTHA_HEALTH_AI_ENABLED:false}
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-4.1-mini}
+  calls:
+    turn-urls: ${MYAAPTHA_TURN_URLS:}
+    turn-secret: ${MYAAPTHA_TURN_SHARED_SECRET:${turn_shared_secret:}}
+    relay-required: ${MYAAPTHA_CALLS_RELAY_REQUIRED:false}
+    credential-seconds: ${MYAAPTHA_TURN_CREDENTIAL_SECONDS:3600}
+  help-ai:
+    api-key: ${OPENAI_API_KEY:${openai_api_key:}}
+    model: ${MYAAPTHA_HELP_MODEL:gpt-4.1-mini}
+    enhanced-model: ${MYAAPTHA_HELP_ENHANCED_MODEL:gpt-4.1}
+    requests-per-minute: ${MYAAPTHA_HELP_REQUESTS_PER_MINUTE:60}
   contact-oauth:
     public-api-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL:http://localhost:8080}
     web-origin: ${MYAAPTHA_WEB_ORIGIN:http://localhost:3000}
@@ -62,5 +83,11 @@ myaaptha:
     microsoft-client-secret: ${MICROSOFT_CONTACTS_CLIENT_SECRET:}
 
 security:
+  metrics:
+    scrape-token: ${MYAAPTHA_METRICS_SCRAPE_TOKEN:}
   jwt:
     secret: ${JWT_SECRET:${jwt_secret:myaaptha-local-dev-jwt-secret-please-change-2026-strong}}
+
+# Local/test deployments do not require Redis. Production overrides this.
+management.health.redis.enabled: false
+spring.data.redis.repositories.enabled: false

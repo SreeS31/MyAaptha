@@ -1,0 +1,9 @@
+flowchart LR
+    Visitor --> Login[Authenticate]
+    Login --> Member[Authenticated member]
+    Member --> Own[Own records and authorized conversations]
+    Member --> CircleAdmin{Circle admin membership?}
+    CircleAdmin -->|Yes| Group[Group administration]
+    Member --> PlatformAdmin{API admin authority?}
+    PlatformAdmin -->|Yes| Global[Global catalogs and security controls]
+    Operator[Infrastructure operator] --> Deploy[Deployment and recovery]

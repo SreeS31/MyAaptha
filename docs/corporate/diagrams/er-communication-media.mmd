@@ -1,0 +1,126 @@
+erDiagram
+    circle_posts |o--o{ circle_post_hidden : "post_id"
+    users |o--o{ circle_post_hidden : "user_id"
+    circle_posts |o--o{ circle_post_pins : "post_id"
+    users |o--o{ circle_post_pins : "user_id"
+    circle_posts |o--o{ circle_post_reactions : "post_id"
+    users |o--o{ circle_post_reactions : "user_id"
+    circle_posts |o--o{ circle_post_reads : "post_id"
+    users |o--o{ circle_post_reads : "user_id"
+    circle_posts |o--o{ circle_post_stars : "post_id"
+    users |o--o{ circle_post_stars : "user_id"
+    circle_posts |o--o{ circle_posts : "CONSTRAINT"
+    circles |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "author_user_id"
+    circles |o--o{ circle_posts : "circle_id"
+    circle_posts |o--o{ circle_posts : "parent_post_id"
+    users |o--o{ direct_calls : "CONSTRAINT"
+    users |o--o{ direct_calls : "caller_user_id"
+    users |o--o{ direct_calls : "recipient_user_id"
+    users |o--o{ direct_chat_pins : "other_user_id"
+    users |o--o{ direct_chat_pins : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    direct_messages |o--o{ direct_message_flags : "message_id"
+    users |o--o{ direct_message_flags : "user_id"
+    direct_messages |o--o{ direct_message_reactions : "message_id"
+    users |o--o{ direct_message_reactions : "user_id"
+    users |o--o{ direct_messages : "CONSTRAINT"
+    users |o--o{ direct_messages : "recipient_user_id"
+    direct_messages |o--o{ direct_messages : "reply_to_message_id"
+    users |o--o{ direct_messages : "sender_user_id"
+    social_posts |o--o{ health_reports : "source_post_id"
+    users |o--o{ media_assets : "CONSTRAINT"
+    users |o--o{ media_assets : "owner_user_id"
+    users |o--o{ message_preferences : "user_id"
+    notifications |o--o{ notification_deliveries : "CONSTRAINT"
+    notifications |o--o{ notification_deliveries : "notification_id"
+    users |o--o{ notification_device_tokens : "CONSTRAINT"
+    users |o--o{ notification_device_tokens : "user_id"
+    users |o--o{ notification_preferences : "CONSTRAINT"
+    users |o--o{ notification_preferences : "user_id"
+    users |o--o{ notifications : "CONSTRAINT"
+    users |o--o{ notifications : "user_id"
+    social_posts |o--o{ social_comments : "post_id"
+    social_posts |o--o{ social_post_likes : "post_id"
+    users |o--o{ social_post_likes : "user_id"
+    social_posts |o--o{ social_post_saves : "post_id"
+    users |o--o{ social_post_saves : "user_id"
+    users |o--o{ social_posts : "author_user_id"
+    circles |o--o{ social_posts : "circle_id"
+    circle_post_hidden {
+        string id_or_composite_key
+    }
+    circle_post_pins {
+        string id_or_composite_key
+    }
+    circle_post_reactions {
+        string id_or_composite_key
+    }
+    circle_post_reads {
+        string id_or_composite_key
+    }
+    circle_post_stars {
+        string id_or_composite_key
+    }
+    circle_posts {
+        string id_or_composite_key
+    }
+    circles {
+        string id_or_composite_key
+    }
+    direct_calls {
+        string id_or_composite_key
+    }
+    direct_chat_pins {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    direct_message_flags {
+        string id_or_composite_key
+    }
+    direct_message_reactions {
+        string id_or_composite_key
+    }
+    direct_messages {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    media_assets {
+        string id_or_composite_key
+    }
+    message_preferences {
+        string id_or_composite_key
+    }
+    notification_deliveries {
+        string id_or_composite_key
+    }
+    notification_device_tokens {
+        string id_or_composite_key
+    }
+    notification_preferences {
+        string id_or_composite_key
+    }
+    notifications {
+        string id_or_composite_key
+    }
+    social_comments {
+        string id_or_composite_key
+    }
+    social_post_likes {
+        string id_or_composite_key
+    }
+    social_post_saves {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }

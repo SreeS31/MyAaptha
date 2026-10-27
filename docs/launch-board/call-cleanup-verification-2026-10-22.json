@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-22",
+  "scope": "Web call resource cleanup; synthetic streams and mocked signaling/peer only",
+  "resourceUnitTestsPassed": 6,
+  "browserLayoutsPassed": [
+    "desktop",
+    "mobile-web"
+  ],
+  "profileRegressionLayoutsPassed": [
+    "desktop",
+    "mobile-web"
+  ],
+  "hardwareMediaUsed": false,
+  "realCallRecipientUsed": false,
+  "realTransportValidated": false,
+  "artifactsMatch": true,
+  "releaseApproved": false
+}

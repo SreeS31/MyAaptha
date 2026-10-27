@@ -17,7 +17,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>MyAaptha can save media you choose to download.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>MyAaptha reads contacts only when you choose AI Contact Organizer, so it can suggest relationships and circles for your review.</string>
+	<string>MyAaptha reads contacts only after permission, so you can import your private address book and optionally organize contacts into circles. You choose separately which contacts become relations.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

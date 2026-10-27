@@ -19,6 +19,6 @@ public class ProfileMediaStorage {
   public String store(Long ownerUserId,MultipartFile file){
     var asset=assets.store(ownerUserId,"PROFILE",file,TYPES,5L*1024*1024,"");return publicBaseUrl+"/api/profile/media/"+asset.key();
   }
-  public Resource load(String name){return storage.load(name);}
+  public Resource load(String name){assets.assertAvailable(name);return storage.load(name);}
   public void delete(String url){if(url==null||!url.contains("/api/profile/media/"))return;assets.delete(url.substring(url.lastIndexOf('/')+1));}
 }

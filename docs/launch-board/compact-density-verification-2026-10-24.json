@@ -1,0 +1,20 @@
+{
+  "scope": "Compact responsive web workspace; native APK and API contracts unchanged",
+  "releaseApproved": false,
+  "workspaceRoutesPerViewport": 28,
+  "expandedFormViewsPerViewport": 27,
+  "viewports": [
+    "desktop Chromium",
+    "Pixel 7 mobile web"
+  ],
+  "fullRegressionScenariosPassed": 8,
+  "reviewedLayoutAndTreeScenariosPassed": 4,
+  "confirmedFeedScenariosPassed": 2,
+  "initialReviewedFeedFailure": "One desktop save-state assertion exceeded the default 5-second wait while the action was pending; focused desktop/phone rerun with 15-second expectations passed, including saved state after reload.",
+  "evidence": [
+    "compact-density-browser-final.log",
+    "compact-density-browser-reviewed.log",
+    "compact-feed-browser-confirmed.log",
+    "compact-density-build-reviewed.log"
+  ]
+}

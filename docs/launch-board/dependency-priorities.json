@@ -1,0 +1,394 @@
+{
+  "snapshot": "2026-10-27",
+  "pending": 29,
+  "roots": [
+    "M15.4",
+    "M18.3",
+    "M16.3",
+    "M01.4"
+  ],
+  "tasks": [
+    {
+      "id": "M15.4",
+      "title": "Provision staging cloud, DNS, TLS, secrets and registry",
+      "pendingPrerequisites": [],
+      "downstreamTasks": [
+        "M01.5",
+        "M04.4",
+        "M06.4",
+        "M07.6",
+        "M09.4",
+        "M10.4",
+        "M11.3",
+        "M13.3",
+        "M13.4",
+        "M14.5",
+        "M14.6",
+        "M15.5",
+        "M15.6",
+        "M15.7",
+        "M15.8",
+        "M16.6",
+        "M18.4"
+      ],
+      "downstreamCount": 17,
+      "required": "Actual cloud/project deployment delegation, registry access, issued TLS certificates and DNS administration. India region, domain and budgets have been received.",
+      "nextAction": "Use the prepared profiles and protected application secrets; provision staging after real account access, then record its endpoint and image digests."
+    },
+    {
+      "id": "M18.3",
+      "title": "Approve privacy, terms, consent, support and moderation owners",
+      "pendingPrerequisites": [],
+      "downstreamTasks": [
+        "M08.4",
+        "M09.4",
+        "M11.4",
+        "M12.5",
+        "M12.6",
+        "M15.8",
+        "M16.4",
+        "M16.5",
+        "M18.4"
+      ],
+      "downstreamCount": 9,
+      "required": "Reachable policy/support contact details, completed policies and recorded review approvals. CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and release approver have been received.",
+      "nextAction": "Complete privacy, terms, consent, retention and moderation documents with designated owners; record independent review and release approval."
+    },
+    {
+      "id": "M16.3",
+      "title": "Physical Android/iOS acceptance and native parity review",
+      "pendingPrerequisites": [],
+      "downstreamTasks": [
+        "M04.5",
+        "M07.5",
+        "M11.3",
+        "M13.3",
+        "M13.4",
+        "M16.4",
+        "M16.5"
+      ],
+      "downstreamCount": 7,
+      "required": "Physical Android/iOS devices and an agreed acceptance matrix",
+      "nextAction": "Execute important flows, permissions, lifecycle and native parity acceptance."
+    },
+    {
+      "id": "M13.3",
+      "title": "Configure and prove real email/SMS/push delivery",
+      "pendingPrerequisites": [
+        "M15.4",
+        "M16.3"
+      ],
+      "downstreamTasks": [
+        "M11.3",
+        "M13.4"
+      ],
+      "downstreamCount": 2,
+      "required": "Email/SMS/push providers, sender identities, callbacks and test device tokens",
+      "nextAction": "Verify actual delivery, failure handling, retry and deduplication."
+    },
+    {
+      "id": "M15.6",
+      "title": "Record production-like backup/PITR restore drill",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [
+        "M14.6",
+        "M15.8"
+      ],
+      "downstreamCount": 2,
+      "required": "Managed database/PITR and media backups plus an isolated recovery environment",
+      "nextAction": "Measure representative DB/media recovery, integrity, RPO and RTO."
+    },
+    {
+      "id": "M12.5",
+      "title": "Set provider secrets, budget alerts and data policy",
+      "pendingPrerequisites": [
+        "M18.3"
+      ],
+      "downstreamTasks": [
+        "M12.6"
+      ],
+      "downstreamCount": 1,
+      "required": "Production AI secret references, enforced spend limits/alerts and approved processing policy. INR 3,000/month budget has been received.",
+      "nextAction": "Configure provider access and hard spend controls, then validate processing policy and provider readiness."
+    },
+    {
+      "id": "M14.5",
+      "title": "Provision private storage and production scanner",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [
+        "M14.6"
+      ],
+      "downstreamCount": 1,
+      "required": "Approved private bucket/IAM/encryption and production antivirus infrastructure",
+      "nextAction": "Verify private storage, scanner pinning, signatures and monitoring on the selected platform."
+    },
+    {
+      "id": "M15.5",
+      "title": "Repeat capacity acceptance on representative infrastructure",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [
+        "M15.8"
+      ],
+      "downstreamCount": 1,
+      "required": "Representative staging resources, load-generator capacity and target workload",
+      "nextAction": "Run the agreed capacity profile and accept measured error/latency limits."
+    },
+    {
+      "id": "M15.7",
+      "title": "Activate monitoring, alert routes and rollback rehearsal",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [
+        "M15.8"
+      ],
+      "downstreamCount": 1,
+      "required": "Selected runtime, monitoring system, alert recipients and rollout identity",
+      "nextAction": "Activate alerts and execute a reviewed rollback rehearsal with recovery timestamps."
+    },
+    {
+      "id": "M18.4",
+      "title": "Independent staging security review and remediation acceptance",
+      "pendingPrerequisites": [
+        "M15.4",
+        "M18.3"
+      ],
+      "downstreamTasks": [
+        "M15.8"
+      ],
+      "downstreamCount": 1,
+      "required": "Selected staging build and an independent security reviewer",
+      "nextAction": "Perform independent account/upload/integration testing and accept remediation."
+    },
+    {
+      "id": "M01.4",
+      "title": "Validate real verification / recovery delivery",
+      "pendingPrerequisites": [],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "SMS/verification provider, approved sender, challenge configuration and test recipients",
+      "nextAction": "Verify real registration/recovery delivery and ownership end to end."
+    },
+    {
+      "id": "M01.5",
+      "title": "Release account-security regression",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Selected release URL/digests and provider-backed account fixtures",
+      "nextAction": "Run login, refresh, logout, recovery and isolation against that release."
+    },
+    {
+      "id": "M04.4",
+      "title": "Activate Google / Microsoft OAuth in staging",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Google/Microsoft registrations, exact callbacks, approved scopes and configured secret references",
+      "nextAction": "Verify real provider consent, import review, cancellation and shared routing on staging."
+    },
+    {
+      "id": "M04.5",
+      "title": "Validate device contacts permissions",
+      "pendingPrerequisites": [
+        "M16.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Physical Android/iOS access with OS permission and revocation coverage",
+      "nextAction": "Validate denied/limited/full permissions and selected-contact persistence on devices."
+    },
+    {
+      "id": "M06.4",
+      "title": "Staging membership and removed-member access regression",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Selected staging build and disposable membership fixtures",
+      "nextAction": "Run removed-member history, search and attachment denial on staging."
+    },
+    {
+      "id": "M07.5",
+      "title": "Validate real-device calling / network behavior",
+      "pendingPrerequisites": [
+        "M16.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Calling scope decision and physical devices on representative networks",
+      "nextAction": "Validate permission, connectivity, audio/video and network changes if calling is included."
+    },
+    {
+      "id": "M07.6",
+      "title": "Release read/delete race and cross-client regression",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Selected staging build and two real client/device sessions",
+      "nextAction": "Run concurrent read/delete and cross-client redaction checks."
+    },
+    {
+      "id": "M08.4",
+      "title": "Launch content/abuse operating policy",
+      "pendingPrerequisites": [
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Named moderation staff, approved policy, escalation and appeal routes",
+      "nextAction": "Approve the operating policy and rehearse real moderation roles."
+    },
+    {
+      "id": "M09.4",
+      "title": "Enable health analysis only after provider/consent validation",
+      "pendingPrerequisites": [
+        "M15.4",
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Approved health processing/consent policy, provider quality and spend acceptance",
+      "nextAction": "Complete provider quality/privacy review and controlled device acceptance before enablement."
+    },
+    {
+      "id": "M10.4",
+      "title": "Release import and time-boundary acceptance",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Selected staging build and representative sanitized import fixtures",
+      "nextAction": "Verify import deduplication and UTC boundary outcomes on staging."
+    },
+    {
+      "id": "M11.3",
+      "title": "Validate owner emergency alert delivery",
+      "pendingPrerequisites": [
+        "M13.3",
+        "M15.4",
+        "M16.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Approved emergency alert channels and controlled recipient/device fixtures",
+      "nextAction": "Deliver a real emergency notification and verify owner receipt."
+    },
+    {
+      "id": "M11.4",
+      "title": "Approve sensitive-document emergency policy",
+      "pendingPrerequisites": [
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Policy owner approval for eligible emergency documents, retention and access windows",
+      "nextAction": "Approve the sensitive-document policy and verify operating/audit procedures."
+    },
+    {
+      "id": "M12.6",
+      "title": "Evaluate stronger model before enabling retries",
+      "pendingPrerequisites": [
+        "M12.5",
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Approved model candidates, evaluation budget and named quality reviewer",
+      "nextAction": "Collect representative model answers, score the rubric and approve or reject retries."
+    },
+    {
+      "id": "M13.4",
+      "title": "Validate security-alert delivery and on-call route",
+      "pendingPrerequisites": [
+        "M13.3",
+        "M15.4",
+        "M16.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Security-alert recipient, provider route and on-call owner",
+      "nextAction": "Trigger a controlled security alert and record delivery and acknowledgement."
+    },
+    {
+      "id": "M14.6",
+      "title": "Validate retention, object deletion and media recovery",
+      "pendingPrerequisites": [
+        "M14.5",
+        "M15.4",
+        "M15.6"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Actual storage lifecycle/recovery setup and isolated synthetic object fixtures; clarification of whether 180 days means active-file expiry or deleted-version recovery.",
+      "nextAction": "Keep existing retention unchanged until clarified; verify deletion/version behavior and media restoration against actual storage without customer data."
+    },
+    {
+      "id": "M15.8",
+      "title": "Approve exact release artifact and production promotion",
+      "pendingPrerequisites": [
+        "M15.4",
+        "M15.5",
+        "M15.6",
+        "M15.7",
+        "M18.3",
+        "M18.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Immutable production digests, signing/scans, accepted prerequisites and named approver",
+      "nextAction": "Review the exact release evidence and record production promotion approval."
+    },
+    {
+      "id": "M16.4",
+      "title": "Android production signing and store submission",
+      "pendingPrerequisites": [
+        "M16.3",
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Final application ID, owner upload key, Play identity and approved disclosures",
+      "nextAction": "Build with the owner signing identity, verify its fingerprint and complete store submission."
+    },
+    {
+      "id": "M16.5",
+      "title": "iOS archive, signing and App Store submission",
+      "pendingPrerequisites": [
+        "M16.3",
+        "M18.3"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "macOS/Xcode runner, Apple team, final bundle ID, signing profiles and store disclosures",
+      "nextAction": "Archive, sign, validate on devices and complete App Store submission."
+    },
+    {
+      "id": "M16.6",
+      "title": "Rerun exact-release cookie/bearer and accessibility suite",
+      "pendingPrerequisites": [
+        "M15.4"
+      ],
+      "downstreamTasks": [],
+      "downstreamCount": 0,
+      "required": "Selected staging release with exact image/build identities",
+      "nextAction": "Run cookie, bearer, responsive and accessibility acceptance on those artifacts."
+    }
+  ],
+  "releaseApproved": false,
+  "interpretation": "Downstream counts overlap. A root has no open checklist prerequisite; it can still require external access or review. Completing one prerequisite does not close its dependants."
+}

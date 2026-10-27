@@ -1,192 +1,93 @@
 # MyAaptha
 
-## User-uploaded media storage
+## Launch readiness
 
-Profile photos, gallery files, and conversation attachments are never written into the application JAR/WAR and are not stored as database blobs. The backend uses a shared media platform; PostgreSQL stores object metadata and application references.
+[View launch board locally](http://127.0.0.1:4317) · [Offline board](docs/launch-board/index.html) · [Module and subtask status](docs/launch-board/STATUS-2026-10-20.md). Snapshot: 20 October 2026; 18 modules, 89 tracked subtasks, 60 recorded complete and 29 pending. Scope adds completed local engineering tasks M08.5, M09.5 and M15.9. [Latest development results](docs/launch-board/DEVELOPMENT-2026-10-20.md). Local completion is separate from production launch approval. Start the board with `powershell -NoProfile -ExecutionPolicy Bypass -File infrastructure/start-launch-board.ps1`.
 
-- `MYAAPTHA_UPLOAD_DIR` sets the external/persistent upload directory. The local default is `./var/myaaptha/uploads` relative to the backend process.
-- `MYAAPTHA_MEDIA_BASE_URL` sets the externally reachable backend origin used in stored media URLs. The local default is `http://localhost:8080`.
-- In Docker/Kubernetes local-storage deployments, mount `MYAAPTHA_UPLOAD_DIR` as a persistent volume.
-- Set `MYAAPTHA_STORAGE_PROVIDER=s3`, `MYAAPTHA_S3_BUCKET`, and `MYAAPTHA_S3_REGION` to use private AWS S3 or an S3-compatible cloud. `MYAAPTHA_S3_ENDPOINT` supports services such as MinIO.
-- AWS credentials use the standard SDK credential chain (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`, workload identity, instance role, or container role).
-- Objects are encrypted with S3 AES-256, signed download URLs are supported, and uploads receive checksum, file-signature, scanner, thumbnail, quota, retention, and deletion handling.
-- `MYAAPTHA_MEDIA_USER_QUOTA_BYTES` changes the default 1 GiB per-user quota.
+## Corporate documentation
 
-MyAaptha is an enterprise-grade platform architecture for AI-native collaboration, identity, and knowledge workflows. This repository establishes the initial foundation for the platform and is structured to support future frontend, backend, infrastructure, and AI modules.
+Project architecture, roles, workflows, use cases, API examples and operations: [Corporate handbook](docs/corporate/PROJECT-HANDBOOK.md). An [offline HTML edition](docs/corporate/PROJECT-HANDBOOK.html), [printable PDF](docs/corporate/PROJECT-HANDBOOK.pdf), [API catalog](docs/corporate/api-catalog.md), [data dictionary](docs/corporate/data-dictionary.md) and [editable ER diagrams](docs/corporate/er-diagrams.md) accompany the handbook. Snapshot: 20 October 2026; 71-page PDF, 229 extracted HTTP mappings and 67 migration-declared tables; implementation and release limitations are documented explicitly.
 
-## Delivery status
+## Local preview
 
-As of 16 August 2026, all 20 engineering milestones are implemented and verified. The latest milestones add the shared social feed/stories, cross-channel account blocking, and rich private-message interactions. Production activation still requires deployment-owner cloud/provider credentials and operational validation. See [Milestone Status](docs/milestone-status.md) for evidence and the external launch checklist.
+Latest shared design, contextual help and native timeline alignment: [8 October review](docs/app-design-2026-10-08.md).
 
-## Milestone 1: Foundation Repository
+Web, native mobile and API alignment: [synchronization review and checks](docs/synchronization-2026-10-06.md).
 
-This milestone delivers the core repository scaffolding for a production-ready engineering workflow:
+Private contact imports and automatic circle lists: [setup and validation](docs/contact-import.md).
 
-- Repository metadata and licensing
-- Standardized editor and Git configuration
-- Container-based local development environment
-- CI workflow that validates repository structure and runs backend, frontend, AI, and mobile checks
-- Initial module directories for future implementation
+Messaging features, validation and remaining gaps: [26 September update](docs/messaging-2026-09-26.md).
+Open **http://localhost:3000/contacts**, or **More ? My contacts** on mobile.
 
-## Milestone 2: Relationship Domain Foundation
+With Java 21, Maven, Node.js, Python dependencies and Docker installed, run
+`powershell -ExecutionPolicy Bypass -File infrastructure/start-local.ps1`.
+Use `-SkipBuild` when the API JAR and web production build are already current.
+The preview opens at **http://localhost:3000** and uses a separate local database;
+existing development database volumes are preserved. Choose **Create an account**
+on the sign-in page. Logs are in `.tools/preview`.
+Stop it with `powershell -ExecutionPolicy Bypass -File infrastructure/stop-local.ps1`;
+the preview database is retained.
 
-This milestone delivers the secured backend domain APIs for the collaboration graph:
+Run `npm run test:integration` from `frontend/nextjs-app` against the running
+preview to check browser/mobile-API synchronization. This creates synthetic accounts.
 
-- User and person management
-- Circles and relationship management
-- Permission management
-- Authenticated CRUD endpoints with missing-resource handling
-- Integration coverage for each relationship-domain API lifecycle
+Current test evidence and deployment limitations: [23–24 September validation](docs/validation-2026-09-23.md).
 
-## Milestone 3: Project Delivery Foundation
+The canonical release application is the full PostgreSQL-based application:
 
-This milestone provides the delivery-planning backend capabilities:
+- `backend/spring-boot-app`: Java 21 / Spring Boot API
+- `frontend/nextjs-app`: Next.js web application
+- `ai/agent-service`: Python AI service
+- `mobile/flutter-app`: Flutter mobile application
+- `infrastructure`: production templates, release validation and deployment tooling
 
-- Projects, milestones, and tasks
-- Milestone status updates, blocking reasons, and bulk status changes
-- Task filtering by milestone and milestone filtering by project
-- Authenticated dashboard summary data
-- Flyway migrations, data-quality constraints, and development seed data
+The `.integration` linked worktree is preserved for reference and ignored by this repository. Its source (including pending application edits) was copied into the canonical directories. Builds and releases no longer depend on that worktree.
 
-## Milestone 4: Web Design System Foundation
+The smaller MySQL implementation in `backend/src`, `frontend/src`, `mobile/lib`, `database` and `docker` is retained for reference; it is not the production release target. Do not use its Docker files to deploy this release. Conflicting original root files were preserved under `docs/pre-deployment-root`.
 
-This milestone establishes the shared web presentation baseline:
+## Before deployment
 
-- Design tokens for color, typography, spacing, radii, and elevation
-- Reusable layout, component, and utility styles
-- Responsive design-system demonstration page
-- A documented foundation for the Next.js application
+Read [Deployment handoff](docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md) for required account details, credentials and outstanding launch gates. Dummy configuration is provided for planning; production validation deliberately rejects it.
 
-## Repository Structure
+Read [Cloud deployment](docs/cloud-deployment.md) for the rollout and rollback procedure. Never run development Compose on a public server.
 
-- [docs](docs)
-- [frontend](frontend)
-- [backend](backend)
-- [database](database)
-- [deployment](deployment)
-- [infrastructure](infrastructure)
-- [mobile](mobile)
-- [ai](ai)
-- [testing](testing)
-- [tools](tools)
+## Local verification
 
-## Technology Baseline
+```powershell
+cd backend/spring-boot-app
+mvn verify
+```
 
-- Java 21 LTS
-- Spring Boot 3.x
-- Next.js 15
-- React 19
-- TypeScript
-- PostgreSQL 17
-- Redis
-- Docker
-- Node.js 22 LTS
+```powershell
+cd frontend/nextjs-app
+npm ci
+npm run build
+npm run test:e2e
+```
 
-## Quick Start
+```powershell
+cd ai/agent-service
+python -m pip install -r requirements.txt
+python -m pytest tests -q
+```
 
-1. Review the repository structure.
-2. Start local infrastructure services:
-   - `docker compose up -d`
-3. Use the development helpers:
-   - `make help`
+From the repository root:
 
-## Development Commands
+```powershell
+python -m pip install -r infrastructure/requirements.txt
+python -m unittest discover -s infrastructure -p "test_*.py"
+```
 
-- `make help` - Show common commands
-- `make docker-up` - Start local infrastructure services
-- `make docker-down` - Stop local infrastructure services
-- `make ci` - Run repository validation steps
-- `make ai-install` - Install AI service dependencies
-- `make ai-run` - Run AI service locally
-- `make ai-test` - Run AI service test suite
-- `make mobile-get` - Install Flutter mobile dependencies
-- `make mobile-test` - Run Flutter mobile tests
+CI validates application tests, browser accessibility, mobile analysis/tests and dependency scanning. Tagged releases wait for CI, scan container candidates, then publish images and SBOM/digest artifacts. Cloud rollout is a separate explicit operation using `infrastructure/deploy.ps1`.
 
-## Milestone 5: AI Module Foundation
+Current production approval status and measured scaling/security results: [readiness report](docs/scaling-readiness.md) and [Word document](docs/scaling-readiness.docx). Public production approval remains pending the listed security and cloud-validation gates.
 
-Milestone 5 starts with an initial AI service module under `ai/agent-service`.
+Latest local features: [application help chatbot, OpenAI setup and messaging controls](docs/chatbot-and-messaging-2026-09-25.md). Open `/help` on the web or **More → Ask MyAaptha** on mobile. Configure the server's OpenAI key to enable model answers; documented help works without it.
 
-Current capabilities:
+Current launch blockers and accountable-team requirements: [pending acceptance audit](docs/launch-board/PENDING-ACCEPTANCE-2026-10-20.md). Hosted board source updates refresh automatically after loading the current page.
 
-- FastAPI service scaffold with health endpoints
-- Versioned API namespace (`/api/v1`)
-- Strongly typed request/response models
-- Config-driven behavior via environment variables
-- Test baseline for service health checks
+[Web UI and form review ? 21 October 2026](docs/launch-board/WEB-UX-REVIEW-2026-10-21.md) records shared styling, keyboard/upload improvements, phone-picker hydration and health-form layout fixes, with browser verification scope.
 
-## Milestone 6: Mobile Foundation
+[Owner launch-input checklist](docs/launch-board/LAUNCH-INPUTS-2026-10-21.md) lists access and decisions needed while engineering handles development, testing and integration. [Current continuation report](docs/launch-board/DEVELOPMENT-2026-10-21.md).
 
-Milestone 6 starts with an initial Flutter module under `mobile/flutter-app`.
-
-Current capabilities:
-
-- Android, iOS, and browser-preview Flutter targets
-- Material 3 design system with adaptive phone/tablet navigation
-- Sign In, Sign Up, JWT refresh, persisted sessions, logout, and revocation
-- Relationship discovery, privacy/verification tags, and relationship creation
-- Circle creation and private/group conversation experiences
-- Profile, address, communication, education, and employment fields
-- Authenticated image, audio, video, PDF, and document attachment display
-- Native camera, microphone, and media permission declarations
-- Widget tests and clean Flutter static analysis
-
-## Milestone 7: Web Authenticated Dashboard
-
-Milestone 7 secures the Next.js dashboard with backend JWT session flows.
-
-Current capabilities:
-
-- Web sign-in page integrated with `POST /api/auth/login`
-- Browser session persistence for access and refresh tokens
-- Automatic token refresh fallback via `POST /api/auth/refresh`
-- Authenticated dashboard API calls using bearer access tokens
-- Web logout flow integrated with `POST /api/auth/logout`
-
-## Milestone 8: Web Session Bootstrap Experience
-
-Milestone 8 improves public-to-authenticated flow on the Next.js web app.
-
-Current capabilities:
-
-- Landing page always remains available without login
-- Public auth service health check integration via `GET /api/auth/health`
-- Session-aware landing behavior that enriches workspace data for signed-in users
-- Sign-out action available directly from the landing navigation
-- Consistent authenticated handoff to dashboard workflows
-
-## Milestone 9: Session Identity Introspection
-
-Milestone 9 adds authenticated user identity introspection for web clients.
-
-Current capabilities:
-
-- Backend `GET /api/auth/me` endpoint for access-token session profile retrieval
-- Bearer-protected auth-me path via JWT security filter and security chain rules
-- Frontend session profile client integration for landing and dashboard experiences
-- Signed-in identity context displayed in web navigation surfaces
-
-## Milestone 10: Web Session Control Center
-
-Milestone 10 adds first-class web session lifecycle controls and observability.
-
-Current capabilities:
-
-- Dedicated session control page at `/session`
-- Live session identity and token lifetime visibility for signed-in users
-- Manual access token refresh workflow using `POST /api/auth/refresh`
-- Explicit session revocation workflow using `POST /api/auth/revoke`
-- Unified navigation entry points to session controls from landing and dashboard pages
-
-## AI Contact Organizer
-
-After sign-in on Android or iOS, MyAaptha can optionally request contact access and suggest relationships and circles from saved names, labels, organizations, and education keywords. Suggestions include confidence and reasons and must be reviewed and confirmed by the user. Skipping is always supported, permission can be revoked, and the stateless AI analysis does not retain raw phonebook contacts.
-
-## Quality Standards
-
-This repository is intended to support the following standards from the start:
-
-- Consistent formatting
-- Repeatable local development
-- Container-based dependency management
-- CI validation
-- Clear documentation and scaffolding
+[22 October continuation](docs/launch-board/DEVELOPMENT-2026-10-22.md) and [current launch-input checklist](docs/launch-board/LAUNCH-INPUTS-2026-10-22.md).

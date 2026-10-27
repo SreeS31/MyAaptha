@@ -1,0 +1,9 @@
+flowchart TD
+    Request[Upload request] --> Policy{Identity / type / size / quota valid?}
+    Policy -->|No| Reject[Reject upload]
+    Policy -->|Yes| Scan[Configured malware scan]
+    Scan --> Safe{Scan accepted?}
+    Safe -->|No| Reject
+    Safe -->|Yes| Store[Store bytes and metadata]
+    Store --> Read[Feature-specific access checks]
+    Store --> Retain[Retention cleanup]

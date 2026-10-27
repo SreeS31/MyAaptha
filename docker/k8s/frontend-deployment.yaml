@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myaaptha-frontend
+  namespace: myaaptha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myaaptha-frontend
+  template:
+    metadata:
+      labels:
+        app: myaaptha-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: myaaptha-frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://api.myaaptha.example.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myaaptha-frontend
+  namespace: myaaptha
+spec:
+  selector:
+    app: myaaptha-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

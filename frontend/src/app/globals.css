@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 20% 98%;
+  --foreground: 240 10% 10%;
+  --card: 0 0% 100%;
+  --primary: 262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 240 5% 96%;
+  --border: 240 6% 90%;
+  --male: 207 90% 77%;
+  --female: 340 82% 85%;
+  --unknown: 0 0% 85%;
+}
+
+.dark {
+  --background: 240 10% 8%;
+  --foreground: 0 0% 95%;
+  --card: 240 10% 12%;
+  --primary: 262 83% 65%;
+  --muted: 240 5% 18%;
+  --border: 240 5% 22%;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60;
+  }
+  .input-field {
+    @apply w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-700 dark:bg-gray-900;
+  }
+}

@@ -1,0 +1,3755 @@
+{
+  "project": "MyAaptha",
+  "snapshot": "2026-10-27",
+  "baselineRevision": "2026-10-27-dependency-priorities-3",
+  "scope": "Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.",
+  "evidencePolicy": "Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.",
+  "modules": [
+    {
+      "id": "M01",
+      "name": "Identity & account security",
+      "summary": "Registration, sessions, browser cookies and native token access.",
+      "owner": "Backend / Security",
+      "tasks": [
+        {
+          "id": "M01.1",
+          "title": "Authentication and identity API",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Backend / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/AuthController.java",
+              "label": "AuthController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M01.2",
+          "title": "Browser cookie session transport",
+          "kind": "WEB",
+          "phase": "done",
+          "owner": "Backend / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/auth/WebSessionController.java",
+              "label": "WebSessionController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M01.3",
+          "title": "Refresh concurrency and revocation coverage",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "Backend / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/auth/AuthConcurrencyTest.java",
+              "label": "AuthConcurrencyTest.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M01.4",
+          "title": "Validate real verification / recovery delivery",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Backend / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Native SMS-code registration and recovery controls, safe public policy metadata and local verification contracts implemented and tested. Real Twilio/Turnstile setup, frontend challenge site key, SMS delivery and device checks remain open.",
+          "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open"
+        },
+        {
+          "id": "M01.5",
+          "title": "Release account-security regression",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Backend / Security",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+              "label": "25 October local regression follow-up and remaining prerequisites"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "17 existing authentication/invitation checks plus new recovery/session-revocation contracts passed locally. Reviewed staging release, actual provider/OTP acceptance and deployment remain open. 25 October: current-preview desktop/mobile cookie and bearer synchronization regressions passed. This does not replace staging OTP/recovery acceptance. Sign-in and registration now wait for client readiness to prevent pre-hydration form submission; delayed-JavaScript desktop and mobile regressions passed.",
+          "evidenceDate": "25 October 2026; local browser regression refreshed; external/staging gate open"
+        }
+      ]
+    },
+    {
+      "id": "M02",
+      "name": "Profile & account settings",
+      "summary": "Saved profile overview, section editing, storage indicator and preferences.",
+      "owner": "Web / Flutter",
+      "tasks": [
+        {
+          "id": "M02.1",
+          "title": "Profile persistence and owner-scoped access",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/profile/ProfileController.java",
+              "label": "ProfileController.java"
+            },
+            {
+              "path": "docs/profile-storage-2026-10-07.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M02.2",
+          "title": "Account settings and preferences",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/settings/AppSettingsController.java",
+              "label": "AppSettingsController.java"
+            },
+            {
+              "path": "docs/profile-storage-2026-10-07.md",
+              "label": "Recorded local verification"
+            },
+            {
+              "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+              "label": "Current design changes, verification and limitations"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test. 27 October: mobile settings save action moved into document flow so it cannot cover controls; shorter inline status/help and compact section links implemented. Native settings save passed at 320px with 100% and 200% text scaling. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+          "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
+        },
+        {
+          "id": "M02.3",
+          "title": "Profile and storage visual refresh",
+          "kind": "UX",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/profile-storage-2026-10-07.md",
+              "label": "profile-storage-2026-10-07.md"
+            },
+            {
+              "path": "docs/profile-storage-2026-10-07.md",
+              "label": "Recorded local verification"
+            },
+            {
+              "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+              "label": "Current design changes, verification and limitations"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test. 27 October: shared typography, SVG navigation, control spacing, native theme, keyboard information panels and mobile search layout refined. Current design review records scope and completed verification. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+          "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
+        },
+        {
+          "id": "M02.4",
+          "title": "Native profile-photo and gallery parity",
+          "kind": "MOBILE",
+          "phase": "before",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/profile-storage-2026-10-07.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-17.md",
+              "label": "Current development and verification"
+            },
+            {
+              "path": "mobile/flutter-app/lib/features/shell/presentation/profile_media_card.dart",
+              "label": "Native photo/gallery controls"
+            }
+          ],
+          "note": "Completed locally 17 October: native photo/gallery controls, 5 MB/type checks, confirmation and shared profile API. Widget/regression and actual scanned upload/removal HTTP checks passed. Physical Android/iOS acceptance remains separately tracked under M16.3.",
+          "evidenceDate": "17 October 2026; native widget, regression and live API verification passed"
+        }
+      ]
+    },
+    {
+      "id": "M03",
+      "name": "Relationships & people",
+      "summary": "Managed people, anchors, network tree and discovery privacy.",
+      "owner": "Backend / Web / Flutter",
+      "tasks": [
+        {
+          "id": "M03.1",
+          "title": "Network and relationship operations",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Backend / Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/network/NetworkController.java",
+              "label": "NetworkController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M03.2",
+          "title": "Managed person profiles",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Backend / Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/person/PersonProfileController.java",
+              "label": "PersonProfileController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M03.3",
+          "title": "Discovery privacy enforcement",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "Backend / Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/platform/security/DiscoveryPrivacyTest.java",
+              "label": "DiscoveryPrivacyTest.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M03.4",
+          "title": "Tree and dashboard separation",
+          "kind": "UX",
+          "phase": "done",
+          "owner": "Backend / Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/dashboard-tree-separation-2026-10-01.md",
+              "label": "dashboard-tree-separation-2026-10-01.md"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Tree and dashboard separation retained. 24 October: reproduced plus-click interception after selecting/hovering a person; separated the name and branch hit areas. Four chain-layout checks and two desktop/phone pointer, touch, keyboard and details-panel regressions passed against the rebuilt local preview. See TREE-BRANCH-2026-10-24.md.",
+          "evidenceDate": "24 October 2026; four layout tests, two responsive branch-control scenarios and production web build passed"
+        },
+        {
+          "id": "M03.5",
+          "title": "Review generated / synthetic discovery accounts",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Backend / Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "na",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DISCOVERY-REVIEW-2026-10-17.md",
+              "label": "Read-only discovery and fixture review"
+            }
+          ],
+          "note": "Review completed 17 October using source tracing and an aggregate-only read-only preview audit: 29 fixture-pattern accounts; all 11 nominated role models match that pattern. Integration fixtures create and retain such nominations. No records were deleted and no discovery policy was silently changed; this completes review scope only.",
+          "evidenceDate": "17 October 2026; source review and aggregate SQL audit passed"
+        }
+      ]
+    },
+    {
+      "id": "M04",
+      "name": "Contacts & import review",
+      "summary": "Reviewed imports, duplicate suggestions and circle classification.",
+      "owner": "Integrations",
+      "tasks": [
+        {
+          "id": "M04.1",
+          "title": "Address-book import API",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Integrations",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/contacts/AddressBookController.java",
+              "label": "AddressBookController.java"
+            },
+            {
+              "path": "docs/contact-import.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M04.2",
+          "title": "OAuth import flow and test coverage",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Integrations",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/ai/ContactOAuthImportTest.java",
+              "label": "ContactOAuthImportTest.java"
+            },
+            {
+              "path": "docs/contact-import.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M04.3",
+          "title": "Review and circle suggestion workflows",
+          "kind": "UX",
+          "phase": "done",
+          "owner": "Integrations",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/import-circle-suggestions-2026-10-03.md",
+              "label": "import-circle-suggestions-2026-10-03.md"
+            },
+            {
+              "path": "docs/contact-import.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M04.4",
+          "title": "Activate Google / Microsoft OAuth in staging",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Integrations",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/OAUTH-SHARED-STORAGE-2026-10-19.md",
+              "label": "Shared OAuth storage, configuration and rollout boundaries"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-19.md",
+              "label": "19 October verification results"
+            },
+            {
+              "path": "docs/launch-board/CONTACT-OAUTH-COMPLETION-2026-10-18.md",
+              "label": "OAuth result, cancellation and staging contract"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/ai/ContactOAuthCompletionTest.java",
+              "label": "Completion, ownership and consent revocation checks"
+            },
+            {
+              "path": "mobile/flutter-app/test/contact_oauth_poll_test.dart",
+              "label": "Native retry classification and cancellation checks"
+            },
+            {
+              "path": "docs/launch-board/SHARED-STATE-ATOMIC-2026-10-18.md",
+              "label": "Atomic shared-state prerequisite and remaining migration scope"
+            },
+            {
+              "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+              "label": "Received owner inputs, completed setup and remaining access"
+            }
+          ],
+          "note": "Local web/native/API completion and cancellation remain implemented. On 19 October, pending authorizations/results migrated from service maps to the configured shared state provider: encrypted Redis payloads, hashed/bound keys, ten-minute TTL, atomic provider/owner-validated consumption, 20 MiB preview limit and safe storage failures. Memory is development only. Real provider registration, callbacks/scopes, credentials, physical devices and exact staging acceptance remain pending; no provider was activated. See current report for verification evidence and crash/rollout limits. Expanded 35-check suite and final 25-check affected suite passed with no skips, including four separate JVM lifetimes, real Redis, encrypted binding, expiry/replay/owner isolation, terminal oversized previews and preserved private-book HTTP JSON. These suite scopes overlap. 26 October: Google/Microsoft callback and protected configuration mapping documented. Real app registrations, consent configuration and provider credentials remain absent.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M04.5",
+          "title": "Validate device contacts permissions",
+          "kind": "MOBILE",
+          "phase": "before",
+          "owner": "Integrations",
+          "depends": [
+            "M16.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/CONTACT-PERMISSIONS-2026-10-18.md",
+              "label": "Permission matrix, cross-client evidence and device limits"
+            },
+            {
+              "path": "mobile/flutter-app/test/device_contact_permission_test.dart",
+              "label": "Actual plugin-channel permission boundary simulations"
+            },
+            {
+              "path": "mobile/flutter-app/test/live_account_sync_test.dart",
+              "label": "Opt-in native API persistence and account isolation"
+            }
+          ],
+          "note": "Shared native permission/read boundary now accepts granted or limited contact access in both address book and organizer. Denied/restricted/permanent/provisional access never reads contacts; leaving during permission skips reading/upload, repeated taps are guarded and empty analysis candidates send no request. Eleven new plugin-channel checks, all 64 native regressions, clean analysis, actual native selected-contact persistence/account isolation and desktop/phone-browser imports passed. Implementation is complete locally; actual Android/iOS permission dialogs, selected OS filtering, revocation and signed-device acceptance remain pending under M16.3.",
+          "evidenceDate": "18 October 2026; local implementation, plugin simulations and shared-API checks passed; physical acceptance pending"
+        }
+      ]
+    },
+    {
+      "id": "M05",
+      "name": "Life timeline",
+      "summary": "Wave/compact views, newest first, event editing and shared persistence.",
+      "owner": "Web / Flutter",
+      "tasks": [
+        {
+          "id": "M05.1",
+          "title": "Saved event API and ownership tests",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/TIMELINE-CONCURRENCY-2026-10-18.md",
+              "label": "Timeline mutation behavior and validation scope"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineConcurrencyTest.java",
+              "label": "Owner lock, quota and same-key races"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineControllerTest.java",
+              "label": "HTTP persistence and ownership regressions"
+            }
+          ],
+          "note": "Timeline owner mutations now take a database row lock inside the transaction. Concurrent different keys respect the 500-event quota; concurrent same-key inserts resolve as updates rather than duplicate insert failures. Two lock/race checks plus existing timeline HTTP, health and trust checks passed (17 targeted tests); API package succeeded. Stale editor conflict detection is not added. Maintenance of existing completed persistence scope, not a new task closure.",
+          "evidenceDate": "18 October 2026; isolated database concurrency/HTTP regressions and API package passed"
+        },
+        {
+          "id": "M05.2",
+          "title": "Event schema and stable keys",
+          "kind": "DATA",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/resources/db/migration/common/V68__timeline_events.sql",
+              "label": "V68__timeline_events.sql"
+            },
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M05.3",
+          "title": "Wave/compact and native event alignment",
+          "kind": "UX",
+          "phase": "done",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/timeline-events-2026-10-08.md",
+              "label": "timeline-events-2026-10-08.md"
+            },
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M05.4",
+          "title": "Timeline event deletion and reset to source",
+          "kind": "API",
+          "phase": "post",
+          "owner": "Web / Flutter",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-17.md",
+              "label": "Current development and verification"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineControllerTest.java",
+              "label": "Deletion authorization and source-preservation tests"
+            }
+          ],
+          "note": "Completed locally 17 October: owner-scoped DELETE, web/native confirmation and source-reset semantics. API isolation/idempotence, native widget/live HTTP and desktop/mobile browser persistence checks passed. Source profile/relationships remain intact.",
+          "evidenceDate": "17 October 2026; API, native and browser verification passed"
+        }
+      ]
+    },
+    {
+      "id": "M06",
+      "name": "Circles & group management",
+      "summary": "Membership, group administration, posting policies and tree broadcasts.",
+      "owner": "Messaging",
+      "tasks": [
+        {
+          "id": "M06.1",
+          "title": "Circle and group operations",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/circle/CircleController.java",
+              "label": "CircleController.java"
+            },
+            {
+              "path": "docs/tree-level-messaging-2026-10-01.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M06.2",
+          "title": "Relationship broadcast behavior",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/message/RelationshipBroadcastServiceTest.java",
+              "label": "RelationshipBroadcastServiceTest.java"
+            },
+            {
+              "path": "docs/tree-level-messaging-2026-10-01.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M06.3",
+          "title": "New group and shared-client integration",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "synchronization-2026-10-06.md"
+            },
+            {
+              "path": "docs/tree-level-messaging-2026-10-01.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M06.4",
+          "title": "Staging membership and removed-member access regression",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Messaging",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/tree-level-messaging-2026-10-01.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Local removed-member regression passed: history/search/old attachment/edit/private-deletion denial, admins-only posting, and retained administrator access. Selected staging-build acceptance remains open.",
+          "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open"
+        }
+      ]
+    },
+    {
+      "id": "M07",
+      "name": "Messaging & chat workspace",
+      "summary": "Direct/group conversations, search, read state and constrained deletion.",
+      "owner": "Messaging",
+      "tasks": [
+        {
+          "id": "M07.1",
+          "title": "Unified conversations",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/message/UnifiedChatController.java",
+              "label": "UnifiedChatController.java"
+            },
+            {
+              "path": "docs/message-deletion-2026-09-30.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M07.2",
+          "title": "Chat discovery and search",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/message/ChatDiscoveryTest.java",
+              "label": "ChatDiscoveryTest.java"
+            },
+            {
+              "path": "docs/message-deletion-2026-09-30.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M07.3",
+          "title": "Message editing, reactions and reply coverage",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/message/MessageFeaturesTest.java",
+              "label": "MessageFeaturesTest.java"
+            },
+            {
+              "path": "docs/message-deletion-2026-09-30.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M07.4",
+          "title": "Delete-for-me and delete-for-all rules",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "Messaging",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/message/MessageDeletionTest.java",
+              "label": "MessageDeletionTest.java"
+            },
+            {
+              "path": "docs/message-deletion-2026-09-30.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M07.5",
+          "title": "Validate real-device calling / network behavior",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Messaging",
+          "depends": [
+            "M16.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "verify",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/CALL-CLEANUP-2026-10-21.md",
+              "label": "Resource cleanup fix, verified scenarios and limitations"
+            },
+            {
+              "path": "frontend/nextjs-app/integration/call-cleanup.spec.ts",
+              "label": "Synthetic permission/signaling/navigation browser regression"
+            },
+            {
+              "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-22.md",
+              "label": "Owner supplies access/decisions; engineering owns testing"
+            },
+            {
+              "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+              "label": "Received owner inputs, completed setup and remaining access"
+            }
+          ],
+          "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M07.6",
+          "title": "Release read/delete race and cross-client regression",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Messaging",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+              "label": "Current build regression results and remaining release dependencies"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Local concurrent read/delete invariants and existing role/time/private-deletion checks passed. The read-first outcome denies deletion; delete-first keeps content redacted. Staging and cross-device release acceptance remain open. 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open.",
+          "evidenceDate": "25 October 2026; local desktop/mobile browser checks passed; release gate remains open"
+        }
+      ]
+    },
+    {
+      "id": "M08",
+      "name": "Diary, feed & stories",
+      "summary": "Private/circle content, stories and moderation entry points.",
+      "owner": "Social",
+      "tasks": [
+        {
+          "id": "M08.1",
+          "title": "Social-content and story API",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Social",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/social/SocialController.java",
+              "label": "SocialController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M08.2",
+          "title": "Content lifecycle integration coverage",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Social",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/social/SocialControllerTest.java",
+              "label": "SocialControllerTest.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M08.3",
+          "title": "Diary refresh across clients",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Social",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "synchronization-2026-10-06.md"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M08.4",
+          "title": "Launch content/abuse operating policy",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Social",
+          "depends": [
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/CONTENT-OPERATIONS-DRAFT.md",
+              "label": "Content operations workflow ? review draft"
+            }
+          ],
+          "note": "The paginated moderation queue now addresses the technical 200-report visibility limit (M08.5). The operating draft documents roles, reporter-visible notes, workflows and examples. Named staffing, approved policy, escalation/appeal channels and operating rehearsal remain pending.",
+          "evidenceDate": "17 October 2026; review draft prepared; approval and staffing remain open"
+        },
+        {
+          "id": "M08.5",
+          "title": "Paginated moderation queue and web/native decisions (local)",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Social / Web / Mobile",
+          "depends": [
+            "M08.1"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "note": "Delivered 18 October: database-filtered cursor pages, native/web status controls, reporter-visible notes, cancelled-decision no-op and access-denial cleanup. Five backend tests, 50 native regressions, actual member-denial smoke and desktop/phone-browser contract scenarios passed. This is a new local engineering deliverable; operating-policy approval remains M08.4.",
+          "evidenceDate": "18 October 2026; local API/database, native and browser verification passed",
+          "evidence": [
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+              "label": "Current verification and explicit scope change"
+            },
+            {
+              "path": "docs/launch-board/MODERATION-QUEUE-2026-10-18.md",
+              "label": "Queue contract and workflow"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/moderation/ModerationQueueTest.java",
+              "label": "Database pagination and access tests"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M09",
+      "name": "Health records",
+      "summary": "Private reports, storage and optional provider analysis.",
+      "owner": "Health / Privacy",
+      "tasks": [
+        {
+          "id": "M09.1",
+          "title": "Health report service and validation",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Health / Privacy",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/health/HealthServiceTest.java",
+              "label": "HealthServiceTest.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Activated manual health HTTP/nested constraints and rejected null measurement rows before saving. Six focused HTTP/service tests, actual native ownership/validation/deletion checks and desktop/phone-browser manual entry, CSRF, validation and deletion passed. Optional AI provider, consent and budget acceptance remain separately pending under M09.4.",
+          "evidenceDate": "17 October 2026; API, actual native and desktop/phone-browser manual health checks passed"
+        },
+        {
+          "id": "M09.2",
+          "title": "Account-scoped health endpoints",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Health / Privacy",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/health/HealthController.java",
+              "label": "HealthController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M09.3",
+          "title": "Client resume refresh and shared account checks",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Health / Privacy",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "synchronization-2026-10-06.md"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M09.4",
+          "title": "Enable health analysis only after provider/consent validation",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Health / Privacy",
+          "depends": [
+            "M18.3",
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            },
+            {
+              "path": "docs/launch-board/HEALTH-ANALYSIS-CONSENT.md",
+              "label": "Health processing consent and enablement"
+            }
+          ],
+          "note": "Added disabled-by-default health enablement, per-report consent enforcement, public consent/provider metadata and matching web/native analysis controls. Ten backend tests, 47 native regressions, actual native scanned-upload denial and desktop/phone-browser consent checks passed; web/API/APK built. Real provider quality, privacy/consent approval, spend controls and device acceptance remain open. No paid extraction request was made.",
+          "evidenceDate": "17 October 2026; local engineering and cross-client consent verification passed; launch acceptance open"
+        },
+        {
+          "id": "M09.5",
+          "title": "Manual health-entry parity and preserved retry drafts (local)",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Health / Web / Mobile",
+          "depends": [
+            "M09.1"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "note": "Web/native manual entry now supports multiple measurements, matching stored field limits, collection dates, required finite values and valid reference ranges. Busy controls prevent concurrent submissions; failed saves retain the draft. Eleven backend tests, 53 native regressions, three final dialog tests, actual native HTTP limits and desktop/phone-browser scenarios passed. Unknown network outcomes are not idempotent; optional provider acceptance remains M09.4.",
+          "evidenceDate": "18 October 2026; local implementation and verification passed",
+          "evidence": [
+            {
+              "path": "docs/launch-board/HEALTH-MANUAL-ENTRY-2026-10-18.md",
+              "label": "Implementation and verification scope"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+              "label": "Current development results"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M10",
+      "name": "Finance workspace",
+      "summary": "Transactions, monthly reporting, bills, warranty receipts and scheduled renewal reminders.",
+      "owner": "Finance",
+      "tasks": [
+        {
+          "id": "M10.1",
+          "title": "Finance domain and transaction tests",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Finance",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/finance/FinanceServiceTest.java",
+              "label": "FinanceServiceTest.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M10.2",
+          "title": "Finance endpoints and ownership",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Finance",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/finance/FinanceController.java",
+              "label": "FinanceController.java"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M10.3",
+          "title": "UTC reporting and live-client refresh",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Finance",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "synchronization-2026-10-06.md"
+            },
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "UTC reporting and live-client refresh retained. 24 October Finance UX refresh: summary-first layout, compact renewal setup/type shortcuts, status filters, clearer charts, activity search/filtering, form feedback and transaction deletion confirmation. Six desktop/phone browser scenarios passed, including existing renewal receipts and UTC cookie/bearer month tests; focused contrast/label/button/ARIA checks passed. Production build and local artifact identities verified. See FINANCE-UX-2026-10-24.md.",
+          "evidenceDate": "24 October 2026; six browser scenarios, targeted accessibility checks and production web build passed"
+        },
+        {
+          "id": "M10.4",
+          "title": "Release import and time-boundary acceptance",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Finance",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+              "label": "25 October local regression follow-up and remaining prerequisites"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Fixed inclusive month-end double counting with half-open UTC ranges. Database, native-live and desktop/phone-browser boundary checks passed; leap/year rollover and duplicate SMS behavior covered. Representative staging import acceptance remains open. 25 October: current-preview desktop/mobile UTC midnight boundary regressions passed; sanitized import and selected staging acceptance remain pending.",
+          "evidenceDate": "25 October 2026; local browser regression refreshed; external/staging gate open"
+        },
+        {
+          "id": "M10.5",
+          "title": "Bills, warranty receipts and scheduled renewal reminders (local)",
+          "kind": "FEATURE",
+          "phase": "done",
+          "owner": "Finance / Web / Mobile",
+          "depends": [
+            "M10.2",
+            "M13.1"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "note": "Added private bills, warranty receipts and service plans with renewal/archive/pause and 30/15/7/3/1-day time-zone reminders. Nineteen focused backend tests, three native unit/widget cases, real native/PostgreSQL/ClamAV/minute-scheduler integration, final desktop/phone workflows and UTC-month regressions passed. State-only archive/restore preserves renewed dates. External delivery was disabled for synthetic scheduler checks; real provider/device acceptance remains separate.",
+          "evidenceDate": "24 October 2026; local implementation and integration passed",
+          "evidence": [
+            {
+              "path": "docs/finance-renewals.md",
+              "label": "Feature guide, API contract, workflow and ER diagrams"
+            },
+            {
+              "path": "docs/launch-board/FINANCE-RENEWALS-2026-10-24.md",
+              "label": "Dated implementation, test evidence and delivery limits"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M11",
+      "name": "Trust & emergency access",
+      "summary": "Trusted people, role models and two-person emergency approval.",
+      "owner": "Trust / Security",
+      "tasks": [
+        {
+          "id": "M11.1",
+          "title": "Trust and role-model API",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Trust / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/trust/TrustController.java",
+              "label": "TrustController.java"
+            },
+            {
+              "path": "docs/trust-center-testing.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M11.2",
+          "title": "Two-approval and expiry authorization tests",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "Trust / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/trust/TrustControllerTest.java",
+              "label": "TrustControllerTest.java"
+            },
+            {
+              "path": "docs/trust-center-testing.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M11.3",
+          "title": "Validate owner emergency alert delivery",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Trust / Security",
+          "depends": [
+            "M13.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": "Configure channels and record real emergency alerts; API approvals alone do not prove external notification.",
+          "evidenceDate": "No completion evidence recorded"
+        },
+        {
+          "id": "M11.4",
+          "title": "Approve sensitive-document emergency policy",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Trust / Security",
+          "depends": [
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Serialized emergency approvals, scoped request/document queries, viewer-specific permissions and native document controls implemented. Backend, native widgets, actual native HTTP and desktop/phone-browser approval/document/revocation checks passed. Policy approval, eligible-document/retention review and real alert delivery remain open.",
+          "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open"
+        }
+      ]
+    },
+    {
+      "id": "M12",
+      "name": "AI assistance & controls",
+      "summary": "Ranking, suggestions, consent, approval execution and answer memory.",
+      "owner": "AI / Backend",
+      "tasks": [
+        {
+          "id": "M12.1",
+          "title": "Deterministic helper and capability tests",
+          "kind": "AI",
+          "phase": "done",
+          "owner": "AI / Backend",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "ai/agent-service/tests/test_ai_capabilities.py",
+              "label": "test_ai_capabilities.py"
+            },
+            {
+              "path": "docs/ai-answer-memory-2026-10-02.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M12.2",
+          "title": "Approval and execution authorization",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "AI / Backend",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/ai/AiActionExecutionServiceTest.java",
+              "label": "AiActionExecutionServiceTest.java"
+            },
+            {
+              "path": "docs/ai-answer-memory-2026-10-02.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M12.3",
+          "title": "Private/shared answer-memory controls",
+          "kind": "AI",
+          "phase": "done",
+          "owner": "AI / Backend",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/ai/HelpAnswerMemoryTest.java",
+              "label": "HelpAnswerMemoryTest.java"
+            },
+            {
+              "path": "docs/ai-answer-memory-2026-10-02.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M12.4",
+          "title": "Web/native help controls and recorded verification",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "AI / Backend",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/ai-answer-memory-2026-10-02.md",
+              "label": "ai-answer-memory-2026-10-02.md"
+            },
+            {
+              "path": "docs/ai-answer-memory-2026-10-02.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M12.5",
+          "title": "Set provider secrets, budget alerts and data policy",
+          "kind": "EXTERNAL",
+          "phase": "after",
+          "owner": "AI / Backend",
+          "depends": [
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": " 26 October: AI budget of INR 3,000/month and health-analysis requirement captured; official model/pricing and India data-processing constraints documented. Provider configuration, enforced spend controls and qualified health/security acceptance remain open; no paid model calls were made.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M12.6",
+          "title": "Evaluate stronger model before enabling retries",
+          "kind": "VERIFY",
+          "phase": "after",
+          "owner": "AI / Backend",
+          "depends": [
+            "M12.5"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/HELP-MODEL-EVALUATION.md",
+              "label": "Evaluation contract, rubric and acceptance limits"
+            },
+            {
+              "path": "infrastructure/test_help_evaluation.py",
+              "label": "Offline evaluation validation tests"
+            }
+          ],
+          "note": "Prepared a ten-case synthetic, offline base/candidate evaluation workflow with knowledge/case fingerprints, citation and human-rubric checks, usage/latency summaries and optional supplied costs. Eight tool tests and all 30 infrastructure checks passed. No model answers were collected or scored; paid quality, representative coverage, budget and owner acceptance remain pending. Stronger retries remain disabled by default.",
+          "evidenceDate": "18 October 2026; evaluation tooling verified, actual model acceptance not performed"
+        }
+      ]
+    },
+    {
+      "id": "M13",
+      "name": "Notifications & delivery",
+      "summary": "Inbox, preferences, leased dispatch and provider integration.",
+      "owner": "Integrations",
+      "tasks": [
+        {
+          "id": "M13.1",
+          "title": "Notification API and preferences",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Integrations",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/notification/NotificationController.java",
+              "label": "NotificationController.java"
+            },
+            {
+              "path": "docs/deployment-validation.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M13.2",
+          "title": "Durable dispatch lease tests",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Integrations",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/notification/NotificationDeliveryLeaseTest.java",
+              "label": "NotificationDeliveryLeaseTest.java"
+            },
+            {
+              "path": "docs/deployment-validation.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M13.3",
+          "title": "Configure and prove real email/SMS/push delivery",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Integrations",
+          "depends": [
+            "M15.4",
+            "M16.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "verify"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+              "label": "Continued development and local verification"
+            }
+          ],
+          "note": "Webhook 2xx acceptance enforcement implemented; local contract tests passed for auth/payload/idempotency, preview redaction, redirect retry and exhausted budget. Real email/SMS/push setup, recipients/devices and delivery acceptance remain open. 24 October: finance delivery guard now skips countdown messages after their original milestone local date; all five midnight boundaries and renewal/controller regressions passed (10 tests). See RENEWAL-DELIVERY-2026-10-24.md. Provider acceptance remains open.",
+          "evidenceDate": "24 October 2026; 10 local renewal delivery/service/controller tests passed; live providers remain open"
+        },
+        {
+          "id": "M13.4",
+          "title": "Validate security-alert delivery and on-call route",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Integrations",
+          "depends": [
+            "M13.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/upload-security-2026-10-04.md",
+              "label": "Security alert delivery configuration"
+            }
+          ],
+          "note": "Configure real recipient/provider; historical tests sent no real security email.",
+          "evidenceDate": "No completion evidence recorded"
+        }
+      ]
+    },
+    {
+      "id": "M14",
+      "name": "Uploads, storage & security reports",
+      "summary": "Quota levels, file validation, malware scanner and admin incidents.",
+      "owner": "Platform / Security",
+      "tasks": [
+        {
+          "id": "M14.1",
+          "title": "Upload quota and level assignment",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Platform / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/config/UploadLevelIntegrationTest.java",
+              "label": "UploadLevelIntegrationTest.java"
+            },
+            {
+              "path": "docs/upload-security-2026-10-04.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M14.2",
+          "title": "File rejection and scanner enforcement",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "Platform / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/config/UploadSecurityIntegrationTest.java",
+              "label": "UploadSecurityIntegrationTest.java"
+            },
+            {
+              "path": "docs/upload-security-2026-10-04.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M14.3",
+          "title": "Admin security incidents and reports",
+          "kind": "API",
+          "phase": "done",
+          "owner": "Platform / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/main/java/com/myaaptha/platform/security/SecurityReportsController.java",
+              "label": "SecurityReportsController.java"
+            },
+            {
+              "path": "docs/upload-security-2026-10-04.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M14.4",
+          "title": "Web/native storage policy alignment",
+          "kind": "INTEGRATION",
+          "phase": "done",
+          "owner": "Platform / Security",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/synchronization-2026-10-06.md",
+              "label": "synchronization-2026-10-06.md"
+            },
+            {
+              "path": "docs/upload-security-2026-10-04.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M14.5",
+          "title": "Provision private storage and production scanner",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Platform / Security",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/S3-RECOVERY-2026-10-21.md",
+              "label": "Actual adapter TLS/encryption/version recovery evidence and boundaries"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/platform/media/S3MediaRecoveryDrillTest.java",
+              "label": "Opt-in application storage adapter integration contract"
+            },
+            {
+              "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-21.md",
+              "label": "Owner inputs; engineering retains testing and integration"
+            }
+          ],
+          "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures.",
+          "evidenceDate": "21 October 2026; real disposable TLS/SSE adapter recovery passed; selected-provider acceptance open"
+        },
+        {
+          "id": "M14.6",
+          "title": "Validate retention, object deletion and media recovery",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "Platform / Security",
+          "depends": [
+            "M14.5",
+            "M15.6"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/S3-RECOVERY-2026-10-21.md",
+              "label": "Actual adapter TLS/encryption/version recovery evidence and boundaries"
+            },
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/platform/media/S3MediaRecoveryDrillTest.java",
+              "label": "Opt-in application storage adapter integration contract"
+            },
+            {
+              "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-21.md",
+              "label": "Owner inputs; engineering retains testing and integration"
+            },
+            {
+              "path": "docs/launch-board/MEDIA-DELETION-2026-10-23.md",
+              "label": "Local deletion failures remain visible and retryable; nine focused tests passed"
+            },
+            {
+              "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+              "label": "Received owner inputs, completed setup and remaining access"
+            }
+          ],
+          "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        }
+      ]
+    },
+    {
+      "id": "M15",
+      "name": "Cloud, capacity & recovery",
+      "summary": "Deployment scaffolding exists; production activation is unverified.",
+      "owner": "DevOps",
+      "tasks": [
+        {
+          "id": "M15.1",
+          "title": "Production configuration and placeholder guards",
+          "kind": "SECURITY",
+          "phase": "done",
+          "owner": "DevOps",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/config/ProductionConfigurationGuardTest.java",
+              "label": "ProductionConfigurationGuardTest.java"
+            },
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M15.2",
+          "title": "Scaling protections and bounded resource tests",
+          "kind": "API",
+          "phase": "done",
+          "owner": "DevOps",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "backend/spring-boot-app/src/test/java/com/myaaptha/config/ScalingProtectionTest.java",
+              "label": "ScalingProtectionTest.java"
+            },
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M15.3",
+          "title": "Deployment templates and local validation",
+          "kind": "INFRA",
+          "phase": "done",
+          "owner": "DevOps",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/deployment-validation.md",
+              "label": "deployment-validation.md"
+            },
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M15.4",
+          "title": "Provision staging cloud, DNS, TLS, secrets and registry",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "DevOps",
+          "depends": [],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/RELEASE-PREFLIGHT-2026-10-20.md",
+              "label": "Read-only prerequisite checks and actual missing-input result"
+            },
+            {
+              "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+              "label": "Received owner inputs, completed setup and remaining access"
+            }
+          ],
+          "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M15.5",
+          "title": "Repeat capacity acceptance on representative infrastructure",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "DevOps",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/capacity-5000-verification.md",
+              "label": "Latest recorded capacity result \u2014 failed"
+            },
+            {
+              "path": "docs/capacity-target.md",
+              "label": "Capacity scope and acceptance target"
+            }
+          ],
+          "note": "Latest recorded 5,000-user run FAILED: 47.97% errors, p95 18,015 ms; host/generator saturated. Resolve sizing/load-generator limits and rerun.",
+          "evidenceDate": "No completion evidence recorded"
+        },
+        {
+          "id": "M15.6",
+          "title": "Record production-like backup/PITR restore drill",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "DevOps",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/RECOVERY-GUARDS-2026-10-18.md",
+              "label": "Recovery behavior, real local drill and limits"
+            },
+            {
+              "path": "infrastructure/test_postgres_operations.py",
+              "label": "Operational script regression tests"
+            },
+            {
+              "path": "testing/recovery-drill.ps1",
+              "label": "Reproducible isolated PostgreSQL drill"
+            },
+            {
+              "path": "docs/deployment-validation.md",
+              "label": "Historical local synthetic restore evidence"
+            }
+          ],
+          "note": "Hardened portable backup/restore: explicit source, valid retention, unique partial publication, mandatory checksums, empty-target inspection and noninteractive transactional restore. Seven operational simulations and all 37 infrastructure tests passed. An actual isolated PostgreSQL 17 two-row synthetic backup/restore matched, and a second restore into the populated target was rejected. Managed PITR, deployed DB/media recovery and representative measured RPO/RTO remain unverified; task stays pending.",
+          "evidenceDate": "18 October 2026; local script guards and disposable real PostgreSQL drill passed; production recovery acceptance open"
+        },
+        {
+          "id": "M15.7",
+          "title": "Activate monitoring, alert routes and rollback rehearsal",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "DevOps",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/ROLLBACK-PLANNER-2026-10-20.md",
+              "label": "Rollback planner contract and remaining acceptance"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-20.md",
+              "label": "Current verification results"
+            },
+            {
+              "path": "infrastructure/test_plan_rollback.py",
+              "label": "Rollback configuration and CLI safeguards"
+            },
+            {
+              "path": "docs/launch-board/OPERATIONAL-METRICS-2026-10-20.md",
+              "label": "Operational authorization, recovery evidence and deployment boundaries"
+            }
+          ],
+          "note": "Operational application prerequisites implemented: scoped metrics credential, administrator-only operational metadata, public probes and offline immutable-image rollback planner. Packaged production-profile TLS checks passed real isolated PostgreSQL/Redis outages and recovery while liveness and metrics stayed available. Collector deployment, alert recipients, selected staging and live rollback rehearsal remain pending.",
+          "evidenceDate": "20 October 2026; local production-profile operational authorization and dependency recovery passed; live acceptance open"
+        },
+        {
+          "id": "M15.8",
+          "title": "Approve exact release artifact and production promotion",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "DevOps",
+          "depends": [
+            "M15.5",
+            "M15.6",
+            "M15.7",
+            "M18.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            },
+            {
+              "path": "docs/launch-board/LOCAL-BUILD-IDENTITIES.md",
+              "label": "Local artifact identities and approval limits"
+            }
+          ],
+          "note": "Full standalone web-bundle and API/debug-APK hashing and verification are now tracked under M15.9. Exact production container digests, signing, scans, staging acceptance and human promotion approval remain pending. Local records always set releaseApproved=false.",
+          "evidenceDate": "17 October 2026; local build identity tooling verified; promotion gate open"
+        },
+        {
+          "id": "M15.9",
+          "title": "Full web-bundle fingerprint and artifact verification (local)",
+          "kind": "INFRA",
+          "phase": "done",
+          "owner": "Platform / Release",
+          "depends": [
+            "M15.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "note": "Version 2 records hash every standalone web file plus API JAR and debug APK, exclude runtime cache, reject missing assets and unsafe links, and verify recorded contents. All 22 infrastructure tests passed. The previous record rejected changed builds; a refreshed record matched the final 2085-file bundle. Production image/signing/staging approval remains M15.8; releaseApproved stays false.",
+          "evidenceDate": "18 October 2026; local implementation and verification passed",
+          "evidence": [
+            {
+              "path": "docs/launch-board/LOCAL-BUILD-IDENTITIES.md",
+              "label": "Implementation and verification scope"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+              "label": "Current development results"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M16",
+      "name": "Web & native release",
+      "summary": "Responsive web, native regression evidence and debug APK.",
+      "owner": "QA / Mobile",
+      "tasks": [
+        {
+          "id": "M16.1",
+          "title": "Web production build and 28-route responsive audit",
+          "kind": "WEB",
+          "phase": "done",
+          "owner": "QA / Mobile",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "app-design-2026-10-08.md"
+            },
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "Recorded local verification"
+            },
+            {
+              "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+              "label": "Current design changes, verification and limitations"
+            }
+          ],
+          "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+          "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
+        },
+        {
+          "id": "M16.2",
+          "title": "Flutter analysis, regression and debug APK evidence",
+          "kind": "MOBILE",
+          "phase": "done",
+          "owner": "QA / Mobile",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "app-design-2026-10-08.md"
+            },
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "Recorded local verification"
+            },
+            {
+              "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+              "label": "Current design changes, verification and limitations"
+            }
+          ],
+          "note": "24 October: Flutter drawer/desktop rail use the nine workspace categories; Dashboard/Messages/Online Feed group existing screens and the comparison explains previous web/mobile entries. Eight focused native widget/regression checks passed, including draft retention, shared profile refresh and cancel/save preservation. Flutter analysis is clean and the Android debug APK built. Physical devices, production signing and iOS remain separate release gates. See NAVIGATION-2026-10-24.md. 27 October: nine native tests passed with the production theme, including enlarged-text settings, profile edits, storage and chat filters. Updated Android debug APK built and served-file hash/API address verified. Physical Android/iOS and production signing remain separately open. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements. Current Wi-Fi address corrected to 192.168.1.4: bridge and APK agree, six authenticated endpoints pass, stale-network APK publication is blocked, and the complete refreshed download checksum matches the native build.",
+          "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
+        },
+        {
+          "id": "M16.3",
+          "title": "Physical Android/iOS acceptance and native parity review",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "QA / Mobile",
+          "depends": [],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/app-design-2026-10-08.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": "Debug APK/source tests do not certify physical devices or iOS. Review permissions, calls and important flows.",
+          "evidenceDate": "No completion evidence recorded"
+        },
+        {
+          "id": "M16.4",
+          "title": "Android production signing and store submission",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "QA / Mobile",
+          "depends": [
+            "M16.3",
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "done",
+            "testing": "verify",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/ANDROID-RELEASE-SIGNING-2026-10-20.md",
+              "label": "Signing configuration, workflow and remaining acceptance"
+            },
+            {
+              "path": "docs/launch-board/DEVELOPMENT-2026-10-20.md",
+              "label": "Actual build and verification evidence"
+            },
+            {
+              "path": "infrastructure/test_verify_android_bundle.py",
+              "label": "Bundle verifier safeguards"
+            },
+            {
+              "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+              "label": "Received owner inputs, completed setup and remaining access"
+            }
+          ],
+          "note": "Fixed release builds silently using the debug signing key. Added protected key/env configuration, certificate/private-key validation, debug-identity rejection and a manual signed-candidate workflow with pinned-certificate verification. Debug configuration and missing-credential rejection passed. A 72.7 MB synthetic-key AAB built; real JDK checks accepted its pinned certificate and rejected a wrong certificate and unsigned added entry. All 52 infrastructure tests passed. The temporary private key was removed. JDK archive-reader layout warnings remain recorded for review; the synthetic artifact is not owner-approved. Final application ID, owner upload key, Play account, devices/disclosures and actual submission remain open. A separate synthetic Android-debug identity was explicitly rejected by release-task planning. 26 October: CPET Solutions Play ownership preference captured and com.myaaptha.app proposed; existing development app IDs preserved. Actual store account, signing and physical-device acceptance remain outstanding.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M16.5",
+          "title": "iOS archive, signing and App Store submission",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "QA / Mobile",
+          "depends": [
+            "M16.3",
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": " 26 October: Apple owner preference captured; Mac/Xcode unavailable. Actual Apple organization enrollment, signing, Mac runner and iOS device acceptance remain outstanding.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M16.6",
+          "title": "Rerun exact-release cookie/bearer and accessibility suite",
+          "kind": "VERIFY",
+          "phase": "before",
+          "owner": "QA / Mobile",
+          "depends": [
+            "M15.4"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/launch-board/CONTACT-OAUTH-COMPLETION-2026-10-18.md",
+              "label": "Current local browser/native scope and staging boundaries"
+            },
+            {
+              "path": "frontend/nextjs-app/integration/primary-action-accessibility.spec.ts",
+              "label": "Circles, timeline and health hover/focus/viewport checks"
+            },
+            {
+              "path": "frontend/nextjs-app/integration/contact-oauth.spec.ts",
+              "label": "OAuth lifecycle and targeted accessibility checks"
+            },
+            {
+              "path": "docs/launch-board/WEB-UX-REVIEW-2026-10-21.md",
+              "label": "Web route/form UX review and exact local verification scope"
+            },
+            {
+              "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+              "label": "Current build regression results and remaining release dependencies"
+            },
+            {
+              "path": "docs/launch-board/INLINE-HELP-2026-10-26.md",
+              "label": "Compact inline guidance, populated route/form audits and native APK verification"
+            },
+            {
+              "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+              "label": "Current design changes, verification and limitations"
+            }
+          ],
+          "note": "Local OAuth end-to-end desktop/phone browser checks passed, including real account login, no automatic persistence and targeted contrast/button-name/label checks. A shared primary-hover color conflict was fixed; circles, timeline and health primary actions then passed hover/focus contrast, keyboard focus and viewport checks on both layouts. Actual native bearer metadata/account smoke passed. This is targeted local evidence, not the complete exact-release staging cookie/bearer/accessibility suite; staging acceptance remains pending. On 20 October the rebuilt API passed two desktop/phone-browser account cookie/bearer synchronization scenarios and an explicit native HTTP account test. These local checks do not replace exact staging acceptance. On 21 October shared web styling, keyboard navigation/uploads, deterministic country names and health editor layout were refined. The linked UI report records final browser results and limitations; exact-release staging acceptance remains separate. Final local review passed 28 routes and 27 expanded form states per layout, plus profile persistence, health retry, keyboard and administrator draft checks (12 distinct browser scenarios). 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open. 26 October: compact inline help across shared web/native headers; populated desktop/mobile route sweeps (28 routes each), 27 form views per layout and final focused same-row guidance checks passed. Seven native tests passed; updated debug APK built and its download verified. These are local UI checks; exact staging and physical-device acceptance remain open. 27 October local UI review: cookie/bearer consistency checked for 16 account endpoints, 22 backend regressions and nine native tests passed. Board accessibility and layout verified. Exact staging/physical-device acceptance remains open; final static-logo cold-load checks passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+          "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
+        }
+      ]
+    },
+    {
+      "id": "M17",
+      "name": "Documentation & handover",
+      "summary": "Corporate architecture, workflows, API/schema inventory and diagrams.",
+      "owner": "Engineering",
+      "tasks": [
+        {
+          "id": "M17.1",
+          "title": "Corporate handbook and offline editions",
+          "kind": "DOCS",
+          "phase": "done",
+          "owner": "Engineering",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/corporate/PROJECT-HANDBOOK.pdf",
+              "label": "PROJECT-HANDBOOK.pdf"
+            },
+            {
+              "path": "docs/corporate/PROJECT-HANDBOOK.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Corporate handbook v1.3 refreshed 20 October with Android release signing, rollback preparation and the complete pending-acceptance audit. Its 71-page PDF/offline HTML passed link, image and desktop/390px layout checks. Documentation maintenance does not close provider or launch-approval gates.",
+          "evidenceDate": "20 October 2026; handbook v1.3, 71-page PDF and layout/link validation passed"
+        },
+        {
+          "id": "M17.2",
+          "title": "API and database catalogs",
+          "kind": "DOCS",
+          "phase": "done",
+          "owner": "Engineering",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/corporate/source-inventory.json",
+              "label": "source-inventory.json"
+            },
+            {
+              "path": "docs/corporate/PROJECT-HANDBOOK.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Source inventories regenerated 20 October: 39 Java controllers, 229 extracted HTTP mappings, 28 web pages, 67 migration-declared tables and 106 explicit foreign-key edges. Static artifact validation passed with zero broken local links; source extraction does not certify deployed catalog state.",
+          "evidenceDate": "18 October 2026; current API/schema inventory and documentation validation passed"
+        },
+        {
+          "id": "M17.3",
+          "title": "Role flows and editable ER diagrams",
+          "kind": "DOCS",
+          "phase": "done",
+          "owner": "Engineering",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/corporate/er-diagrams.md",
+              "label": "er-diagrams.md"
+            },
+            {
+              "path": "docs/corporate/PROJECT-HANDBOOK.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        }
+      ]
+    },
+    {
+      "id": "M18",
+      "name": "Governance & public launch",
+      "summary": "Legal/support, external security review and release sign-off.",
+      "owner": "Product / Security / Owner",
+      "tasks": [
+        {
+          "id": "M18.1",
+          "title": "Launch handoff and operational checklist prepared",
+          "kind": "DOCS",
+          "phase": "done",
+          "owner": "Product / Security / Owner",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "MYAAPTHA-DEPLOYMENT-HANDOFF.md"
+            },
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M18.2",
+          "title": "Privacy, security and operational review scope documented",
+          "kind": "DOCS",
+          "phase": "done",
+          "owner": "Product / Security / Owner",
+          "depends": [],
+          "stages": {
+            "coding": "done",
+            "testing": "done",
+            "integration": "done"
+          },
+          "evidence": [
+            {
+              "path": "docs/operations-runbook.md",
+              "label": "operations-runbook.md"
+            },
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Recorded local verification"
+            }
+          ],
+          "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test.",
+          "evidenceDate": "See linked dated report"
+        },
+        {
+          "id": "M18.3",
+          "title": "Approve privacy, terms, consent, support and moderation owners",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Product / Security / Owner",
+          "depends": [],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": " 26 October: CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and project-owner release approval recorded. Actual policy content, reachable contacts, independent reviewers and signed acceptance remain missing.",
+          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+        },
+        {
+          "id": "M18.4",
+          "title": "Independent staging security review and remediation acceptance",
+          "kind": "EXTERNAL",
+          "phase": "before",
+          "owner": "Product / Security / Owner",
+          "depends": [
+            "M15.4",
+            "M18.3"
+          ],
+          "stages": {
+            "coding": "na",
+            "testing": "pending",
+            "integration": "pending"
+          },
+          "evidence": [
+            {
+              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+              "label": "Scope / acceptance requirement"
+            }
+          ],
+          "note": " Operational endpoint authorization was hardened and verified with seven focused tests and a packaged production-profile TLS smoke on 20 October. Independent release security review remains pending.",
+          "evidenceDate": "No completion evidence recorded"
+        }
+      ]
+    }
+  ],
+  "acceptanceAudit": {
+    "reviewed": "2026-10-27",
+    "items": [
+      {
+        "id": "M01.5",
+        "category": "Staging environment",
+        "required": "Selected release URL/digests and provider-backed account fixtures",
+        "nextAction": "Run login, refresh, logout, recovery and isolation against that release.",
+        "title": "Release account-security regression",
+        "owner": "Backend / Security",
+        "stages": {
+          "coding": "na",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M06.4",
+        "category": "Staging environment",
+        "required": "Selected staging build and disposable membership fixtures",
+        "nextAction": "Run removed-member history, search and attachment denial on staging.",
+        "title": "Staging membership and removed-member access regression",
+        "owner": "Messaging",
+        "stages": {
+          "coding": "na",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M07.6",
+        "category": "Staging environment",
+        "required": "Selected staging build and two real client/device sessions",
+        "nextAction": "Run concurrent read/delete and cross-client redaction checks.",
+        "title": "Release read/delete race and cross-client regression",
+        "owner": "Messaging",
+        "stages": {
+          "coding": "na",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M10.4",
+        "category": "Staging environment",
+        "required": "Selected staging build and representative sanitized import fixtures",
+        "nextAction": "Verify import deduplication and UTC boundary outcomes on staging.",
+        "title": "Release import and time-boundary acceptance",
+        "owner": "Finance",
+        "stages": {
+          "coding": "done",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M15.4",
+        "category": "Staging environment",
+        "required": "Actual cloud/project deployment delegation, registry access, issued TLS certificates and DNS administration. India region, domain and budgets have been received.",
+        "nextAction": "Use the prepared profiles and protected application secrets; provision staging after real account access, then record its endpoint and image digests.",
+        "title": "Provision staging cloud, DNS, TLS, secrets and registry",
+        "owner": "DevOps",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M15.5",
+        "category": "Staging environment",
+        "required": "Representative staging resources, load-generator capacity and target workload",
+        "nextAction": "Run the agreed capacity profile and accept measured error/latency limits.",
+        "title": "Repeat capacity acceptance on representative infrastructure",
+        "owner": "DevOps",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M16.6",
+        "category": "Staging environment",
+        "required": "Selected staging release with exact image/build identities",
+        "nextAction": "Run cookie, bearer, responsive and accessibility acceptance on those artifacts.",
+        "title": "Rerun exact-release cookie/bearer and accessibility suite",
+        "owner": "QA / Mobile",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M01.4",
+        "category": "Provider and model validation",
+        "required": "SMS/verification provider, approved sender, challenge configuration and test recipients",
+        "nextAction": "Verify real registration/recovery delivery and ownership end to end.",
+        "title": "Validate real verification / recovery delivery",
+        "owner": "Backend / Security",
+        "stages": {
+          "coding": "done",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M04.4",
+        "category": "Provider and model validation",
+        "required": "Google/Microsoft registrations, exact callbacks, approved scopes and configured secret references",
+        "nextAction": "Verify real provider consent, import review, cancellation and shared routing on staging.",
+        "title": "Activate Google / Microsoft OAuth in staging",
+        "owner": "Integrations",
+        "stages": {
+          "coding": "done",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M11.3",
+        "category": "Provider and model validation",
+        "required": "Approved emergency alert channels and controlled recipient/device fixtures",
+        "nextAction": "Deliver a real emergency notification and verify owner receipt.",
+        "title": "Validate owner emergency alert delivery",
+        "owner": "Trust / Security",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M12.5",
+        "category": "Provider and model validation",
+        "required": "Production AI secret references, enforced spend limits/alerts and approved processing policy. INR 3,000/month budget has been received.",
+        "nextAction": "Configure provider access and hard spend controls, then validate processing policy and provider readiness.",
+        "title": "Set provider secrets, budget alerts and data policy",
+        "owner": "AI / Backend",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M12.6",
+        "category": "Provider and model validation",
+        "required": "Approved model candidates, evaluation budget and named quality reviewer",
+        "nextAction": "Collect representative model answers, score the rubric and approve or reject retries.",
+        "title": "Evaluate stronger model before enabling retries",
+        "owner": "AI / Backend",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M13.3",
+        "category": "Provider and model validation",
+        "required": "Email/SMS/push providers, sender identities, callbacks and test device tokens",
+        "nextAction": "Verify actual delivery, failure handling, retry and deduplication.",
+        "title": "Configure and prove real email/SMS/push delivery",
+        "owner": "Integrations",
+        "stages": {
+          "coding": "done",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M13.4",
+        "category": "Provider and model validation",
+        "required": "Security-alert recipient, provider route and on-call owner",
+        "nextAction": "Trigger a controlled security alert and record delivery and acknowledgement.",
+        "title": "Validate security-alert delivery and on-call route",
+        "owner": "Integrations",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M04.5",
+        "category": "Devices and distribution",
+        "required": "Physical Android/iOS access with OS permission and revocation coverage",
+        "nextAction": "Validate denied/limited/full permissions and selected-contact persistence on devices.",
+        "title": "Validate device contacts permissions",
+        "owner": "Integrations",
+        "stages": {
+          "coding": "done",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M07.5",
+        "category": "Devices and distribution",
+        "required": "Calling scope decision and physical devices on representative networks",
+        "nextAction": "Validate permission, connectivity, audio/video and network changes if calling is included.",
+        "title": "Validate real-device calling / network behavior",
+        "owner": "Messaging",
+        "stages": {
+          "coding": "done",
+          "testing": "verify",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M16.3",
+        "category": "Devices and distribution",
+        "required": "Physical Android/iOS devices and an agreed acceptance matrix",
+        "nextAction": "Execute important flows, permissions, lifecycle and native parity acceptance.",
+        "title": "Physical Android/iOS acceptance and native parity review",
+        "owner": "QA / Mobile",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M16.4",
+        "category": "Devices and distribution",
+        "required": "Final application ID, owner upload key, Play identity and approved disclosures",
+        "nextAction": "Build with the owner signing identity, verify its fingerprint and complete store submission.",
+        "title": "Android production signing and store submission",
+        "owner": "QA / Mobile",
+        "stages": {
+          "coding": "done",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M16.5",
+        "category": "Devices and distribution",
+        "required": "macOS/Xcode runner, Apple team, final bundle ID, signing profiles and store disclosures",
+        "nextAction": "Archive, sign, validate on devices and complete App Store submission.",
+        "title": "iOS archive, signing and App Store submission",
+        "owner": "QA / Mobile",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M08.4",
+        "category": "Policy and independent review",
+        "required": "Named moderation staff, approved policy, escalation and appeal routes",
+        "nextAction": "Approve the operating policy and rehearse real moderation roles.",
+        "title": "Launch content/abuse operating policy",
+        "owner": "Social",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M09.4",
+        "category": "Policy and independent review",
+        "required": "Approved health processing/consent policy, provider quality and spend acceptance",
+        "nextAction": "Complete provider quality/privacy review and controlled device acceptance before enablement.",
+        "title": "Enable health analysis only after provider/consent validation",
+        "owner": "Health / Privacy",
+        "stages": {
+          "coding": "done",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M11.4",
+        "category": "Policy and independent review",
+        "required": "Policy owner approval for eligible emergency documents, retention and access windows",
+        "nextAction": "Approve the sensitive-document policy and verify operating/audit procedures.",
+        "title": "Approve sensitive-document emergency policy",
+        "owner": "Trust / Security",
+        "stages": {
+          "coding": "done",
+          "testing": "done",
+          "integration": "verify"
+        }
+      },
+      {
+        "id": "M18.3",
+        "category": "Policy and independent review",
+        "required": "Reachable policy/support contact details, completed policies and recorded review approvals. CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and release approver have been received.",
+        "nextAction": "Complete privacy, terms, consent, retention and moderation documents with designated owners; record independent review and release approval.",
+        "title": "Approve privacy, terms, consent, support and moderation owners",
+        "owner": "Product / Security / Owner",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M18.4",
+        "category": "Policy and independent review",
+        "required": "Selected staging build and an independent security reviewer",
+        "nextAction": "Perform independent account/upload/integration testing and accept remediation.",
+        "title": "Independent staging security review and remediation acceptance",
+        "owner": "Product / Security / Owner",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M14.5",
+        "category": "Production operations",
+        "required": "Approved private bucket/IAM/encryption and production antivirus infrastructure",
+        "nextAction": "Verify private storage, scanner pinning, signatures and monitoring on the selected platform.",
+        "title": "Provision private storage and production scanner",
+        "owner": "Platform / Security",
+        "stages": {
+          "coding": "na",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M14.6",
+        "category": "Production operations",
+        "required": "Actual storage lifecycle/recovery setup and isolated synthetic object fixtures; clarification of whether 180 days means active-file expiry or deleted-version recovery.",
+        "nextAction": "Keep existing retention unchanged until clarified; verify deletion/version behavior and media restoration against actual storage without customer data.",
+        "title": "Validate retention, object deletion and media recovery",
+        "owner": "Platform / Security",
+        "stages": {
+          "coding": "na",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M15.6",
+        "category": "Production operations",
+        "required": "Managed database/PITR and media backups plus an isolated recovery environment",
+        "nextAction": "Measure representative DB/media recovery, integrity, RPO and RTO.",
+        "title": "Record production-like backup/PITR restore drill",
+        "owner": "DevOps",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M15.7",
+        "category": "Production operations",
+        "required": "Selected runtime, monitoring system, alert recipients and rollout identity",
+        "nextAction": "Activate alerts and execute a reviewed rollback rehearsal with recovery timestamps.",
+        "title": "Activate monitoring, alert routes and rollback rehearsal",
+        "owner": "DevOps",
+        "stages": {
+          "coding": "done",
+          "testing": "verify",
+          "integration": "pending"
+        }
+      },
+      {
+        "id": "M15.8",
+        "category": "Production operations",
+        "required": "Immutable production digests, signing/scans, accepted prerequisites and named approver",
+        "nextAction": "Review the exact release evidence and record production promotion approval.",
+        "title": "Approve exact release artifact and production promotion",
+        "owner": "DevOps",
+        "stages": {
+          "coding": "na",
+          "testing": "pending",
+          "integration": "pending"
+        }
+      }
+    ]
+  },
+  "recentWork": [
+    {
+      "id": "M01.4",
+      "title": "Validate real verification / recovery delivery",
+      "note": "Native SMS-code registration and recovery controls, safe public policy metadata and local verification contracts implemented and tested. Real Twilio/Turnstile setup, frontend challenge site key, SMS delivery and device checks remain open.",
+      "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M01.5",
+      "title": "Release account-security regression",
+      "note": "17 existing authentication/invitation checks plus new recovery/session-revocation contracts passed locally. Reviewed staging release, actual provider/OTP acceptance and deployment remain open. 25 October: current-preview desktop/mobile cookie and bearer synchronization regressions passed. This does not replace staging OTP/recovery acceptance. Sign-in and registration now wait for client readiness to prevent pre-hydration form submission; delayed-JavaScript desktop and mobile regressions passed.",
+      "evidenceDate": "25 October 2026; local browser regression refreshed; external/staging gate open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+          "label": "25 October local regression follow-up and remaining prerequisites"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M02.2",
+      "title": "Account settings and preferences",
+      "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test. 27 October: mobile settings save action moved into document flow so it cannot cover controls; shorter inline status/help and compact section links implemented. Native settings save passed at 320px with 100% and 200% text scaling. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "evidence": [
+        {
+          "path": "backend/spring-boot-app/src/main/java/com/myaaptha/domain/settings/AppSettingsController.java",
+          "label": "AppSettingsController.java"
+        },
+        {
+          "path": "docs/profile-storage-2026-10-07.md",
+          "label": "Recorded local verification"
+        },
+        {
+          "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+          "label": "Current design changes, verification and limitations"
+        }
+      ]
+    },
+    {
+      "id": "M02.3",
+      "title": "Profile and storage visual refresh",
+      "note": "Implemented in source; completion uses dated local verification evidence, not a fresh release test. 27 October: shared typography, SVG navigation, control spacing, native theme, keyboard information panels and mobile search layout refined. Current design review records scope and completed verification. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "evidence": [
+        {
+          "path": "docs/profile-storage-2026-10-07.md",
+          "label": "profile-storage-2026-10-07.md"
+        },
+        {
+          "path": "docs/profile-storage-2026-10-07.md",
+          "label": "Recorded local verification"
+        },
+        {
+          "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+          "label": "Current design changes, verification and limitations"
+        }
+      ]
+    },
+    {
+      "id": "M02.4",
+      "title": "Native profile-photo and gallery parity",
+      "note": "Completed locally 17 October: native photo/gallery controls, 5 MB/type checks, confirmation and shared profile API. Widget/regression and actual scanned upload/removal HTTP checks passed. Physical Android/iOS acceptance remains separately tracked under M16.3.",
+      "evidenceDate": "17 October 2026; native widget, regression and live API verification passed",
+      "evidence": [
+        {
+          "path": "docs/profile-storage-2026-10-07.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-17.md",
+          "label": "Current development and verification"
+        },
+        {
+          "path": "mobile/flutter-app/lib/features/shell/presentation/profile_media_card.dart",
+          "label": "Native photo/gallery controls"
+        }
+      ]
+    },
+    {
+      "id": "M03.4",
+      "title": "Tree and dashboard separation",
+      "note": "Tree and dashboard separation retained. 24 October: reproduced plus-click interception after selecting/hovering a person; separated the name and branch hit areas. Four chain-layout checks and two desktop/phone pointer, touch, keyboard and details-panel regressions passed against the rebuilt local preview. See TREE-BRANCH-2026-10-24.md.",
+      "evidenceDate": "24 October 2026; four layout tests, two responsive branch-control scenarios and production web build passed",
+      "evidence": [
+        {
+          "path": "docs/dashboard-tree-separation-2026-10-01.md",
+          "label": "dashboard-tree-separation-2026-10-01.md"
+        },
+        {
+          "path": "docs/synchronization-2026-10-06.md",
+          "label": "Recorded local verification"
+        }
+      ]
+    },
+    {
+      "id": "M03.5",
+      "title": "Review generated / synthetic discovery accounts",
+      "note": "Review completed 17 October using source tracing and an aggregate-only read-only preview audit: 29 fixture-pattern accounts; all 11 nominated role models match that pattern. Integration fixtures create and retain such nominations. No records were deleted and no discovery policy was silently changed; this completes review scope only.",
+      "evidenceDate": "17 October 2026; source review and aggregate SQL audit passed",
+      "evidence": [
+        {
+          "path": "docs/synchronization-2026-10-06.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DISCOVERY-REVIEW-2026-10-17.md",
+          "label": "Read-only discovery and fixture review"
+        }
+      ]
+    },
+    {
+      "id": "M04.4",
+      "title": "Activate Google / Microsoft OAuth in staging",
+      "note": "Local web/native/API completion and cancellation remain implemented. On 19 October, pending authorizations/results migrated from service maps to the configured shared state provider: encrypted Redis payloads, hashed/bound keys, ten-minute TTL, atomic provider/owner-validated consumption, 20 MiB preview limit and safe storage failures. Memory is development only. Real provider registration, callbacks/scopes, credentials, physical devices and exact staging acceptance remain pending; no provider was activated. See current report for verification evidence and crash/rollout limits. Expanded 35-check suite and final 25-check affected suite passed with no skips, including four separate JVM lifetimes, real Redis, encrypted binding, expiry/replay/owner isolation, terminal oversized previews and preserved private-book HTTP JSON. These suite scopes overlap. 26 October: Google/Microsoft callback and protected configuration mapping documented. Real app registrations, consent configuration and provider credentials remain absent.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/OAUTH-SHARED-STORAGE-2026-10-19.md",
+          "label": "Shared OAuth storage, configuration and rollout boundaries"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-19.md",
+          "label": "19 October verification results"
+        },
+        {
+          "path": "docs/launch-board/CONTACT-OAUTH-COMPLETION-2026-10-18.md",
+          "label": "OAuth result, cancellation and staging contract"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/ai/ContactOAuthCompletionTest.java",
+          "label": "Completion, ownership and consent revocation checks"
+        },
+        {
+          "path": "mobile/flutter-app/test/contact_oauth_poll_test.dart",
+          "label": "Native retry classification and cancellation checks"
+        },
+        {
+          "path": "docs/launch-board/SHARED-STATE-ATOMIC-2026-10-18.md",
+          "label": "Atomic shared-state prerequisite and remaining migration scope"
+        },
+        {
+          "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+          "label": "Received owner inputs, completed setup and remaining access"
+        }
+      ]
+    },
+    {
+      "id": "M04.5",
+      "title": "Validate device contacts permissions",
+      "note": "Shared native permission/read boundary now accepts granted or limited contact access in both address book and organizer. Denied/restricted/permanent/provisional access never reads contacts; leaving during permission skips reading/upload, repeated taps are guarded and empty analysis candidates send no request. Eleven new plugin-channel checks, all 64 native regressions, clean analysis, actual native selected-contact persistence/account isolation and desktop/phone-browser imports passed. Implementation is complete locally; actual Android/iOS permission dialogs, selected OS filtering, revocation and signed-device acceptance remain pending under M16.3.",
+      "evidenceDate": "18 October 2026; local implementation, plugin simulations and shared-API checks passed; physical acceptance pending",
+      "evidence": [
+        {
+          "path": "docs/launch-board/CONTACT-PERMISSIONS-2026-10-18.md",
+          "label": "Permission matrix, cross-client evidence and device limits"
+        },
+        {
+          "path": "mobile/flutter-app/test/device_contact_permission_test.dart",
+          "label": "Actual plugin-channel permission boundary simulations"
+        },
+        {
+          "path": "mobile/flutter-app/test/live_account_sync_test.dart",
+          "label": "Opt-in native API persistence and account isolation"
+        }
+      ]
+    },
+    {
+      "id": "M05.1",
+      "title": "Saved event API and ownership tests",
+      "note": "Timeline owner mutations now take a database row lock inside the transaction. Concurrent different keys respect the 500-event quota; concurrent same-key inserts resolve as updates rather than duplicate insert failures. Two lock/race checks plus existing timeline HTTP, health and trust checks passed (17 targeted tests); API package succeeded. Stale editor conflict detection is not added. Maintenance of existing completed persistence scope, not a new task closure.",
+      "evidenceDate": "18 October 2026; isolated database concurrency/HTTP regressions and API package passed",
+      "evidence": [
+        {
+          "path": "docs/launch-board/TIMELINE-CONCURRENCY-2026-10-18.md",
+          "label": "Timeline mutation behavior and validation scope"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineConcurrencyTest.java",
+          "label": "Owner lock, quota and same-key races"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineControllerTest.java",
+          "label": "HTTP persistence and ownership regressions"
+        }
+      ]
+    },
+    {
+      "id": "M05.4",
+      "title": "Timeline event deletion and reset to source",
+      "note": "Completed locally 17 October: owner-scoped DELETE, web/native confirmation and source-reset semantics. API isolation/idempotence, native widget/live HTTP and desktop/mobile browser persistence checks passed. Source profile/relationships remain intact.",
+      "evidenceDate": "17 October 2026; API, native and browser verification passed",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-17.md",
+          "label": "Current development and verification"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/timeline/TimelineControllerTest.java",
+          "label": "Deletion authorization and source-preservation tests"
+        }
+      ]
+    },
+    {
+      "id": "M06.4",
+      "title": "Staging membership and removed-member access regression",
+      "note": "Local removed-member regression passed: history/search/old attachment/edit/private-deletion denial, admins-only posting, and retained administrator access. Selected staging-build acceptance remains open.",
+      "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open",
+      "evidence": [
+        {
+          "path": "docs/tree-level-messaging-2026-10-01.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M07.5",
+      "title": "Validate real-device calling / network behavior",
+      "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/CALL-CLEANUP-2026-10-21.md",
+          "label": "Resource cleanup fix, verified scenarios and limitations"
+        },
+        {
+          "path": "frontend/nextjs-app/integration/call-cleanup.spec.ts",
+          "label": "Synthetic permission/signaling/navigation browser regression"
+        },
+        {
+          "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-22.md",
+          "label": "Owner supplies access/decisions; engineering owns testing"
+        },
+        {
+          "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+          "label": "Received owner inputs, completed setup and remaining access"
+        }
+      ]
+    },
+    {
+      "id": "M07.6",
+      "title": "Release read/delete race and cross-client regression",
+      "note": "Local concurrent read/delete invariants and existing role/time/private-deletion checks passed. The read-first outcome denies deletion; delete-first keeps content redacted. Staging and cross-device release acceptance remain open. 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open.",
+      "evidenceDate": "25 October 2026; local desktop/mobile browser checks passed; release gate remains open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+          "label": "Current build regression results and remaining release dependencies"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M08.4",
+      "title": "Launch content/abuse operating policy",
+      "note": "The paginated moderation queue now addresses the technical 200-report visibility limit (M08.5). The operating draft documents roles, reporter-visible notes, workflows and examples. Named staffing, approved policy, escalation/appeal channels and operating rehearsal remain pending.",
+      "evidenceDate": "17 October 2026; review draft prepared; approval and staffing remain open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/CONTENT-OPERATIONS-DRAFT.md",
+          "label": "Content operations workflow ? review draft"
+        }
+      ]
+    },
+    {
+      "id": "M08.5",
+      "title": "Paginated moderation queue and web/native decisions (local)",
+      "note": "Delivered 18 October: database-filtered cursor pages, native/web status controls, reporter-visible notes, cancelled-decision no-op and access-denial cleanup. Five backend tests, 50 native regressions, actual member-denial smoke and desktop/phone-browser contract scenarios passed. This is a new local engineering deliverable; operating-policy approval remains M08.4.",
+      "evidenceDate": "18 October 2026; local API/database, native and browser verification passed",
+      "evidence": [
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+          "label": "Current verification and explicit scope change"
+        },
+        {
+          "path": "docs/launch-board/MODERATION-QUEUE-2026-10-18.md",
+          "label": "Queue contract and workflow"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/moderation/ModerationQueueTest.java",
+          "label": "Database pagination and access tests"
+        }
+      ]
+    },
+    {
+      "id": "M09.1",
+      "title": "Health report service and validation",
+      "note": "Activated manual health HTTP/nested constraints and rejected null measurement rows before saving. Six focused HTTP/service tests, actual native ownership/validation/deletion checks and desktop/phone-browser manual entry, CSRF, validation and deletion passed. Optional AI provider, consent and budget acceptance remain separately pending under M09.4.",
+      "evidenceDate": "17 October 2026; API, actual native and desktop/phone-browser manual health checks passed",
+      "evidence": [
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/domain/health/HealthServiceTest.java",
+          "label": "HealthServiceTest.java"
+        },
+        {
+          "path": "docs/synchronization-2026-10-06.md",
+          "label": "Recorded local verification"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M09.4",
+      "title": "Enable health analysis only after provider/consent validation",
+      "note": "Added disabled-by-default health enablement, per-report consent enforcement, public consent/provider metadata and matching web/native analysis controls. Ten backend tests, 47 native regressions, actual native scanned-upload denial and desktop/phone-browser consent checks passed; web/API/APK built. Real provider quality, privacy/consent approval, spend controls and device acceptance remain open. No paid extraction request was made.",
+      "evidenceDate": "17 October 2026; local engineering and cross-client consent verification passed; launch acceptance open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        },
+        {
+          "path": "docs/launch-board/HEALTH-ANALYSIS-CONSENT.md",
+          "label": "Health processing consent and enablement"
+        }
+      ]
+    },
+    {
+      "id": "M09.5",
+      "title": "Manual health-entry parity and preserved retry drafts (local)",
+      "note": "Web/native manual entry now supports multiple measurements, matching stored field limits, collection dates, required finite values and valid reference ranges. Busy controls prevent concurrent submissions; failed saves retain the draft. Eleven backend tests, 53 native regressions, three final dialog tests, actual native HTTP limits and desktop/phone-browser scenarios passed. Unknown network outcomes are not idempotent; optional provider acceptance remains M09.4.",
+      "evidenceDate": "18 October 2026; local implementation and verification passed",
+      "evidence": [
+        {
+          "path": "docs/launch-board/HEALTH-MANUAL-ENTRY-2026-10-18.md",
+          "label": "Implementation and verification scope"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+          "label": "Current development results"
+        }
+      ]
+    },
+    {
+      "id": "M10.3",
+      "title": "UTC reporting and live-client refresh",
+      "note": "UTC reporting and live-client refresh retained. 24 October Finance UX refresh: summary-first layout, compact renewal setup/type shortcuts, status filters, clearer charts, activity search/filtering, form feedback and transaction deletion confirmation. Six desktop/phone browser scenarios passed, including existing renewal receipts and UTC cookie/bearer month tests; focused contrast/label/button/ARIA checks passed. Production build and local artifact identities verified. See FINANCE-UX-2026-10-24.md.",
+      "evidenceDate": "24 October 2026; six browser scenarios, targeted accessibility checks and production web build passed",
+      "evidence": [
+        {
+          "path": "docs/synchronization-2026-10-06.md",
+          "label": "synchronization-2026-10-06.md"
+        },
+        {
+          "path": "docs/synchronization-2026-10-06.md",
+          "label": "Recorded local verification"
+        }
+      ]
+    },
+    {
+      "id": "M10.4",
+      "title": "Release import and time-boundary acceptance",
+      "note": "Fixed inclusive month-end double counting with half-open UTC ranges. Database, native-live and desktop/phone-browser boundary checks passed; leap/year rollover and duplicate SMS behavior covered. Representative staging import acceptance remains open. 25 October: current-preview desktop/mobile UTC midnight boundary regressions passed; sanitized import and selected staging acceptance remain pending.",
+      "evidenceDate": "25 October 2026; local browser regression refreshed; external/staging gate open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+          "label": "25 October local regression follow-up and remaining prerequisites"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M10.5",
+      "title": "Bills, warranty receipts and scheduled renewal reminders (local)",
+      "note": "Added private bills, warranty receipts and service plans with renewal/archive/pause and 30/15/7/3/1-day time-zone reminders. Nineteen focused backend tests, three native unit/widget cases, real native/PostgreSQL/ClamAV/minute-scheduler integration, final desktop/phone workflows and UTC-month regressions passed. State-only archive/restore preserves renewed dates. External delivery was disabled for synthetic scheduler checks; real provider/device acceptance remains separate.",
+      "evidenceDate": "24 October 2026; local implementation and integration passed",
+      "evidence": [
+        {
+          "path": "docs/finance-renewals.md",
+          "label": "Feature guide, API contract, workflow and ER diagrams"
+        },
+        {
+          "path": "docs/launch-board/FINANCE-RENEWALS-2026-10-24.md",
+          "label": "Dated implementation, test evidence and delivery limits"
+        }
+      ]
+    },
+    {
+      "id": "M11.4",
+      "title": "Approve sensitive-document emergency policy",
+      "note": "Serialized emergency approvals, scoped request/document queries, viewer-specific permissions and native document controls implemented. Backend, native widgets, actual native HTTP and desktop/phone-browser approval/document/revocation checks passed. Policy approval, eligible-document/retention review and real alert delivery remain open.",
+      "evidenceDate": "17 October 2026; local engineering checks recorded; external/staging gate open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M12.5",
+      "title": "Set provider secrets, budget alerts and data policy",
+      "note": " 26 October: AI budget of INR 3,000/month and health-analysis requirement captured; official model/pricing and India data-processing constraints documented. Provider configuration, enforced spend controls and qualified health/security acceptance remain open; no paid model calls were made.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        }
+      ]
+    },
+    {
+      "id": "M12.6",
+      "title": "Evaluate stronger model before enabling retries",
+      "note": "Prepared a ten-case synthetic, offline base/candidate evaluation workflow with knowledge/case fingerprints, citation and human-rubric checks, usage/latency summaries and optional supplied costs. Eight tool tests and all 30 infrastructure checks passed. No model answers were collected or scored; paid quality, representative coverage, budget and owner acceptance remain pending. Stronger retries remain disabled by default.",
+      "evidenceDate": "18 October 2026; evaluation tooling verified, actual model acceptance not performed",
+      "evidence": [
+        {
+          "path": "docs/launch-board/HELP-MODEL-EVALUATION.md",
+          "label": "Evaluation contract, rubric and acceptance limits"
+        },
+        {
+          "path": "infrastructure/test_help_evaluation.py",
+          "label": "Offline evaluation validation tests"
+        }
+      ]
+    },
+    {
+      "id": "M13.3",
+      "title": "Configure and prove real email/SMS/push delivery",
+      "note": "Webhook 2xx acceptance enforcement implemented; local contract tests passed for auth/payload/idempotency, preview redaction, redirect retry and exhausted budget. Real email/SMS/push setup, recipients/devices and delivery acceptance remain open. 24 October: finance delivery guard now skips countdown messages after their original milestone local date; all five midnight boundaries and renewal/controller regressions passed (10 tests). See RENEWAL-DELIVERY-2026-10-24.md. Provider acceptance remains open.",
+      "evidenceDate": "24 October 2026; 10 local renewal delivery/service/controller tests passed; live providers remain open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-CONTINUED-2026-10-17.md",
+          "label": "Continued development and local verification"
+        }
+      ]
+    },
+    {
+      "id": "M14.5",
+      "title": "Provision private storage and production scanner",
+      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures.",
+      "evidenceDate": "21 October 2026; real disposable TLS/SSE adapter recovery passed; selected-provider acceptance open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/S3-RECOVERY-2026-10-21.md",
+          "label": "Actual adapter TLS/encryption/version recovery evidence and boundaries"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/platform/media/S3MediaRecoveryDrillTest.java",
+          "label": "Opt-in application storage adapter integration contract"
+        },
+        {
+          "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-21.md",
+          "label": "Owner inputs; engineering retains testing and integration"
+        }
+      ]
+    },
+    {
+      "id": "M14.6",
+      "title": "Validate retention, object deletion and media recovery",
+      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/S3-RECOVERY-2026-10-21.md",
+          "label": "Actual adapter TLS/encryption/version recovery evidence and boundaries"
+        },
+        {
+          "path": "backend/spring-boot-app/src/test/java/com/myaaptha/platform/media/S3MediaRecoveryDrillTest.java",
+          "label": "Opt-in application storage adapter integration contract"
+        },
+        {
+          "path": "docs/launch-board/LAUNCH-INPUTS-2026-10-21.md",
+          "label": "Owner inputs; engineering retains testing and integration"
+        },
+        {
+          "path": "docs/launch-board/MEDIA-DELETION-2026-10-23.md",
+          "label": "Local deletion failures remain visible and retryable; nine focused tests passed"
+        },
+        {
+          "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+          "label": "Received owner inputs, completed setup and remaining access"
+        }
+      ]
+    },
+    {
+      "id": "M15.4",
+      "title": "Provision staging cloud, DNS, TLS, secrets and registry",
+      "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/RELEASE-PREFLIGHT-2026-10-20.md",
+          "label": "Read-only prerequisite checks and actual missing-input result"
+        },
+        {
+          "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+          "label": "Received owner inputs, completed setup and remaining access"
+        }
+      ]
+    },
+    {
+      "id": "M15.6",
+      "title": "Record production-like backup/PITR restore drill",
+      "note": "Hardened portable backup/restore: explicit source, valid retention, unique partial publication, mandatory checksums, empty-target inspection and noninteractive transactional restore. Seven operational simulations and all 37 infrastructure tests passed. An actual isolated PostgreSQL 17 two-row synthetic backup/restore matched, and a second restore into the populated target was rejected. Managed PITR, deployed DB/media recovery and representative measured RPO/RTO remain unverified; task stays pending.",
+      "evidenceDate": "18 October 2026; local script guards and disposable real PostgreSQL drill passed; production recovery acceptance open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/RECOVERY-GUARDS-2026-10-18.md",
+          "label": "Recovery behavior, real local drill and limits"
+        },
+        {
+          "path": "infrastructure/test_postgres_operations.py",
+          "label": "Operational script regression tests"
+        },
+        {
+          "path": "testing/recovery-drill.ps1",
+          "label": "Reproducible isolated PostgreSQL drill"
+        },
+        {
+          "path": "docs/deployment-validation.md",
+          "label": "Historical local synthetic restore evidence"
+        }
+      ]
+    },
+    {
+      "id": "M15.7",
+      "title": "Activate monitoring, alert routes and rollback rehearsal",
+      "note": "Operational application prerequisites implemented: scoped metrics credential, administrator-only operational metadata, public probes and offline immutable-image rollback planner. Packaged production-profile TLS checks passed real isolated PostgreSQL/Redis outages and recovery while liveness and metrics stayed available. Collector deployment, alert recipients, selected staging and live rollback rehearsal remain pending.",
+      "evidenceDate": "20 October 2026; local production-profile operational authorization and dependency recovery passed; live acceptance open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/ROLLBACK-PLANNER-2026-10-20.md",
+          "label": "Rollback planner contract and remaining acceptance"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-20.md",
+          "label": "Current verification results"
+        },
+        {
+          "path": "infrastructure/test_plan_rollback.py",
+          "label": "Rollback configuration and CLI safeguards"
+        },
+        {
+          "path": "docs/launch-board/OPERATIONAL-METRICS-2026-10-20.md",
+          "label": "Operational authorization, recovery evidence and deployment boundaries"
+        }
+      ]
+    },
+    {
+      "id": "M15.8",
+      "title": "Approve exact release artifact and production promotion",
+      "note": "Full standalone web-bundle and API/debug-APK hashing and verification are now tracked under M15.9. Exact production container digests, signing, scans, staging acceptance and human promotion approval remain pending. Local records always set releaseApproved=false.",
+      "evidenceDate": "17 October 2026; local build identity tooling verified; promotion gate open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        },
+        {
+          "path": "docs/launch-board/LOCAL-BUILD-IDENTITIES.md",
+          "label": "Local artifact identities and approval limits"
+        }
+      ]
+    },
+    {
+      "id": "M15.9",
+      "title": "Full web-bundle fingerprint and artifact verification (local)",
+      "note": "Version 2 records hash every standalone web file plus API JAR and debug APK, exclude runtime cache, reject missing assets and unsafe links, and verify recorded contents. All 22 infrastructure tests passed. The previous record rejected changed builds; a refreshed record matched the final 2085-file bundle. Production image/signing/staging approval remains M15.8; releaseApproved stays false.",
+      "evidenceDate": "18 October 2026; local implementation and verification passed",
+      "evidence": [
+        {
+          "path": "docs/launch-board/LOCAL-BUILD-IDENTITIES.md",
+          "label": "Implementation and verification scope"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-18.md",
+          "label": "Current development results"
+        }
+      ]
+    },
+    {
+      "id": "M16.1",
+      "title": "Web production build and 28-route responsive audit",
+      "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "evidence": [
+        {
+          "path": "docs/app-design-2026-10-08.md",
+          "label": "app-design-2026-10-08.md"
+        },
+        {
+          "path": "docs/app-design-2026-10-08.md",
+          "label": "Recorded local verification"
+        },
+        {
+          "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+          "label": "Current design changes, verification and limitations"
+        }
+      ]
+    },
+    {
+      "id": "M16.2",
+      "title": "Flutter analysis, regression and debug APK evidence",
+      "note": "24 October: Flutter drawer/desktop rail use the nine workspace categories; Dashboard/Messages/Online Feed group existing screens and the comparison explains previous web/mobile entries. Eight focused native widget/regression checks passed, including draft retention, shared profile refresh and cancel/save preservation. Flutter analysis is clean and the Android debug APK built. Physical devices, production signing and iOS remain separate release gates. See NAVIGATION-2026-10-24.md. 27 October: nine native tests passed with the production theme, including enlarged-text settings, profile edits, storage and chat filters. Updated Android debug APK built and served-file hash/API address verified. Physical Android/iOS and production signing remain separately open. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements. Current Wi-Fi address corrected to 192.168.1.4: bridge and APK agree, six authenticated endpoints pass, stale-network APK publication is blocked, and the complete refreshed download checksum matches the native build.",
+      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "evidence": [
+        {
+          "path": "docs/app-design-2026-10-08.md",
+          "label": "app-design-2026-10-08.md"
+        },
+        {
+          "path": "docs/app-design-2026-10-08.md",
+          "label": "Recorded local verification"
+        },
+        {
+          "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+          "label": "Current design changes, verification and limitations"
+        }
+      ]
+    },
+    {
+      "id": "M16.4",
+      "title": "Android production signing and store submission",
+      "note": "Fixed release builds silently using the debug signing key. Added protected key/env configuration, certificate/private-key validation, debug-identity rejection and a manual signed-candidate workflow with pinned-certificate verification. Debug configuration and missing-credential rejection passed. A 72.7 MB synthetic-key AAB built; real JDK checks accepted its pinned certificate and rejected a wrong certificate and unsigned added entry. All 52 infrastructure tests passed. The temporary private key was removed. JDK archive-reader layout warnings remain recorded for review; the synthetic artifact is not owner-approved. Final application ID, owner upload key, Play account, devices/disclosures and actual submission remain open. A separate synthetic Android-debug identity was explicitly rejected by release-task planning. 26 October: CPET Solutions Play ownership preference captured and com.myaaptha.app proposed; existing development app IDs preserved. Actual store account, signing and physical-device acceptance remain outstanding.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/ANDROID-RELEASE-SIGNING-2026-10-20.md",
+          "label": "Signing configuration, workflow and remaining acceptance"
+        },
+        {
+          "path": "docs/launch-board/DEVELOPMENT-2026-10-20.md",
+          "label": "Actual build and verification evidence"
+        },
+        {
+          "path": "infrastructure/test_verify_android_bundle.py",
+          "label": "Bundle verifier safeguards"
+        },
+        {
+          "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
+          "label": "Received owner inputs, completed setup and remaining access"
+        }
+      ]
+    },
+    {
+      "id": "M16.5",
+      "title": "iOS archive, signing and App Store submission",
+      "note": " 26 October: Apple owner preference captured; Mac/Xcode unavailable. Actual Apple organization enrollment, signing, Mac runner and iOS device acceptance remain outstanding.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        }
+      ]
+    },
+    {
+      "id": "M16.6",
+      "title": "Rerun exact-release cookie/bearer and accessibility suite",
+      "note": "Local OAuth end-to-end desktop/phone browser checks passed, including real account login, no automatic persistence and targeted contrast/button-name/label checks. A shared primary-hover color conflict was fixed; circles, timeline and health primary actions then passed hover/focus contrast, keyboard focus and viewport checks on both layouts. Actual native bearer metadata/account smoke passed. This is targeted local evidence, not the complete exact-release staging cookie/bearer/accessibility suite; staging acceptance remains pending. On 20 October the rebuilt API passed two desktop/phone-browser account cookie/bearer synchronization scenarios and an explicit native HTTP account test. These local checks do not replace exact staging acceptance. On 21 October shared web styling, keyboard navigation/uploads, deterministic country names and health editor layout were refined. The linked UI report records final browser results and limitations; exact-release staging acceptance remains separate. Final local review passed 28 routes and 27 expanded form states per layout, plus profile persistence, health retry, keyboard and administrator draft checks (12 distinct browser scenarios). 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open. 26 October: compact inline help across shared web/native headers; populated desktop/mobile route sweeps (28 routes each), 27 form views per layout and final focused same-row guidance checks passed. Seven native tests passed; updated debug APK built and its download verified. These are local UI checks; exact staging and physical-device acceptance remain open. 27 October local UI review: cookie/bearer consistency checked for 16 account endpoints, 22 backend regressions and nine native tests passed. Board accessibility and layout verified. Exact staging/physical-device acceptance remains open; final static-logo cold-load checks passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "evidence": [
+        {
+          "path": "docs/launch-board/CONTACT-OAUTH-COMPLETION-2026-10-18.md",
+          "label": "Current local browser/native scope and staging boundaries"
+        },
+        {
+          "path": "frontend/nextjs-app/integration/primary-action-accessibility.spec.ts",
+          "label": "Circles, timeline and health hover/focus/viewport checks"
+        },
+        {
+          "path": "frontend/nextjs-app/integration/contact-oauth.spec.ts",
+          "label": "OAuth lifecycle and targeted accessibility checks"
+        },
+        {
+          "path": "docs/launch-board/WEB-UX-REVIEW-2026-10-21.md",
+          "label": "Web route/form UX review and exact local verification scope"
+        },
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-10-25.md",
+          "label": "Current build regression results and remaining release dependencies"
+        },
+        {
+          "path": "docs/launch-board/INLINE-HELP-2026-10-26.md",
+          "label": "Compact inline guidance, populated route/form audits and native APK verification"
+        },
+        {
+          "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
+          "label": "Current design changes, verification and limitations"
+        }
+      ]
+    },
+    {
+      "id": "M17.1",
+      "title": "Corporate handbook and offline editions",
+      "note": "Corporate handbook v1.3 refreshed 20 October with Android release signing, rollback preparation and the complete pending-acceptance audit. Its 71-page PDF/offline HTML passed link, image and desktop/390px layout checks. Documentation maintenance does not close provider or launch-approval gates.",
+      "evidenceDate": "20 October 2026; handbook v1.3, 71-page PDF and layout/link validation passed",
+      "evidence": [
+        {
+          "path": "docs/corporate/PROJECT-HANDBOOK.pdf",
+          "label": "PROJECT-HANDBOOK.pdf"
+        },
+        {
+          "path": "docs/corporate/PROJECT-HANDBOOK.md",
+          "label": "Recorded local verification"
+        }
+      ]
+    },
+    {
+      "id": "M17.2",
+      "title": "API and database catalogs",
+      "note": "Source inventories regenerated 20 October: 39 Java controllers, 229 extracted HTTP mappings, 28 web pages, 67 migration-declared tables and 106 explicit foreign-key edges. Static artifact validation passed with zero broken local links; source extraction does not certify deployed catalog state.",
+      "evidenceDate": "18 October 2026; current API/schema inventory and documentation validation passed",
+      "evidence": [
+        {
+          "path": "docs/corporate/source-inventory.json",
+          "label": "source-inventory.json"
+        },
+        {
+          "path": "docs/corporate/PROJECT-HANDBOOK.md",
+          "label": "Recorded local verification"
+        }
+      ]
+    },
+    {
+      "id": "M18.3",
+      "title": "Approve privacy, terms, consent, support and moderation owners",
+      "note": " 26 October: CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and project-owner release approval recorded. Actual policy content, reachable contacts, independent reviewers and signed acceptance remain missing.",
+      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        }
+      ]
+    },
+    {
+      "id": "M18.4",
+      "title": "Independent staging security review and remediation acceptance",
+      "note": " Operational endpoint authorization was hardened and verified with seven focused tests and a packaged production-profile TLS smoke on 20 October. Independent release security review remains pending.",
+      "evidenceDate": "No completion evidence recorded",
+      "evidence": [
+        {
+          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
+          "label": "Scope / acceptance requirement"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+node_modules
+.next
+target
+.git
+.env
+.env.*
+*.log
+var
+test-results
+playwright-report
+__pycache__
+.pytest_cache

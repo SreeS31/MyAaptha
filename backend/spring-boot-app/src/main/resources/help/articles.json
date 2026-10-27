@@ -1,0 +1,93 @@
+[
+  {
+    "id": "pricing",
+    "title": "Is MyAaptha free?",
+    "path": "/help",
+    "keywords": "free pricing price cost paid subscription charge payment website app",
+    "content": "MyAaptha is free for all users. This policy was confirmed by the application owner. You do not need to buy a subscription to use MyAaptha. The application's OpenAI provider configuration is managed by the operator, not by individual users."
+  },
+  {
+    "id": "contacts",
+    "title": "View profile and contact details",
+    "path": "/dashboard#relationships",
+    "keywords": "profile contact details phone mobile number email view see person",
+    "content": "On the web, open Home dashboard and your relationships, then open the person's details or profile. On mobile, open Home and select the person in your network. Contact information appears only when it is saved and you are allowed to view it. Your privately saved contact details can differ from the person's account details. If a phone number or email is absent or hidden, ask the person to share it; AI cannot reveal hidden details. My profile is for editing your own profile."
+  },
+  {
+    "id": "relations",
+    "title": "Add a new relationship",
+    "path": "/dashboard#relationships",
+    "keywords": "add new relation relations relationship relative connect person family friend",
+    "content": "On web Home dashboard, use the add-person form: enter the full name, mobile number for an account, optional email, and relationship type, then choose Add person. Check existing people and shared connections to avoid duplicates; an existing search match can be connected with Add relationship. Choose the relationship owner when adding someone relative to another person, or Use me instead. On mobile, use Home's add-person/relationship controls, choose the person and relationship type, and save. A managed profile is different from an active account and cannot sign in or receive private messages until claimed as an active account."
+  },
+  {
+    "id": "broadcast",
+    "title": "Horizontal and vertical relationship broadcasts",
+    "path": "/dashboard",
+    "keywords": "send message entire all relations broadcast vertical vertically horizontal horizontally horizantally family branch children chain audience",
+    "content": "On web Home dashboard, open the Family-level broadcast controls. Horizontal is Same level: all children of the selected parent, not every relation in your network. Vertical is Family branch: the selected person and the linked branch below them in your saved relationship tree. Choose a family member and Preview audience, review the recipients, write the message and send. Mobile Relationship broadcast calls these modes Children (horizontal) and Chain (vertical); choose Parent node or Start person and Preview recipients. Each eligible person gets a private one-to-one copy; recipients cannot see each other. Only eligible active accounts are included; blocked, unavailable or managed-only profiles may be excluded. Review delivered and failed counts. AI help does not send messages for you."
+  },
+  {
+    "id": "area",
+    "title": "Message relations in an area",
+    "path": "/dashboard",
+    "keywords": "area location city town country broadcast nearby",
+    "content": "Choose Area broadcast on web, or Area in mobile Relationship broadcast. Enter a city, town or area and preview the matching recipients before sending. Matching uses locations saved for your relationships, not live GPS. Recipients receive separate private messages."
+  },
+  {
+    "id": "messages",
+    "title": "Send a private message",
+    "path": "/messages",
+    "keywords": "private direct message chat messaging conversation attachment",
+    "content": "Open Private messages on web or Messages on mobile. Select an eligible person, write a message, and send it. Attachments must pass the application's type and size checks. Blocking and account eligibility can prevent delivery. Relationship broadcasts send separate direct-message copies and are different from a circle conversation."
+  },
+  {
+    "id": "circles",
+    "title": "Circles and group conversations",
+    "path": "/circles",
+    "keywords": "circle circles group community conversation members",
+    "content": "Open My circles on web or Circles on mobile to view your circles and their conversations. Circle membership and posting permissions control access. A circle conversation is visible to its authorized members; use a relationship broadcast when you want separate private copies instead."
+  },
+  {
+    "id": "ai-controls",
+    "title": "AI privacy and controls",
+    "path": "/ai-activity",
+    "keywords": "ai privacy consent controls disable enable chatbot assistant data openai",
+    "content": "Open AI controls on web, or More then AI controls on mobile, to manage AI permissions and activity retention. This help assistant uses approved application instructions; it does not read your contacts, private messages, health records or financial transactions. If you enable OpenAI answers, your question and recent chat context are sent to OpenAI. Do not enter passwords or private records. Chats remain in the current screen memory and can be cleared. OpenAI is asked not to store responses for later API retrieval; this is not a guarantee of zero provider retention. Without OpenAI, the assistant shows matching application help articles."
+  },
+  {
+    "id": "account",
+    "title": "Sign in and account recovery",
+    "path": "/recover-account",
+    "keywords": "login sign in account password forgot recovery verify verification",
+    "content": "Use the identifier saved for your account and your password. Administrators may also need an authenticator code. Local preview supports saved email, username or mobile number; production phone-verification settings can restrict email sign-in. Use Forgot password or need to verify your account for supported recovery and phone verification. Recovery requires a configured verification delivery service. Never share your password with the chatbot."
+  },
+  {
+    "id": "profile",
+    "title": "Edit your own profile",
+    "path": "/profile",
+    "keywords": "edit own profile photo picture name biography update",
+    "content": "Open My profile on the web, or Profile on mobile, to edit your own saved profile and photos. Save changes and review privacy settings. Changing your own profile does not grant access to another person's private contact information."
+  },
+  {
+    "id": "message-tools",
+    "title": "Star, pin and check message receipts",
+    "path": "/messages",
+    "keywords": "star starred pin pinned receipt receipts read delivered sent bookmark copy chat",
+    "content": "Open a direct chat. On web, expand Message actions under any message; on mobile use Message actions. Star bookmarks a message for your account. Pin for me is also private, not a shared pin. Use Show messages to choose Starred or Pinned for me. In Conversations, Pin chat moves that chat to the top of your own inbox. Message info shows receipt timestamps. Sent means server acceptance, Delivered means the recipient app fetched the conversation page, and Read means the visible foreground chat acknowledged the message. Share read receipts in Messages controls direct-message read timestamps in both directions. Unread counts still update. These preferences sync between web and mobile. Circle receipts are separate. The assistant cannot star, pin or send on your behalf."
+  },
+  {
+    "id": "private-address-book",
+    "title": "Import all contacts and organize circles",
+    "path": "/contacts",
+    "keywords": "import contacts contact phonebook address book google gmail outlook email csv vcard vcf automatic circles groups",
+    "content": "Open My contacts on the web or More > My contacts on mobile. Allow private contact saving, then import device contacts, a CSV/vCard file, or connect Google or Outlook. An email address alone does not grant access: sign in with the provider and approve read-only contacts permission. Unavailable provider buttons need administrator setup. Device and file imports do not require provider setup or an OpenAI key. Import all processes contacts in batches and deduplicates exact repeats; changed names or contact details can create new entries. Enable sensitive-data AI processing in AI controls and Automatically organize circles to group contacts by names, organizations and provider labels. Matching circles you own are reused; missing circles are created. Uncertain contacts go into Imported contacts. Imported circle lists are private and do not grant messaging membership. Edit circles corrects assignments and protects those choices during reimports. Add as relation is a separate confirmed action. The same private address book is available under the same account on web and mobile. Imports are user-initiated, not continuous background synchronization. The assistant cannot connect providers or import contacts on your behalf."
+  },
+  {
+    "id": "chat-management",
+    "title": "Archive, mute, mark unread and forward messages",
+    "path": "/messages",
+    "keywords": "archive archived unarchive mute muted unmute unread reminder forward forwarded forwarding inbox folders",
+    "content": "Open Messages on web or mobile. Use More or Chat actions next to a direct conversation to Archive, Mute or Mark unread. Inbox hides archived chats; Archived shows them, including new messages. Unread shows unarchived chats with unread messages or a manual reminder. Archived chats stay archived until you unarchive. Mute suppresses new direct-message alerts until unmuted; messages are still saved and calling is not muted. Mark unread creates a private reminder and does not undo read receipts. Clear unread reminder removes that reminder; opening the chat from this inbox also clears it. These settings sync across devices and do not affect the other person. To forward, open Message actions inside a direct chat, choose Forward, select an eligible relationship or existing chat, and confirm Send forward. The text and attachment are copied with a Forwarded label; source replies, reactions and stars are not copied. Deleting the original does not remove the forwarded copy. Deleted messages cannot be forwarded. These tools currently apply to direct chats, not circle chats. The assistant cannot perform these actions for you."
+  }
+]

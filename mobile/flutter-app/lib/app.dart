@@ -1,3 +1,5 @@
+import 'package:myaaptha_mobile/core/network/api_client.dart';
+import 'package:myaaptha_mobile/core/upload_retention_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:myaaptha_mobile/core/theme/app_theme.dart';
 import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
@@ -14,6 +16,7 @@ class MyAapthaMobileApp extends StatefulWidget {
 }
 
 class _MyAapthaMobileAppState extends State<MyAapthaMobileApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
   final SessionStore _store = SessionStore();
   AuthTokenBundle? _session;
   bool _restoring = true;
@@ -21,6 +24,11 @@ class _MyAapthaMobileAppState extends State<MyAapthaMobileApp> {
   @override
   void initState() {
     super.initState();
+    ApiClient.retentionChooser = (level) async {
+      final context = _navigatorKey.currentContext;
+      if (context == null) return null;
+      return chooseUploadRetention(context, level);
+    };
     _restoreValidSession();
   }
 
@@ -29,19 +37,25 @@ class _MyAapthaMobileAppState extends State<MyAapthaMobileApp> {
     AuthTokenBundle? valid;
     if (saved != null) {
       try {
-        valid = await AuthApi().refresh(
-            RefreshRequest(refreshToken: saved.refreshToken));
+        valid = await AuthApi()
+            .refresh(RefreshRequest(refreshToken: saved.refreshToken));
         await _store.save(valid);
       } catch (_) {
         await _store.clear();
       }
     }
-    if (mounted) setState(() { _session = valid; _restoring = false; });
+    if (mounted) {
+      setState(() {
+        _session = valid;
+        _restoring = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'MyAaptha',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
@@ -62,23 +76,20 @@ class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: DecoratedBox(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xFF6251C8), Color(0xFFD47DA9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight)),
+        body: ColoredBox(
+          color: const Color(0xFFF4F7FA),
           child: Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Image.asset('assets/brand/myaaptha-logo.png', width: 96, height: 96),
+            Image.asset('assets/brand/myaaptha-logo.png',
+                width: 96, height: 96),
             const SizedBox(height: 16),
             const Text('MyAaptha',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900)),
+                    color: AppTheme.ink,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.white)
+            const CircularProgressIndicator(color: AppTheme.primary)
           ])),
         ),
       );

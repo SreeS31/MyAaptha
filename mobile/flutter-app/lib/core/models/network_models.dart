@@ -102,8 +102,9 @@ class DirectConversation {
       required this.lastMessage,
       required this.lastMessageAt,
       required this.unreadCount,
-      this.profilePhoto});
+      this.profilePhoto, this.pinned = false, this.archived=false, this.muted=false, this.markedUnread=false});
   final int userId, unreadCount;
+  final bool pinned, archived, muted, markedUnread;
   final String displayName, lastMessage;
   final String? profilePhoto;
   final DateTime lastMessageAt;
@@ -122,7 +123,7 @@ class DirectConversation {
           lastMessageAt:
               DateTime.tryParse(json['lastMessageAt'] as String? ?? '') ??
                   DateTime.now(),
-          unreadCount: (json['unreadCount'] as num? ?? 0).toInt());
+          unreadCount: (json['unreadCount'] as num? ?? 0).toInt(), pinned:json['pinned']==true, archived:json['archived']==true, muted:json['muted']==true, markedUnread:json['markedUnread']==true);
 }
 
 class ConversationMessage {
@@ -140,7 +141,7 @@ class ConversationMessage {
       this.parentMessageId,
       this.deliveredAt,
       this.readAt,
-      this.readCount = 0});
+      this.readCount = 0, this.starred=false, this.pinned=false, this.forwarded=false,this.canDeleteForAll=false,this.hiddenForMe=false});
   final int id;
   final String authorName;
   final String message;
@@ -155,6 +156,7 @@ class ConversationMessage {
   final DateTime? deliveredAt;
   final DateTime? readAt;
   final int readCount;
+  final bool starred,pinned,forwarded,canDeleteForAll,hiddenForMe;
   bool get deleted => deletedAt != null;
   late final DateTime? editedAt;
   late final DateTime? deletedAt;
@@ -180,7 +182,7 @@ class ConversationMessage {
                   ?.toInt(),
           deliveredAt: DateTime.tryParse(json['deliveredAt'] as String? ?? ''),
           readAt: DateTime.tryParse(json['readAt'] as String? ?? ''),
-          readCount: (json['readCount'] as num? ?? 0).toInt())
+          readCount: (json['readCount'] as num? ?? 0).toInt(),starred:json['starred']==true,pinned:json['pinned']==true,forwarded:json['forwarded']==true,canDeleteForAll:json['canDeleteForAll']==true,hiddenForMe:json['hiddenForMe']==true)
         ..editedAt = DateTime.tryParse(json['editedAt'] as String? ?? '')
         ..deletedAt = DateTime.tryParse(json['deletedAt'] as String? ?? '')
         ..reactions = Map<String, int>.from(
@@ -230,4 +232,39 @@ class DirectCallModel {
           callerPhoto: json['callerPhoto'] as String?,
           recipientPhoto: json['recipientPhoto'] as String?,
           currentUserCaller: json['currentUserCaller'] == true);
+}
+
+class SharedConnection {
+  SharedConnection(this.userId,this.displayName,this.yourRelationship,this.sharedRelationship);
+  final int userId;
+  final String displayName,yourRelationship,sharedRelationship;
+  factory SharedConnection.fromJson(Map<String,dynamic> j)=>SharedConnection((j['userId'] as num).toInt(),j['displayName'] as String,j['yourRelationship'] as String,j['sharedRelationship'] as String);
+}
+class PeopleMatch {
+  PeopleMatch(this.person,this.alreadyConnected,this.mutualConnections,this.sharedInterests,this.sharedEmployer,this.reasons);
+  final Person person;
+  final bool alreadyConnected;
+  final List<SharedConnection> mutualConnections;
+  final List<String> sharedInterests,reasons;
+  final String? sharedEmployer;
+  factory PeopleMatch.fromJson(Map<String,dynamic> j)=>PeopleMatch(Person.fromJson(Map<String,dynamic>.from(j['person'] as Map)),j['alreadyConnected']==true,
+    (j['mutualConnections'] as List).map((v)=>SharedConnection.fromJson(Map<String,dynamic>.from(v as Map))).toList(),List<String>.from(j['sharedInterests'] as List),j['sharedEmployer'] as String?,List<String>.from(j['reasons'] as List));
+}
+class PeopleDiscovery {
+  PeopleDiscovery(this.people,this.rankingMode,this.limited,this.explanation);
+  final List<PeopleMatch> people;
+  final String rankingMode,explanation;
+  final bool limited;
+  factory PeopleDiscovery.fromJson(Map<String,dynamic> j)=>PeopleDiscovery((j['people'] as List).map((v)=>PeopleMatch.fromJson(Map<String,dynamic>.from(v as Map))).toList(),j['rankingMode'] as String,j['limited']==true,j['explanation'] as String);
+}
+
+class ChatTarget {
+  const ChatTarget({required this.type,required this.id,required this.name});
+  final String type,name; final int id;
+  String get key=>'$type:$id';
+  Map<String,dynamic> toJson()=>{'type':type,'id':id};
+}
+class CircleConversation {
+  CircleConversation.fromJson(Map<String,dynamic> json):id=(json['circleId'] as num).toInt(),name=json['displayName'] as String,lastMessage=json['lastMessage'] as String,unreadCount=(json['unreadCount'] as num).toInt(),lastMessageAt=DateTime.tryParse(json['lastMessageAt'] as String? ?? '');
+  final int id,unreadCount;final String name,lastMessage;final DateTime? lastMessageAt;
 }

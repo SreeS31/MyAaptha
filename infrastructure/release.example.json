@@ -1,0 +1,19 @@
+{
+  "domain": "app.example.com",
+  "postgres_host": "managed-postgres.example.internal",
+  "postgres_database": "myaaptha",
+  "postgres_user": "myaaptha",
+  "storage_bucket": "replace-with-private-bucket",
+  "storage_region": "ap-south-1",
+  "ingress_class": "nginx",
+  "ingress_namespace": "ingress-nginx",
+  "backend_image": "ghcr.io/OWNER/myaaptha-backend@sha256:REPLACE",
+  "frontend_image": "ghcr.io/OWNER/myaaptha-frontend@sha256:REPLACE",
+  "ai_image": "ghcr.io/OWNER/myaaptha-ai-agent@sha256:REPLACE",
+  "redis_host": "managed-redis.example.internal",
+  "backend_max_replicas": 10,
+  "db_pool_size": 20,
+  "db_connection_budget": 260,
+  "db_reserved_connections": 40,
+  "trusted_proxy_regex": "REPLACE_WITH_PROXY_ADDRESS_REGEX"
+}

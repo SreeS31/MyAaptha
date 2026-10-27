@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MediaAssetRepository extends JpaRepository<MediaAssetEntity,Long>{
+  Optional<MediaAssetEntity> findByStorageKey(String key);
   Optional<MediaAssetEntity> findByStorageKeyAndDeletedAtIsNull(String key);
   @Query("select coalesce(sum(a.sizeBytes),0) from MediaAssetEntity a where a.ownerUserId=:owner and a.deletedAt is null") long activeBytes(@Param("owner") Long owner);
   List<MediaAssetEntity> findTop100ByExpiresAtBeforeAndDeletedAtIsNullOrderByExpiresAt(Instant now);

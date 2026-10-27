@@ -5,6 +5,11 @@ import java.time.Instant;
 
 @Entity @Table(name="notifications")
 public class NotificationEntity {
+  public NotificationEntity withoutPreview() {
+    var copy=new NotificationEntity();copy.id=id;copy.userId=userId;copy.type=type;copy.createdAt=createdAt;
+    copy.title="New MyAaptha notification";copy.body="Open MyAaptha to view your update.";copy.actionUrl="/notifications";
+    return copy;
+  }
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
   @Column(name="user_id",nullable=false) private Long userId;
   @Column(nullable=false,length=40) private String type;

@@ -4,86 +4,187 @@ services:
     restart: unless-stopped
     environment:
       MYAAPTHA_DOMAIN: ${MYAAPTHA_DOMAIN:?Set MYAAPTHA_DOMAIN}
-    ports: ["80:80", "443:443"]
+    ports:
+    - 80:80
+    - 443:443
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
+    - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    - caddy-data:/data
     depends_on:
-      backend: { condition: service_healthy }
-      frontend: { condition: service_started }
-
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
   frontend:
     image: ${MYAAPTHA_FRONTEND_IMAGE:?Set frontend image}
     restart: unless-stopped
     read_only: true
-    tmpfs: [/tmp]
-
+    tmpfs:
+    - /tmp
+    - /app/.next/cache:uid=10001,gid=10001
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+  clamav:
+    image: ${CLAMAV_IMAGE:-clamav/clamav:stable}
+    restart: unless-stopped
+    volumes:
+    - antivirus-signatures:/var/lib/clamav
+    mem_limit: 2g
   backend:
     image: ${MYAAPTHA_BACKEND_IMAGE:?Set backend image}
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: ${POSTGRES_HOST:?Set managed database host}
       POSTGRES_DB: ${POSTGRES_DB:-myaaptha}
       POSTGRES_USER: ${POSTGRES_USER:-myaaptha}
       SPRING_CONFIG_IMPORT: optional:configtree:/run/secrets/
-      MYAAPTHA_STORAGE_PROVIDER: ${MYAAPTHA_STORAGE_PROVIDER:-s3}
-      MYAAPTHA_S3_BUCKET: ${MYAAPTHA_S3_BUCKET:-myaaptha-media}
+      MYAAPTHA_MEDIA_SCANNER: clamav
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: '3310'
+      MYAAPTHA_SECURITY_ADMIN_EMAIL: ${MYAAPTHA_SECURITY_ADMIN_EMAIL:-}
+      MYAAPTHA_METRICS_SCRAPE_TOKEN: ${MYAAPTHA_METRICS_SCRAPE_TOKEN:-}
+      MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN: ${MYAAPTHA_NOTIFICATION_WEBHOOK_TOKEN:-}
+      MYAAPTHA_STORAGE_PROVIDER: s3
+      MYAAPTHA_S3_BUCKET: ${MYAAPTHA_S3_BUCKET:?Set private bucket}
       MYAAPTHA_S3_REGION: ${MYAAPTHA_S3_REGION:-ap-south-1}
       MYAAPTHA_S3_ENDPOINT: ${MYAAPTHA_S3_ENDPOINT:-}
       MYAAPTHA_BASE_URL: http://ai-agent:8081/api/v1
       MYAAPTHA_CORS_ALLOWED_ORIGINS: https://${MYAAPTHA_DOMAIN:?Set MYAAPTHA_DOMAIN}
       MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL: ${MYAAPTHA_NOTIFICATION_WEBHOOK_CHANNEL:-}
       MYAAPTHA_NOTIFICATION_WEBHOOK_URL: ${MYAAPTHA_NOTIFICATION_WEBHOOK_URL:-https://sms-provider.invalid/api/messages}
-    secrets: [postgres_password, jwt_secret]
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_SSLMODE: ${POSTGRES_SSLMODE:-verify-full}
+      SPRING_FLYWAY_ENABLED: 'false'
+      MYAAPTHA_PUBLIC_API_BASE_URL: https://${MYAAPTHA_DOMAIN:?Set domain}
+      MYAAPTHA_WEB_ORIGIN: https://${MYAAPTHA_DOMAIN:?Set domain}
+      REDIS_HOST: ${REDIS_HOST:?Set managed Redis host}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_TLS: ${REDIS_TLS:-true}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-20}
+      MYAAPTHA_FIELD_ACTIVE_KEY_ID: ${MYAAPTHA_FIELD_ACTIVE_KEY_ID:-primary}
+      TRUSTED_PROXY_REGEX: ${TRUSTED_PROXY_REGEX:?Set trusted gateway and frontend
+        proxy addresses}
+    secrets:
+    - postgres_password
+    - jwt_secret
+    - redis_password
+    - field_encryption_keys
+    - admin_mfa_encryption_key
     depends_on:
-      postgres: { condition: service_healthy }
-      ai-agent: { condition: service_healthy }
+      clamav:
+        condition: service_healthy
+      ai-agent:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      encrypt-fields:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health"]
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O
+      - '-'
+      - http://localhost:8080/actuator/health/readiness
       interval: 20s
       timeout: 5s
       retries: 5
-
+      start_period: 60s
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    volumes:
+    - ./certs/postgres-ca.crt:/home/myaaptha/.postgresql/root.crt:ro
   ai-agent:
-    image: ${MYAAPTHA_IMAGE:?Set AI image}
+    image: ${MYAAPTHA_AI_IMAGE:?Set AI image digest}
     restart: unless-stopped
     environment:
       AI_ENV: production
       AI_LOG_LEVEL: INFO
     read_only: true
-    tmpfs: [/tmp]
+    tmpfs:
+    - /tmp
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/api/v1/ready')"]
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://localhost:8081/api/v1/ready')
       interval: 20s
       timeout: 5s
       retries: 5
-
-  postgres:
-    image: postgres:17-alpine
-    restart: unless-stopped
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+  migrate:
+    image: ${MYAAPTHA_BACKEND_IMAGE:?Set backend image}
+    restart: 'no'
+    entrypoint:
+    - java
+    - -Dloader.main=com.myaaptha.release.DatabaseMigration
+    - -cp
+    - app.jar
+    - org.springframework.boot.loader.launch.PropertiesLauncher
     environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:?Set managed database host}
       POSTGRES_DB: ${POSTGRES_DB:-myaaptha}
       POSTGRES_USER: ${POSTGRES_USER:-myaaptha}
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-    secrets: [postgres_password]
-    volumes: [postgres-data:/var/lib/postgresql/data]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myaaptha} -d ${POSTGRES_DB:-myaaptha}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
-    volumes: [redis-data:/data]
-
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_SSLMODE: ${POSTGRES_SSLMODE:-verify-full}
+    secrets:
+    - postgres_password
+    volumes:
+    - ./certs/postgres-ca.crt:/home/myaaptha/.postgresql/root.crt:ro
+  encrypt-fields:
+    image: ${MYAAPTHA_BACKEND_IMAGE:?Set backend image}
+    restart: 'no'
+    entrypoint:
+    - java
+    - -Dloader.main=com.myaaptha.release.EncryptSensitiveFields
+    - -cp
+    - app.jar
+    - org.springframework.boot.loader.launch.PropertiesLauncher
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:?Set managed database host}
+      POSTGRES_DB: ${POSTGRES_DB:-myaaptha}
+      POSTGRES_USER: ${POSTGRES_USER:-myaaptha}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      MYAAPTHA_FIELD_ACTIVE_KEY_ID: ${MYAAPTHA_FIELD_ACTIVE_KEY_ID:-primary}
+    secrets:
+    - postgres_password
+    - field_encryption_keys
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs:
+    - /tmp
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    volumes:
+    - ./certs/postgres-ca.crt:/home/myaaptha/.postgresql/root.crt:ro
 secrets:
-  postgres_password: { file: ./secrets/postgres_password }
-  jwt_secret: { file: ./secrets/jwt_secret }
+  postgres_password:
+    file: ./secrets/postgres_password
+  jwt_secret:
+    file: ./secrets/jwt_secret
+  redis_password:
+    file: ./secrets/redis_password
+  field_encryption_keys:
+    file: ./secrets/field_encryption_keys
+  admin_mfa_encryption_key:
+    file: ./secrets/admin_mfa_encryption_key
 volumes:
-  postgres-data:
-  redis-data:
-  caddy-data:
+  caddy-data: null
+  antivirus-signatures: null

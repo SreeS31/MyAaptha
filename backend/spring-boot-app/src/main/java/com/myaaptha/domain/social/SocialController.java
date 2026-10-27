@@ -8,6 +8,8 @@ import java.security.Principal; import java.util.List; import org.springframewor
  @DeleteMapping("/posts/{postId}") public ResponseEntity<Void> delete(Principal p,@PathVariable Long postId){service.deletePost(id(p),postId);return ResponseEntity.noContent().build();}
  @PostMapping("/posts/{postId}/like") public SocialDtos.Post like(Principal p,@PathVariable Long postId){return service.toggleLike(id(p),postId);}
  @PostMapping("/posts/{postId}/save") public SocialDtos.Post save(Principal p,@PathVariable Long postId){return service.toggleSave(id(p),postId);}
+ @PutMapping("/posts/{postId}/reaction") public SocialDtos.Post react(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.ReactionRequest r){return service.react(id(p),postId,r.emoji());}
+ @PutMapping("/posts/{postId}/pin") public SocialDtos.Post pin(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.PinRequest r){return service.pin(id(p),postId,r.pinned());}
  @PostMapping("/posts/{postId}/share") public SocialDtos.ShareResult share(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.ShareRequest r){return service.share(id(p),postId,r);}
  @PostMapping("/posts/{postId}/comments") public SocialDtos.Comment comment(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.CommentRequest r){return service.comment(id(p),postId,r.message());}
  @DeleteMapping("/posts/{postId}/comments/{commentId}") public ResponseEntity<Void> deleteComment(Principal p,@PathVariable Long postId,@PathVariable Long commentId){service.deleteComment(id(p),postId,commentId);return ResponseEntity.noContent().build();}

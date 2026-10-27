@@ -1,0 +1,9 @@
+flowchart TD
+    Source[Choose contact source] --> Consent{Permission / provider configured?}
+    Consent -->|No| Stop[Explain unmet requirement]
+    Consent -->|Yes| Parse[Parse and normalize]
+    Parse --> Review[Review duplicates and suggestions]
+    Review --> Confirm{Confirm selection?}
+    Confirm -->|No| Cancel[No import write]
+    Confirm -->|Yes| Persist[Persist selected records]
+    Persist --> Connect[Assign circles / link relationships]

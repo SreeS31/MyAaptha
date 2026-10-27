@@ -28,13 +28,13 @@ public class RelationshipEntity {
   private Long relativeToUserId;
 
   @Column(name = "contact_name")
-  private String contactName;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String contactName;
 
   @Column(name = "contact_phone")
-  private String contactPhone;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String contactPhone;
 
   @Column(name = "contact_email")
-  private String contactEmail;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String contactEmail;
 
   @Column(name = "visibility_scope", nullable = false)
   private String visibilityScope = "FRIENDS";
@@ -43,13 +43,13 @@ public class RelationshipEntity {
   private String visibilityCompany;
 
   @Column(name = "milestone_date")
-  private String milestoneDate;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String milestoneDate;
 
   @Column(name = "related_birth_date")
-  private String relatedBirthDate;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String relatedBirthDate;
 
   @Column(name = "related_death_date")
-  private String relatedDeathDate;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String relatedDeathDate;
 
   public Long getId() {
     return id;

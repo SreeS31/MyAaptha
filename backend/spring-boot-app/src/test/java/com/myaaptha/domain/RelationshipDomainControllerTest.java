@@ -31,6 +31,30 @@ class RelationshipDomainControllerTest {
   private ObjectMapper objectMapper;
 
   @Test
+  void ordinaryMemberCannotReadOrModifyGlobalAdministrationData() throws Exception {
+    String username = "member" + java.util.UUID.randomUUID().toString().replace("-", "");
+    String phone = "+1999" + String.format("%010d", Math.abs(new java.util.Random().nextLong() % 10000000000L));
+    mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
+        .content("{\"username\":\"" + username + "\",\"phoneNumber\":\"" + phone
+            + "\",\"password\":\"MemberSecure123!\"}"))
+        .andExpect(status().isOk());
+    MvcResult login = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+        .content("{\"identifier\":\"" + username + "\",\"password\":\"MemberSecure123!\"}"))
+        .andExpect(status().isOk()).andReturn();
+    String token = objectMapper.readTree(login.getResponse().getContentAsString()).get("accessToken").asText();
+    for (String endpoint : java.util.List.of("/api/users", "/api/people", "/api/circles", "/api/relationships", "/api/permissions")) {
+      mockMvc.perform(get(endpoint).header(HttpHeaders.AUTHORIZATION, "Bearer " + token)).andExpect(status().isForbidden());
+      mockMvc.perform(get(endpoint + "/1").header(HttpHeaders.AUTHORIZATION, "Bearer " + token)).andExpect(status().isForbidden());
+      mockMvc.perform(put(endpoint + "/1").header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+          .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
+      mockMvc.perform(delete(endpoint + "/1").header(HttpHeaders.AUTHORIZATION, "Bearer " + token)).andExpect(status().isForbidden());
+      if (!endpoint.equals("/api/users")) mockMvc.perform(post(endpoint).header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+          .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isForbidden());
+    }
+    mockMvc.perform(get("/api/dashboard/summary").header(HttpHeaders.AUTHORIZATION, "Bearer " + token)).andExpect(status().isForbidden());
+  }
+
+  @Test
   void shouldManagePeople() throws Exception {
     assertCrudLifecycle("/api/people", "{\"fullName\":\"Alex Morgan\",\"email\":\"alex@myaaptha.ai\"}",
         "{\"fullName\":\"Alex Taylor\",\"email\":\"alex.taylor@myaaptha.ai\"}", "fullName", "Alex Taylor");

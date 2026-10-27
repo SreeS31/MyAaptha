@@ -1,5 +1,5 @@
 import re
-from collections import Counter, defaultdict
+from collections import defaultdict
 from difflib import SequenceMatcher
 from fastapi import APIRouter, FastAPI, HTTPException
 
@@ -14,7 +14,7 @@ app = FastAPI(title="MyAaptha Agent Service", version="1.0.0", description="Priv
 router = APIRouter(prefix=settings.ai_api_prefix)
 
 def norm(value: str | None) -> str:
-    return re.sub(r"[^a-z0-9]", "", (value or "").casefold())
+    return re.sub(r"[\W_]+", "", (value or "").casefold(), flags=re.UNICODE)
 
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
@@ -27,6 +27,8 @@ def ready() -> HealthResponse:
 @router.post("/search/rank", response_model=list[RankedPerson])
 def rank_people(request: SearchRankRequest) -> list[RankedPerson]:
     query = norm(request.query)
+    if not query:
+        raise HTTPException(status_code=422, detail="Search must contain a letter or number")
     ranked: list[RankedPerson] = []
     for person in request.candidates:
         fields = {"name": norm(f"{person.name} {person.surname}"), "location": norm(person.location), "company": norm(person.company), "relationship": norm(person.relationship)}
@@ -47,16 +49,17 @@ def duplicates(request: DuplicateRequest) -> list[DuplicatePair]:
         for second in request.people[index + 1:]:
             reasons, confidence = [], 0.0
             if first.phone and second.phone and norm(first.phone) == norm(second.phone): reasons.append("same mobile number"); confidence = 1.0
-            if first.email and second.email and norm(first.email) == norm(second.email): reasons.append("same email address"); confidence = max(confidence, .98)
-            name_score = SequenceMatcher(None, norm(f"{first.name}{first.surname}"), norm(f"{second.name}{second.surname}")).ratio()
-            if name_score >= .88: reasons.append("very similar name"); confidence = max(confidence, name_score * (.92 if norm(first.location) == norm(second.location) else .78))
+            if first.email and second.email and first.email.strip().casefold() == second.email.strip().casefold(): reasons.append("same email address"); confidence = max(confidence, .98)
+            first_name, second_name = norm(f"{first.name}{first.surname}"), norm(f"{second.name}{second.surname}")
+            name_score = SequenceMatcher(None, first_name, second_name).ratio() if first_name and second_name else 0.0
+            same_location = bool(norm(first.location)) and norm(first.location) == norm(second.location)
+            if name_score >= .88: reasons.append("very similar name"); confidence = max(confidence, name_score * (.92 if same_location else .78))
             if confidence >= .72: result.append(DuplicatePair(first_id=first.id, second_id=second.id, confidence=round(confidence, 4), reasons=reasons))
     return sorted(result, key=lambda pair: -pair.confidence)
 
 @router.post("/family/insights", response_model=list[FamilyInsight])
 def family_insights(request: FamilyInsightRequest) -> list[FamilyInsight]:
     if not request.consent: raise HTTPException(status_code=403, detail="Explicit consent is required for family-tree insights")
-    relationship_counts = Counter(edge.relationship.casefold() for edge in request.relationships)
     insights = [FamilyInsight(kind="SUMMARY", title="Family network summary", detail=f"{len(request.people)} people and {len(request.relationships)} relationship links are represented.")]
     if not request.relationships and request.people: insights.append(FamilyInsight(kind="DATA_QUALITY", title="Unconnected profiles", detail="Profiles exist without relationship links. Connect them before accepting tree insights.", related_ids=[p.id for p in request.people], requires_review=True))
     parent_count: dict[int | str, int] = defaultdict(int)
@@ -64,7 +67,8 @@ def family_insights(request: FamilyInsightRequest) -> list[FamilyInsight]:
         if edge.relationship.casefold() in {"child", "son", "daughter"}: parent_count[edge.source_id] += 1
     large = [person_id for person_id, count in parent_count.items() if count >= 5]
     if large: insights.append(FamilyInsight(kind="SUGGESTION", title="Review large child groups", detail="These nodes have five or more child links. Confirm that all anchors are correct.", related_ids=large, requires_review=True))
-    if relationship_counts.get("spouse", 0) % 2 == 1: insights.append(FamilyInsight(kind="DATA_QUALITY", title="Unpaired spouse link", detail="A spouse relationship may be missing its reciprocal link.", requires_review=True))
+    spouse_links = {(edge.source_id, edge.target_id) for edge in request.relationships if edge.relationship.casefold() == "spouse"}
+    if any((target, source) not in spouse_links for source, target in spouse_links): insights.append(FamilyInsight(kind="DATA_QUALITY", title="Unpaired spouse link", detail="A spouse relationship may be missing its reciprocal link.", requires_review=True))
     return insights
 
 @router.post("/profiles/enrichment", response_model=list[EnrichmentSuggestion])
@@ -112,7 +116,12 @@ def organize_contacts(request: ContactOrganizeRequest) -> list[ContactSuggestion
             if matches:
                 relationship, confidence, reasons = candidate, .9, [f"Name or label contains '{matches[0]}'"]
                 break
-        circles: list[str] = []
+        # Preserve explicit address-book groups; ignore phone-type/system labels.
+        ignored_labels = {"mobile", "home", "work", "other", "main", "iphone", "my contacts", "starred", "* mycontacts"}
+        circles: list[str] = [label.strip() for label in contact.labels
+                              if label.strip() and label.strip().casefold() not in ignored_labels
+                              and not label.startswith("contactGroups/")]
+        if circles: reasons.append("Existing contact group labels are preserved")
         if relationship in {"Mother", "Father", "Sister", "Brother", "Wife", "Husband", "Son", "Daughter", "Grandmother", "Grandfather", "Granddaughter", "Grandson", "Aunt", "Uncle", "Niece", "Nephew", "Cousin", "Guardian", "Relative"}:
             circles.append("Family")
         organization = contact.organization.strip()
@@ -125,7 +134,12 @@ def organize_contacts(request: ContactOrganizeRequest) -> list[ContactSuggestion
             label = next((item.strip() for item in contact.labels if item.strip()), "Education friends")
             circles.append(label if any(word in label.casefold() for word in EDUCATION_WORDS) else "Education friends")
             reasons.append(f"Education keyword '{education_matches[0]}' was detected")
-        if relationship == "Friend" and not circles: circles.append("Friends")
+        if relationship == "Friend" and not circles:
+            if tokens.intersection({"friend", "friends", "buddy", "buddies"}):
+                circles.append("Friends")
+            else:
+                circles.append("Imported contacts")
+                reasons.append("No reliable group signal; kept in Imported contacts for review")
         suggestions.append(ContactSuggestion(
             contact_key=contact.contact_key, display_name=contact.display_name.strip(),
             phone=contact.phones[0] if contact.phones else None,

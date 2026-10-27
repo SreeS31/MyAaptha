@@ -1,0 +1,8 @@
+flowchart TD
+    Request[Emergency request] --> Pending[Pending independent decisions]
+    Pending --> Count{Two independent approvals?}
+    Count -->|No| Wait[No document access]
+    Count -->|Yes| Access[One-hour approved access]
+    Access --> Audit[Audit list and document opens]
+    Pending --> Expiry[24-hour request expiry]
+    Access --> End[Access expiry / authorization denial]

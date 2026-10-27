@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-26",
+  "scope": "Owner dependency answers and shared call relay configuration",
+  "checks": {
+    "backendCallIceTests": 7,
+    "nativeTests": 8,
+    "infrastructureTests": 29,
+    "browserDesktopMobileTests": 2,
+    "liveApiAnonymous401Authenticated200": true,
+    "noStoreAndLocalStunFallback": true,
+    "backendPackage": true,
+    "webProductionBuild": true,
+    "androidDebugBuild": true,
+    "servedApkHashAndEmbeddedLanAddress": true,
+    "composeStructuralValidation": true
+  },
+  "productionDeployed": false,
+  "realTurnNetworkVerified": false,
+  "physicalDevicesVerified": false,
+  "releaseApproved": false,
+  "launchTasksComplete": 61,
+  "launchTasksPending": 29
+}

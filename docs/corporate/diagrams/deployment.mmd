@@ -1,0 +1,10 @@
+flowchart LR
+    Source[Reviewed source] --> Checks[Tests and security scans]
+    Checks --> Artifacts[Tagged images + digests + SBOM]
+    Artifacts --> Gate{Environment / release gates passed?}
+    Gate -->|No| Remediate[Resolve blockers]
+    Gate -->|Yes| Deploy[Controlled deployment]
+    Deploy --> Monitor[Health and metrics]
+    Monitor --> Incident{Unhealthy?}
+    Incident -->|Yes| Rollback[Rollback / isolated restore]
+    Incident -->|No| Review[Operational review]

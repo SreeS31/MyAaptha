@@ -1,3 +1,21 @@
+import 'workspace_navigation.dart';
+import 'post_options_sheet.dart';
+import 'renewals_screen.dart';
+import 'package:myaaptha_mobile/core/contacts/contact_oauth_poll.dart';
+import 'package:myaaptha_mobile/core/contacts/device_contact_access.dart';
+import 'health_report_dialog.dart';
+import 'moderation_queue_screen.dart';
+import 'health_analysis_card.dart';
+import 'package:myaaptha_mobile/core/widgets/info_help.dart';
+import 'timeline_screen.dart';
+import 'profile_media_card.dart';
+import 'emergency_documents_screen.dart';
+import 'follow_connections_screen.dart';
+import 'chat_discovery_screen.dart';
+import 'address_book_screen.dart';
+import 'application_settings_screen.dart';
+import 'help_chat_screen.dart';
+import 'chain_network_view.dart';
 import 'dart:math' as math;
 import 'dart:async';
 import 'dart:convert';
@@ -14,7 +32,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:fast_contacts/fast_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,7 +44,9 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
+  Map<String,dynamic> workspaceSettings = {};
+  bool syncBusy = false;
   int index = 0;
   late final MyAapthaApi api = MyAapthaApi(widget.session);
   Timer? incomingTimer;
@@ -38,9 +57,9 @@ class _AppShellState extends State<AppShell> {
   int unreadCircleMessages = 0;
   int syncVersion = 0;
   List<Widget> get pages => <Widget>[
-        NetworkHome(key: ValueKey('network-$syncVersion'), api: api),
+        WorkspaceHub(key:const ValueKey('dashboard-hub'),title:'Dashboard',labels:const ['Overview','Life timeline','My profile','Trust center'],pages:[MobileDashboard(api:api),TimelineScreen(api:api),ProfileScreen(api:api,onDataChanged:refreshWorkspace),TrustCenterScreen(api:api)]),
         SocialFeedScreen(key: ValueKey('feed-$syncVersion'), api: api),
-        MessagesScreen(key: ValueKey('messages-$syncVersion'), api: api),
+        WorkspaceHub(key:const ValueKey('messages-hub'),title:'Messages',labels:const ['Personal & groups','My circles','My contacts','Find people'],pages:[MessagesScreen(api:api),CirclesScreen(api:api),AddressBookScreen(api:api),DiscoverScreen(api:api)]),
         CirclesScreen(key: ValueKey('circles-$syncVersion'), api: api),
         NotificationsScreen(
             key: ValueKey('notifications-$syncVersion'), api: api),
@@ -55,26 +74,35 @@ class _AppShellState extends State<AppShell> {
             api: api,
             session: widget.session,
             onSignOut: signOut,
-            onSelectPrimaryPage: (value) => setState(() => index = value))
+            onSelectPrimaryPage: (value) => setState(() => index = value)),
+        NetworkHome(api:api),
+        HealthRecordsScreen(api:api),
+        FinanceScreen(api:api),
+        ProfileScreen(api:api,area:'Career',onDataChanged:refreshWorkspace),
+        ProfileScreen(api:api,area:'Interests',onDataChanged:refreshWorkspace),
+        WorkspaceHub(title:'Online Feed',labels:const ['Updates & thoughts','Following & followers'],pages:[SocialFeedScreen(api:api,online:true),FollowConnectionsScreen(api:api)])
       ];
-  static const mobileDestinationIndexes = <int>[0, 1, 2, 3, 7];
+  void refreshWorkspace(){if(mounted)setState(()=>syncVersion++);}
+  final visitedPages=<int>{0};
+  static const mobileDestinationIndexes = <int>[0,2,13,7];
+  int get unreadChats => unreadMessages + unreadCircleMessages;
   List<NavigationDestination> get destinations => [
         const NavigationDestination(
             icon: Icon(Icons.account_tree_outlined),
             selectedIcon: Icon(Icons.account_tree_rounded),
-            label: 'Network'),
+            label: 'Dashboard'),
         const NavigationDestination(
             icon: Icon(Icons.dynamic_feed_outlined),
             selectedIcon: Icon(Icons.dynamic_feed_rounded),
-            label: 'Feed'),
+            label: 'Diary & Memories'),
         NavigationDestination(
             icon: Badge(
-                isLabelVisible: unreadMessages > 0,
-                label: Text(unreadMessages > 99 ? '99+' : '$unreadMessages'),
+                isLabelVisible: unreadChats > 0,
+                label: Text(unreadChats > 99 ? '99+' : '$unreadChats'),
                 child: const Icon(Icons.chat_bubble_outline_rounded)),
             selectedIcon: Badge(
-                isLabelVisible: unreadMessages > 0,
-                label: Text(unreadMessages > 99 ? '99+' : '$unreadMessages'),
+                isLabelVisible: unreadChats > 0,
+                label: Text(unreadChats > 99 ? '99+' : '$unreadChats'),
                 child: const Icon(Icons.chat_bubble_rounded)),
             label: 'Messages'),
         NavigationDestination(
@@ -102,11 +130,11 @@ class _AppShellState extends State<AppShell> {
                 label: Text(
                     unreadNotifications > 99 ? '99+' : '$unreadNotifications'),
                 child: const Icon(Icons.notifications_rounded)),
-            label: 'Alerts'),
+            label: 'Notifications'),
         const NavigationDestination(
             icon: Icon(Icons.person_search_outlined),
             selectedIcon: Icon(Icons.person_search_rounded),
-            label: 'Discover'),
+            label: 'Search'),
         const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
@@ -114,13 +142,21 @@ class _AppShellState extends State<AppShell> {
         const NavigationDestination(
             icon: Icon(Icons.apps_outlined),
             selectedIcon: Icon(Icons.apps_rounded),
-            label: 'More')
+            label: 'Tools'),
+        const NavigationDestination(icon:Icon(Icons.account_tree_outlined),label:'Relationships'),
+        const NavigationDestination(icon:Icon(Icons.monitor_heart_outlined),label:'Health'),
+        const NavigationDestination(icon:Icon(Icons.account_balance_wallet_outlined),label:'Finance'),
+        const NavigationDestination(icon:Icon(Icons.work_outline),label:'Career'),
+        const NavigationDestination(icon:Icon(Icons.interests_outlined),label:'Interests'),
+        const NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),label:'Online Feed')
       ];
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    loadWorkspaceSettings();
     incomingTimer =
-        Timer.periodic(const Duration(seconds: 3), (_) => checkIncomingCalls());
+        Timer.periodic(const Duration(seconds: 5), (_) => checkIncomingCalls());
     connectivitySubscription =
         Connectivity().onConnectivityChanged.listen((results) {
       if (mounted &&
@@ -136,13 +172,30 @@ class _AppShellState extends State<AppShell> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     incomingTimer?.cancel();
     connectivitySubscription?.cancel();
     super.dispose();
   }
 
+  Future<void> loadWorkspaceSettings() async {
+    try { final value=await api.applicationSettings(); if(mounted)setState(()=>workspaceSettings=value); } catch(_) {}
+  }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state==AppLifecycleState.resumed){loadWorkspaceSettings();checkIncomingCalls();}
+  }
+  Future<void> openSettings() async {
+    await Navigator.push(context,MaterialPageRoute(builder:(_)=>ApplicationSettingsScreen(api:api)));
+    if(mounted)await loadWorkspaceSettings();
+  }
+  DateTime? lastWorkspaceSync;
   Future<void> checkIncomingCalls() async {
-    if (!mounted) return;
+    if (!mounted || syncBusy || WidgetsBinding.instance.lifecycleState == AppLifecycleState.paused) return;
+    syncBusy = true;
+    try {
+    if(lastWorkspaceSync==null||DateTime.now().difference(lastWorkspaceSync!).inSeconds>=15){
+    lastWorkspaceSync=DateTime.now();
     try {
       await api.heartbeatPresence();
     } catch (_) {}
@@ -167,6 +220,7 @@ class _AppShellState extends State<AppShell> {
         setState(() => unreadCircleMessages = count);
       }
     } catch (_) {}
+    }
     if (showingIncomingCall) return;
     try {
       final calls = await api.incomingCalls();
@@ -208,6 +262,7 @@ class _AppShellState extends State<AppShell> {
     } finally {
       showingIncomingCall = false;
     }
+    } finally { syncBusy = false; }
   }
 
   Future<void> maybeSuggestContactOrganizer() async {
@@ -244,57 +299,48 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= 760;
-    final content = IndexedStack(index: index, children: pages);
-    return Scaffold(
-      body: SafeArea(
-        child: wide
-            ? Row(children: [
-                NavigationRail(
-                  selectedIndex: index,
-                  onDestinationSelected: (value) =>
-                      setState(() => index = value),
-                  labelType: NavigationRailLabelType.all,
-                  leading: const Padding(
-                    padding: EdgeInsets.only(bottom: 20),
-                    child: _BrandMark(),
-                  ),
-                  trailing: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: IconButton(
-                        tooltip: 'Sign out',
-                        onPressed: signOut,
-                        icon: const Icon(Icons.logout_rounded),
-                      ),
-                    ),
-                  ),
-                  destinations: destinations
-                      .map((item) => NavigationRailDestination(
-                            icon: item.icon,
-                            selectedIcon: item.selectedIcon,
-                            label: Text(item.label),
-                          ))
-                      .toList(),
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(child: content),
-              ])
-            : content,
-      ),
-      bottomNavigationBar: wide
-          ? null
-          : NavigationBar(
-              selectedIndex: mobileDestinationIndexes.contains(index)
-                  ? mobileDestinationIndexes.indexOf(index)
-                  : mobileDestinationIndexes.length - 1,
-              onDestinationSelected: (value) =>
-                  setState(() => index = mobileDestinationIndexes[value]),
-              destinations: mobileDestinationIndexes
-                  .map((destinationIndex) => destinations[destinationIndex])
-                  .toList(),
-            ),
-    );
+    final size=MediaQuery.sizeOf(context);
+    final wide=size.width>=1000 && size.height>=650;
+    visitedPages.add(index);
+    final allPages=pages;
+    final content=IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]);
+    final selectedPrimary=workspacePrimaryIndexes.contains(index)?workspacePrimaryIndexes.indexOf(index):null;
+    final theme=Theme.of(context);
+    return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true?VisualDensity.compact:VisualDensity.standard),
+      child:MediaQuery(data:MediaQuery.of(context).copyWith(disableAnimations:MediaQuery.of(context).disableAnimations||workspaceSettings['reducedMotion']==true),
+      child:Scaffold(
+        appBar:AppBar(surfaceTintColor:Colors.transparent,
+          title:InkWell(borderRadius:BorderRadius.circular(24),onTap:()=>setState(()=>index=5),child:Container(
+            padding:const EdgeInsets.symmetric(horizontal:14,vertical:11),decoration:BoxDecoration(color:theme.colorScheme.surfaceContainerHighest,borderRadius:BorderRadius.circular(24)),
+            child:Row(children:[const Icon(Icons.search_rounded,size:22),const SizedBox(width:10),Expanded(child:Text('Search MyAaptha',overflow:TextOverflow.ellipsis,style:theme.textTheme.bodyLarge))]))),
+          actions:[IconButton(tooltip:'Notifications',onPressed:()=>setState(()=>index=4),icon:Badge(isLabelVisible:unreadNotifications>0,label:Text(unreadNotifications>99?'99+':'$unreadNotifications'),child:const Icon(Icons.notifications_none_rounded))),IconButton(tooltip:'Settings',onPressed:openSettings,icon:const Icon(Icons.settings_outlined))]),
+        drawer:wide?null:Drawer(child:SafeArea(child:Column(children:[
+          const Padding(padding:EdgeInsets.all(24),child:_BrandMark()),
+          Expanded(child:ListView(children:[for(final i in workspacePrimaryIndexes)ListTile(
+            selected:index==i,leading:destinations[i].icon,title:Text(destinations[i].label),
+            onTap:(){Navigator.pop(context);setState(()=>index=i);}),
+            const Divider(),
+            ListTile(leading:const Icon(Icons.tune_rounded),title:const Text('Account & tools'),onTap:(){Navigator.pop(context);setState(()=>index=7);}),
+            ListTile(leading:const Icon(Icons.compare_arrows),title:const Text('Menu comparison'),onTap:(){Navigator.pop(context);openMenuComparison(context,api,widget.session,signOut);}),
+          ])),ListTile(leading:const Icon(Icons.logout_rounded),title:const Text('Sign out'),onTap:signOut),
+        ]))),
+        body:SafeArea(child:wide?Row(children:[
+          NavigationRail(scrollable:true,extended:true,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=workspacePrimaryIndexes[value]),labelType:NavigationRailLabelType.none,
+            leading:const Padding(padding:EdgeInsets.only(bottom:12),child:_BrandMark()),
+            destinations:workspacePrimaryIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:Column(children:[IconButton(tooltip:'Account & tools',onPressed:()=>setState(()=>index=7),icon:const Icon(Icons.tune)),IconButton(tooltip:'Menu comparison',onPressed:()=>openMenuComparison(context,api,widget.session,signOut),icon:const Icon(Icons.compare_arrows))])),
+          const VerticalDivider(width:1),Expanded(child:content),
+          const VerticalDivider(width:1),SizedBox(width:60,child:Column(children:[const SizedBox(height:14),
+            IconButton(tooltip:'Find people',onPressed:()=>setState(()=>index=5),icon:const Icon(Icons.person_search_outlined)),
+            IconButton(tooltip:'Notifications',onPressed:()=>setState(()=>index=4),icon:const Icon(Icons.notifications_none_rounded)),
+            IconButton(tooltip:'My profile',onPressed:()=>setState(()=>index=6),icon:const Icon(Icons.person_outline)),
+            IconButton(tooltip:'Settings',onPressed:openSettings,icon:const Icon(Icons.tune_rounded)),
+          ])),
+        ]):content),
+        bottomNavigationBar:wide?null:NavigationBar(
+          selectedIndex:mobileDestinationIndexes.contains(index)?mobileDestinationIndexes.indexOf(index):mobileDestinationIndexes.length-1,
+          onDestinationSelected:(value)=>setState(()=>index=mobileDestinationIndexes[value]),
+          destinations:mobileDestinationIndexes.map((i)=>destinations[i]).toList()),
+      )));
   }
 
   Future<void> signOut() async {
@@ -311,7 +357,7 @@ class _BrandMark extends StatelessWidget {
         Image.asset('assets/brand/myaaptha-logo.png', width: 48, height: 48),
         const SizedBox(height: 6),
         const Text('MyAaptha',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12))
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14))
       ]);
 }
 
@@ -333,77 +379,57 @@ class MoreScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const _PageHeader(
-              eyebrow: 'PERSONAL ASSISTANT & SETTINGS',
-              title: 'Your life tools',
+              eyebrow: 'MYAAPTHA WORKSPACE',
+              title: 'Account & tools',
               subtitle:
-                  'Money, memories, safety, discovery, privacy and account controls.'),
-          _primaryTile(Icons.notifications_outlined, 'Notifications',
-              'Review activity and important alerts.', 4),
-          _primaryTile(Icons.person_search_outlined, 'Find people & circles',
-              'Discover people and communities.', 5),
-          _primaryTile(Icons.person_outline, 'My profile',
-              'Manage your identity and profile details.', 6),
-          _moreTile(
-              context,
-              Icons.timeline_rounded,
-              'Life timeline',
-              'Review your diary entries in chronological order.',
-              TimelineScreen(api: api)),
-          _moreTile(
-              context,
-              Icons.account_balance_wallet_outlined,
-              'Money & insights',
-              'Spending, savings and financial wellbeing.',
-              FinanceScreen(api: api)),
-          _moreTile(
-              context,
-              Icons.monitor_heart_outlined,
-              'Health records',
-              'Diagnostic reports, measurements and health trends.',
-              HealthRecordsScreen(api: api)),
-          _moreTile(
-              context,
-              Icons.stars_rounded,
-              'Trust center',
-              'Star Members, emergency access and Role Models.',
-              TrustCenterScreen(api: api)),
+                  'The same workspace sections and labels used on the web.'),
+          Card(child:ListTile(leading:const Icon(Icons.compare_arrows),title:const Text('Menu comparison'),onTap:()=>openMenuComparison(context,api,session,onSignOut))),
+          const _MenuSection('ACCOUNT'),
           _moreTile(
               context,
               Icons.shield_outlined,
               'Privacy & settings',
               'Blocked accounts and privacy controls.',
               PrivacyCenterScreen(api: api)),
+          _moreTile(
+              context,
+              Icons.devices_rounded,
+              'Account sessions',
+              'Review this login and sign out securely.',
+              SessionScreen(session: session, onSignOut: onSignOut)),
+          _moreTile(
+              context,
+              Icons.auto_awesome_outlined,
+              'AI controls',
+              'Review permissions, approvals and AI outcomes.',
+              AiControlScreen(api: api)),
+          _moreTile(context, Icons.help_outline, 'Ask MyAaptha',
+              'Get answers about profiles, relations and broadcasts.',
+              HelpChatScreen(api: api)),
+          const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
           _moreTile(context, Icons.admin_panel_settings_outlined, 'Moderation',
               'Admin trust and safety queue.', ModerationScreen(api: api)),
-          _moreTile(
-              context,
-              Icons.devices_rounded,
-              'Account session',
-              'Review this login and sign out securely.',
-              SessionScreen(session: session, onSignOut: onSignOut)),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text('Sign out'),
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFB4233C),
+                  minimumSize: const Size.fromHeight(48),
+                  side: const BorderSide(color: Color(0xFFEAF4F5)))),
         ],
       );
-
-  Widget _primaryTile(
-          IconData icon, String title, String subtitle, int pageIndex) =>
-      Card(
-          child: ListTile(
-              leading: CircleAvatar(child: Icon(icon)),
-              title: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
-              subtitle: Text(subtitle),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => onSelectPrimaryPage(pageIndex)));
 
   Widget _moreTile(BuildContext context, IconData icon, String title,
           String subtitle, Widget destination) =>
       Card(
           child: ListTile(
-              leading: CircleAvatar(child: Icon(icon)),
+              leading: Icon(icon, color: AppTheme.primary),
               title: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: const TextStyle(fontWeight: FontWeight.w500)),
               subtitle: Text(subtitle),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => Navigator.push(
@@ -414,45 +440,20 @@ class MoreScreen extends StatelessWidget {
                           body: destination)))));
 }
 
-class TimelineScreen extends StatelessWidget {
-  const TimelineScreen({super.key, required this.api});
-  final MyAapthaApi api;
+class _MenuSection extends StatelessWidget {
+  const _MenuSection(this.label);
+  final String label;
+
   @override
-  Widget build(BuildContext context) =>
-      FutureBuilder<List<Map<String, dynamic>>>(
-          future: api.socialFeed(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) return _ErrorState('${snapshot.error}');
-            final entries = (snapshot.data ?? [])
-                .where((item) => item['mine'] == true)
-                .toList();
-            if (entries.isEmpty) {
-              return const Center(
-                  child: Text(
-                      'Your timeline will grow as you add diary entries.'));
-            }
-            return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: entries.length,
-                itemBuilder: (context, index) {
-                  final item = entries[index];
-                  return Card(
-                      child: ListTile(
-                          leading: const Icon(Icons.auto_stories_rounded),
-                          title: Text(
-                              (item['caption'] ??
-                                      item['mediaName'] ??
-                                      'Diary entry')
-                                  .toString(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis),
-                          subtitle: Text(
-                              '${item['createdAt'] ?? ''} · ${(item['audience'] ?? 'PRIVATE').toString().toLowerCase()}')));
-                });
-          });
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+        child: Text(label,
+            style: const TextStyle(
+                color: AppTheme.muted,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0)),
+      );
 }
 
 class HealthRecordsScreen extends StatefulWidget {
@@ -462,7 +463,13 @@ class HealthRecordsScreen extends StatefulWidget {
   State<HealthRecordsScreen> createState() => _HealthRecordsScreenState();
 }
 
-class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
+class _HealthRecordsScreenState extends State<HealthRecordsScreen> with WidgetsBindingObserver {
+  @override
+  void dispose() { WidgetsBinding.instance.removeObserver(this); super.dispose(); }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) load();
+  }
   Map<String, dynamic>? data;
   List<Map<String, dynamic>> docs = [];
   bool loading = true;
@@ -470,6 +477,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     load();
   }
 
@@ -507,106 +515,8 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
   }
 
   Future<void> add() async {
-    final name = TextEditingController(),
-        lab = TextEditingController(),
-        metric = TextEditingController(),
-        value = TextEditingController(),
-        unit = TextEditingController(),
-        minimum = TextEditingController(),
-        maximum = TextEditingController();
-    int? postId;
-    final save = await showDialog<bool>(
-        context: context,
-        builder: (context) => StatefulBuilder(
-            builder: (context, setDialog) => AlertDialog(
-                    title: const Text('Add diagnostic report'),
-                    content: SingleChildScrollView(
-                        child:
-                            Column(mainAxisSize: MainAxisSize.min, children: [
-                      TextField(
-                          controller: name,
-                          decoration:
-                              const InputDecoration(labelText: 'Report name')),
-                      TextField(
-                          controller: lab,
-                          decoration:
-                              const InputDecoration(labelText: 'Laboratory')),
-                      DropdownButtonFormField<int?>(
-                          initialValue: postId,
-                          items: [
-                            const DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text('No linked diary document')),
-                            ...docs.map((x) => DropdownMenuItem<int?>(
-                                value: x['id'] as int,
-                                child: Text('${x['name']}')))
-                          ],
-                          onChanged: (v) => setDialog(() => postId = v),
-                          decoration: const InputDecoration(
-                              labelText: 'Private diary document')),
-                      const Divider(height: 28),
-                      TextField(
-                          controller: metric,
-                          decoration: const InputDecoration(
-                              labelText:
-                                  'Measurement (for example Hemoglobin)')),
-                      TextField(
-                          controller: value,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          decoration:
-                              const InputDecoration(labelText: 'Value')),
-                      TextField(
-                          controller: unit,
-                          decoration: const InputDecoration(labelText: 'Unit')),
-                      Row(children: [
-                        Expanded(
-                            child: TextField(
-                                controller: minimum,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                    labelText: 'Lab minimum'))),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            child: TextField(
-                                controller: maximum,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                    labelText: 'Lab maximum')))
-                      ]),
-                      const Padding(
-                          padding: EdgeInsets.only(top: 12),
-                          child: Text(
-                              'Enter values and reference ranges exactly as printed by the laboratory. MyAaptha does not diagnose conditions.'))
-                    ])),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel')),
-                      FilledButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Save'))
-                    ])));
-    if (save != true || name.text.trim().isEmpty) return;
-    final measurement = metric.text.trim().isEmpty
-        ? const <Map<String, dynamic>>[]
-        : [
-            {
-              'metricName': metric.text.trim(),
-              'value': double.tryParse(value.text),
-              'unit': unit.text.trim(),
-              'referenceMin': double.tryParse(minimum.text),
-              'referenceMax': double.tryParse(maximum.text)
-            }
-          ];
-    await widget.api.addHealthReport({
-      'sourcePostId': postId,
-      'reportName': name.text.trim(),
-      'laboratory': lab.text.trim(),
-      'collectedOn': DateTime.now().toIso8601String().substring(0, 10),
-      'measurements': measurement
-    });
-    await load();
+    final saved=await showDialog<bool>(context:context,barrierDismissible:false,builder:(_)=>HealthReportDialog(api:widget.api,documents:docs));
+    if(saved==true&&mounted){await load();}
   }
 
   @override
@@ -638,10 +548,11 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
             icon: const Icon(Icons.add),
             label: const Text('Add diagnostic report'),
           ),
+          HealthAnalysisCard(api:widget.api,onSaved:load),
           const Padding(
             padding: EdgeInsets.only(top: 18, bottom: 6),
             child: Text('Measurement trends',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
           ),
           ...trends.map((trend) {
             final points = (trend['points'] as List).cast<Map>();
@@ -660,7 +571,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
                       children: [
                         Text('${trend['metricName']}',
                             style:
-                                const TextStyle(fontWeight: FontWeight.w900)),
+                                const TextStyle(fontWeight: FontWeight.w500)),
                         Text(
                             '${values.isEmpty ? '—' : values.last} ${trend['unit']}'),
                       ],
@@ -693,7 +604,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           const Padding(
             padding: EdgeInsets.only(top: 18, bottom: 6),
             child: Text('Diagnostic reports',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
           ),
           ...reports.map((report) => Card(
                 child: ListTile(
@@ -728,14 +639,22 @@ class FinanceScreen extends StatefulWidget {
   State<FinanceScreen> createState() => _FinanceScreenState();
 }
 
-class _FinanceScreenState extends State<FinanceScreen> {
+class _FinanceScreenState extends State<FinanceScreen> with WidgetsBindingObserver {
+  @override
+  void dispose() { WidgetsBinding.instance.removeObserver(this); super.dispose(); }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) load();
+  }
   Map<String, dynamic>? data;
   String? error;
   bool loading = true;
-  String get month => DateTime.now().toIso8601String().substring(0, 7);
+  // Finance API summaries and the web month selector use UTC calendar months.
+  String get month => DateTime.now().toUtc().toIso8601String().substring(0, 7);
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     load();
   }
 
@@ -853,7 +772,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       child: const Text('Not now')),
                   FilledButton(
                       onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Agree and continue'))
+                      child: const Text('Agree and continue'))
                 ]));
     if (approved != true) return;
     final permission = await Permission.sms.request();
@@ -918,6 +837,8 @@ class _FinanceScreenState extends State<FinanceScreen> {
               title: 'Financial wellbeing',
               subtitle:
                   'See spending patterns and make thoughtful next steps.'),
+          Card(child:ListTile(leading:const Icon(Icons.event_available_outlined),title:const Text('Bills & warranties'),subtitle:const Text('Expiry dates, receipts and renewal reminders'),trailing:const Icon(Icons.chevron_right),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>RenewalsScreen(api:widget.api))))),
+          const SizedBox(height:12),
           Row(children: [
             Expanded(
                 child: _moneyCard('Income', data?['income'], Colors.green)),
@@ -929,6 +850,15 @@ class _FinanceScreenState extends State<FinanceScreen> {
                 child: _moneyCard('Net saved', data?['net'], AppTheme.primary))
           ]),
           const SizedBox(height: 12),
+          Card(color: AppTheme.mint, child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Income and spending', style: TextStyle(fontSize: 18,fontWeight:FontWeight.w500)),
+            const SizedBox(height:12),
+            ...['income','spending'].map((key) { final amount=(data?[key] as num?)?.toDouble() ?? 0; final maximum=math.max(1.0,math.max((data?['income'] as num?)?.toDouble() ?? 0,(data?['spending'] as num?)?.toDouble() ?? 0)); return Padding(padding:const EdgeInsets.only(bottom:12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+              Text('${key == 'income' ? 'Income' : 'Spending'}: ${money(amount)}'), const SizedBox(height:6),
+              LinearProgressIndicator(value:(amount/maximum).clamp(0.0,1.0),minHeight:12,color:key=='income'?const Color(0xFF3C8673):const Color(0xFFB27735),backgroundColor:Colors.white,borderRadius:BorderRadius.circular(8))
+            ])); })
+          ]))),
+          const SizedBox(height: 12),
           Card(
               child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -937,7 +867,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       children: [
                         const Text('Spending by category',
                             style: TextStyle(
-                                fontSize: 19, fontWeight: FontWeight.w900)),
+                                fontSize: 18, fontWeight: FontWeight.w500)),
                         ...categories.entries.map((x) => Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: Column(
@@ -965,7 +895,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       children: [
                         const Text('Ideas for your next step',
                             style: TextStyle(
-                                fontSize: 19, fontWeight: FontWeight.w900)),
+                                fontSize: 18, fontWeight: FontWeight.w500)),
                         ...(data?['suggestions'] as List? ?? []).map((x) =>
                             Padding(
                                 padding: const EdgeInsets.only(top: 8),
@@ -990,7 +920,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
           const Padding(
               padding: EdgeInsets.only(top: 18, bottom: 6),
               child: Text('Transactions',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
           ...transactions.map((x) => Card(
               child: ListTile(
                   leading: CircleAvatar(
@@ -1000,7 +930,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                   trailing: Text(
                       '${x['direction'] == 'INCOME' ? '+' : '−'}${money(x['amount'])}',
                       style: TextStyle(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w500,
                           color: x['direction'] == 'INCOME'
                               ? Colors.green
                               : Colors.red)))))
@@ -1008,18 +938,19 @@ class _FinanceScreenState extends State<FinanceScreen> {
   }
 
   Widget _moneyCard(String title, dynamic value, Color color) => Card(
+      color: title == 'Income' ? AppTheme.mint : title == 'Spending' ? AppTheme.peach : AppTheme.sky,
       child: Padding(
           padding: const EdgeInsets.all(12),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontSize: 11)),
+            Text(title, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 6),
             FittedBox(
                 child: Text(money(value),
                     style: TextStyle(
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w500,
                         color: color,
-                        fontSize: 18)))
+                        fontSize: 14)))
           ])));
 }
 
@@ -1211,7 +1142,7 @@ class _TrustCenterScreenState extends State<TrustCenterScreen> {
           const Padding(
               padding: EdgeInsets.only(top: 18, bottom: 6),
               child: Text('Discover Role Models',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
           ...discover.map((x) => Card(
               child: ListTile(
                   leading:
@@ -1228,14 +1159,16 @@ class _TrustCenterScreenState extends State<TrustCenterScreen> {
           const Padding(
               padding: EdgeInsets.only(top: 18, bottom: 6),
               child: Text('Emergency requests',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
           ...emergencies.map((x) => Card(
               child: ListTile(
                   title: Text('${x['requesterName']} → ${x['ownerName']}'),
                   subtitle: Text(
                       '${x['reason']}\n${x['approvals']}/${x['requiredApprovals']} approvals · ${x['status']}'),
                   isThreeLine: true,
-                  trailing: x['status'] == 'PENDING'
+                  trailing: x['canViewDocuments']==true
+                      ? IconButton(tooltip:'View emergency documents',icon:const Icon(Icons.folder_open_outlined),onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>EmergencyDocumentsScreen(api:widget.api,requestId:(x['id'] as num).toInt()))))
+                      : x['canDecide']==true
                       ? PopupMenuButton<bool>(
                           onSelected: (approved) async {
                             await widget.api.decideEmergencyAccess(
@@ -1265,7 +1198,7 @@ class _TrustCenterScreenState extends State<TrustCenterScreen> {
                       Expanded(
                           child: Text(title,
                               style: const TextStyle(
-                                  fontSize: 19, fontWeight: FontWeight.w900))),
+                                  fontSize: 18, fontWeight: FontWeight.w500))),
                       IconButton(
                           onPressed: () => add(kind),
                           icon: const Icon(Icons.person_add_alt_1),
@@ -1326,39 +1259,9 @@ class ReportsScreen extends StatelessWidget {
 }
 
 class ModerationScreen extends StatelessWidget {
-  const ModerationScreen({super.key, required this.api});
-  final MyAapthaApi api;
-  @override
-  Widget build(BuildContext context) =>
-      FutureBuilder<List<Map<String, dynamic>>>(
-          future: api.moderationReports(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(
-                  child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                          'Moderation is available to administrators only.\n\n${snapshot.error}',
-                          textAlign: TextAlign.center)));
-            }
-            final reports = snapshot.data ?? [];
-            return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: reports.length,
-                itemBuilder: (context, index) {
-                  final report = reports[index];
-                  return Card(
-                      child: ListTile(
-                          leading: const Icon(Icons.gavel_rounded),
-                          title:
-                              Text((report['reason'] ?? 'Report').toString()),
-                          subtitle: Text(
-                              '${report['status'] ?? 'OPEN'} · #${report['id']}')));
-                });
-          });
+ const ModerationScreen({super.key,required this.api});
+ final MyAapthaApi api;
+ @override Widget build(BuildContext context)=>ModerationQueueScreen(api:api);
 }
 
 class SessionScreen extends StatelessWidget {
@@ -1380,7 +1283,7 @@ class SessionScreen extends StatelessWidget {
                       const SizedBox(height: 12),
                       const Text('Current device is signed in',
                           style: TextStyle(
-                              fontWeight: FontWeight.w900, fontSize: 18)),
+                              fontWeight: FontWeight.w500, fontSize: 14)),
                       const SizedBox(height: 6),
                       Text(
                           'Access session lifetime: ${session.expiresIn} seconds'),
@@ -1391,6 +1294,285 @@ class SessionScreen extends StatelessWidget {
                           label: const Text('Sign out of this device'))
                     ])))
       ]);
+}
+
+class AiControlScreen extends StatefulWidget {
+  const AiControlScreen({super.key, required this.api});
+  final MyAapthaApi api;
+
+  @override
+  State<AiControlScreen> createState() => _AiControlScreenState();
+}
+
+class _AiControlScreenState extends State<AiControlScreen> {
+  bool loading = true;
+  bool saving = false;
+  bool aiEnabled = true;
+  bool allowSensitiveData = false;
+  bool allowPersonalization = false;
+  int retentionDays = 90;
+  String? status;
+  List<Map<String, dynamic>> approvals = [];
+  List<Map<String, dynamic>> executions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  Future<void> load() async {
+    try {
+      final result = await Future.wait([
+        widget.api.aiPreferences(),
+        widget.api.aiApprovals(),
+        widget.api.aiExecutions()
+      ]);
+      final value = result[0] as Map<String, dynamic>;
+      if (!mounted) return;
+      setState(() {
+        aiEnabled = value['aiEnabled'] == true;
+        allowSensitiveData = value['allowSensitiveData'] == true;
+        allowPersonalization = value['allowPersonalization'] == true;
+        retentionDays = (value['activityRetentionDays'] as num?)?.toInt() ?? 90;
+        approvals = (result[1] as List).cast<Map<String, dynamic>>();
+        executions = (result[2] as List).cast<Map<String, dynamic>>();
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> save() async {
+    setState(() {
+      saving = true;
+      status = null;
+    });
+    try {
+      final value = await widget.api.updateAiPreferences({
+        'aiEnabled': aiEnabled,
+        'allowSensitiveData': aiEnabled && allowSensitiveData,
+        'allowPersonalization': aiEnabled && allowPersonalization,
+        'activityRetentionDays': retentionDays,
+      });
+      if (!mounted) return;
+      setState(() {
+        aiEnabled = value['aiEnabled'] == true;
+        allowSensitiveData = value['allowSensitiveData'] == true;
+        allowPersonalization = value['allowPersonalization'] == true;
+        status = 'AI controls saved. Server enforcement is active.';
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  Future<void> decide(String approvalId, String decision) async {
+    try {
+      final updated = await widget.api.decideAiApproval(approvalId, decision);
+      if (!mounted) return;
+      setState(() {
+        approvals = approvals
+            .map((item) => item['id'] == approvalId ? updated : item)
+            .toList();
+        status = decision == 'APPROVED'
+            ? 'Action approved. Approval does not mean it has executed.'
+            : 'Action rejected.';
+      });
+    } catch (exception) {
+      if (mounted) setState(() => status = exception.toString());
+    }
+  }
+
+  Map<String, dynamic>? executionFor(String approvalId) {
+    for (final execution in executions) {
+      if (execution['approvalId'] == approvalId) return execution;
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: CircularProgressIndicator());
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      Card(
+          child: Column(children: [
+        SwitchListTile(
+            secondary: const Icon(Icons.auto_awesome_outlined,
+                color: AppTheme.primary),
+            title: const Text('Enable AI assistance'),
+            subtitle: const Text('Master switch enforced by the API.'),
+            value: aiEnabled,
+            onChanged: saving
+                ? null
+                : (value) => setState(() {
+                      aiEnabled = value;
+                      if (!value) {
+                        allowSensitiveData = false;
+                        allowPersonalization = false;
+                      }
+                    })),
+        const Divider(height: 1),
+        SwitchListTile(
+            title: const Text('Allow sensitive-data assistance'),
+            subtitle: const Text(
+                'For contacts, relationships, profiles, health and wealth. Each operation still asks for consent.'),
+            value: allowSensitiveData,
+            onChanged: !aiEnabled || saving
+                ? null
+                : (value) => setState(() => allowSensitiveData = value)),
+        const Divider(height: 1),
+        SwitchListTile(
+            title: const Text('Allow personalization'),
+            subtitle: const Text('Does not permit model training.'),
+            value: allowPersonalization,
+            onChanged: !aiEnabled || saving
+                ? null
+                : (value) => setState(() => allowPersonalization = value)),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: DropdownButtonFormField<int>(
+                key: ValueKey(retentionDays),
+                initialValue: retentionDays,
+                decoration:
+                    const InputDecoration(labelText: 'Activity retention'),
+                items: const [
+                  DropdownMenuItem(value: 0, child: Text('Do not retain')),
+                  DropdownMenuItem(value: 30, child: Text('30 days')),
+                  DropdownMenuItem(value: 90, child: Text('90 days')),
+                  DropdownMenuItem(value: 180, child: Text('180 days')),
+                  DropdownMenuItem(value: 365, child: Text('365 days')),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) => setState(() => retentionDays = value ?? 90))),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: FilledButton.icon(
+                onPressed: saving ? null : save,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(saving ? 'Saving...' : 'Save AI controls'))),
+      ])),
+      if (status != null)
+        Padding(padding: const EdgeInsets.only(top: 12), child: Text(status!)),
+      const Padding(
+          padding: EdgeInsets.fromLTRB(0, 24, 0, 8),
+          child: Text('Agent approval inbox',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
+      if (approvals.isEmpty) const Text('No agent actions need review.'),
+      ...approvals.map((approval) {
+        final execution = executionFor(approval['id'].toString());
+        return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Card(
+                child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text((approval['title'] ?? 'AI action').toString(),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 14)),
+                          const SizedBox(height: 6),
+                          Text((approval['summary'] ?? '').toString()),
+                          const SizedBox(height: 6),
+                          Text(
+                              '${approval['actionLevel'] ?? 'L2'} | ${approval['status'] ?? 'PENDING'}',
+                              style: const TextStyle(color: AppTheme.muted)),
+                          if (execution != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                                'Execution: ${execution['status'] ?? 'RUNNING'}',
+                                style: const TextStyle(color: AppTheme.muted)),
+                          ],
+                          if (approval['status'] == 'PENDING') ...[
+                            const SizedBox(height: 12),
+                            Row(children: [
+                              Expanded(
+                                  child: FilledButton.icon(
+                                      onPressed: () => decide(
+                                          approval['id'].toString(),
+                                          'APPROVED'),
+                                      icon: const Icon(Icons.check_rounded),
+                                      label: const Text('Approve'))),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                  child: OutlinedButton.icon(
+                                      onPressed: () => decide(
+                                          approval['id'].toString(),
+                                          'REJECTED'),
+                                      icon: const Icon(Icons.close_rounded),
+                                      label: const Text('Reject'))),
+                            ])
+                          ]
+                        ]))));
+      }),
+      const Padding(
+          padding: EdgeInsets.fromLTRB(0, 24, 0, 8),
+          child: Text('Recent activity',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
+      SizedBox(height: 480, child: AiActivityScreen(api: widget.api)),
+    ]);
+  }
+}
+
+class AiActivityScreen extends StatelessWidget {
+  const AiActivityScreen({super.key, required this.api});
+  final MyAapthaApi api;
+
+  @override
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<Map<String, dynamic>>>(
+          future: api.aiActivity(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) return _ErrorState('${snapshot.error}');
+            final events = snapshot.data ?? [];
+            if (events.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                          'No AI activity has been recorded for this account.')));
+            }
+            return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: events.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final event = events[index];
+                  final capability = (event['capability'] ?? 'AI activity')
+                      .toString()
+                      .replaceAll('_', ' ')
+                      .toLowerCase();
+                  final consent = event['consentGranted'] == true
+                      ? 'Consent granted'
+                      : 'No sensitive consent required';
+                  return Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.auto_awesome_outlined,
+                              color: AppTheme.primary),
+                          title: Text(capability,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500)),
+                          subtitle: Text('${event['purpose'] ?? ''}\n'
+                              '${event['actionLevel'] ?? 'L0'} · $consent'),
+                          isThreeLine: true,
+                          trailing: Text(
+                              (event['status'] ?? '').toString().toLowerCase(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: event['status'] == 'FAILED'
+                                      ? const Color(0xFFB4233C)
+                                      : AppTheme.primary))));
+                });
+          });
 }
 
 class NotificationsScreen extends StatefulWidget {
@@ -1440,9 +1622,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await load();
       return;
     }
-    if (uri.path == '/feed') {
+    if (uri.path == '/finance') {
+      await Navigator.push(context,MaterialPageRoute(builder:(_)=>RenewalsScreen(api:widget.api)));
+    } else if (uri.path == '/feed') {
       await Navigator.push(context,
-          MaterialPageRoute(builder: (_) => SocialFeedScreen(api: widget.api)));
+          MaterialPageRoute(builder: (_) => SocialFeedScreen(api: widget.api,online:true)));
     } else if (uri.queryParameters['messageUserId'] != null) {
       final id = int.tryParse(uri.queryParameters['messageUserId']!);
       final relations = await widget.api.relationships();
@@ -1517,7 +1701,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(error!,
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w700))),
+                      color: Colors.red, fontWeight: FontWeight.w500))),
         Expanded(
             child:
                 RefreshIndicator(onRefresh: load, child: _notificationList())),
@@ -1527,7 +1711,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return ListView(children: const [
         SizedBox(height: 120),
         Icon(Icons.notifications_none_rounded,
-            size: 52, color: Color(0xFF9A8CD6)),
+            size: 52, color: Color(0xFF256F7B)),
         Center(
             child: Padding(
                 padding: EdgeInsets.all(12),
@@ -1542,7 +1726,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           final item = items[index];
           final unread = item['readAt'] == null;
           return Material(
-              color: unread ? const Color(0xFFF1ECFF) : Colors.white,
+              color: unread ? const Color(0xFFF4F7FA) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                   borderRadius: BorderRadius.circular(16),
@@ -1556,7 +1740,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 radius: 19,
                                 backgroundColor: unread
                                     ? AppTheme.primary
-                                    : const Color(0xFFEDEAF7),
+                                    : const Color(0xFFF4F7FA),
                                 child: Icon(
                                     _notificationIcon('${item['type']}'),
                                     size: 19,
@@ -1572,21 +1756,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   Text('${item['title']}',
                                       style: TextStyle(
                                           fontWeight: unread
-                                              ? FontWeight.w900
-                                              : FontWeight.w700,
+                                              ? FontWeight.w500
+                                              : FontWeight.w500,
                                           color: AppTheme.ink)),
                                   const SizedBox(height: 2),
                                   Text('${item['body']}',
                                       maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                          fontSize: 13,
-                                          color: Color(0xFF596579))),
+                                          fontSize: 14,
+                                          color: Color(0xFF59697D))),
                                   const SizedBox(height: 4),
                                   Text(_notificationTime(item['createdAt']),
                                       style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF8992A3)))
+                                          fontSize: 14,
+                                          color: Color(0xFF59697D)))
                                 ])),
                             if (unread)
                               const Padding(
@@ -1660,13 +1844,13 @@ class _NotificationPreferencesSheetState
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.w900))),
+                                    ?.copyWith(fontWeight: FontWeight.w500))),
                         IconButton(
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(Icons.close))
                       ]),
                       const Text('Delivery channels',
-                          style: TextStyle(fontWeight: FontWeight.w800)),
+                          style: TextStyle(fontWeight: FontWeight.w500)),
                       Wrap(
                           spacing: 8,
                           children: [
@@ -1682,7 +1866,7 @@ class _NotificationPreferencesSheetState
                               .toList()),
                       const SizedBox(height: 12),
                       const Text('Notify me about',
-                          style: TextStyle(fontWeight: FontWeight.w800)),
+                          style: TextStyle(fontWeight: FontWeight.w500)),
                       Wrap(
                           spacing: 8,
                           runSpacing: 4,
@@ -1743,8 +1927,10 @@ class _PageHeader extends StatelessWidget {
   final String eyebrow, title, subtitle;
   final Widget? action;
   @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+  Widget build(BuildContext context) => Container(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      decoration: BoxDecoration(color: eyebrow.contains('MONEY') ? AppTheme.mint : eyebrow.contains('HEALTH') ? AppTheme.rose : AppTheme.lavender, borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal:12,vertical:8),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Expanded(
             child:
@@ -1752,18 +1938,16 @@ class _PageHeader extends StatelessWidget {
           Text(eyebrow,
               style: const TextStyle(
                   color: AppTheme.primary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: 1.2)),
           const SizedBox(height: 4),
-          Text(title,
+          InfoHelpLabel(title:title,message:subtitle,
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
-                  ?.copyWith(fontWeight: FontWeight.w900, color: AppTheme.ink)),
-          const SizedBox(height: 3),
-          Text(subtitle,
-              style: const TextStyle(color: Color(0xFF718096), fontSize: 13))
+                  ?.copyWith(fontWeight: FontWeight.w500, color: AppTheme.ink)),
+
         ])),
         if (action != null) action!
       ]));
@@ -1776,7 +1960,7 @@ class _Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CircleAvatar(
       radius: radius,
-      backgroundColor: const Color(0xFFE9E4FF),
+      backgroundColor: const Color(0xFFF4F7FA),
       backgroundImage: person.profilePhoto?.isNotEmpty == true
           ? NetworkImage(person.profilePhoto!)
           : null,
@@ -1784,7 +1968,7 @@ class _Avatar extends StatelessWidget {
           ? null
           : Text(person.displayName.characters.first.toUpperCase(),
               style: TextStyle(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w500,
                   fontSize: radius * .75,
                   color: AppTheme.primary)));
 }
@@ -1799,18 +1983,36 @@ class _ErrorState extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.cloud_off_rounded,
-                size: 46, color: Color(0xFFC34D62)),
+                size: 46, color: Color(0xFFB4233C)),
             const SizedBox(height: 12),
             Text(message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    color: Color(0xFFB4233C), fontWeight: FontWeight.w700)),
+                    color: Color(0xFFB4233C), fontWeight: FontWeight.w500)),
             if (retry != null) ...[
               const SizedBox(height: 12),
               FilledButton.tonal(
                   onPressed: retry, child: const Text('Try again'))
             ]
           ])));
+}
+
+class MobileDashboard extends StatefulWidget {
+  const MobileDashboard({super.key,required this.api});
+  final MyAapthaApi api;
+  @override State<MobileDashboard> createState()=>_MobileDashboardState();
+}
+class _MobileDashboardState extends State<MobileDashboard>{
+  late Future<List<Relationship>> relationships=widget.api.relationships();
+  void open(String title,Widget page)=>Navigator.push(context,MaterialPageRoute(builder:(_)=>Scaffold(appBar:AppBar(title:Text(title)),body:page)));
+  @override Widget build(BuildContext context)=>ListView(padding:const EdgeInsets.all(16),children:[
+    const _PageHeader(eyebrow:'MYAAPTHA',title:'Dashboard',subtitle:'Your people, memories and conversations at a glance.'),
+    FutureBuilder<List<Relationship>>(future:relationships,builder:(context,snapshot)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:snapshot.hasError?TextButton(onPressed:()=>setState(()=>relationships=widget.api.relationships()),child:const Text('Retry overview')):Text(snapshot.hasData?'${snapshot.data!.length} relationships':'Loading your overview...')))),
+    Card(child:ListTile(leading:const Icon(Icons.account_tree_outlined),title:const Text('Relationship tree'),subtitle:const Text('Explore your tree and message selected levels'),trailing:const Icon(Icons.chevron_right),onTap:()=>open('Relationship tree',NetworkHome(api:widget.api)))),
+    Card(child:ListTile(leading:const Icon(Icons.edit_note),title:const Text('Diary & memories'),onTap:()=>open('Diary & memories',SocialFeedScreen(api:widget.api)))),
+    Card(child:ListTile(leading:const Icon(Icons.mail_outline),title:const Text('Messages'),onTap:()=>open('Messages',MessagesScreen(api:widget.api)))),
+    Card(child:ListTile(leading:const Icon(Icons.timeline),title:const Text('Life timeline'),onTap:()=>open('Life timeline',TimelineScreen(api:widget.api)))),
+  ]);
 }
 
 class NetworkHome extends StatefulWidget {
@@ -1823,7 +2025,7 @@ class NetworkHome extends StatefulWidget {
 class _NetworkHomeState extends State<NetworkHome> {
   List<Relationship>? items;
   UserProfileModel? profile;
-  bool treeView = true;
+  String treeView = 'tree';
   String? error;
   @override
   void initState() {
@@ -1872,14 +2074,15 @@ class _NetworkHomeState extends State<NetworkHome> {
                                       api: widget.api, relationships: items!))),
                       icon: const Icon(Icons.campaign_rounded)),
                   const SizedBox(width: 6),
-                  SegmentedButton<bool>(
+                  SegmentedButton<String>(
                       segments: const [
                         ButtonSegment(
-                            value: true,
+                            value: 'tree',
                             icon: Icon(Icons.account_tree_rounded),
                             tooltip: 'Tree view'),
+                        ButtonSegment(value: 'chain', icon: Icon(Icons.hub_outlined), tooltip: 'Chain explorer'),
                         ButtonSegment(
-                            value: false,
+                            value: 'list',
                             icon: Icon(Icons.view_list_rounded),
                             tooltip: 'List view')
                       ],
@@ -1899,7 +2102,9 @@ class _NetworkHomeState extends State<NetworkHome> {
           const SliverFillRemaining(
               child: Center(
                   child: Text('Add your first relationship from Discover.')))
-        else if (treeView)
+        else if (treeView == 'chain')
+          SliverFillRemaining(hasScrollBody: true, child: ChainNetworkView(relationships: items!, profile: profile, onDetails: (relation) => RelationshipTile(relationship: relation, api: widget.api, onRemoved: load).showConnect(context)))
+        else if (treeView == 'tree')
           SliverFillRemaining(
               hasScrollBody: true,
               child: _FamilyTreeView(
@@ -1938,6 +2143,7 @@ class _RelationshipBroadcastScreenState
   final messageController = TextEditingController();
   Map<String, dynamic>? preview;
   PlatformFile? attachment;
+  int levels = 1;
   bool loading = false;
   double progress = 0;
   String? error;
@@ -1956,17 +2162,17 @@ class _RelationshipBroadcastScreenState
           child: ListView(padding: const EdgeInsets.all(14), children: [
         const Text(
             'Send one private copy to everyone in the selected audience. Recipients cannot see one another.',
-            style: TextStyle(color: Color(0xFF667085))),
+            style: TextStyle(color: Color(0xFF59697D))),
         const SizedBox(height: 12),
         SegmentedButton<String>(
             segments: const [
               ButtonSegment(
                   value: 'HORIZONTAL',
-                  label: Text('Children'),
+                  label: Text('Level'),
                   icon: Icon(Icons.account_tree_rounded)),
               ButtonSegment(
                   value: 'VERTICAL',
-                  label: Text('Chain'),
+                  label: Text('Branch'),
                   icon: Icon(Icons.vertical_align_bottom_rounded)),
               ButtonSegment(
                   value: 'LOCATION',
@@ -1976,8 +2182,9 @@ class _RelationshipBroadcastScreenState
             selected: {
               audienceType
             },
-            onSelectionChanged: (values) => setState(() {
+            onSelectionChanged: loading?null:(values) => setState(() {
                   audienceType = values.first;
+                  levels = 1;
                   preview = null;
                   error = null;
                 })),
@@ -1995,10 +2202,15 @@ class _RelationshipBroadcastScreenState
                       child: Text(item.person.displayName,
                           overflow: TextOverflow.ellipsis)))
                   .toList(),
-              onChanged: (value) => setState(() {
+              onChanged: loading?null:(value) => setState(() {
                     anchorUserId = value;
                     preview = null;
                   })),
+        if (audienceType != 'LOCATION') ...[
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(key:ValueKey('levels-$audienceType'),initialValue:levels,decoration:const InputDecoration(labelText:'Relationship levels'),items:[...List.generate(10,(i)=>DropdownMenuItem(value:i+1,child:Text('${i+1} ${i==0?'level':'levels'}'))),if(audienceType=='VERTICAL')const DropdownMenuItem(value:0,child:Text('Whole branch'))],onChanged:loading?null:(value)=>setState((){levels=value??1;preview=null;})),
+          Text(audienceType=='HORIZONTAL'?'Only people exactly $levels generations below, through child relationships.':levels==0?'Starting person and the whole branch.':'Starting person plus up to $levels levels below.'),
+        ],
         if (audienceType == 'LOCATION')
           TextField(
               controller: locationController,
@@ -2016,7 +2228,7 @@ class _RelationshipBroadcastScreenState
               padding: const EdgeInsets.only(top: 10),
               child: Text(error!,
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w800))),
+                      color: Colors.red, fontWeight: FontWeight.w500))),
         if (preview != null) ...[
           const SizedBox(height: 10),
           Card(
@@ -2028,12 +2240,12 @@ class _RelationshipBroadcastScreenState
                         Text(
                             '${(preview!['recipients'] as List).length} recipients',
                             style:
-                                const TextStyle(fontWeight: FontWeight.w900)),
+                                const TextStyle(fontWeight: FontWeight.w500)),
                         if ((preview!['excludedCount'] as num).toInt() > 0)
                           Text(
                               '${preview!['excludedCount']} managed, invited or inactive profiles excluded',
                               style: const TextStyle(
-                                  color: Color(0xFF9A6A25), fontSize: 12)),
+                                  color: Color(0xFF805B12), fontSize: 14)),
                         const Divider(),
                         Wrap(
                             spacing: 6,
@@ -2097,7 +2309,7 @@ class _RelationshipBroadcastScreenState
     });
     try {
       final value = await widget.api.previewBroadcast(audienceType,
-          anchorUserId: anchorUserId, location: locationController.text);
+          anchorUserId: anchorUserId, levels:audienceType=='LOCATION'||levels==0?null:levels, location: locationController.text);
       if (mounted) setState(() => preview = value);
     } catch (exception) {
       if (mounted) setState(() => error = exception.toString());
@@ -2127,6 +2339,7 @@ class _RelationshipBroadcastScreenState
       final result = await widget.api.sendBroadcast(
           audienceType, messageController.text.trim(),
           anchorUserId: anchorUserId,
+          levels:audienceType=='LOCATION'||levels==0?null:levels,
           location: locationController.text,
           bytes: attachment?.bytes,
           fileName: attachment?.name, onProgress: (value) {
@@ -2208,8 +2421,8 @@ class _FamilyTreeViewState extends State<_FamilyTreeView> {
     return Container(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 92),
         decoration: BoxDecoration(
-            color: const Color(0xFFFBFAFF),
-            border: Border.all(color: const Color(0xFFE1DBF2)),
+            color: const Color(0xFFFFFFFF),
+            border: Border.all(color: const Color(0xFFEAF4F5)),
             borderRadius: BorderRadius.circular(22)),
         clipBehavior: Clip.antiAlias,
         child: LayoutBuilder(builder: (context, constraints) {
@@ -2294,7 +2507,7 @@ class _FamilyTreeViewState extends State<_FamilyTreeView> {
                       SizedBox(width: 4),
                       Text('Tap a person',
                           style: TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.w800))
+                              fontSize: 14, fontWeight: FontWeight.w500))
                     ])))
           ]);
         }));
@@ -2450,10 +2663,10 @@ class _TreeConnectorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final line = Paint()
-      ..color = const Color(0xFF75639B)
+      ..color = const Color(0xFF59697D)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
-    final fill = Paint()..color = const Color(0xFF75639B);
+    final fill = Paint()..color = const Color(0xFF59697D);
     final ids = relationships.map((item) => item.person.id).toSet();
     for (final item in relationships) {
       final target = positions[item.person.id];
@@ -2473,14 +2686,14 @@ class _TreeConnectorPainter extends CustomPainter {
             sourceCenter,
             targetCenter,
             Paint()
-              ..color = const Color(0xFFE36A98)
+              ..color = const Color(0xFFB4233C)
               ..strokeWidth = 2.4);
         _label(
             canvas,
             '♥',
             Offset((sourceCenter.dx + targetCenter.dx) / 2,
                 (sourceCenter.dy + targetCenter.dy) / 2 - 9),
-            color: const Color(0xFFD34F80));
+            color: const Color(0xFFB4233C));
         continue;
       }
       final downward = targetCenter.dy > sourceCenter.dy;
@@ -2527,14 +2740,14 @@ class _TreeConnectorPainter extends CustomPainter {
   }
 
   void _label(Canvas canvas, String text, Offset center,
-      {Color color = const Color(0xFF56437F)}) {
+      {Color color = const Color(0xFF256F7B)}) {
     final displayText =
         text.codeUnits.contains(226) ? String.fromCharCode(0x2665) : text;
     final painter = TextPainter(
         text: TextSpan(
             text: displayText,
             style: TextStyle(
-                color: color, fontSize: 9, fontWeight: FontWeight.w900)),
+                color: color, fontSize: 14, fontWeight: FontWeight.w500)),
         textDirection: TextDirection.ltr)
       ..layout();
     painter.paint(canvas,
@@ -2556,10 +2769,10 @@ class _TreePersonNode extends StatelessWidget {
   Widget build(BuildContext context) {
     final gender = (relationship.person.gender ?? '').toUpperCase();
     final border = gender == 'FEMALE'
-        ? const Color(0xFFF1A1C4)
+        ? const Color(0xFFFFF1F3)
         : gender == 'MALE'
-            ? const Color(0xFF77C8F4)
-            : const Color(0xFFF2BC68);
+            ? const Color(0xFF256F7B)
+            : const Color(0xFF805B12);
     return SizedBox(
         width: _FamilyTreeView.nodeWidth,
         height: _FamilyTreeView.nodeHeight,
@@ -2584,13 +2797,13 @@ class _TreePersonNode extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                  fontSize: 11, fontWeight: FontWeight.w900)),
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
                           Text(relationship.type,
                               maxLines: 1,
                               style: const TextStyle(
                                   color: AppTheme.primary,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800))
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500))
                         ])))));
   }
 }
@@ -2611,7 +2824,7 @@ class _SelfTreeNode extends StatelessWidget {
         child: DecoratedBox(
             decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                    colors: [Color(0xFF6957CF), Color(0xFF9670D8)]),
+                    colors: [Color(0xFF256F7B), Color(0xFF256F7B)]),
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: const [
                   BoxShadow(color: Color(0x33705CC6), blurRadius: 18)
@@ -2627,8 +2840,8 @@ class _SelfTreeNode extends StatelessWidget {
                       ? Text(name.isEmpty ? 'Y' : name.characters.first,
                           style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900))
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500))
                       : null),
               const SizedBox(height: 5),
               Text(name.isEmpty ? 'You' : name,
@@ -2636,10 +2849,10 @@ class _SelfTreeNode extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500)),
               const Text('You',
-                  style: TextStyle(color: Colors.white70, fontSize: 9))
+                  style: TextStyle(color: Colors.white70, fontSize: 14))
             ])));
   }
 }
@@ -2673,25 +2886,25 @@ class RelationshipTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                                 color: AppTheme.ink)),
                         const SizedBox(height: 6),
                         Wrap(spacing: 6, runSpacing: 5, children: [
-                          _Tag(relationship.type, const Color(0xFFE2F6EC),
-                              const Color(0xFF157A4B)),
+                          _Tag(relationship.type, const Color(0xFFEAF4F5),
+                              const Color(0xFF17634E)),
                           _Tag(relationship.visibilityScope,
-                              const Color(0xFFECE7FF), const Color(0xFF5A43A5)),
+                              const Color(0xFFF4F7FA), const Color(0xFF256F7B)),
                           _Tag(
                               person.accountStatus == 'ACTIVE'
                                   ? 'Verified'
                                   : 'Not verified',
                               person.accountStatus == 'ACTIVE'
-                                  ? const Color(0xFFE2F6EC)
-                                  : const Color(0xFFFFEFC7),
+                                  ? const Color(0xFFEAF4F5)
+                                  : const Color(0xFFEAF4F5),
                               person.accountStatus == 'ACTIVE'
-                                  ? const Color(0xFF157A4B)
-                                  : const Color(0xFF9A6100))
+                                  ? const Color(0xFF17634E)
+                                  : const Color(0xFF805B12))
                         ])
                       ])),
                   IconButton.filledTonal(
@@ -2714,10 +2927,10 @@ class RelationshipTile extends StatelessWidget {
                   children: [
                     Text(relationship.person.displayName,
                         style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w900)),
+                            fontSize: 18, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 4),
                     const Text('Choose how you want to connect.',
-                        style: TextStyle(color: Color(0xFF718096))),
+                        style: TextStyle(color: Color(0xFF59697D))),
                     const SizedBox(height: 16),
                     _ConnectAction(
                         icon: Icons.chat_bubble_rounded,
@@ -2738,14 +2951,14 @@ class RelationshipTile extends StatelessWidget {
                     _ConnectAction(
                         icon: Icons.call_rounded,
                         label: 'Audio call',
-                        color: const Color(0xFF16875C),
+                        color: const Color(0xFF17634E),
                         onTap: () => relationship.person.canConnect
                             ? _startCall(context, 'AUDIO')
                             : _showCommunicationUnavailable(context)),
                     _ConnectAction(
                         icon: Icons.videocam_rounded,
                         label: 'Video call',
-                        color: const Color(0xFFD15C87),
+                        color: const Color(0xFFB4233C),
                         onTap: () => relationship.person.canConnect
                             ? _startCall(context, 'VIDEO')
                             : _showCommunicationUnavailable(context)),
@@ -2753,7 +2966,7 @@ class RelationshipTile extends StatelessWidget {
                     _ConnectAction(
                         icon: Icons.person_add_alt_1_rounded,
                         label: 'Add relationship to this person',
-                        color: const Color(0xFF16875C),
+                        color: const Color(0xFF17634E),
                         onTap: () {
                           Navigator.pop(context);
                           _addRelationship(context);
@@ -2814,12 +3027,12 @@ class RelationshipTile extends StatelessWidget {
                           'Add relationship to ${relationship.person.displayName}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w900)),
+                              fontSize: 18, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
                       Text(
                           'This person will appear directly in ${relationship.person.displayName}â€™s family branch.',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: Color(0xFF718096))),
+                          style: const TextStyle(color: Color(0xFF59697D))),
                       const SizedBox(height: 16),
                       TextField(
                           controller: name,
@@ -2958,7 +3171,7 @@ class RelationshipTile extends StatelessWidget {
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Text('Edit ${relationship.person.displayName}',
                           style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w900)),
+                              fontSize: 18, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 14),
                       DropdownButtonFormField<String>(
                           initialValue: type,
@@ -3081,16 +3294,14 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
 
   Future<void> initialize() async {
     try {
+      final ice=await widget.api.callIceConfiguration();
+      if(!mounted)return;
       await Future.wait(
           [localRenderer.initialize(), remoteRenderer.initialize()]);
       localStream = await navigator.mediaDevices
           .getUserMedia({'audio': true, 'video': video});
       localRenderer.srcObject = localStream;
-      peer = await createPeerConnection({
-        'iceServers': [
-          {'urls': 'stun:stun.l.google.com:19302'}
-        ]
-      });
+      peer = await createPeerConnection({'iceServers':ice['iceServers']});
       for (final track in localStream!.getTracks()) {
         await peer!.addTrack(track, localStream!);
       }
@@ -3217,7 +3428,7 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
       canPop: false,
       onPopInvokedWithResult: (_, __) => end(),
       child: Scaffold(
-          backgroundColor: const Color(0xFF17132A),
+          backgroundColor: const Color(0xFF15233B),
           body: SafeArea(
               child: Stack(fit: StackFit.expand, children: [
             if (video && remoteRenderer.srcObject != null)
@@ -3228,7 +3439,7 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
               if (!video || remoteRenderer.srcObject == null)
                 CircleAvatar(
                     radius: 56,
-                    backgroundColor: const Color(0xFF6F5BD3),
+                    backgroundColor: const Color(0xFF256F7B),
                     backgroundImage: (widget.incomingCall?.callerPhoto ??
                                     widget.person?.profilePhoto)
                                 ?.isNotEmpty ==
@@ -3244,22 +3455,22 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
                         : Text(personName.characters.first,
                             style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 38,
-                                fontWeight: FontWeight.w900))),
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500))),
               const SizedBox(height: 16),
               Text(personName,
                   style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900)),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 6),
               Text(error ?? phase,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: error == null
                           ? Colors.white70
-                          : const Color(0xFFFF9BAE),
-                      fontWeight: FontWeight.w700))
+                          : const Color(0xFFEAF4F5),
+                      fontWeight: FontWeight.w500))
             ])),
             if (video && localRenderer.srcObject != null)
               Positioned(
@@ -3290,7 +3501,7 @@ class _DirectCallScreenState extends State<DirectCallScreen> {
                   const SizedBox(width: 18),
                   _CallControl(
                       icon: Icons.call_end_rounded,
-                      color: const Color(0xFFE54B64),
+                      color: const Color(0xFFB4233C),
                       onTap: end)
                 ]))
           ]))));
@@ -3337,7 +3548,7 @@ class _Tag extends StatelessWidget {
           color: background, borderRadius: BorderRadius.circular(999)),
       child: Text(text,
           style: TextStyle(
-              color: foreground, fontSize: 10, fontWeight: FontWeight.w900)));
+              color: foreground, fontSize: 14, fontWeight: FontWeight.w500)));
 }
 
 class _FeedImageAttachment extends StatelessWidget {
@@ -3360,7 +3571,7 @@ class _FeedImageAttachment extends StatelessWidget {
             Container(
                 width: double.infinity,
                 height: 230,
-                color: const Color(0xFFF3F0F8),
+                color: const Color(0xFFF4F7FA),
                 child: Image.memory(bytes, fit: BoxFit.contain)),
             Container(
                 margin: const EdgeInsets.all(10),
@@ -3373,7 +3584,7 @@ class _FeedImageAttachment extends StatelessWidget {
                   Icon(Icons.zoom_in_rounded, color: Colors.white, size: 18),
                   SizedBox(width: 4),
                   Text('View full size',
-                      style: TextStyle(color: Colors.white, fontSize: 11))
+                      style: TextStyle(color: Colors.white, fontSize: 14))
                 ]))
           ])));
 }
@@ -3405,7 +3616,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      backgroundColor: const Color(0xFF100E14),
+      backgroundColor: const Color(0xFF15233B),
       appBar: AppBar(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
@@ -3448,7 +3659,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                           Text('${(scale * 100).round()}%',
                               style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w800)),
+                                  fontWeight: FontWeight.w500)),
                           IconButton(
                               tooltip: 'Zoom in',
                               color: Colors.white,
@@ -3474,7 +3685,7 @@ class _ConnectAction extends StatelessWidget {
       leading: CircleAvatar(
           backgroundColor: color.withValues(alpha: .12),
           child: Icon(icon, color: color)),
-      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
       trailing: const Icon(Icons.chevron_right_rounded),
       onTap: onTap);
 }
@@ -3513,9 +3724,37 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
+  Future<void> findConversation() async {
+    final target = await Navigator.push<ChatTarget>(context, MaterialPageRoute(builder: (_) => ChatDiscoveryScreen(api: widget.api)));
+    if (target == null || !mounted) return;
+    try {
+      if (target.type == 'CIRCLE') {
+        final groups = await widget.api.circles();
+        final circle = groups.firstWhere((value) => value.id == target.id);
+        if (!mounted) return;
+        await Navigator.push(context, MaterialPageRoute(builder: (_) => CircleChatScreen(api: widget.api, circle: circle)));
+      } else {
+        await Navigator.push(context, MaterialPageRoute(builder: (_) => DirectChatScreen(api: widget.api, person: Person(id: target.id, displayName: target.name, accountStatus: 'ACTIVE', identityType: 'ACCOUNT'))));
+      }
+      if (mounted) await load();
+    } catch (e) { if (mounted) setState(() => error = '$e'); }
+  }
   List<DirectConversation>? items;
+  List<CircleConversation> circleItems=[];
   String? error;
   Timer? poller;
+  bool? readReceipts;
+  bool saving=false;
+  String folder='inbox';
+  List<Object> get visible {
+    final result=<Object>[
+      ...(items??[]).where((item)=>folder=='circles'?false:folder=='archived'?item.archived:!item.archived&&(folder!='unread'||item.unreadCount>0||item.markedUnread)),
+      ...circleItems.where((item)=>folder!='archived'&&folder!='direct'&&(folder!='unread'||item.unreadCount>0))];
+    DateTime date(Object item)=>item is DirectConversation?item.lastMessageAt:(item as CircleConversation).lastMessageAt??DateTime(1970);
+    result.sort((a,b){final pinA=a is DirectConversation&&a.pinned;final pinB=b is DirectConversation&&b.pinned;return pinA!=pinB?(pinA?-1:1):date(b).compareTo(date(a));});
+    return result;
+  }
+  Future<void> change(Future<void> Function() action) async {setState(()=>saving=true);try{await action();await load();}catch(e){if(mounted)setState(()=>error='$e');}finally{if(mounted)setState(()=>saving=false);}}
   @override
   void initState() {
     super.initState();
@@ -3532,9 +3771,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Future<void> load() async {
     try {
       final value = await widget.api.directConversations();
+      final receipts = await widget.api.messagePreferences();
+      final groups=await widget.api.circleConversations();
       if (mounted) {
         setState(() {
           items = value;
+          circleItems=groups;
+          readReceipts=receipts;
           error = null;
         });
       }
@@ -3549,24 +3792,32 @@ class _MessagesScreenState extends State<MessagesScreen> {
       child: CustomScrollView(slivers: [
         const SliverToBoxAdapter(
             child: _PageHeader(
-                eyebrow: 'PRIVATE MESSAGES',
-                title: 'Conversations',
+                eyebrow: 'MESSAGES',
+                title: 'Messages',
                 subtitle: 'Recent chats and unread messages.')),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat, group & message search')))),
+        SliverToBoxAdapter(child:SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Groups & circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
+        const SliverToBoxAdapter(child:Padding(padding:EdgeInsets.symmetric(horizontal:16),child:Text('Archived chats stay archived. Muting stops message alerts until you unmute. Unread reminders do not undo read receipts.'))),
         if (error != null)
           SliverToBoxAdapter(child: _ErrorState(error!, retry: load)),
         if (items == null)
           const SliverFillRemaining(
               child: Center(child: CircularProgressIndicator()))
-        else if (items!.isEmpty)
+        else if (visible.isEmpty)
           const SliverFillRemaining(
               child: Center(
                   child:
-                      Text('No conversations yet. Start from a relationship.')))
+                      Text('No conversations in this view.')))
         else
           SliverList.builder(
-              itemCount: items!.length,
+              itemCount: visible.length,
               itemBuilder: (context, index) {
-                final item = items![index];
+                final entry = visible[index];
+                if(entry is CircleConversation){return ListTile(leading:const CircleAvatar(child:Icon(Icons.groups_outlined)),title:Text(entry.name),subtitle:Text('Circle \u00b7 ${entry.lastMessage}',maxLines:1,overflow:TextOverflow.ellipsis),trailing:entry.unreadCount>0?Badge(label:Text('${entry.unreadCount}')):null,onTap:()async{
+                  try{final groups=await widget.api.circles();final circle=groups.firstWhere((c)=>c.id==entry.id);if(!context.mounted)return;await Navigator.push(context,MaterialPageRoute(builder:(_)=>CircleChatScreen(api:widget.api,circle:circle)));await load();}catch(e){if(mounted)setState(()=>error='$e');}
+                });}
+                final item=entry as DirectConversation;
                 return ListTile(
                     leading: CircleAvatar(
                         backgroundImage: item.profilePhoto?.isNotEmpty == true
@@ -3577,18 +3828,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             : Text(item.displayName
                                 .substring(0, 1)
                                 .toUpperCase())),
-                    title: Text(item.displayName,
-                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                    title: Text('${item.displayName}${item.muted?' (Muted)':''}',
+                        style: const TextStyle(fontWeight: FontWeight.w500)),
                     subtitle: Text(item.lastMessage,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
-                    trailing: item.unreadCount > 0
+                    trailing: Row(mainAxisSize:MainAxisSize.min,children:[PopupMenuButton<String>(tooltip:'Chat actions',enabled:!saving,onSelected:(value)=>change(()=>widget.api.saveChatSettings(item.userId,archived:value=='archive'?!item.archived:null,muted:value=='mute'?!item.muted:null,markedUnread:value=='unread'?!item.markedUnread:null)),itemBuilder:(_)=>[
+                      PopupMenuItem(value:'archive',child:Text(item.archived?'Unarchive':'Archive')),
+                      PopupMenuItem(value:'mute',child:Text(item.muted?'Unmute':'Mute')),
+                      PopupMenuItem(value:'unread',child:Text(item.markedUnread?'Clear unread reminder':'Mark unread')),
+                    ]),IconButton(tooltip:item.pinned?'Unpin chat':'Pin chat',icon:Icon(item.pinned?Icons.push_pin:Icons.push_pin_outlined),onPressed:saving?null:()async{setState(()=>saving=true);try{await widget.api.pinConversation(item.userId,!item.pinned);await load();}catch(e){if(mounted)setState(()=>error='$e');}finally{if(mounted)setState(()=>saving=false);}}),(item.unreadCount > 0 || item.markedUnread)
                         ? Badge(
                             label: Text(item.unreadCount > 99
                                 ? '99+'
-                                : '${item.unreadCount}'))
+                                : item.unreadCount>0?'${item.unreadCount}':'Unread'))
                         : Text(_time(item.lastMessageAt),
-                            style: const TextStyle(fontSize: 10)),
-                    onTap: () async {
+                            style: const TextStyle(fontSize: 14))]),
+                    onTap: saving?null:() async {
+                      if(item.markedUnread) {
+                        try {await widget.api.saveChatSettings(item.userId,markedUnread:false);}catch(e){if(mounted)setState(()=>error='$e');return;}
+                        if(!context.mounted)return;
+                      }
                       await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -3601,7 +3860,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 }
 
 class SocialFeedScreen extends StatefulWidget {
-  const SocialFeedScreen({super.key, required this.api});
+  const SocialFeedScreen({super.key, required this.api, this.online=false});
+  final bool online;
   final MyAapthaApi api;
   @override
   State<SocialFeedScreen> createState() => _SocialFeedScreenState();
@@ -3610,6 +3870,7 @@ class SocialFeedScreen extends StatefulWidget {
 class _SocialFeedScreenState extends State<SocialFeedScreen> {
   final caption = TextEditingController();
   final comment = TextEditingController();
+  final commentFocus=<int,FocusNode>{};
   List<Map<String, dynamic>> posts = [];
   List<Map<String, dynamic>> stories = [];
   bool loading = true;
@@ -3629,6 +3890,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
   void dispose() {
     caption.dispose();
     comment.dispose();
+    for(final focus in commentFocus.values){focus.dispose();}
     super.dispose();
   }
 
@@ -3675,7 +3937,6 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
           'heic',
           'heif',
           'ico',
-          'svg',
           'psd',
           'dng',
           'cr2',
@@ -3718,11 +3979,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
           'midi',
           'pdf',
           'txt',
-          'doc',
           'docx',
-          'xls',
           'xlsx',
-          'ppt',
           'pptx'
         ],
         withData: true);
@@ -3818,7 +4076,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                           child: Text(story['authorName']?.toString() ?? '',
                               style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w900))),
+                                  fontWeight: FontWeight.w500))),
                       if (story['mine'] == true)
                         IconButton(
                             tooltip: 'Delete story',
@@ -3873,7 +4131,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text(savedOnly ? 'Saved moments' : 'Digital diary & feed',
+                Text(savedOnly ? 'Saved moments' : widget.online?'Online Feed':'Diary & Memories',
                     style: Theme.of(context).textTheme.headlineMedium),
                 const Text('Thoughts, memories, documents and shared moments.')
               ])),
@@ -4021,7 +4279,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               child: Padding(
                   padding: EdgeInsets.all(24),
                   child: CircularProgressIndicator())),
-        ...posts.map((p) => _post(p))
+        ...posts.where((p)=>widget.online||p['mine']==true).map((p) => _post(p))
       ]));
   Future<void> editPost(Map<String, dynamic> post) async {
     final controller =
@@ -4074,7 +4332,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     const Text('Share post',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w900)),
+                            fontSize: 18, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 14),
                     SegmentedButton<String>(
                         segments: const [
@@ -4150,7 +4408,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const Text('Report post',
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                       initialValue: reason,
@@ -4219,7 +4477,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text('My reports',
                             style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w900)))),
+                                fontSize: 20, fontWeight: FontWeight.w500)))),
                 Expanded(
                     child: reports.isEmpty
                         ? const Center(child: Text('No reports submitted yet.'))
@@ -4252,6 +4510,26 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
     }
   }
 
+  Future<void> postOptions(Map<String,dynamic> p) async {
+    final action=await showModalBottomSheet<String>(context:context,isScrollControlled:true,showDragHandle:true,builder:(_)=>PostOptionsSheet(post:p));
+    if(action==null||!mounted)return;
+    final id=(p['id'] as num).toInt();
+    try{
+      if(action.startsWith('reaction:')){final value=action.substring(9);await widget.api.reactSocialPost(id,value.isEmpty?null:value);await load();}
+      else if(action=='pin'){await widget.api.pinSocialPost(id,p['pinned']!=true);await load();}
+      else if(action=='star'){await widget.api.toggleSocialSave(id);await load();}
+      else if(action=='forward'){await sharePost(p);}
+      else if(action=='edit'){await editPost(p);}
+      else if(action=='report'){await reportPost(p);}
+      else if(action=='delete'){final yes=await _confirmDestructiveAction(context,title:'Delete post?',message:'This removes the post, attachment, reactions and comments for everyone who could view it.',confirmLabel:'Delete post');if(yes){await widget.api.deleteSocialPost(id);await load();}}
+      else if(action=='copy'){await Clipboard.setData(ClipboardData(text:(p['caption']?.toString().isNotEmpty??false)?p['caption'].toString():p['mediaName']?.toString()??'Post $id'));if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Copied to clipboard.')));}
+      else if(action=='reply'){commentFocus.putIfAbsent(id,()=>FocusNode()).requestFocus();}
+      else if(action=='info'){await showDialog<void>(context:context,builder:(context)=>AlertDialog(title:const Text('Post info'),content:SingleChildScrollView(child:Text('Author: ${p['authorName']}\nCreated: ${p['createdAt']}\nUpdated: ${p['updatedAt']}\nAudience: ${p['audience']}\nReactions: ${p['likeCount']}\nComments: ${p['commentCount']}\nPinned for you: ${p['pinned']==true}\nStarred: ${p['savedByMe']==true}\n${p['mediaName']??''}')),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Close'))]));}
+      else if(action=='ask'){final text='Help me understand this post. Do not take actions: ${p['caption']??'Attachment-only post'}';await Navigator.push(context,MaterialPageRoute(builder:(_)=>HelpChatScreen(api:widget.api,initialQuestion:text.length>1200?text.substring(0,1200):text)));}
+      else if(action=='download'){final path=p['mediaUrl']?.toString();final bytes=path==null?Uint8List.fromList(utf8.encode(p['caption']?.toString()??'')):await widget.api.socialMedia(path);await FilePicker.platform.saveFile(dialogTitle:'Save post attachment',fileName:p['mediaName']?.toString()??'myaaptha-post-$id.txt',bytes:bytes);}
+    }catch(e){if(mounted)setState(()=>error='$e');}
+  }
+
   Widget _post(Map<String, dynamic> p) {
     final id = (p['id'] as num).toInt();
     final media = p['mediaUrl']?.toString();
@@ -4273,30 +4551,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               subtitle: Text(p['audience'] == 'RELATIONSHIPS'
                   ? 'Relationships'
                   : p['audience']?.toString() ?? ''),
-              trailing: p['mine'] == true
-                  ? PopupMenuButton<String>(
-                      onSelected: (action) async {
-                        if (action == 'edit') {
-                          await editPost(p);
-                        } else if (action == 'delete') {
-                          final confirmed = await _confirmDestructiveAction(
-                              context,
-                              title: 'Delete post?',
-                              message:
-                                  'This diary post, its attachment, reactions, and comments will no longer appear in the feed. This action cannot be undone.',
-                              confirmLabel: 'Delete post');
-                          if (!confirmed) return;
-                          await widget.api.deleteSocialPost(id);
-                          await load();
-                        }
-                      },
-                      itemBuilder: (_) => const [
-                            PopupMenuItem(
-                                value: 'edit', child: Text('Edit post')),
-                            PopupMenuItem(
-                                value: 'delete', child: Text('Delete post'))
-                          ])
-                  : null),
+              trailing: IconButton(tooltip:'Post options',icon:const Icon(Icons.more_horiz),onPressed:()=>postOptions(p))),
           if ((p['caption'] ?? '').toString().isNotEmpty)
             Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -4383,6 +4638,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                 Expanded(
                     child: TextField(
                         controller: comment,
+                        focusNode:commentFocus.putIfAbsent(id,()=>FocusNode()),
                         decoration: const InputDecoration(
                             hintText: 'Write a comment…', isDense: true))),
                 IconButton(
@@ -4452,6 +4708,7 @@ class _CirclesScreenState extends State<CirclesScreen> {
                     action: IconButton.filledTonal(
                         onPressed: load,
                         icon: const Icon(Icons.refresh_rounded)))),
+            SliverToBoxAdapter(child: ListTile(leading: const Icon(Icons.contacts_outlined),title: const Text('Private contact lists'),subtitle: const Text('View imported contacts by circle. These contacts are separate from messaging members.'),onTap: ()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>AddressBookScreen(api:widget.api))))),
             if (error != null)
               SliverFillRemaining(child: _ErrorState(error!, retry: load))
             else if (circles == null)
@@ -4474,10 +4731,10 @@ class _CirclesScreenState extends State<CirclesScreen> {
                                     child: Text(circle.name.characters.first,
                                         style: const TextStyle(
                                             color: Colors.white,
-                                            fontWeight: FontWeight.w900))),
+                                            fontWeight: FontWeight.w500))),
                                 title: Text(circle.name,
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w900)),
+                                        fontWeight: FontWeight.w500)),
                                 subtitle: Text(
                                     '${circle.members.length} members · ${circle.currentUserAdmin ? 'Admin' : 'Member'}\n${circle.description}',
                                     maxLines: 2,
@@ -4545,14 +4802,21 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   final query = TextEditingController();
-  List<Person> results = [];
+  List<PeopleMatch> results = [];
+  PeopleDiscovery? discovery;
+  final added = <int>{};
+  @override
+  void dispose() { query.dispose(); super.dispose(); }
   bool loading = false;
   String? error;
   Future<void> search() async {
-    if (query.text.trim().isEmpty) return;
+    if (query.text.trim().length < 2 || loading) return;
     setState(() => loading = true);
     try {
-      results = await widget.api.search(query.text.trim());
+      final response = await widget.api.discoverPeople(query.text.trim());
+      if (!mounted) return;
+      discovery = response;
+      results = response.people;
       error = null;
     } catch (e) {
       error = e.toString();
@@ -4567,7 +4831,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             child: _PageHeader(
                 eyebrow: 'DISCOVER',
                 title: 'Find people',
-                subtitle: 'Search by name, mobile number or location.')),
+                subtitle: 'Find people and explore shared connections and interests.')),
         SliverToBoxAdapter(
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -4586,6 +4850,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                               : const Icon(Icons.arrow_forward_rounded))
                     ],
                     onSubmitted: (_) => search()))),
+        if (discovery != null) SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(16), child: Text('${discovery!.rankingMode == 'AI_ASSISTED' ? 'AI assisted search. ' : ''}${discovery!.explanation}${discovery!.limited ? ' Refine your search to see more matches.' : ''}'))),
         if (error != null)
           SliverToBoxAdapter(
               child: Padding(
@@ -4593,7 +4858,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   child: Text(error!,
                       style: const TextStyle(
                           color: Color(0xFFB4233C),
-                          fontWeight: FontWeight.w700))))
+                          fontWeight: FontWeight.w500))))
         else
           SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -4601,19 +4866,20 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   itemCount: results.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
-                    final person = results[i];
-                    return Card(
-                        child: ListTile(
-                            contentPadding: const EdgeInsets.all(12),
-                            leading: _Avatar(person),
-                            title: Text(person.displayName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w900)),
-                            subtitle: Text(
-                                person.location ?? 'Location not provided'),
-                            trailing: FilledButton.tonal(
-                                onPressed: () => add(person),
-                                child: const Text('Add'))));
+                    final match = results[i];
+                    final person = match.person;
+                    return Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [_Avatar(person), const SizedBox(width: 12), Expanded(child: Text(person.displayName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))]),
+                      if (person.location != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(person.location!)),
+                      const SizedBox(height: 12),
+                      Wrap(spacing: 6, runSpacing: 6, children: match.reasons.map((reason) => Chip(label: Text(reason))).toList()),
+                      if (match.mutualConnections.isNotEmpty) ExpansionTile(tilePadding: EdgeInsets.zero, title: Text('${match.mutualConnections.length} shared connections'), children: match.mutualConnections.map((connection) => ListTile(title: Text(connection.displayName), subtitle: Text('Your ${connection.yourRelationship} / their ${connection.sharedRelationship}'))).toList()),
+                      if (match.sharedInterests.isNotEmpty) Text('Shared interests: ${match.sharedInterests.join(', ')}'),
+                      if (match.sharedEmployer != null) Text('Shared workplace: ${match.sharedEmployer}'),
+                      const SizedBox(height: 12),
+                      FilledButton.tonal(onPressed: match.alreadyConnected || added.contains(person.id) ? null : () => add(person), child: Text(match.alreadyConnected || added.contains(person.id) ? 'In your network' : 'Add connection')),
+                    ])));
+
                   }))
       ]);
   Future<void> add(Person person) async {
@@ -4627,7 +4893,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text('Add ${person.displayName}',
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w900)),
+                          fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 16),
                   DropdownButtonFormField(
                       initialValue: relation,
@@ -4635,10 +4901,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           const InputDecoration(labelText: 'Relationship'),
                       items: [
                         'Friend',
-                        'Spouse',
-                        'Parent',
-                        'Child',
-                        'Sibling',
+                        'Mother',
+                        'Father',
+                        'Cousin',
+                        'Other',
                         'Brother',
                         'Sister',
                         'Colleague',
@@ -4672,6 +4938,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       try {
         await widget.api.addRelationship(person, relation, visibility);
         if (mounted) {
+          setState(() => added.add(person.id));
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('${person.displayName} added to your network.')));
         }
@@ -4687,49 +4954,63 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen(
-      {super.key, required this.api, required this.onDataChanged});
+      {super.key, required this.api, required this.onDataChanged, this.area});
   final MyAapthaApi api;
+  final String? area;
   final VoidCallback onDataChanged;
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserver {
   UserProfileModel? profile;
   String? error;
   bool saving = false;
+  bool mediaBusy = false;
+  String? editing;
   final fields = <String, TextEditingController>{};
-  final definitions = const [
-    ('firstName', 'First name'),
-    ('surname', 'Surname'),
-    ('bio', 'About me'),
-    ('phoneNumber', 'Mobile number'),
-    ('email', 'Email'),
-    ('location', 'Location'),
-    ('addressLine1', 'Address'),
-    ('city', 'City'),
-    ('state', 'State'),
-    ('country', 'Country'),
-    ('linkedin', 'LinkedIn'),
-    ('instagram', 'Instagram'),
-    ('highestQualification', 'Highest qualification'),
-    ('institution', 'Institution'),
-    ('employer', 'Employer'),
-    ('jobTitle', 'Job title')
-  ];
+  final sections = const <String, List<(String, String)>>{
+    'Personal details': [('firstName','First name'),('surname','Surname'),('email','Email'),('phoneNumber','Mobile number'),('dateOfBirth','Date of birth'),('gender','Gender'),('location','General location'),('bio','About me')],
+    'Address': [('addressLine1','Address line 1'),('addressLine2','Address line 2'),('city','City'),('state','State'),('postalCode','Postal code'),('country','Country')],
+    'Communication & social media': [('alternatePhone','Alternate phone'),('website','Website'),('whatsapp','WhatsApp'),('linkedin','LinkedIn'),('facebook','Facebook'),('instagram','Instagram'),('xHandle','X / Twitter handle')],
+    'Education': [('highestQualification','Highest qualification'),('institution','School / College / University'),('fieldOfStudy','Field of study'),('graduationYear','Graduation year')],
+    'Interests': [('hobbies','Hobbies & interests (separate with commas)')],
+    'Employment': [('employmentStatus','Employment status'),('employer','Employer'),('jobTitle','Job title'),('industry','Industry'),('workLocation','Work location')],
+  };
+  Iterable<(String,String)> get definitions => sections.values.expand((items)=>items);
+  void beginEdit(String title) {
+    for(final item in definitions) { fields[item.$1]!.text=profile!.value(item.$1); }
+    setState(()=>editing=title);
+  }
+  @override
+  void dispose() { WidgetsBinding.instance.removeObserver(this); for(final controller in fields.values) { controller.dispose(); } super.dispose(); }
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     load();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Returning from another workspace section refreshes the shared profile.
+    // Keep an open editor or upload intact; saves still merge with latest data.
+    if(editing==null && !saving && !mediaBusy) load();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state==AppLifecycleState.resumed && editing==null && !saving && !mediaBusy) load();
   }
 
   Future<void> load() async {
     try {
       final value = await widget.api.profile();
       for (final item in definitions) {
-        fields[item.$1] = TextEditingController(text: value.value(item.$1));
+        fields.putIfAbsent(item.$1,()=>TextEditingController()).text = value.value(item.$1);
       }
-      if (mounted) setState(() => profile = value);
+      if (mounted) setState(() { profile = value; error = null; });
     } catch (e) {
       if (mounted) setState(() => error = e.toString());
     }
@@ -4740,16 +5021,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SliverToBoxAdapter(
             child: _PageHeader(
                 eyebrow: 'MY IDENTITY',
-                title: 'Profile',
-                subtitle: 'Personal, contact, education and work details.',
-                action: IconButton.filled(
-                    onPressed: saving || profile == null ? null : save,
-                    icon: saving
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.check_rounded)))),
+                title: widget.area ?? 'Profile',
+                subtitle: 'Personal, contact, education and work details.')),
         if (error != null)
           SliverFillRemaining(child: _ErrorState(error!, retry: load))
         else if (profile == null)
@@ -4759,12 +5032,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 110),
               sliver: SliverList.list(children: [
+                if(widget.area==null) ...[
+                Card(child: ListTile(leading: const Icon(Icons.contacts_outlined),title: const Text('My contacts'),subtitle: const Text('Import all contacts privately and organize into circles.'),onTap: ()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>AddressBookScreen(api:widget.api))))),
                 Card(
                     child: ListTile(
                         leading: const CircleAvatar(
                             child: Icon(Icons.auto_awesome_rounded)),
                         title: const Text('AI Contact Organizer',
-                            style: TextStyle(fontWeight: FontWeight.w800)),
+                            style: TextStyle(fontWeight: FontWeight.w500)),
                         subtitle: const Text(
                             'Optional: review AI suggestions for relationships and circles. Nothing is added without confirmation.'),
                         trailing: const Icon(Icons.chevron_right_rounded),
@@ -4781,7 +5056,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         leading: const CircleAvatar(
                             child: Icon(Icons.shield_outlined)),
                         title: const Text('Privacy & blocked accounts',
-                            style: TextStyle(fontWeight: FontWeight.w800)),
+                            style: TextStyle(fontWeight: FontWeight.w500)),
                         subtitle: const Text(
                             'Review and unblock accounts you have blocked.'),
                         trailing: const Icon(Icons.chevron_right_rounded),
@@ -4792,57 +5067,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     BlockedAccountsScreen(api: widget.api))))),
                 const SizedBox(height: 12),
                 Card(
-                    child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(children: [
-                          CircleAvatar(
-                              radius: 48,
-                              backgroundColor: const Color(0xFFE9E4FF),
-                              backgroundImage: profile!
-                                      .value('profilePhoto')
-                                      .isNotEmpty
-                                  ? NetworkImage(profile!.value('profilePhoto'))
-                                  : null,
-                              child: profile!.value('profilePhoto').isEmpty
-                                  ? const Icon(Icons.person_rounded,
-                                      size: 44, color: AppTheme.primary)
-                                  : null),
-                          const SizedBox(height: 10),
-                          const Text(
-                              'Your profile photo is shared according to your privacy settings.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Color(0xFF718096), fontSize: 12))
-                        ]))),
-                const SizedBox(height: 12),
-                Card(
-                    child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(children: [
-                          for (final item in definitions) ...[
-                            TextField(
-                                controller: fields[item.$1],
-                                maxLines: item.$1 == 'bio' ? 3 : 1,
-                                keyboardType: item.$1 == 'email'
-                                    ? TextInputType.emailAddress
-                                    : item.$1 == 'phoneNumber'
-                                        ? TextInputType.phone
-                                        : TextInputType.text,
-                                decoration:
-                                    InputDecoration(labelText: item.$2)),
-                            const SizedBox(height: 10)
-                          ]
-                        ])))
+                  child: Container(
+                    decoration: BoxDecoration(borderRadius:BorderRadius.circular(16),gradient:const LinearGradient(colors:[Color(0xFFEAF4F5),Color(0xFFF0EBFC)])),
+                    padding:const EdgeInsets.all(24),
+                    child:Column(children:[
+                      CircleAvatar(radius:48,child:ClipOval(child:profile!.value('profilePhoto').isEmpty?const Icon(Icons.person_rounded,size:44):Image.network(widget.api.profilePhotoUrl(profile!.value('profilePhoto')),width:96,height:96,fit:BoxFit.cover,errorBuilder:(_,error,stack)=>const Icon(Icons.person_rounded,size:44)))),
+                      const SizedBox(height:16),
+                      Text([profile!.value('firstName'),profile!.value('surname')].where((x)=>x.isNotEmpty).join(' ').isEmpty?'Your profile':[profile!.value('firstName'),profile!.value('surname')].where((x)=>x.isNotEmpty).join(' '),style:Theme.of(context).textTheme.headlineSmall,textAlign:TextAlign.center),
+                      if(profile!.value('bio').isNotEmpty) Padding(padding:const EdgeInsets.only(top:8),child:Text(profile!.value('bio'),textAlign:TextAlign.center)),
+                      if(profile!.value('location').isNotEmpty) Padding(padding:const EdgeInsets.only(top:8),child:Text(profile!.value('location'))),
+                    ]),
+                  ),
+                ),
+                ProfileMediaCard(api:widget.api,profile:profile!,enabled:editing==null&&!saving,onBusy:(value)=>setState(()=>mediaBusy=value),onChanged:(value){setState(()=>profile=value);widget.onDataChanged();}),
+                ],
+                for(final section in sections.entries.where((section)=>widget.area==null||(widget.area=='Career'?['Education','Employment'].contains(section.key):section.key=='Interests'))) Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+                  Row(children:[Expanded(child:Text(section.key,style:Theme.of(context).textTheme.titleMedium)),if(editing!=section.key) TextButton(onPressed:saving||mediaBusy?null:()=>beginEdit(section.key),child:Text('Edit',semanticsLabel:'Edit ${section.key}'))]),
+                  const SizedBox(height:12),
+                  if(editing==section.key) ...[
+                    for(final item in section.value) Padding(padding:const EdgeInsets.only(bottom:12),child:TextField(controller:fields[item.$1],readOnly:item.$1=='phoneNumber',maxLines:item.$1=='bio'?3:1,keyboardType:item.$1=='email'?TextInputType.emailAddress:item.$1.toLowerCase().contains('phone')?TextInputType.phone:TextInputType.text,decoration:InputDecoration(labelText:item.$2,hintText:item.$1=='dateOfBirth'?'YYYY-MM-DD':null))),
+                    Wrap(spacing:8,children:[TextButton(onPressed:saving?null:(){setState(()=>editing=null);load();},child:const Text('Cancel')),FilledButton(onPressed:saving?null:save,child:Text(saving?'Saving…':'Save ${section.key}'))]),
+                  ] else for(final item in section.value) Padding(padding:const EdgeInsets.only(bottom:14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(item.$2,style:Theme.of(context).textTheme.labelMedium?.copyWith(color:const Color(0xFF59697D))),const SizedBox(height:4),Text(profile!.value(item.$1).isEmpty?'Not added yet':profile!.value(item.$1))])),
+                ]))),
               ]))
       ]);
   Future<void> save() async {
     setState(() => saving = true);
     try {
-      final data = Map<String, dynamic>.from(profile!.data);
-      for (final item in definitions) {
+      final latest = await widget.api.profile();
+      final data = Map<String, dynamic>.from(latest.data);
+      for (final item in sections[editing]!) {
         data[item.$1] = fields[item.$1]!.text.trim();
       }
-      profile = await widget.api.saveProfile(data);
+      final updated = await widget.api.saveProfile(data);
+      if (!mounted) return;
+      setState(() { profile = updated; editing = null; });
+      widget.onDataChanged();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile saved successfully.')));
@@ -4947,6 +5207,35 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
   String? error;
   List<Map<String, dynamic>> suggestions = [];
   final TextEditingController emailController = TextEditingController();
+  Map<String, dynamic> providers = {};
+  bool providersLoading = false, oauthConnecting = false;
+  String? providerError;
+  int oauthGeneration = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProviders();
+  }
+
+  Future<void> loadProviders() async {
+    if (providersLoading) return;
+    setState(() { providersLoading = true; providerError = null; });
+    try {
+      final available = await widget.api.addressBookProviders();
+      if (mounted) setState(() => providers = available);
+    } catch (_) {
+      if (mounted) setState(() { providers = {}; providerError = 'Contact providers could not be checked.'; });
+    } finally {
+      if (mounted) setState(() => providersLoading = false);
+    }
+  }
+
+  void cancelOAuth() {
+    oauthGeneration++;
+    setState(() { oauthConnecting = false; loading = false; error = 'Contact connection cancelled. Nothing was saved.'; });
+  }
+
   static const relationshipTypes = [
     'Mother',
     'Father',
@@ -4983,12 +5272,13 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
       appBar: AppBar(title: const Text('AI Contact Organizer')),
       body: SafeArea(
           child: loading
-              ? const Center(
+              ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 12),
-                  Text('Analyzing contact names and organizations…')
-                ]))
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 12),
+                    const Text('Preparing contacts for review...'),
+                    if (oauthConnecting) TextButton(onPressed: cancelOAuth, child: const Text('Cancel connection')),
+                  ]))
               : suggestions.isEmpty
                   ? consentView()
                   : reviewView()));
@@ -5002,7 +5292,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w900),
+                ?.copyWith(fontWeight: FontWeight.w500),
             textAlign: TextAlign.center),
         const SizedBox(height: 12),
         const Text(
@@ -5034,7 +5324,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
               padding: const EdgeInsets.only(top: 12),
               child: Text(error!,
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w800))),
+                      color: Colors.red, fontWeight: FontWeight.w500))),
         const SizedBox(height: 16),
         TextField(
             controller: emailController,
@@ -5047,13 +5337,13 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
         Row(children: [
           Expanded(
               child: FilledButton.icon(
-                  onPressed: () => connectProvider('google'),
+                  onPressed: providers['google'] == true && !providersLoading ? () => connectProvider('google') : null,
                   icon: const Icon(Icons.contact_mail_outlined),
                   label: const Text('Google'))),
           const SizedBox(width: 8),
           Expanded(
               child: OutlinedButton.icon(
-                  onPressed: () => connectProvider('microsoft'),
+                  onPressed: providers['microsoft'] == true && !providersLoading ? () => connectProvider('microsoft') : null,
                   icon: const Icon(Icons.business_outlined),
                   label: const Text('Outlook')))
         ]),
@@ -5062,7 +5352,14 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
             child: Text(
                 'MyAaptha opens the provider consent page with read-only contact access. Your email password is never requested or stored.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Color(0xFF718096)))),
+                style: TextStyle(fontSize: 14, color: Color(0xFF59697D)))),
+        if (providersLoading) const Text('Checking contact providers...'),
+        if (!providersLoading && providerError == null && providers['google'] != true && providers['microsoft'] != true)
+          const Text('Email contact providers are not available yet. You can use this device or import a file in My contacts.'),
+        if (providerError != null) ...[
+          Text(providerError!),
+          TextButton(onPressed: loadProviders, child: const Text('Retry providers')),
+        ],
         const SizedBox(height: 12),
         const Row(children: [
           Expanded(child: Divider()),
@@ -5082,47 +5379,32 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
       ]);
 
   Future<void> connectProvider(String provider) async {
+    if (loading || providersLoading || providers[provider] != true) return;
     final email = emailController.text.trim();
     if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(email)) {
       setState(() => error = 'Enter a valid Google or Outlook email address.');
       return;
     }
-    setState(() {
-      loading = true;
-      error = null;
-    });
+    final generation = ++oauthGeneration;
+    bool active() => mounted && generation == oauthGeneration;
+    setState(() { loading = true; oauthConnecting = true; error = null; });
     try {
       final started = await widget.api.startContactOAuth(email, provider);
-      final authorizationUrl =
-          Uri.parse(started['authorizationUrl'].toString());
-      final resultKey = started['resultKey'].toString();
-      if (!await launchUrl(authorizationUrl,
-          mode: LaunchMode.externalApplication)) {
-        throw const MyAapthaApiException(
-            'The provider consent page could not be opened.');
+      if (!active()) return;
+      if (!await launchUrl(Uri.parse(started['authorizationUrl'].toString()), mode: LaunchMode.externalApplication)) {
+        throw const MyAapthaApiException('The provider consent page could not be opened.');
       }
-      List<Map<String, dynamic>>? result;
-      for (var attempt = 0; attempt < 150 && mounted; attempt++) {
-        await Future<void>.delayed(const Duration(seconds: 2));
-        try {
-          result = await widget.api.contactOAuthResult(resultKey);
-          break;
-        } catch (_) {
-          // A not-found response is expected until provider consent completes.
-        }
-      }
-      if (result == null) {
-        throw const MyAapthaApiException(
-            'Contact authorization timed out or was cancelled. Please try again.');
-      }
-      for (final item in result) {
-        item['selected'] = item['phone'] != null || item['email'] != null;
-      }
-      if (mounted) setState(() => suggestions = result!);
+      final result = await waitForContactOAuth(
+        () => widget.api.contactOAuthResult(started['resultKey'].toString()), isActive: active);
+      if (!active()) return;
+      for (final item in result) { item['selected'] = item['phone'] != null || item['email'] != null; }
+      setState(() { suggestions = result; if (result.isEmpty) error = 'No contacts were found in this account. Nothing was saved.'; });
+    } on ContactOAuthCancelled {
+      // Leaving/cancelling invalidates this attempt; a newer attempt owns the UI.
     } catch (exception) {
-      if (mounted) setState(() => error = exception.toString());
+      if (active()) setState(() => error = exception.toString());
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (active()) setState(() { loading = false; oauthConnecting = false; });
     }
   }
 
@@ -5133,7 +5415,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
               Expanded(
                   child: Text(
                       '${suggestions.where((item) => item['selected'] == true).length} of ${suggestions.length} selected',
-                      style: const TextStyle(fontWeight: FontWeight.w800))),
+                      style: const TextStyle(fontWeight: FontWeight.w500))),
               TextButton(
                   onPressed: () => setState(() {
                         for (final item in suggestions) {
@@ -5154,7 +5436,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(error!,
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w800))),
+                      color: Colors.red, fontWeight: FontWeight.w500))),
         Expanded(
             child: ListView.builder(
                 padding: const EdgeInsets.fromLTRB(12, 4, 12, 100),
@@ -5177,7 +5459,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                                     title: Text(
                                         item['display_name']?.toString() ?? '',
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.w800)),
+                                            fontWeight: FontWeight.w500)),
                                     subtitle: Text(item['phone']?.toString() ??
                                         'No mobile number — will be skipped')),
                                 DropdownButtonFormField<String>(
@@ -5209,8 +5491,8 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                                 Text(
                                     '${((item['confidence'] as num?)?.toDouble() ?? 0) * 100 ~/ 1}% confidence • ${(item['reasons'] as List? ?? const []).join(' • ')}',
                                     style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF718096))),
+                                        fontSize: 14,
+                                        color: Color(0xFF59697D))),
                               ])));
                 })),
         Padding(
@@ -5224,24 +5506,14 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
       ]);
 
   Future<void> readAndAnalyze() async {
-    if (kIsWeb) {
-      setState(() =>
-          error = 'Contact import is available in the Android and iOS apps.');
-      return;
-    }
-    final status = await Permission.contacts.request();
-    if (!status.isGranted) {
-      setState(() => error = status.isPermanentlyDenied
-          ? 'Contact access is disabled. Enable it in device settings, or skip this step.'
-          : 'Contact permission was not granted. Nothing was uploaded.');
-      return;
-    }
+    if (loading) return;
     setState(() {
       loading = true;
       error = null;
     });
     try {
-      final contacts = await FastContacts.getAllContacts();
+      final contacts = await readPermittedDeviceContacts(isActive: () => mounted);
+      if (!mounted) return;
       final payload = contacts
           .where((contact) => contact.displayName.trim().isNotEmpty)
           .map((contact) => {
@@ -5266,6 +5538,10 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
               })
           .take(2000)
           .toList();
+      if (payload.isEmpty) {
+        setState(() => error = 'No named contacts are available with the current permission. Nothing was uploaded.');
+        return;
+      }
       final result = await widget.api.analyzeContacts(payload);
       for (final item in result) {
         item['selected'] = item['phone'] != null || item['email'] != null;
@@ -5324,7 +5600,13 @@ class DirectChatScreen extends StatelessWidget {
   Widget build(BuildContext context) => ConversationScreen(
       title: person.displayName,
       subtitle: 'Private conversation',
+      forwardMessage:(id,targets)=>api.forwardChatMessage('DIRECT',person.id,id,targets),
+      forwardTargets:api.forwardTargets,
+      setMessageFlags: (id,star,pin)=>api.setMessageFlags(person.id,id,star,pin),
+      loadSaved: (kind,before)=>api.savedMessages(person.id,kind,beforeId:before),
+      acknowledgeRead: (ids)=>api.acknowledgeMessages(person.id,ids),
       load: () => api.directMessages(person.id),
+          loadEarlier: (id) => api.directMessages(person.id, beforeId: id),
       send: (text, parentId) =>
           api.sendDirectMessage(person.id, text, replyToMessageId: parentId),
       sendAttachment: (text, bytes, name, parentId, onProgress) =>
@@ -5335,6 +5617,7 @@ class DirectChatScreen extends StatelessWidget {
       searchMessages: (query) => api.searchDirectMessages(person.id, query),
       editMessage: (id, value) => api.editDirectMessage(person.id, id, value),
       deleteMessage: (id) => api.deleteDirectMessage(person.id, id),
+      deleteForMe: (id) => api.deleteDirectMessageForMe(person.id,id),
       reactMessage: (id, emoji) => api.reactDirectMessage(person.id, id, emoji),
       loadPresence: () => api.directPresence(person.id),
       setTyping: (typing) => api.setDirectTyping(person.id, typing),
@@ -5354,9 +5637,14 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
 
   @override
   Widget build(BuildContext context) => ConversationScreen(
+          circleConversation:true,
           title: circle.name,
           subtitle: '${circle.members.length} members',
+          forwardTargets:widget.api.forwardTargets,
+          forwardMessage:(id,targets)=>widget.api.forwardChatMessage('CIRCLE',circle.id,id,targets),
+          setMessageFlags:(id,star,pin)=>widget.api.setCircleMessageFlags(circle.id,id,star,pin),
           load: () => widget.api.circleMessages(circle.id),
+          loadEarlier: (id) => widget.api.circleMessages(circle.id, beforeId: id),
           send: (text, parentId) => widget.api
               .postCircleMessage(circle.id, text, parentMessageId: parentId),
           sendAttachment: (text, bytes, name, parentId, onProgress) =>
@@ -5367,6 +5655,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
           editMessage: (id, value) =>
               widget.api.editCircleMessage(circle.id, id, value),
           deleteMessage: (id) => widget.api.deleteCircleMessage(circle.id, id),
+          deleteForMe: (id) => widget.api.deleteCircleMessageForMe(circle.id,id),
           searchMessages: (query) =>
               widget.api.searchCircleMessages(circle.id, query),
           reactMessage: (id, emoji) =>
@@ -5400,7 +5689,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const Text('Circle settings',
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 14),
                   TextField(
                       controller: name,
@@ -5454,8 +5743,8 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                         Expanded(
                             child: Text('Members (${circle.members.length})',
                                 style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900))),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500))),
                         if (circle.currentUserAdmin)
                           FilledButton.tonalIcon(
                               onPressed: () async {
@@ -5474,7 +5763,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                                 leading: _Avatar(member.person),
                                 title: Text(member.person.displayName,
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w800)),
+                                        fontWeight: FontWeight.w500)),
                                 subtitle: Text(member.creator
                                     ? 'Creator - Admin'
                                     : member.admin
@@ -5590,20 +5879,24 @@ class ConversationScreen extends StatefulWidget {
       required this.title,
       required this.subtitle,
       required this.load,
+      this.loadEarlier,
       required this.send,
       required this.sendAttachment,
       required this.fetchAttachment,
       this.actions = const [],
       this.allowReplies = false,
+      this.circleConversation = false,
       this.searchMessages,
       this.editMessage,
       this.deleteMessage,
+      this.deleteForMe,
       this.reactMessage,
       this.loadPresence,
       this.setTyping,
-      this.person});
+      this.person, this.setMessageFlags, this.loadSaved, this.acknowledgeRead, this.forwardTargets, this.forwardMessage});
   final String title, subtitle;
   final Future<List<ConversationMessage>> Function() load;
+  final Future<List<ConversationMessage>> Function(int beforeId)? loadEarlier;
   final Future<void> Function(String, int?) send;
   final Future<void> Function(
     String message,
@@ -5614,14 +5907,20 @@ class ConversationScreen extends StatefulWidget {
   ) sendAttachment;
   final Future<Uint8List> Function(String) fetchAttachment;
   final List<Widget> actions;
-  final bool allowReplies;
+  final bool allowReplies, circleConversation;
   final Future<List<ConversationMessage>> Function(String query)?
       searchMessages;
   final Future<void> Function(int id, String value)? editMessage;
   final Future<void> Function(int id)? deleteMessage;
+  final Future<void> Function(int id)? deleteForMe;
   final Future<void> Function(int id, String emoji)? reactMessage;
   final Future<Map<String, dynamic>> Function()? loadPresence;
   final Future<void> Function(bool typing)? setTyping;
+  final Future<List<ChatTarget>> Function()? forwardTargets;
+  final Future<void> Function(int,List<ChatTarget>)? forwardMessage;
+  final Future<void> Function(int,bool?,bool?)? setMessageFlags;
+  final Future<List<ConversationMessage>> Function(String,int?)? loadSaved;
+  final Future<void> Function(List<int>)? acknowledgeRead;
   final Person? person;
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -5633,11 +5932,34 @@ class _ConversationScreenState extends State<ConversationScreen> {
   List<ConversationMessage>? messages;
   String? error;
   bool sending = false;
+  bool loading = false;
+  bool hasEarlier = true;
   PlatformFile? selectedFile;
   ConversationMessage? replyingTo;
   double? uploadProgress;
   bool showingSearchResults = false;
   String? presenceText;
+  String? savedKind;
+  final viewportKey=GlobalKey();
+  final messageKeys=<int,GlobalKey>{};
+  final acknowledged=<int>{};
+  bool receiptBusy=false;
+  void scheduleReceipts() => WidgetsBinding.instance.addPostFrameCallback((_)=>acknowledgeVisible());
+  Future<void> acknowledgeVisible() async {
+    if(!mounted||receiptBusy||widget.acknowledgeRead==null||WidgetsBinding.instance.lifecycleState!=AppLifecycleState.resumed||ModalRoute.of(context)?.isCurrent!=true)return;
+    final viewport=viewportKey.currentContext?.findRenderObject();
+    if(viewport is! RenderBox || !viewport.hasSize)return;
+    final bounds=viewport.localToGlobal(Offset.zero)&viewport.size;
+    final ids=<int>[];
+    for(final item in messages??<ConversationMessage>[]) {
+      if(item.mine||item.readAt!=null||acknowledged.contains(item.id))continue;
+      final box=messageKeys[item.id]?.currentContext?.findRenderObject();
+      if(box is RenderBox&&box.attached&&box.hasSize&&bounds.overlaps(box.localToGlobal(Offset.zero)&box.size))ids.add(item.id);
+    }
+    if(ids.isEmpty)return;receiptBusy=true;
+    try{final batch=ids.take(100).toList();await widget.acknowledgeRead!(batch);acknowledged.addAll(batch);}catch(_){/* Retry on the next foreground poll. */}finally{receiptBusy=false;}
+  }
+
   @override
   void initState() {
     super.initState();
@@ -5685,17 +6007,37 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Future<void> load() async {
+    if (loading || WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    loading = true;
     try {
-      final value = await widget.load();
+      final value = savedKind==null ? await widget.load() : await widget.loadSaved!(savedKind!,null);
       if (mounted) {
         setState(() {
-          messages = value;
+          final previous = showingSearchResults ? <ConversationMessage>[] : messages ?? <ConversationMessage>[];
+          final gap = previous.isNotEmpty && value.length == 50 && value.first.id > previous.last.id;
+          final merged = {for (final item in gap ? <ConversationMessage>[] : previous) item.id: item,
+                          for (final item in value) item.id: item};
+          messages = merged.values.toList()..sort((a,b) => a.id.compareTo(b.id));
           error = null;
         });
       }
     } catch (e) {
       if (mounted) setState(() => error = e.toString());
-    }
+    } finally { loading = false; if(mounted)scheduleReceipts(); }
+  }
+
+  Future<void> loadEarlier() async {
+    if (loading || widget.loadEarlier == null || messages == null || messages!.isEmpty) { return; }
+    setState(() => loading = true);
+    try {
+      final older = savedKind==null ? await widget.loadEarlier!(messages!.first.id) : await widget.loadSaved!(savedKind!,messages!.first.id);
+      if (mounted) { setState(() {
+        final merged = {for(final item in older) item.id:item, for(final item in messages!) item.id:item};
+        messages = merged.values.toList()..sort((a,b)=>a.id.compareTo(b.id));
+        hasEarlier = older.length == 50;
+      }); }
+    } catch(e) { if(mounted) setState(()=>error=e.toString()); }
+    finally { if(mounted) setState(()=>loading=false); }
   }
 
   Future<void> search() async {
@@ -5722,6 +6064,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
     if (query == null) return;
     if (query.isEmpty) {
       showingSearchResults = false;
+      messages = null;
+      hasEarlier = true;
       await load();
       return;
     }
@@ -5730,7 +6074,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       if (mounted) {
         setState(() {
           messages = result;
-          showingSearchResults = true;
+          showingSearchResults = true; savedKind=null;
         });
       }
     } catch (e) {
@@ -5740,6 +6084,38 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Future<void> messageAction(ConversationMessage item, String action) async {
     try {
+      if(action=='star'||action=='pin') {
+        await widget.setMessageFlags!(item.id,action=='star'?!item.starred:null,action=='pin'?!item.pinned:null);
+        if(mounted && savedKind!=null)setState(()=>messages=null);
+        await load();return;
+      }
+      if(action=='forward') {
+        final targets=await widget.forwardTargets!();
+        if(!mounted)return;
+        final selected=<String,ChatTarget>{};String query='';
+        final chosen=await showDialog<List<ChatTarget>>(context:context,builder:(context)=>StatefulBuilder(builder:(context,update)=>AlertDialog(
+          title:const Text('Forward message'),
+          content:SizedBox(width:360,height:360,child:Column(children:[
+            TextField(decoration:const InputDecoration(labelText:'Find people or circles',prefixIcon:Icon(Icons.search)),onChanged:(value)=>update(()=>query=value)),
+            Padding(padding:const EdgeInsets.symmetric(vertical:8),child:Text('${selected.length} / 10 selected')),
+            if(targets.isEmpty)const Text('No eligible people or circles yet.'),
+            Expanded(child:ListView(children:[for(final target in targets.where((t)=>t.name.toLowerCase().contains(query.toLowerCase())))CheckboxListTile(
+              title:Text(target.name),subtitle:Text(target.type=='CIRCLE'?'Circle':'Person'),value:selected.containsKey(target.key),
+              onChanged:!selected.containsKey(target.key)&&selected.length>=10?null:(checked)=>update((){if(checked==true){selected[target.key]=target;}else{selected.remove(target.key);}}))]))])),
+          actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Cancel')),FilledButton(onPressed:selected.isEmpty?null:()=>Navigator.pop(context,selected.values.toList()),child:const Text('Send forward'))])));
+        if(chosen==null)return;
+        await widget.forwardMessage!(item.id,chosen);
+        if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Message forwarded.')));
+        await load();return;
+      }
+      if(action=='react'){
+        final emoji=await showModalBottomSheet<String>(context:context,builder:(sheet)=>SafeArea(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(alignment:WrapAlignment.center,spacing:8,children:[for(final emoji in ['\u{1f44d}','\u2764\ufe0f','\u{1f602}','\u{1f62e}','\u{1f622}','\u{1f64f}'])IconButton(tooltip:'React $emoji',onPressed:()=>Navigator.pop(sheet,emoji),icon:Text(emoji,style:const TextStyle(fontSize:24)))]))));
+        if(emoji!=null){await widget.reactMessage!(item.id,item.myReaction==emoji?'':emoji);await load();}return;
+      }
+      if(action=='copy'){await Clipboard.setData(ClipboardData(text:item.message));return;}
+      if(action=='info'){
+        await showDialog<void>(context:context,builder:(context)=>AlertDialog(title:const Text('Message info'),content:Text(widget.circleConversation?'Sent: ${item.createdAt.toLocal()}\nRead by ${item.readCount} members':'Sent: ${item.createdAt.toLocal()}\nReceived by recipient app: ${item.deliveredAt?.toLocal()??"Not confirmed"}\nRead: ${item.readAt?.toLocal()??"Not confirmed or receipts disabled"}'),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Close'))]));return;
+      }
       if (action == 'reply') {
         setState(() => replyingTo = item);
         return;
@@ -5763,13 +6139,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
         controller.dispose();
         if (value != null) await widget.editMessage!(item.id, value);
       } else if (action == 'delete') {
-        final confirmed = await _confirmDestructiveAction(context,
-            title: 'Delete message?',
-            message:
-                'The message content and attachment will be removed from this conversation and replaced with a deleted-message notice. This action cannot be undone.',
-            confirmLabel: 'Delete message');
-        if (!confirmed) return;
-        await widget.deleteMessage!(item.id);
+        final scope=await showModalBottomSheet<String>(context:context,builder:(sheetContext)=>SafeArea(child:Column(mainAxisSize:MainAxisSize.min,children:[
+          if(widget.deleteForMe!=null) ListTile(leading:const Icon(Icons.person_outline),title:const Text('Delete for me'),onTap:()=>Navigator.pop(sheetContext,'me')),
+          if(item.canDeleteForAll && DateTime.now().isBefore(item.createdAt.add(const Duration(hours:24)))) ListTile(leading:const Icon(Icons.delete_outline),title:const Text('Delete for all'),onTap:()=>Navigator.pop(sheetContext,'all')),
+        ])));
+        if(scope==null||!mounted)return;
+        if(scope=='me'){await widget.deleteForMe!(item.id);if(mounted)setState(()=>messages?.removeWhere((message)=>message.id==item.id));}else{
+          final confirmed=await _confirmDestructiveAction(context,title:'Delete for all?',message:'The message and attachment will be replaced with a deleted-message notice for all participants.',confirmLabel:'Delete for all');
+          if(!confirmed)return;
+          await widget.deleteMessage!(item.id);
+          if(mounted)setState(()=>messages=null);
+        }
       } else if (action.startsWith('react:')) {
         final emoji = action.substring(6);
         await widget.reactMessage!(
@@ -5788,8 +6168,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       if (selectedFile != null) {
         final bytes = selectedFile!.bytes;
         if (bytes == null) {
-          throw const MyAapthaApiException(
-              'Could not read the selected file.');
+          throw const MyAapthaApiException('Could not read the selected file.');
         }
         await widget.sendAttachment(
           text.text.trim(),
@@ -5835,7 +6214,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
         'heic',
         'heif',
         'ico',
-        'svg',
         'psd',
         'dng',
         'cr2',
@@ -5877,11 +6255,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
         'mid',
         'midi',
         'pdf',
-        'doc',
         'docx',
-        'xls',
         'xlsx',
-        'ppt',
         'pptx',
         'txt'
       ],
@@ -5912,16 +6287,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
               _Avatar(widget.person!, radius: 19),
               const SizedBox(width: 10)
             ],
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(widget.title,
+            Expanded(child:Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(widget.title,maxLines:1,overflow:TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w900)),
-              Text(presenceText ?? widget.subtitle,
+                      fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(presenceText ?? widget.subtitle,maxLines:1,overflow:TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF718096)))
-            ])
+                      color: Color(0xFF59697D)))
+            ]))
           ]),
           actions: [
             if (widget.searchMessages != null)
@@ -5933,18 +6308,22 @@ class _ConversationScreenState extends State<ConversationScreen> {
             IconButton(onPressed: load, icon: const Icon(Icons.refresh_rounded))
           ]),
       body: Column(children: [
+        if(widget.loadSaved!=null) Padding(padding:const EdgeInsets.symmetric(horizontal:12),child:DropdownButtonFormField<String>(initialValue:savedKind??'all',decoration:const InputDecoration(labelText:'Show messages'),items:const [DropdownMenuItem(value:'all',child:Text('All')),DropdownMenuItem(value:'starred',child:Text('Starred')),DropdownMenuItem(value:'pinned',child:Text('Pinned for me'))],onChanged:(value){setState((){savedKind=value=='all'?null:value;messages=null;showingSearchResults=false;hasEarlier=true;});load();})),
+
+        if (!showingSearchResults && hasEarlier && (messages?.length ?? 0) >= 50 && widget.loadEarlier != null)
+          TextButton(onPressed: loading ? null : loadEarlier, child: const Text('Load earlier messages')),
         if (error != null)
           Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
-              color: const Color(0xFFFFE8EC),
+              color: const Color(0xFFF4F7FA),
               child: Text(error!,
                   style: const TextStyle(
-                      color: Color(0xFFB4233C), fontWeight: FontWeight.w700))),
+                      color: Color(0xFFB4233C), fontWeight: FontWeight.w500))),
         Expanded(
-            child: messages == null
+            child: NotificationListener<ScrollNotification>(onNotification:(_){scheduleReceipts();return false;},child:SizedBox(key:viewportKey, child: messages == null
                 ? const Center(child: CircularProgressIndicator())
-                : messages!.isEmpty
+                : messages!.every((message)=>message.hiddenForMe)
                     ? const Center(
                         child: Text('No messages yet. Start the conversation.'))
                     : ListView.builder(
@@ -5953,8 +6332,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         itemCount: messages!.length,
                         itemBuilder: (context, index) {
                           final item = messages![messages!.length - 1 - index];
+                          if(item.hiddenForMe)return const SizedBox.shrink();
                           final parent = _messageById(item.parentMessageId);
                           return Align(
+                              key:messageKeys.putIfAbsent(item.id,()=>GlobalKey()),
                               alignment: item.mine
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
@@ -5968,12 +6349,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       const EdgeInsets.fromLTRB(12, 9, 12, 7),
                                   decoration: BoxDecoration(
                                       color: item.mine
-                                          ? const Color(0xFFE9E3FF)
+                                          ? const Color(0xFFF4F7FA)
                                           : Colors.white,
                                       border: Border.all(
                                           color: item.mine
-                                              ? const Color(0xFFD3C7F4)
-                                              : const Color(0xFFE0DCE8)),
+                                              ? const Color(0xFFEAF4F5)
+                                              : const Color(0xFFD9E2EA)),
                                       borderRadius: BorderRadius.only(
                                           topLeft: const Radius.circular(16),
                                           topRight: const Radius.circular(16),
@@ -5983,12 +6364,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                               item.mine ? 4 : 16))),
                                   child:
                                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                    if (!item.mine)
-                                      Text(item.authorName,
+                                    Text(item.mine ? 'You' : item.authorName,
                                           style: const TextStyle(
                                               color: AppTheme.primary,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w900)),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500)),
                                     if (parent != null) ...[
                                       Container(
                                           width: double.infinity,
@@ -6011,9 +6391,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                 Text(parent.authorName,
                                                     style: const TextStyle(
                                                         color: AppTheme.primary,
-                                                        fontSize: 10,
+                                                        fontSize: 14,
                                                         fontWeight:
-                                                            FontWeight.w900)),
+                                                            FontWeight.w500)),
                                                 Text(
                                                     parent.message
                                                             .trim()
@@ -6025,13 +6405,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: const TextStyle(
-                                                        fontSize: 11))
+                                                        fontSize: 14))
                                               ]))
                                     ],
                                     if (item.deleted)
                                       const Text('This message was deleted',
                                           style: TextStyle(
-                                              color: Color(0xFF7F748D),
+                                              color: Color(0xFF59697D),
                                               fontStyle: FontStyle.italic))
                                     else if (item.message.isNotEmpty)
                                       Text(item.message,
@@ -6052,20 +6432,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                         children: [
                                           Text(_time(item.createdAt),
                                               style: const TextStyle(
-                                                  color: Color(0xFF7F748D),
-                                                  fontSize: 9)),
+                                                  color: Color(0xFF59697D),
+                                                  fontSize: 14)),
                                           if (item.editedAt != null)
                                             const Text(' · edited',
                                                 style: TextStyle(
-                                                    color: Color(0xFF7F748D),
-                                                    fontSize: 9)),
+                                                    color: Color(0xFF59697D),
+                                                    fontSize: 14)),
+                                          if (item.mine && widget.acknowledgeRead != null)
+                                            Semantics(label:item.readAt!=null?'Read':item.deliveredAt!=null?'Delivered':'Sent',child:Icon(item.readAt!=null||item.deliveredAt!=null?Icons.done_all:Icons.done,size:15,color:item.readAt!=null?AppTheme.primary:Colors.grey)),
+                                          if(item.forwarded&&!item.deleted) const Text(' Forwarded',style:TextStyle(fontSize: 14)),
+                                          if(item.starred) const Icon(Icons.star,size:13),
+                                          if(item.pinned) const Icon(Icons.push_pin,size:13),
                                           if (item.mine && item.readCount > 0)
                                             Text('  ✓✓ ${item.readCount}',
                                                 style: const TextStyle(
                                                     color: AppTheme.primary,
-                                                    fontSize: 9,
+                                                    fontSize: 14,
                                                     fontWeight:
-                                                        FontWeight.w700)),
+                                                        FontWeight.w500)),
                                           if (widget.allowReplies)
                                             InkWell(
                                                 onTap: () => setState(
@@ -6077,46 +6462,36 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                         size: 15,
                                                         color:
                                                             AppTheme.primary))),
-                                          if (widget.reactMessage != null ||
-                                              widget.editMessage != null ||
-                                              widget.deleteMessage != null)
                                             PopupMenuButton<String>(
                                                 tooltip: 'Message actions',
                                                 padding: EdgeInsets.zero,
                                                 onSelected: (value) =>
                                                     messageAction(item, value),
                                                 itemBuilder: (_) => [
-                                                      const PopupMenuItem(
+                                                      if(widget.setMessageFlags!=null && !item.deleted) ...[
+                                                        PopupMenuItem(value:'star',child:Text(item.starred?'Unstar':'Star')),
+                                                        PopupMenuItem(value:'pin',child:Text(item.pinned?'Unpin for me':'Pin for me')),
+                                                      ],
+                                                      if(widget.forwardMessage!=null&&!item.deleted) const PopupMenuItem(value:'forward',child:Text('Forward')),
+                                                      const PopupMenuItem(value:'info',child:Text('Info')),
+                                                      if(!item.deleted && item.message.isNotEmpty) const PopupMenuItem(value:'copy',child:Text('Copy text')),
+
+                                                      if(widget.allowReplies&&!item.deleted)const PopupMenuItem(
                                                           value: 'reply',
                                                           child: Text('Reply')),
-                                                      if (item.mine &&
+                                                      if (item.mine && widget.editMessage!=null &&
                                                           !item.deleted)
                                                         const PopupMenuItem(
                                                             value: 'edit',
                                                             child:
                                                                 Text('Edit')),
-                                                      if (item.mine &&
-                                                          !item.deleted)
+                                                      if (widget.deleteForMe != null)
                                                         const PopupMenuItem(
                                                             value: 'delete',
                                                             child:
                                                                 Text('Delete')),
-                                                      if (!item.deleted &&
-                                                          widget.reactMessage !=
-                                                              null)
-                                                        for (final emoji in [
-                                                          '👍',
-                                                          '❤️',
-                                                          '😂',
-                                                          '😮',
-                                                          '😢',
-                                                          '🙏'
-                                                        ])
-                                                          PopupMenuItem(
-                                                              value:
-                                                                  'react:$emoji',
-                                                              child: Text(
-                                                                  '$emoji React'))
+                                                      if(!item.deleted&&widget.reactMessage!=null)const PopupMenuItem(value:'react',child:Text('React')),
+
                                                     ])
                                         ]),
                                     if (item.reactions.isNotEmpty)
@@ -6130,12 +6505,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                       VisualDensity.compact))
                                               .toList())
                                   ])));
-                        })),
+                        })))),
         if (replyingTo != null)
           Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(14, 7, 8, 7),
-              color: const Color(0xFFF2EEFF),
+              color: const Color(0xFFF4F7FA),
               child: Row(children: [
                 const Icon(Icons.reply_rounded,
                     size: 18, color: AppTheme.primary),
@@ -6147,15 +6522,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       Text('Replying to ${replyingTo!.authorName}',
                           style: const TextStyle(
                               color: AppTheme.primary,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900)),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500)),
                       Text(
                           replyingTo!.message.isNotEmpty
                               ? replyingTo!.message
                               : replyingTo!.attachmentName ?? 'Attachment',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11))
+                          style: const TextStyle(fontSize: 14))
                     ])),
                 IconButton(
                     visualDensity: VisualDensity.compact,
@@ -6168,7 +6543,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                 decoration: const BoxDecoration(
                     color: Colors.white,
-                    border: Border(top: BorderSide(color: Color(0xFFE5E0EF)))),
+                    border: Border(top: BorderSide(color: Color(0xFFEAF4F5)))),
                 child: Row(children: [
                   IconButton.filledTonal(
                       tooltip: 'Attach photo, video, audio, or document',
@@ -6214,7 +6589,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                              fontSize: 11, fontWeight: FontWeight.w700),
+                              fontSize: 14, fontWeight: FontWeight.w500),
                         )),
                         IconButton(
                           visualDensity: VisualDensity.compact,
@@ -6237,6 +6612,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   ConversationMessage? _messageById(int? id) {
     if (id == null || messages == null) return null;
     for (final message in messages!) {
+      if(message.hiddenForMe)continue;
       if (message.id == id) return message;
     }
     return null;
@@ -6307,12 +6683,12 @@ class _MessageAttachmentState extends State<_MessageAttachment> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: .72),
-              border: Border.all(color: const Color(0xFFD9D2E8)),
+              border: Border.all(color: const Color(0xFFEAF4F5)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(children: [
               CircleAvatar(
-                backgroundColor: const Color(0xFFE9E3FF),
+                backgroundColor: const Color(0xFFF4F7FA),
                 child: Icon(_icon(type), color: AppTheme.primary),
               ),
               const SizedBox(width: 9),
@@ -6326,16 +6702,16 @@ class _MessageAttachmentState extends State<_MessageAttachment> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppTheme.ink,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${_label(type)} · ${_size(widget.message.attachmentSize)}',
                       style: const TextStyle(
-                        color: Color(0xFF756B82),
-                        fontSize: 10,
+                        color: Color(0xFF59697D),
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -6363,7 +6739,7 @@ class _MessageAttachmentState extends State<_MessageAttachment> {
 
   Widget _errorCard() => const Text(
         'Attachment could not be loaded',
-        style: TextStyle(color: Color(0xFFB4233C), fontWeight: FontWeight.w700),
+        style: TextStyle(color: Color(0xFFB4233C), fontWeight: FontWeight.w500),
       );
 
   Future<void> _open(Uint8List data) async {
@@ -6407,4 +6783,61 @@ class _MessageAttachmentState extends State<_MessageAttachment> {
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
+}
+
+/// Section tabs retain the existing screens and their local state after visiting.
+class WorkspaceHub extends StatefulWidget {
+  const WorkspaceHub({super.key,required this.title,required this.labels,required this.pages});
+  final String title;
+  final List<String> labels;
+  final List<Widget> pages;
+  @override State<WorkspaceHub> createState()=>_WorkspaceHubState();
+}
+class _WorkspaceHubState extends State<WorkspaceHub> {
+  int selected=0;
+  final visited=<int>{0};
+  @override Widget build(BuildContext context)=>Column(children:[
+    Padding(padding:const EdgeInsets.fromLTRB(16,8,16,0),child:Align(alignment:Alignment.centerLeft,child:Text(widget.title,style:Theme.of(context).textTheme.titleLarge))),
+    SingleChildScrollView(scrollDirection:Axis.horizontal,child:Padding(padding:const EdgeInsets.all(12),child:Row(children:[for(int i=0;i<widget.labels.length;i++)Padding(padding:const EdgeInsets.only(right:8),child:ChoiceChip(label:Text(widget.labels[i]),selected:selected==i,onSelected:(_)=>setState((){selected=i;visited.add(i);}))) ]))),
+    Expanded(child:IndexedStack(index:selected,children:[for(int i=0;i<widget.pages.length;i++)visited.contains(i)?widget.pages[i]:const SizedBox.shrink()])),
+  ]);
+}
+
+class MenuComparisonScreen extends StatelessWidget {
+  const MenuComparisonScreen({super.key,required this.onOpen});
+  final ValueChanged<String> onOpen;
+  @override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Menu comparison')),body:ListView(padding:const EdgeInsets.all(16),children:[
+    Text('Old menu to new home',style:Theme.of(context).textTheme.headlineSmall),
+    const Padding(padding:EdgeInsets.symmetric(vertical:12),child:Text('All existing features remain accessible. Review each move and open its destination.')),
+    Wrap(spacing:6,children:[for(final label in workspacePrimaryLabels)Chip(label:Text(label))]),
+    for(final move in workspaceMenuMoves)Card(child:ListTile(isThreeLine:true,title:Text(move.old),subtitle:Text('New location: ${move.destination}'),trailing:const Icon(Icons.open_in_new),onTap:()=>onOpen(move.path))),
+    const Card(child:Padding(padding:EdgeInsets.all(16),child:Text('Career uses your education and employment details. Interests uses your saved hobbies. Online Feed retains stories, sharing audiences and saved posts. Messages retains calls, group conversations, search, unread and archive controls. Previous mobile shortcuts: Notifications is the top bell; Search is available from the top search bar and Messages > Find people; More / All tools is now Account & tools. Sign out remains in the drawer and account tools. This review view can be removed later.'))),
+  ]));
+}
+
+void openMenuComparison(BuildContext context,MyAapthaApi api,AuthTokenBundle session,VoidCallback signOut){
+  Navigator.push(context,MaterialPageRoute(builder:(reviewContext)=>MenuComparisonScreen(onOpen:(path){
+    final page=switch(path){
+      '/dashboard'=>MobileDashboard(api:api),
+      '/relationship-tree'=>NetworkHome(api:api),
+      '/feed'=>SocialFeedScreen(api:api),
+      '/following'=>FollowConnectionsScreen(api:api),
+      '/messages'=>MessagesScreen(api:api),
+      '/circles'=>CirclesScreen(api:api),
+      '/contacts'=>AddressBookScreen(api:api),
+      '/timeline'=>TimelineScreen(api:api),
+      '/finance'=>FinanceScreen(api:api),
+      '/health'=>HealthRecordsScreen(api:api),
+      '/trust'=>TrustCenterScreen(api:api),
+      '/profile'=>ProfileScreen(api:api,onDataChanged:(){}),
+      '/settings'=>ApplicationSettingsScreen(api:api),
+      '/session'=>SessionScreen(session:session,onSignOut:signOut),
+      '/ai-activity'=>AiControlScreen(api:api),
+      '/help'=>HelpChatScreen(api:api),
+      '/reports'=>ReportsScreen(api:api),
+      '/moderation'=>ModerationScreen(api:api),
+      _=>const Center(child:Padding(padding:EdgeInsets.all(24),child:Text('Security & errors remains available to administrators in the web application.'))),
+    };
+    Navigator.push(reviewContext,MaterialPageRoute(builder:(_)=>Scaffold(appBar:AppBar(title:Text(workspaceMenuMoves.firstWhere((move)=>move.path==path).old)),body:page)));
+  })));
 }

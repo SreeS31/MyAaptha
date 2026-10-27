@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-24",
+  "feature": "Finance bills, warranties and renewal reminders",
+  "task": "M10.5",
+  "localImplementationVerified": true,
+  "backendFocusedTestsPassed": 19,
+  "nativeUnitWidgetTestsPassed": 3,
+  "nativeLiveIntegrationPassed": 1,
+  "responsiveRenewalBrowserCasesPassed": 2,
+  "financeMonthBrowserRegressionCasesPassed": 2,
+  "nativeAnalysis": "No issues found",
+  "builds": [
+    "API package",
+    "Next.js production",
+    "Android debug APK"
+  ],
+  "reminderDays": [
+    30,
+    15,
+    7,
+    3,
+    1
+  ],
+  "reminderTime": "09:00 in the saved time zone",
+  "liveScheduler": "Actual PostgreSQL minute scheduler created one-day in-app reminder; external channels disabled on synthetic fixture",
+  "statePreservation": "Archive/restore verified to preserve renewed expiry dates in backend, browser and native HTTP tests",
+  "health": {
+    "finance": 200,
+    "api": 200,
+    "helper": 200,
+    "launchBoard": 200
+  },
+  "artifacts": {
+    "record": ".tools/launch-board/build-identities-renewals-20261024.json",
+    "allPresent": true,
+    "matchingBytesVerified": true,
+    "releaseApproved": false
+  },
+  "launchBoard": {
+    "modules": 18,
+    "tasks": 90,
+    "closed": 61,
+    "pending": 29
+  },
+  "limits": [
+    "Live external provider delivery and physical-device push not certified",
+    "Android artifact is debug; no store submission or public release approval"
+  ]
+}

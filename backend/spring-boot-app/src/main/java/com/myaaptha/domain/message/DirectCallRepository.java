@@ -5,5 +5,5 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DirectCallRepository extends JpaRepository<DirectCallEntity,Long> {
-  List<DirectCallEntity> findByRecipientUserIdAndStatusOrderByCreatedAtDesc(Long recipientUserId,String status);
+  List<DirectCallEntity> findByRecipientUserIdAndStatusAndCreatedAtAfterOrderByCreatedAtDesc(Long recipientUserId,String status,java.time.Instant after);
 }

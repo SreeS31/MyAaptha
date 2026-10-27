@@ -1,0 +1,40 @@
+import {test,expect} from './fixtures';
+import AxeBuilder from '@axe-core/playwright';
+import {randomUUID} from 'node:crypto';
+import {mkdirSync} from 'node:fs';
+test('pastel charts show saved network and financial data',async({page,playwright},info)=>{
+ test.setTimeout(180000);mkdirSync('../../.tools/pastel-review',{recursive:true});
+ const api=await playwright.request.newContext({baseURL:'http://127.0.0.1:8080'});
+ const username=`charts-${randomUUID().slice(0,8)}`,password=randomUUID();
+ const user=await api.post('/api/users',{data:{username,password,phoneNumber:`+1777${String(Math.floor(Math.random()*1e10)).padStart(10,'0')}`}});expect(user.status()).toBe(200);
+ const login=await api.post('/api/auth/login',{data:{identifier:username,password}});expect(login.status()).toBe(200);
+ const headers={Authorization:`Bearer ${(await login.json()).accessToken}`};
+ const circle=await api.post('/api/network/circles',{headers,data:{name:'Reading friends',description:'Chart test circle'}});expect(circle.status()).toBe(200);
+ const savedCircle=await circle.json();
+ for(const [direction,amount,category] of [['INCOME',10000,'OTHER'],['EXPENSE',2500,'FOOD']] as const){const saved=await api.post('/api/finance/transactions',{headers,data:{direction,amount,category,source:'MANUAL',occurredAt:new Date().toISOString()}});expect(saved.ok()).toBe(true);}
+ await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
+ const chart=page.locator('.network-insights');await expect(chart.getByText('Your chart will appear when you add data.')).toBeVisible();
+ await chart.getByRole('button',{name:'Circles',exact:true}).click();
+ if(savedCircle.members.length){const row=chart.locator('li').filter({hasText:'Reading friends'});await expect(row.locator('strong')).toHaveText(String(savedCircle.members.length));}
+ await expect(chart.getByText('Member counts for your circles. A person can belong to more than one circle.')).toBeVisible();
+ await expect(page.locator('.workspace-sidebar a[href="/feed"]')).toHaveCount(1);
+ await expect(page.locator('.workspace-sidebar a[href="/notifications"]')).toHaveCount(0);
+ await expect(page.locator('.workspace-sidebar').getByText('New diary entry',{exact:true})).toHaveCount(0);
+ await page.goto('/circles');await expect(page.locator('main input[type=search]')).toHaveCount(0);
+ const search=page.getByRole('searchbox',{name:'Search MyAaptha'});await search.fill('no such circle');await search.press('Enter');await expect(page.getByText('No circles in this view.',{exact:true})).toBeVisible();
+ await search.fill('Reading');await search.press('Enter');await expect(page.getByRole('button',{name:'Open Reading friends',exact:true})).toBeVisible();
+ const details=page.getByLabel('Information about Reading friends');await details.click();await expect(page.locator('.circle-detail-lines').getByText('Your role: Admin',{exact:true})).toBeVisible();
+ await expect.poll(()=>page.locator('.info-panel').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(page.viewportSize()!.width);await details.press('Escape');await expect(page.locator('.info-panel')).toHaveCount(0);
+ await page.screenshot({path:`../../.tools/pastel-review/circles-${info.project.name}.png`,fullPage:true});
+ await page.goto('/contacts');await expect(page.locator('main input[type=search]')).toHaveCount(0);await page.getByRole('searchbox',{name:'Search MyAaptha'}).fill('test contact');await page.getByRole('searchbox',{name:'Search MyAaptha'}).press('Enter');await expect(page.getByText('Results for "test contact"',{exact:true})).toBeVisible();
+ await page.goto('/messages');await expect(page.getByRole('heading',{name:'Messages',exact:true})).toBeVisible();await page.screenshot({path:`../../.tools/pastel-review/info-${info.project.name}.png`,fullPage:true});
+ await page.goto('/settings');await expect(page.getByRole('link',{name:/^Notification inbox/})).toBeVisible();
+ await page.goto('/finance');const cashflow=page.locator('.finance-cashflow');await expect(cashflow.locator('li')).toHaveCount(2);
+ await expect(cashflow.locator('li').filter({hasText:'Income'}).locator('strong')).toContainText('10,000');
+ await expect(cashflow.locator('li').filter({hasText:'Spending'}).locator('strong')).toContainText('2,500');
+ const widths=await cashflow.locator('.insight-track i').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().width));expect(widths[1]/widths[0]).toBeCloseTo(.25,2);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+2)).toBe(false);
+ expect((await new AxeBuilder({page}).withRules(['color-contrast']).analyze()).violations).toEqual([]);
+ mkdirSync('../../.tools/pastel-review',{recursive:true});await page.screenshot({path:`../../.tools/pastel-review/finance-${info.project.name}.png`,fullPage:true});
+ await api.dispose();
+});

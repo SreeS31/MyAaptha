@@ -1,3 +1,6 @@
 package com.myaaptha.domain.network.dto;
 
-public record CircleMemberRequest(Long userId) {}
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+public record CircleMemberRequest(@NotNull @Positive Long userId) {}

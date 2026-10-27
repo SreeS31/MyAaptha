@@ -1,0 +1,8 @@
+flowchart TD
+    Context[Permitted context and consent] --> Proposal[AI proposal]
+    Proposal --> Decision{User decision}
+    Decision -->|Reject| Stop[No approved execution]
+    Decision -->|Approve| Guard{Server validates actor and scope?}
+    Guard -->|No| Block[Reject execution]
+    Guard -->|Yes| Execute[Execute permitted action]
+    Execute --> Inspect[Refresh result and action history]

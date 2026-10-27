@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final Set<String> PUBLIC_AUTH_PATHS = Set.of(
+      "/api/auth/security-policy","/api/auth/phone/start","/api/auth/reset-password","/api/web-auth/login","/api/web-auth/refresh","/api/web-auth/logout","/api/web-auth/revoke",
       "/api/auth/health",
       "/api/auth/login",
       "/api/auth/refresh",
@@ -28,9 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       "/api/auth/revoke");
 
   private final JwtTokenService jwtTokenService;
+  private final com.myaaptha.domain.auth.AuthTokenRepository sessions;
+  private final MetricsScrapeCredential metrics;
 
-  public JwtAuthenticationFilter(JwtTokenService jwtTokenService) {
-    this.jwtTokenService = jwtTokenService;
+  public JwtAuthenticationFilter(JwtTokenService jwtTokenService,com.myaaptha.domain.auth.AuthTokenRepository sessions,MetricsScrapeCredential metrics) {
+    this.jwtTokenService = jwtTokenService;this.sessions=sessions;this.metrics=metrics;
   }
 
   @Override
@@ -45,7 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     String path = request.getRequestURI();
-    if (!path.startsWith("/api/")) {
+    boolean operational=(path.equals("/actuator")||path.startsWith("/actuator/"))
+        && !Set.of("/actuator/health","/actuator/health/liveness","/actuator/health/readiness").contains(path);
+    if (!path.startsWith("/api/") && !operational) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -63,8 +68,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String token = authorizationHeader.substring("Bearer ".length()).trim();
     try {
+      if(metrics.accepts(request.getMethod(),path,token)) {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+            "metrics-scraper",null,AuthorityUtils.createAuthorityList("ROLE_METRICS")));
+        filterChain.doFilter(request,response);return;
+      }
       Claims claims = jwtTokenService.parseAndValidate(token, "access");
       String role = claims.get("role", String.class);
+      String sid=claims.get("sid",String.class);
+      if(sid==null||!sessions.activeSession(sid,Long.valueOf(claims.getSubject()),role,java.time.Instant.now())){response.setStatus(401);return;}
       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
           claims.getSubject(),
           null,

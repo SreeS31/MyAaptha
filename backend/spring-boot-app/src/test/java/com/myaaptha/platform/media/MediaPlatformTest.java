@@ -27,4 +27,13 @@ class MediaPlatformTest {
     assertThatThrownBy(()->scanner.assertClean("#!/bin/sh\necho hacked".getBytes(),"audio.mp3","audio/mpeg")).isInstanceOf(ResponseStatusException.class);
     scanner.assertClean("ordinary document".getBytes(),"safe.txt","text/plain");
   }
+
+  @Test void scannerRejectsDisguisedActiveAndMismatchedFiles() {
+    var scanner=new BasicMediaScanner();
+    assertThatThrownBy(()->scanner.assertClean("not an image".getBytes(),"photo.png","image/png")).isInstanceOf(ResponseStatusException.class);
+    assertThatThrownBy(()->scanner.assertClean("%PDF-1.7 /JavaScript alert".getBytes(),"report.pdf","application/pdf")).isInstanceOf(ResponseStatusException.class);
+    assertThatThrownBy(()->scanner.assertClean("ordinary".getBytes(),"invoice.pdf.exe","application/pdf")).isInstanceOf(ResponseStatusException.class);
+    assertThatThrownBy(()->scanner.assertClean("ordinary".getBytes(),"legacy.doc","application/msword")).isInstanceOf(ResponseStatusException.class);
+    scanner.assertClean("%PDF-1.7\n1 0 obj\n<<>>\nendobj".getBytes(),"report.pdf","application/pdf");
+  }
 }

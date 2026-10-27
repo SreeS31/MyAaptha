@@ -95,7 +95,7 @@ class NetworkControllerTest {
     mockMvc.perform(get("/api/network/circles/"+circleId+"/posts/search").param("q","original").header(auth(),"Bearer "+friendToken)).andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(circlePostId));
     mockMvc.perform(put("/api/network/circles/"+circleId+"/posts/"+circlePostId).header(auth(),"Bearer "+friendToken).contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"Edited circle update\"}")).andExpect(status().isOk()).andExpect(jsonPath("$.message").value("Edited circle update")).andExpect(jsonPath("$.editedAt").exists());
     mockMvc.perform(put("/api/network/circles/"+circleId+"/posts/"+circlePostId).header(auth(),"Bearer "+token).contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"Not mine\"}")).andExpect(status().isForbidden());
-    mockMvc.perform(delete("/api/network/circles/"+circleId+"/posts/"+circlePostId).header(auth(),"Bearer "+friendToken)).andExpect(status().isOk()).andExpect(jsonPath("$.deletedAt").exists()).andExpect(jsonPath("$.message").value(""));
+    mockMvc.perform(delete("/api/network/circles/"+circleId+"/posts/"+circlePostId).header(auth(),"Bearer "+friendToken)).andExpect(status().isConflict());
   }
 
   @Test

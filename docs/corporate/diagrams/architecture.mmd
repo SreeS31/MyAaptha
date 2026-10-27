@@ -1,0 +1,11 @@
+flowchart TB
+    W[Next.js browser] -->|Cookie session| API[Spring Boot API]
+    M[Flutter app] -->|Bearer JWT| API
+    API --> PG[(PostgreSQL)]
+    API --> MEDIA[Local storage / private S3]
+    API --> SCAN[ClamAV scanner]
+    API --> AI[Python agent service]
+    API -. configured .-> LLM[External AI provider]
+    API -. configured .-> CONTACTS[Google / Microsoft contacts]
+    API -. configured .-> DELIVERY[Notification delivery]
+    API -. profile dependent .-> REDIS[(Redis)]

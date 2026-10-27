@@ -50,13 +50,17 @@ public class UserEntity {
   private String claimStatus = "NONE";
 
   @Column(name = "managed_date_of_birth")
-  private String managedDateOfBirth;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String managedDateOfBirth;
 
   @Column(name = "managed_date_of_death")
-  private String managedDateOfDeath;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String managedDateOfDeath;
 
   @Column(name = "managed_notes", length = 2000)
-  private String managedNotes;
+  @jakarta.persistence.Convert(converter = com.myaaptha.platform.security.EncryptedTextConverter.class) private String managedNotes;
+
+  @Column(name="phone_verified",nullable=false) private boolean phoneVerified;
+  public boolean isPhoneVerified(){return phoneVerified;}
+  public void setPhoneVerified(boolean value){phoneVerified=value;}
 
   public Long getId() {
     return id;

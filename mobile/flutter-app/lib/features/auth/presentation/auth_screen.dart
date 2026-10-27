@@ -2,26 +2,33 @@ import 'package:myaaptha_mobile/features/auth/data/auth_api.dart';
 import 'package:myaaptha_mobile/features/auth/data/session_store.dart';
 import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
 import 'package:flutter/material.dart';
+import 'account_recovery_screen.dart';
 
 enum AuthMode { signIn, signUp }
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.onAuthenticated});
+  const AuthScreen({super.key, required this.onAuthenticated, this.authApi, this.sessionStore});
   final ValueChanged<AuthTokenBundle> onAuthenticated;
+  final AuthApi? authApi;
+  final SessionStore? sessionStore;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final AuthApi _authApi = AuthApi();
-  final SessionStore _sessionStore = SessionStore();
+  late final AuthApi _authApi;
+  late final SessionStore _sessionStore;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  final TextEditingController _verificationController = TextEditingController();
+  PhoneVerificationPolicy? _policy;
+  String? _policyError;
 
   AuthMode _authMode = AuthMode.signIn;
   AuthTokenBundle? _session;
@@ -30,8 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   String _normalizeSignInIdentifier(String value) {
     final identifier = value.trim();
-    if (identifier.contains('@') ||
-        RegExp(r'[A-Za-z]').hasMatch(identifier)) {
+    if (identifier.contains('@') || RegExp(r'[A-Za-z]').hasMatch(identifier)) {
       return identifier;
     }
 
@@ -45,7 +51,10 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void initState() {
     super.initState();
+    _authApi = widget.authApi ?? AuthApi();
+    _sessionStore = widget.sessionStore ?? SessionStore();
     _probeAuthService();
+    _loadPolicy();
     _restoreSessionIfAvailable();
   }
 
@@ -55,9 +64,19 @@ class _AuthScreenState extends State<AuthScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _otpController.dispose();
+    _verificationController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadPolicy() async {
+    try{final value=await _authApi.securityPolicy();if(mounted)setState((){_policy=value;_policyError=null;});}
+    catch(e){if(mounted)setState(()=>_policyError='Could not load account security policy. Please retry.');}
+  }
+  Future<void> _requestCode() async {
+    try{if(!await openPhoneVerification(_policy!.verificationUri!))throw const AuthApiException('Could not open phone verification.');}
+    catch(e){if(mounted)setState(()=>_statusMessage=e.toString());}
+  }
   Future<void> _probeAuthService() async {
     try {
       final health = await _authApi.checkHealth();
@@ -90,16 +109,12 @@ class _AuthScreenState extends State<AuthScreen> {
       await _sessionStore.save(refreshed);
       _session = refreshed;
 
-      final summary =
-          await _authApi.fetchDashboardSummary(refreshed.accessToken);
-
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _statusMessage =
-            'Session restored | users=${summary.userCount} circles=${summary.circleCount}';
+        _statusMessage = 'Session restored';
       });
       widget.onAuthenticated(refreshed);
     } catch (_) {
@@ -167,6 +182,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _submit() async {
+    if(_authMode==AuthMode.signUp&&(_policy==null||_policy!.required&&!_policy!.configured))return;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -186,6 +202,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ? null
                 : _emailController.text.trim(),
             password: _passwordController.text,
+            verificationCode: _policy!.required?_verificationController.text.trim():null,
           ),
         );
 
@@ -200,24 +217,20 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final tokenBundle = await _authApi.login(
           LoginRequest(
-            identifier:
-                _normalizeSignInIdentifier(_emailController.text),
+            identifier: _normalizeSignInIdentifier(_emailController.text),
             password: _passwordController.text,
+            otpCode: _otpController.text.trim(),
           ),
         );
         await _sessionStore.save(tokenBundle);
         _session = tokenBundle;
-
-        final summary =
-            await _authApi.fetchDashboardSummary(tokenBundle.accessToken);
 
         if (!mounted) {
           return;
         }
 
         setState(() {
-          _statusMessage =
-              'Signed in successfully | users=${summary.userCount} circles=${summary.circleCount}';
+          _statusMessage = 'Signed in successfully';
         });
         widget.onAuthenticated(tokenBundle);
       }
@@ -227,9 +240,10 @@ class _AuthScreenState extends State<AuthScreen> {
       }
       setState(() {
         _statusMessage = error is AuthApiException
-            ? (error.message.contains('401') || error.message.toLowerCase().contains('credential')
-                ? 'The mobile number/email or password is incorrect. Please check your details and try again.'
-                : error.message)
+            ? (error.message.contains('401') ||
+                      error.message.toLowerCase().contains('credential')
+                  ? 'The mobile number/email or password is incorrect. Please check your details and try again.'
+                  : error.message)
             : 'Unable to reach the server. Check your connection and try again.';
       });
     } finally {
@@ -289,6 +303,7 @@ class _AuthScreenState extends State<AuthScreen> {
               if (isSignUp)
                 TextFormField(
                   controller: _usernameController,
+                  maxLength: 255,
                   decoration: const InputDecoration(
                     labelText: 'Username',
                     border: OutlineInputBorder(),
@@ -300,15 +315,22 @@ class _AuthScreenState extends State<AuthScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Username is required';
                     }
+                    if (!RegExp(
+                      r'^[A-Za-z0-9._-]{3,64}$',
+                    ).hasMatch(value.trim())) {
+                      return 'Use 3-64 letters, numbers, dots, underscores, or hyphens';
+                    }
                     return null;
                   },
                 ),
               if (isSignUp) const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
+                maxLength: 254,
                 decoration: InputDecoration(
-                  labelText:
-                      isSignUp ? 'Email (optional)' : 'Email or mobile number',
+                  labelText: isSignUp
+                      ? 'Email (optional)'
+                      : 'Email or mobile number',
                   border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
@@ -318,8 +340,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (isSignUp &&
                       value != null &&
                       value.trim().isNotEmpty &&
-                      !value.contains('@')) {
+                      !RegExp(
+                        r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+                      ).hasMatch(value.trim())) {
                     return 'Enter a valid email';
+                  }
+                  if (!isSignUp && value != null && value.trim().length > 254) {
+                    return 'Email or mobile number is too long';
                   }
                   return null;
                 },
@@ -328,6 +355,7 @@ class _AuthScreenState extends State<AuthScreen> {
               if (isSignUp)
                 TextFormField(
                   controller: _phoneController,
+                  maxLength: 32,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'Mobile number',
@@ -337,30 +365,62 @@ class _AuthScreenState extends State<AuthScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Mobile number is required';
                     }
+                    final digits = value.replaceAll(RegExp(r'\D'), '');
+                    if (digits.length < 7 || digits.length > 15) {
+                      return 'Enter a valid mobile number';
+                    }
                     return null;
                   },
                 ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordController,
+                maxLength: 128,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                  if (value == null || value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  if (isSignUp &&
+                      (!RegExp(r'[A-Z]').hasMatch(value) ||
+                          !RegExp(r'[a-z]').hasMatch(value) ||
+                          !RegExp(r'\d').hasMatch(value))) {
+                    return 'Use uppercase, lowercase, and a number';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
+              if(isSignUp&&_policyError!=null)...[Text(_policyError!),TextButton(onPressed:_loadPolicy,child:const Text('Retry security policy'))],
+              if(isSignUp&&_policy==null&&_policyError==null)const Text('Loading account security policy…'),
+              if(isSignUp&&_policy?.required==true)...[
+                if(_policy!.configured)TextButton(onPressed:_loading?null:_requestCode,child:const Text('Request SMS code'))
+                else const Text('Phone verification is not configured. Registration is temporarily unavailable.'),
+                TextFormField(controller:_verificationController,keyboardType:TextInputType.number,maxLength:10,autofillHints:const [AutofillHints.oneTimeCode],decoration:const InputDecoration(labelText:'SMS verification code'),validator:(value)=>!isSignUp||_policy?.required!=true?null:value==null||!RegExp(r'^\d{4,10}$').hasMatch(value.trim())?'Enter the SMS code':null),
+              ],
+              if(!isSignUp)TextButton(onPressed:_loading?null:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>AccountRecoveryScreen(api:_authApi))),child:const Text('Forgot password?')),
+              if (!isSignUp) TextFormField(
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                decoration: const InputDecoration(
+                  labelText: 'Authenticator code (administrators)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) => value == null || value.isEmpty || RegExp(r'^\d{6}$').hasMatch(value)
+                    ? null : 'Enter the six-digit authenticator code',
+              ),
               FilledButton(
-                onPressed: _loading ? null : _submit,
-                child: Text(_loading
-                    ? 'Please wait...'
-                    : (isSignUp ? 'Create Account' : 'Sign In')),
+                onPressed: _loading||isSignUp&&(_policy==null||_policy!.required&&!_policy!.configured) ? null : _submit,
+                child: Text(
+                  _loading
+                      ? 'Please wait...'
+                      : (isSignUp ? 'Create Account' : 'Sign In'),
+                ),
               ),
               const SizedBox(height: 16),
               Text(

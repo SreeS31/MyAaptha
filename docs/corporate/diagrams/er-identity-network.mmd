@@ -1,0 +1,264 @@
+erDiagram
+    users |o--o{ abuse_reports : "CONSTRAINT"
+    users |o--o{ abuse_reports : "reported_user_id"
+    users |o--o{ abuse_reports : "reporter_user_id"
+    circles |o--o{ address_book_circle_contacts : "circle_id"
+    address_book_contacts |o--o{ address_book_circle_contacts : "contact_id"
+    relationships |o--o{ address_book_contacts : "relationship_id"
+    users |o--o{ address_book_contacts : "user_id"
+    users |o--o{ admin_mfa : "user_id"
+    users |o--o{ ai_action_approvals : "user_id"
+    users |o--o{ ai_action_events : "user_id"
+    users |o--o{ ai_action_executions : "user_id"
+    users |o--o{ ai_user_preferences : "user_id"
+    users |o--o{ app_settings : "user_id"
+    circles |o--o{ circle_admins : "CONSTRAINT"
+    users |o--o{ circle_admins : "CONSTRAINT"
+    circles |o--o{ circle_admins : "circle_id"
+    users |o--o{ circle_admins : "user_id"
+    circles |o--o{ circle_members : "CONSTRAINT"
+    users |o--o{ circle_members : "CONSTRAINT"
+    circles |o--o{ circle_members : "circle_id"
+    users |o--o{ circle_members : "user_id"
+    circle_posts |o--o{ circle_post_hidden : "post_id"
+    users |o--o{ circle_post_hidden : "user_id"
+    circle_posts |o--o{ circle_post_pins : "post_id"
+    users |o--o{ circle_post_pins : "user_id"
+    circle_posts |o--o{ circle_post_reactions : "post_id"
+    users |o--o{ circle_post_reactions : "user_id"
+    circle_posts |o--o{ circle_post_reads : "post_id"
+    users |o--o{ circle_post_reads : "user_id"
+    circle_posts |o--o{ circle_post_stars : "post_id"
+    users |o--o{ circle_post_stars : "user_id"
+    circle_posts |o--o{ circle_posts : "CONSTRAINT"
+    circles |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "CONSTRAINT"
+    users |o--o{ circle_posts : "author_user_id"
+    circles |o--o{ circle_posts : "circle_id"
+    circle_posts |o--o{ circle_posts : "parent_post_id"
+    users |o--o{ direct_calls : "CONSTRAINT"
+    users |o--o{ direct_calls : "caller_user_id"
+    users |o--o{ direct_calls : "recipient_user_id"
+    users |o--o{ direct_chat_pins : "other_user_id"
+    users |o--o{ direct_chat_pins : "user_id"
+    users |o--o{ direct_chat_settings : "other_user_id"
+    users |o--o{ direct_chat_settings : "user_id"
+    users |o--o{ direct_message_flags : "user_id"
+    users |o--o{ direct_message_reactions : "user_id"
+    users |o--o{ direct_messages : "CONSTRAINT"
+    users |o--o{ direct_messages : "recipient_user_id"
+    users |o--o{ direct_messages : "sender_user_id"
+    users |o--o{ emergency_access_approvals : "approver_user_id"
+    users |o--o{ emergency_access_events : "actor_user_id"
+    users |o--o{ emergency_access_requests : "owner_user_id"
+    users |o--o{ emergency_access_requests : "requester_user_id"
+    users |o--o{ financial_transactions : "user_id"
+    users |o--o{ health_reports : "user_id"
+    users |o--o{ help_exchanges : "user_id"
+    users |o--o{ help_shared_answers : "approved_by"
+    users |o--o{ media_assets : "CONSTRAINT"
+    users |o--o{ media_assets : "owner_user_id"
+    users |o--o{ message_preferences : "user_id"
+    users |o--o{ notification_device_tokens : "CONSTRAINT"
+    users |o--o{ notification_device_tokens : "user_id"
+    users |o--o{ notification_preferences : "CONSTRAINT"
+    users |o--o{ notification_preferences : "user_id"
+    users |o--o{ notifications : "CONSTRAINT"
+    users |o--o{ notifications : "user_id"
+    users |o--o{ person_memories : "owner_user_id"
+    users |o--o{ person_memories : "person_user_id"
+    users |o--o{ person_records : "owner_user_id"
+    users |o--o{ person_records : "person_user_id"
+    users |o--o{ relationship_broadcasts : "CONSTRAINT"
+    users |o--o{ relationship_broadcasts : "anchor_user_id"
+    users |o--o{ relationship_broadcasts : "sender_user_id"
+    users |o--o{ role_model_follows : "follower_user_id"
+    users |o--o{ role_model_follows : "role_model_user_id"
+    users |o--o{ social_comments : "author_user_id"
+    users |o--o{ social_post_likes : "user_id"
+    users |o--o{ social_post_saves : "user_id"
+    users |o--o{ social_posts : "author_user_id"
+    circles |o--o{ social_posts : "circle_id"
+    users |o--o{ social_stories : "author_user_id"
+    users |o--o{ social_story_views : "user_id"
+    users |o--o{ timeline_events : "user_id"
+    users |o--o{ trusted_people : "owner_user_id"
+    users |o--o{ trusted_people : "trusted_user_id"
+    users |o--o{ user_blocks : "blocked_user_id"
+    users |o--o{ user_blocks : "blocker_user_id"
+    user_profiles |o--o{ user_profile_photos : "CONSTRAINT"
+    user_profiles |o--o{ user_profile_photos : "user_id"
+    users |o--o{ user_profiles : "CONSTRAINT"
+    users |o--o{ user_profiles : "user_id"
+    upload_levels |o--o{ users : "upload_level_id"
+    abuse_reports {
+        string id_or_composite_key
+    }
+    address_book_circle_contacts {
+        string id_or_composite_key
+    }
+    address_book_contacts {
+        string id_or_composite_key
+    }
+    admin_mfa {
+        string id_or_composite_key
+    }
+    ai_action_approvals {
+        string id_or_composite_key
+    }
+    ai_action_events {
+        string id_or_composite_key
+    }
+    ai_action_executions {
+        string id_or_composite_key
+    }
+    ai_user_preferences {
+        string id_or_composite_key
+    }
+    app_settings {
+        string id_or_composite_key
+    }
+    auth_tokens {
+        string id_or_composite_key
+    }
+    circle_admins {
+        string id_or_composite_key
+    }
+    circle_members {
+        string id_or_composite_key
+    }
+    circle_post_hidden {
+        string id_or_composite_key
+    }
+    circle_post_pins {
+        string id_or_composite_key
+    }
+    circle_post_reactions {
+        string id_or_composite_key
+    }
+    circle_post_reads {
+        string id_or_composite_key
+    }
+    circle_post_stars {
+        string id_or_composite_key
+    }
+    circle_posts {
+        string id_or_composite_key
+    }
+    circles {
+        string id_or_composite_key
+    }
+    direct_calls {
+        string id_or_composite_key
+    }
+    direct_chat_pins {
+        string id_or_composite_key
+    }
+    direct_chat_settings {
+        string id_or_composite_key
+    }
+    direct_message_flags {
+        string id_or_composite_key
+    }
+    direct_message_reactions {
+        string id_or_composite_key
+    }
+    direct_messages {
+        string id_or_composite_key
+    }
+    emergency_access_approvals {
+        string id_or_composite_key
+    }
+    emergency_access_events {
+        string id_or_composite_key
+    }
+    emergency_access_requests {
+        string id_or_composite_key
+    }
+    financial_transactions {
+        string id_or_composite_key
+    }
+    health_reports {
+        string id_or_composite_key
+    }
+    help_exchanges {
+        string id_or_composite_key
+    }
+    help_shared_answers {
+        string id_or_composite_key
+    }
+    media_assets {
+        string id_or_composite_key
+    }
+    message_preferences {
+        string id_or_composite_key
+    }
+    notification_device_tokens {
+        string id_or_composite_key
+    }
+    notification_preferences {
+        string id_or_composite_key
+    }
+    notifications {
+        string id_or_composite_key
+    }
+    people {
+        string id_or_composite_key
+    }
+    permissions {
+        string id_or_composite_key
+    }
+    person_memories {
+        string id_or_composite_key
+    }
+    person_records {
+        string id_or_composite_key
+    }
+    relationship_broadcasts {
+        string id_or_composite_key
+    }
+    relationships {
+        string id_or_composite_key
+    }
+    role_model_follows {
+        string id_or_composite_key
+    }
+    social_comments {
+        string id_or_composite_key
+    }
+    social_post_likes {
+        string id_or_composite_key
+    }
+    social_post_saves {
+        string id_or_composite_key
+    }
+    social_posts {
+        string id_or_composite_key
+    }
+    social_stories {
+        string id_or_composite_key
+    }
+    social_story_views {
+        string id_or_composite_key
+    }
+    timeline_events {
+        string id_or_composite_key
+    }
+    trusted_people {
+        string id_or_composite_key
+    }
+    upload_levels {
+        string id_or_composite_key
+    }
+    user_blocks {
+        string id_or_composite_key
+    }
+    user_profile_photos {
+        string id_or_composite_key
+    }
+    user_profiles {
+        string id_or_composite_key
+    }
+    users {
+        string id_or_composite_key
+    }

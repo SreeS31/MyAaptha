@@ -1,0 +1,16 @@
+sequenceDiagram
+    actor U as User
+    participant C as Web / Flutter
+    participant A as Spring API
+    participant D as Session persistence
+    U->>C: Sign in
+    C->>A: Login credentials
+    A->>D: Validate account and establish session
+    A-->>C: Cookie session or token response
+    C->>A: Protected request
+    A->>D: Validate session and resource access
+    A-->>C: Permitted response
+    C->>A: Refresh on expiry
+    A-->>C: Renewed session or authentication failure
+    C->>A: Logout / revoke
+    A->>D: Invalidate session

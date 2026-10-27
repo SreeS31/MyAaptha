@@ -1,0 +1,13 @@
+# Development continuation - 22 October 2026
+
+Finalized the web calling resource correction begun on 21 October. Failed signaling previously referenced stale render state, answer failure/unmount lacked device cleanup, and end signaling delayed media release. A generation-owned resource holder now releases captured local/remote tracks and peers independently of render timing, rejects late work, stops devices immediately on end and cleans up accepted/outgoing calls on unmount. Late-created server calls receive a compensating end request. Unanswered incoming calls are not ended merely because their page is left.
+
+Verification: six focused unit tests; synthetic calling scenario on desktop and phone browsers; existing profile/timeline/storage persistence regression on both layouts; successful production web/type build; and matching API/debug-APK/assembled-web identities. Phone test selectors/readiness were corrected before the final pass; failed logs are preserved. Details and exact scopes are in [the call cleanup report](CALL-CLEANUP-2026-10-21.md).
+
+The [21 October storage integration report](S3-RECOVERY-2026-10-21.md) records the real disposable trusted-TLS/SSE adapter integration, untrusted-certificate rejection, signed/private downloads, versioned deletion/restoration, lifecycle configuration and fixture purging. Its final integration, six media/scanner regressions and all 68 infrastructure checks passed. These different test scopes are not summed as newly closed tasks.
+
+The board source snapshot is now 22 October. M07.5, M14.5 and M14.6 have linked local verification evidence while retaining live/device/provider acceptance gates. M07.5 keeps its original coding N/A because its launch scope is real-device/network validation; the runtime bug fix is recorded without adding a task or manufacturing a closure. Scope remains 18 modules, 89 subtasks, 60 closed and 29 pending. Engineering totals remain 68/68 applicable coding, 68/89 testing and 60/89 integration.
+
+[Owner input checklist](LAUNCH-INPUTS-2026-10-22.md): hosting/project/domain/budget first, then infrastructure, provider, AI-budget, devices/store identity and policy/reviewer references. Engineering owns implementation, integration, automated tests and remediation. Secrets stay in protected configuration. Real cloud provisioning, paid provider calls, notifications to real recipients, store submission and production promotion were not performed.
+
+Final handoff checks: app, API health, helper readiness and independent board each returned HTTP 200; new local report links are valid. The 22 October board browser verifier passed source-refresh/edit-preservation, acceptance audit, interactions and 390px layouts with zero script errors (continuation-board-20261022.log).

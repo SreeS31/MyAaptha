@@ -1,0 +1,12 @@
+ALTER TABLE notification_deliveries ADD COLUMN lease_until TIMESTAMP WITH TIME ZONE;
+ALTER TABLE notification_deliveries ADD COLUMN claim_token VARCHAR(36);
+CREATE INDEX idx_delivery_claim ON notification_deliveries(status, next_attempt_at, id);
+CREATE INDEX idx_delivery_expired_lease ON notification_deliveries(status, lease_until);
+CREATE INDEX idx_circle_member_user_circle ON circle_members(user_id, circle_id);
+CREATE INDEX idx_circle_posts_cursor ON circle_posts(circle_id, id DESC);
+CREATE INDEX idx_circle_read_user_post ON circle_post_reads(user_id, post_id);
+CREATE INDEX idx_direct_pair_cursor ON direct_messages(sender_user_id, recipient_user_id, id DESC);
+CREATE INDEX idx_direct_recipient_cursor ON direct_messages(recipient_user_id, id DESC);
+CREATE INDEX idx_direct_unread ON direct_messages(recipient_user_id, read_at, sender_user_id);
+CREATE INDEX idx_notifications_unread ON notifications(user_id, read_at);
+CREATE INDEX idx_calls_incoming ON direct_calls(recipient_user_id, status, created_at DESC);

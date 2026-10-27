@@ -1,0 +1,135 @@
+{
+  "started": "2026-10-26",
+  "completed": "2026-10-27",
+  "status": "Verified locally",
+  "checks": {
+    "backendRegressionTests": 22,
+    "nativeProductionThemeTests": 9,
+    "distinctBrowserScenarios": 14,
+    "appBrowserScenarios": 12,
+    "boardBrowserScenarios": 2,
+    "distinctAutomatedScenarios": 45,
+    "webRoutesPerLayout": 28,
+    "expandedFormStatesPerLayout": 27,
+    "cookieBearerAccountEndpoints": 16,
+    "narrowWidthPx": 320,
+    "browserRootTextScale": 1.25,
+    "nativeTextScales": [
+      1.0,
+      2.0
+    ],
+    "defaultBrowserRootPx": 16,
+    "defaultWebBodyPx": 14,
+    "staticLogoColdLoadRoutes": [
+      "/",
+      "/auth"
+    ],
+    "runtimeLogoOptimizationRequests": 0,
+    "mobileSearchBoundsVerified": true,
+    "localRedisLoopbackPort": 16379
+  },
+  "browserRerun": {
+    "initialAppRunPassed": 11,
+    "initialSetupNavigationTimeouts": 1,
+    "focusedDesktopRerunPassed": true,
+    "navigationWaitSeconds": 15,
+    "functionalAssertionsRetained": true
+  },
+  "selectedAccessibilityRules": [
+    "color-contrast",
+    "label",
+    "select-name",
+    "button-name",
+    "input-button-name",
+    "aria-input-field-name"
+  ],
+  "builds": {
+    "backendPackage": true,
+    "webProductionBuild": true,
+    "androidDebugApk": true,
+    "nativeChangedFileAnalysis": "No issues found"
+  },
+  "artifacts": [
+    {
+      "name": "api",
+      "path": "backend/spring-boot-app/target/myaaptha-service-0.1.0.jar",
+      "present": true,
+      "sizeBytes": 106641593,
+      "sha256": "8aebcc8c66f9b96b94f9c2b80ef29634e8c84fa6b6327c31a156df1b6c44f5af"
+    },
+    {
+      "name": "web_build_id",
+      "path": "frontend/nextjs-app/.next/BUILD_ID",
+      "present": true,
+      "sizeBytes": 21,
+      "sha256": "0d0e6309b1ac25e153b30fe88d79460cbc4452a7f5be6e51ceceb85f45a9af8c",
+      "buildId": "l4Ek6HdZWQyFvqp3CrXY3"
+    },
+    {
+      "name": "android_debug",
+      "path": "mobile/flutter-app/build/app/outputs/flutter-apk/app-debug.apk",
+      "present": true,
+      "sizeBytes": 223075816,
+      "sha256": "129c10006d08f6d2f34763a66d3e63176990cd4d361a20cb71ad2ec9c6520c40"
+    }
+  ],
+  "webBundle": {
+    "path": "frontend/nextjs-app/.next/standalone",
+    "present": true,
+    "missing": [],
+    "algorithm": "sha256-canonical-json-v1",
+    "sha256": "5b63751764765c25688fe62175b54f0c35b52111e6500ea129558bf5a6e23883",
+    "fileCount": 2112,
+    "sizeBytes": 63538430,
+    "excluded": [
+      ".next/cache/"
+    ]
+  },
+  "evidenceLogs": [
+    "design-api-tests-20261026.log",
+    "design-native-tests-final-20261026.log",
+    "design-complete-browser-tests-20261027.log",
+    "design-narrow-rerun-20261027.log",
+    "design-board-final-tests-20261027.log",
+    "design-web-build-complete-20261027.log",
+    "design-android-build-20261026.log",
+    "design-android-network-20261027.log"
+  ],
+  "launchTasks": {
+    "modules": 18,
+    "total": 90,
+    "complete": 61,
+    "pending": 29,
+    "newTasksAddedThisReview": 0
+  },
+  "productionDeployed": false,
+  "physicalDevicesVerified": false,
+  "realProviderDeliveryVerified": false,
+  "releaseApproved": false,
+  "limitations": [
+    "Selected local layout/accessibility rules and fixtures, not exhaustive WCAG certification.",
+    "Provider delivery, real TURN networks, physical Android/iOS, selected staging and independent acceptance remain open.",
+    "Local test timing is not a production capacity or latency acceptance result."
+  ],
+  "phonePreview": {
+    "host": "192.168.1.4",
+    "port": 4320,
+    "healthStatus": 200,
+    "anonymousProfileStatus": 401,
+    "authenticatedEndpointsPassed": [
+      "/api/auth/me",
+      "/api/profile/me",
+      "/api/settings/me",
+      "/api/uploads/policy",
+      "/api/finance/summary",
+      "/api/network/calls/ice"
+    ],
+    "physicalDeviceVerified": false,
+    "firewallChanged": false,
+    "outdatedNetworkApkRejected503": true,
+    "currentNetworkApkDownloaded200": true,
+    "downloadSha256MatchesBuild": true,
+    "apkSha256": "129c10006d08f6d2f34763a66d3e63176990cd4d361a20cb71ad2ec9c6520c40",
+    "downloadUrl": "http://192.168.1.4:4320/downloads/myaaptha-android.apk"
+  }
+}
