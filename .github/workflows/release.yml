@@ -49,13 +49,13 @@ jobs:
           docker tag "$IMAGE" myaaptha-${{ matrix.name }}:local-validation
           python infrastructure/smoke_images.py --component ${{ matrix.name }}
       - name: Block vulnerable images
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-${{ matrix.name }}:${{ github.ref_name }}
           severity: CRITICAL,HIGH
           exit-code: 1
       - name: Generate SBOM
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-${{ matrix.name }}:${{ github.ref_name }}
           format: cyclonedx

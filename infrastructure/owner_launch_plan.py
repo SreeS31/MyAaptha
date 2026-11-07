@@ -36,7 +36,15 @@ def inspect(profile_path,root=ROOT):
     profile=json.loads(profile_path.read_text(encoding='utf-8'))
     source=(root/profile['sourceFile']).resolve()
     if not source.is_relative_to(root.resolve()):raise ValueError('Owner input source must remain within the project')
-    current=source.is_file() and hashlib.sha256(source.read_bytes()).hexdigest()==profile['sourceSha256']
+    # Git checkouts can change CRLF to LF without changing the owner's answers.
+    # Keep legacy profiles byte-exact; canonical profiles normalize only CRLF.
+    canonical='sourceCanonicalSha256' in profile
+    current=False
+    if source.is_file():
+        payload=source.read_bytes()
+        if canonical:payload=payload.replace(b'\r\n',b'\n')
+        expected=profile['sourceCanonicalSha256'] if canonical else profile['sourceSha256']
+        current=hashlib.sha256(payload).hexdigest()==expected
     requirements={
         'applicationKeys': ['postgres_password','redis_password','jwt_secret','field_encryption_keys','admin_mfa_encryption_key'],
         'turnRelay': ['integrations/myaaptha.calls.turn-secret'],
@@ -51,7 +59,8 @@ def inspect(profile_path,root=ROOT):
         try:return not path.is_symlink() and not (hasattr(path,'is_junction') and path.is_junction()) and path.is_file() and path.stat().st_size>0
         except OSError:return False
     checks={key:{'allFilesPresent':all(present(n) for n in names),'requiredReferences':names,'liveValidated':False} for key,names in requirements.items()}
-    return {'schemaVersion':1,'ownerInputSnapshotCurrent':current,'confirmed':profile['confirmed'],
+    return {'schemaVersion':1,'ownerInputSnapshotCurrent':current,
+            'ownerInputSnapshotHashMode':'sha256-lf-v1' if canonical else 'sha256-raw-v1','confirmed':profile['confirmed'],
             'recommendations':profile['proposed'],'initialBudgetScenario':estimate(profile),
             'full1000UserQuotaScenario':estimate(profile,1000,1000),
             'protectedConfigurationPresence':checks,'externalServicesContacted':False,

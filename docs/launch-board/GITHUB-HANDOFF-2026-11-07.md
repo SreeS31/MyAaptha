@@ -24,3 +24,11 @@ Raw local logs, caches, credentials, artifact binaries and signing material are 
 ## Launch limits
 
 The [29 open launch gates](PENDING-ACCEPTANCE-2026-11-06.md) retain their required cloud/provider, device, operational and independent-review inputs. No completion stage or release approval was changed by this publication preparation.
+
+## GitHub CI follow-up
+
+The first feature-branch CI run passed the frontend, backend, mobile, AI and production TLS smoke jobs, but exposed two platform/tooling failures. Owner-input reconciliation compared raw CRLF bytes with an LF Git checkout; the Trivy action reference did not resolve.
+
+Reconciliation now supports an additive canonical SHA-256 that normalizes only CRLF to LF, while retaining the original captured byte hash. Legacy profiles remain byte-exact. New tests cover Windows/Linux line endings, substantive edits, whitespace, BOM changes, missing files and unchanged approval boundaries. The original owner answers were not changed or re-approved. The full local infrastructure suite now passes **82 tests**.
+
+CI and tagged-release scans pin the verified commit `ed142fd0673e97e23eac54620cfb913e5ce36c25` for the [official Trivy action v0.36.0 release](https://github.com/aquasecurity/trivy-action/releases/tag/v0.36.0). Scan severity and failure thresholds remain unchanged. Both workflow files parse successfully and their action references were checked against the official tag.

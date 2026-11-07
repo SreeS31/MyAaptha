@@ -1,4 +1,7 @@
 import copy
+import hashlib
+import tempfile
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import unittest
@@ -7,6 +10,36 @@ from owner_launch_plan import estimate,inspect,ROOT
 
 class OwnerPlanTests(unittest.TestCase):
  def setUp(self):self.profile=json.loads((ROOT/'docs/launch-board/owner-launch-inputs-2026-10-26.json').read_text(encoding='utf-8'))
+ @contextmanager
+ def snapshot_fixture(self,canonical=True):
+  with tempfile.TemporaryDirectory(prefix='myaaptha-owner-snapshot-') as folder:
+   root=Path(folder).resolve()
+   self.assertTrue(root.is_relative_to(Path(tempfile.gettempdir()).resolve()))
+   source=root/'owner.txt';content=b'Owner: fixture\r\nBudget: 6000\r\n';source.write_bytes(content)
+   profile=copy.deepcopy(self.profile);profile['sourceFile']='owner.txt'
+   profile['sourceSha256']=hashlib.sha256(content).hexdigest()
+   profile.pop('sourceCanonicalSha256',None)
+   if canonical:profile['sourceCanonicalSha256']=hashlib.sha256(content.replace(b'\r\n',b'\n')).hexdigest()
+   path=root/'profile.json';path.write_text(json.dumps(profile),encoding='utf-8')
+   yield root,path,source,content
+ def test_snapshot_matches_lf_and_crlf_without_granting_acceptance(self):
+  with self.snapshot_fixture() as (root,path,source,content):
+   for payload in (content,content.replace(b'\r\n',b'\n')):
+    source.write_bytes(payload);report=inspect(path,root)
+    self.assertTrue(report['ownerInputSnapshotCurrent'])
+    self.assertEqual('sha256-lf-v1',report['ownerInputSnapshotHashMode'])
+    self.assertFalse(report['releaseApproved']);self.assertFalse(report['externalServicesContacted'])
+ def test_snapshot_rejects_content_whitespace_bom_and_missing_source_changes(self):
+  with self.snapshot_fixture() as (root,path,source,content):
+   for payload in (content.replace(b'6000',b'6100'),content.replace(b'fixture',b'fixture '),b'\xef\xbb\xbf'+content,content.replace(b'\r\n',b'\r')):
+    source.write_bytes(payload);self.assertFalse(inspect(path,root)['ownerInputSnapshotCurrent'])
+   source.unlink();self.assertFalse(inspect(path,root)['ownerInputSnapshotCurrent'])
+ def test_legacy_snapshot_remains_byte_exact(self):
+  with self.snapshot_fixture(canonical=False) as (root,path,source,content):
+   report=inspect(path,root);self.assertTrue(report['ownerInputSnapshotCurrent'])
+   self.assertEqual('sha256-raw-v1',report['ownerInputSnapshotHashMode'])
+   source.write_bytes(content.replace(b'\r\n',b'\n'))
+   self.assertFalse(inspect(path,root)['ownerInputSnapshotCurrent'])
  def test_budget_uses_physical_storage_and_separate_ai_budget(self):
   result=estimate(self.profile)
   self.assertEqual(5773.15,result['inr']);self.assertTrue(result['withinBudget'])
