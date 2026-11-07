@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.micrometer.metrics.test.autoconfigure.AutoConfigureMetrics;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
     "management.health.redis.enabled=false","management.prometheus.metrics.export.enabled=true",
     "security.admin-mfa.required=false","security.metrics.scrape-token=synthetic-metrics-fixture-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"})
 @AutoConfigureMockMvc
-@AutoConfigureObservability(metrics=true,tracing=false)
+@AutoConfigureMetrics
 class OperationalEndpointAccessTest {
   static final String SCRAPE="synthetic-metrics-fixture-"+"a".repeat(48);
   @Autowired MockMvc mvc;

@@ -2,7 +2,7 @@ package com.myaaptha.domain.social;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import com.fasterxml.jackson.databind.*; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc; import org.springframework.boot.test.context.SpringBootTest; import org.springframework.http.*; import org.springframework.mock.web.MockMultipartFile; import org.springframework.test.web.servlet.*;
+import com.fasterxml.jackson.databind.*; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc; import org.springframework.boot.test.context.SpringBootTest; import org.springframework.http.*; import org.springframework.mock.web.MockMultipartFile; import org.springframework.test.web.servlet.*;
 
 @SpringBootTest @AutoConfigureMockMvc class SocialControllerTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json;

@@ -10,6 +10,8 @@ The board initially shows the latest verified source. **Status source** switches
 
 [Latest local integration completion](LOCAL-INTEGRATION-COMPLETION-2026-11-06.md): all five previously skipped Redis, TLS/S3 and native PostgreSQL/scanner checks passed with isolated services. These results do not change the 29 external launch gates.
 
+[7 November GitHub and security follow-up](GITHUB-HANDOFF-2026-11-07.md) records CI portability fixes and dependency remediation. It supplements the dated task review without granting release approval.
+
 ## Views and controls
 
 - **Board:** Before Launch, Immediately After, Post Launch and Done; card counts, completion bars, expandable subtasks and proposed owners. Drag cards or use their phase dropdown, including with a keyboard.

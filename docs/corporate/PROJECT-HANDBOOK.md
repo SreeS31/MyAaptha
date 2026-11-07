@@ -66,7 +66,7 @@ flowchart TB
 |---|---|---|
 | Next.js 15 / React 19 | Routes, accessible information controls, responsive cards, cookie-session client | `frontend/nextjs-app` |
 | Flutter | Native screens, typed HTTP integration, lifecycle refresh, device capabilities | `mobile/flutter-app` |
-| Java 21 / Spring Boot 3.5 | Authentication, domain rules, owner checks, persistence, media and integrations | `backend/spring-boot-app` |
+| Java 21 / Spring Boot 4.0 | Authentication, domain rules, owner checks, persistence, media and integrations | `backend/spring-boot-app` |
 | PostgreSQL / Flyway | Relational persistence and versioned schema evolution | backend resources `db/migration/common` |
 | Python / FastAPI | Candidate ranking, duplicate detection, insights, enrichment, contact organization | `ai/agent-service/src/ai_service` |
 | Deployment tooling | Local lifecycle, container builds, Compose/Kubernetes templates, release gates | `infrastructure` |

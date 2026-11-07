@@ -43,7 +43,7 @@ jobs:
         java-version: '21'
         cache: maven
     - name: Run backend tests
-      run: mvn --batch-mode verify
+      run: mvn --batch-mode -Dspring.test.context.cache.maxSize=2 verify
       env:
         REDIS_TEST_HOST: 127.0.0.1
         REDIS_TEST_PORT: '6379'
@@ -163,6 +163,7 @@ jobs:
       with:
         sarif_file: trivy-results.sarif
     strategy:
+      fail-fast: false
       matrix:
         context:
         - backend/spring-boot-app

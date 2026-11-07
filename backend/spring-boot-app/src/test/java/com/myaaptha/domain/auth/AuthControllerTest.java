@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +31,17 @@ class AuthControllerTest {
 
   @Autowired
   private AuthTokenRepository authTokenRepository;
+
+  @Test
+  void shouldRejectUnknownAndDuplicateJsonFieldsBeforeAuthentication() throws Exception {
+    for (String payload : new String[] {
+        "{\"identifier\":\"json-contract-fixture\",\"password\":\"synthetic-password\",\"unexpected\":true}",
+        "{\"identifier\":\"json-contract-fixture\",\"identifier\":\"another-fixture\",\"password\":\"synthetic-password\"}"
+    }) {
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(payload))
+          .andExpect(status().isBadRequest());
+    }
+  }
 
   @Test
   void shouldLoginWithValidCredentials() throws Exception {

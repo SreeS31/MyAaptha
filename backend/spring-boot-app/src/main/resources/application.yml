@@ -1,5 +1,9 @@
 spring:
-  jackson:
+  http:
+    converters:
+      # Preserve the existing Jackson 2 API contract during the Boot 4 migration.
+      preferred-json-mapper: jackson2
+  jackson2:
     deserialization:
       fail-on-unknown-properties: true
     parser:

@@ -32,3 +32,18 @@ The first feature-branch CI run passed the frontend, backend, mobile, AI and pro
 Reconciliation now supports an additive canonical SHA-256 that normalizes only CRLF to LF, while retaining the original captured byte hash. Legacy profiles remain byte-exact. New tests cover Windows/Linux line endings, substantive edits, whitespace, BOM changes, missing files and unchanged approval boundaries. The original owner answers were not changed or re-approved. The full local infrastructure suite now passes **82 tests**.
 
 CI and tagged-release scans pin the verified commit `ed142fd0673e97e23eac54620cfb913e5ce36c25` for the [official Trivy action v0.36.0 release](https://github.com/aquasecurity/trivy-action/releases/tag/v0.36.0). Scan severity and failure thresholds remain unchanged. Both workflow files parse successfully and their action references were checked against the official tag.
+
+
+## Dependency security remediation
+
+The subsequent GitHub run exposed real dependency vulnerabilities after the scanner could run. The remediation upgrades Next.js and its matching ESLint configuration, sharp and source-map-js. The backend moves to Spring Boot 4.0.9 / Spring Framework 7.0.10, with the managed Tomcat 11 baseline, Jackson 2.21.8 and POI 5.4.1. The old Tomcat 10 and Jackson BOM overrides were removed or replaced.
+
+The backend uses the official Boot 4 Jackson 2 compatibility module and explicitly selects its HTTP converter to preserve existing wire contracts and strict parsing. Flyway and RestClient use the new modular starters; health and test imports follow their Boot 4 locations. A new HTTP regression checks rejection of unknown and duplicate JSON fields before authentication. The compatibility module is deprecated upstream and should be migrated to Jackson 3 in a separate contract-tested change.
+
+The first full migration run exposed cross-context H2 database shutdown: contexts shared one named in-memory database. Test contexts now use distinct UUID-named databases, preventing an evicted context from closing another context's fixture. This changes test isolation only.
+
+Security matrix jobs now finish independently, so a failed scan no longer cancels the other contexts. Severity thresholds and publication gates are preserved.
+
+References: [official Boot 4 migration guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide), [Next.js advisory](https://github.com/advisories/GHSA-2464-fhr4-w9xw), [sharp advisory](https://github.com/advisories/GHSA-wq5f-xc86-pv6w), [Spring advisory](https://spring.io/security/cve-2026-47884/).
+
+Local validation: the first 24 focused backend authentication, upload, finance and operational-access checks passed. Frontend unit checks passed all 23 tests (exit code zero). Refreshed Trivy 0.74.0 local scans found zero HIGH/CRITICAL vulnerabilities in the frontend production lockfile and zero vulnerabilities at any severity in the migrated backend dependency descriptors. The patched Next.js 15.5.29 production build passed, followed by all 12 desktop/phone browser, accessibility and CSP checks. After correcting fixture isolation, all 30 affected AI, finance, renewal and authentication tests passed, including the new strict-JSON regression. The hosted launch-board verifier passed again with zero browser errors. The earlier full local migration run failed on the shared H2 fixture and was stopped; it is not reported as passing. The complete corrected suite and production TLS smoke remain subject to the next GitHub CI run.
