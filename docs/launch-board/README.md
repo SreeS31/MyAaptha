@@ -10,6 +10,8 @@ The board initially shows the latest verified source. **Status source** switches
 
 [Latest local integration completion](LOCAL-INTEGRATION-COMPLETION-2026-11-06.md): all five previously skipped Redis, TLS/S3 and native PostgreSQL/scanner checks passed with isolated services. These results do not change the 29 external launch gates.
 
+[7 November final security and integration evidence](SECURITY-INTEGRATION-2026-11-07.md): all nine GitHub CI jobs passed for the security-remediation source commit.
+
 [7 November GitHub and security follow-up](GITHUB-HANDOFF-2026-11-07.md) records CI portability fixes and dependency remediation. It supplements the dated task review without granting release approval.
 
 ## Views and controls
