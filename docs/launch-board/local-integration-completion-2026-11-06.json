@@ -1,0 +1,63 @@
+{
+  "snapshot": "2026-11-06",
+  "scope": "Five previously skipped local integration checks; separate focused runs, not a rerun of every suite",
+  "localChecksPassed": 5,
+  "localChecksSkipped": 0,
+  "redis": {
+    "testsPassed": 2,
+    "testsSkipped": 0,
+    "service": "disposable authenticated loopback Redis",
+    "imageId": "sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2",
+    "disposableServiceRemoved": true,
+    "productionRedisAccepted": false,
+    "releaseApproved": false
+  },
+  "s3": {
+    "adapterLoadAndSignedRead": true,
+    "automaticExpiryMeasured": false,
+    "customerDataUsed": false,
+    "disposableServiceRemoved": true,
+    "externalServicesContacted": false,
+    "imageId": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+    "lifecycleConfigurationRoundTrip": true,
+    "productionLifecycleAccepted": false,
+    "releaseApproved": false,
+    "restoredBytesMatch": true,
+    "schemaVersion": 1,
+    "serverSideEncryptionExercised": true,
+    "service": "disposable localhost S3-compatible storage",
+    "syntheticVersionsPurged": true,
+    "transportTls": true,
+    "unsignedReadDenied": true,
+    "untrustedTlsRejected": true,
+    "versionedDeleteMarker": true
+  },
+  "native": {
+    "testsPassed": 2,
+    "testsSkipped": 0,
+    "postgresImageId": "sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193",
+    "realPostgreSQL": true,
+    "realClamAV": true,
+    "scannerFreshnessPolicyHours": 48,
+    "providerConfigurationDisabled": true,
+    "syntheticDataOnly": true,
+    "fixtureDatabaseRemoved": true,
+    "temporaryApiStopped": true,
+    "physicalDevicesValidated": false,
+    "releaseApproved": false,
+    "backendLog": ".tools\\native-integration-f1c35a49bb41\\backend.log"
+  },
+  "scanner": {
+    "signatureFreshnessHours": 48,
+    "reloaded": true,
+    "readinessPassed": true
+  },
+  "productionLaunchGatesPending": 29,
+  "releaseApproved": false,
+  "boardVerification": {
+    "date": "2026-11-07",
+    "passed": true,
+    "browserErrors": 0,
+    "taskStagesUnchanged": true
+  }
+}

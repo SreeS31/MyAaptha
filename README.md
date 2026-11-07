@@ -2,7 +2,15 @@
 
 ## Launch readiness
 
-[View launch board locally](http://127.0.0.1:4317) · [Offline board](docs/launch-board/index.html) · [Module and subtask status](docs/launch-board/STATUS-2026-10-20.md). Snapshot: 20 October 2026; 18 modules, 89 tracked subtasks, 60 recorded complete and 29 pending. Scope adds completed local engineering tasks M08.5, M09.5 and M15.9. [Latest development results](docs/launch-board/DEVELOPMENT-2026-10-20.md). Local completion is separate from production launch approval. Start the board with `powershell -NoProfile -ExecutionPolicy Bypass -File infrastructure/start-launch-board.ps1`.
+[Open launch board](http://127.0.0.1:4317) | [Offline board](docs/launch-board/index.html) | [Current module status](docs/launch-board/STATUS-2026-11-06.md).
+
+Review: **6 November 2026; 18 modules, 90 tracked subtasks, 61 recorded complete and 29 launch gates pending**. [Current review and verification limits](docs/launch-board/PENDING-WORK-2026-11-06.md) | [Every pending requirement](docs/launch-board/PENDING-ACCEPTANCE-2026-11-06.md) | [Dependency priorities](docs/launch-board/DEPENDENCY-PRIORITIES.md) | [Remaining owner inputs](docs/launch-board/MYAAPTHA-REMAINING-INPUTS-2026-10-26.txt).
+
+Start the board with `powershell -NoProfile -ExecutionPolicy Bypass -File infrastructure/start-launch-board.ps1`. Local engineering completion is separate from production launch approval.
+
+[Latest local integration completion](docs/launch-board/LOCAL-INTEGRATION-COMPLETION-2026-11-06.md): all five previously skipped local checks passed; production launch gates remain separate.
+
+[GitHub validation handoff - 7 November](docs/launch-board/GITHUB-HANDOFF-2026-11-07.md) records feature-branch CI, hosted-board verification and the clean 79-test infrastructure run.
 
 ## Corporate documentation
 

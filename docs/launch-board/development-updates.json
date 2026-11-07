@@ -1,5 +1,5 @@
 {
-  "revision": "2026-10-27-dependency-priorities-3",
+  "revision": "2026-11-06-local-integrations-2",
   "tasks": {
     "M02.4": {
       "title": "Native profile-photo and gallery parity",
@@ -223,9 +223,13 @@
         "testing": "verify",
         "integration": "pending"
       },
-      "note": "Local web/native/API completion and cancellation remain implemented. On 19 October, pending authorizations/results migrated from service maps to the configured shared state provider: encrypted Redis payloads, hashed/bound keys, ten-minute TTL, atomic provider/owner-validated consumption, 20 MiB preview limit and safe storage failures. Memory is development only. Real provider registration, callbacks/scopes, credentials, physical devices and exact staging acceptance remain pending; no provider was activated. See current report for verification evidence and crash/rollout limits. Expanded 35-check suite and final 25-check affected suite passed with no skips, including four separate JVM lifetimes, real Redis, encrypted binding, expiry/replay/owner isolation, terminal oversized previews and preserved private-book HTTP JSON. These suite scopes overlap. 26 October: Google/Microsoft callback and protected configuration mapping documented. Real app registrations, consent configuration and provider credentials remain absent.",
-      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "note": "Local web/native/API completion and cancellation remain implemented. On 19 October, pending authorizations/results migrated from service maps to the configured shared state provider: encrypted Redis payloads, hashed/bound keys, ten-minute TTL, atomic provider/owner-validated consumption, 20 MiB preview limit and safe storage failures. Memory is development only. Real provider registration, callbacks/scopes, credentials, physical devices and exact staging acceptance remain pending; no provider was activated. See current report for verification evidence and crash/rollout limits. Expanded 35-check suite and final 25-check affected suite passed with no skips, including four separate JVM lifetimes, real Redis, encrypted binding, expiry/replay/owner isolation, terminal oversized previews and preserved private-book HTTP JSON. These suite scopes overlap. 26 October: Google/Microsoft callback and protected configuration mapping documented. Real app registrations, consent configuration and provider credentials remain absent. Later 6 November: shared Redis/OAuth handoff and replay checks passed against a new authenticated local Redis fixture, with no skips. Real Google/Microsoft consent and staging acceptance still require provider registrations.",
+      "evidenceDate": "6 November 2026; focused real-service local integration checks passed",
       "evidence": [
+        {
+          "path": "docs/launch-board/LOCAL-INTEGRATION-COMPLETION-2026-11-06.md",
+          "label": "Five previously skipped local integration checks completed"
+        },
         {
           "path": "docs/launch-board/OAUTH-SHARED-STORAGE-2026-10-19.md",
           "label": "Shared OAuth storage, configuration and rollout boundaries"
@@ -257,9 +261,17 @@
       ]
     },
     "M16.6": {
-      "note": "Local OAuth end-to-end desktop/phone browser checks passed, including real account login, no automatic persistence and targeted contrast/button-name/label checks. A shared primary-hover color conflict was fixed; circles, timeline and health primary actions then passed hover/focus contrast, keyboard focus and viewport checks on both layouts. Actual native bearer metadata/account smoke passed. This is targeted local evidence, not the complete exact-release staging cookie/bearer/accessibility suite; staging acceptance remains pending. On 20 October the rebuilt API passed two desktop/phone-browser account cookie/bearer synchronization scenarios and an explicit native HTTP account test. These local checks do not replace exact staging acceptance. On 21 October shared web styling, keyboard navigation/uploads, deterministic country names and health editor layout were refined. The linked UI report records final browser results and limitations; exact-release staging acceptance remains separate. Final local review passed 28 routes and 27 expanded form states per layout, plus profile persistence, health retry, keyboard and administrator draft checks (12 distinct browser scenarios). 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open. 26 October: compact inline help across shared web/native headers; populated desktop/mobile route sweeps (28 routes each), 27 form views per layout and final focused same-row guidance checks passed. Seven native tests passed; updated debug APK built and its download verified. These are local UI checks; exact staging and physical-device acceptance remain open. 27 October local UI review: cookie/bearer consistency checked for 16 account endpoints, 22 backend regressions and nine native tests passed. Board accessibility and layout verified. Exact staging/physical-device acceptance remains open; final static-logo cold-load checks passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
-      "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
+      "note": "Local OAuth end-to-end desktop/phone browser checks passed, including real account login, no automatic persistence and targeted contrast/button-name/label checks. A shared primary-hover color conflict was fixed; circles, timeline and health primary actions then passed hover/focus contrast, keyboard focus and viewport checks on both layouts. Actual native bearer metadata/account smoke passed. This is targeted local evidence, not the complete exact-release staging cookie/bearer/accessibility suite; staging acceptance remains pending. On 20 October the rebuilt API passed two desktop/phone-browser account cookie/bearer synchronization scenarios and an explicit native HTTP account test. These local checks do not replace exact staging acceptance. On 21 October shared web styling, keyboard navigation/uploads, deterministic country names and health editor layout were refined. The linked UI report records final browser results and limitations; exact-release staging acceptance remains separate. Final local review passed 28 routes and 27 expanded form states per layout, plus profile persistence, health retry, keyboard and administrator draft checks (12 distinct browser scenarios). 25 October: fixed the chat composer being pushed below the viewport by section navigation. Current-build desktop/mobile forwarding, message information, Star and full composer visibility passed. Physical-device and selected staging acceptance remain open. 26 October: compact inline help across shared web/native headers; populated desktop/mobile route sweeps (28 routes each), 27 form views per layout and final focused same-row guidance checks passed. Seven native tests passed; updated debug APK built and its download verified. These are local UI checks; exact staging and physical-device acceptance remain open. 27 October local UI review: cookie/bearer consistency checked for 16 account endpoints, 22 backend regressions and nine native tests passed. Board accessibility and layout verified. Exact staging/physical-device acceptance remains open; final static-logo cold-load checks passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements. 6 November 2026 continuation: production web build, 12 desktop/phone browser checks, 249 backend tests and 97 Flutter tests passed; 3 backend and 2 live-API Flutter checks were explicitly skipped. Exact staging/provider/device acceptance remains open. Later 6 November: both previously skipped native API tests passed against newly migrated PostgreSQL, the packaged API and real fresh ClamAV. Together with Redis and TLS/S3 runs, all five earlier skipped local checks are now passing. Staging, provider and physical-device acceptance remain separate.",
+      "evidenceDate": "6 November 2026; focused real-service local integration checks passed",
       "evidence": [
+        {
+          "path": "docs/launch-board/LOCAL-INTEGRATION-COMPLETION-2026-11-06.md",
+          "label": "Five previously skipped local integration checks completed"
+        },
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-11-06.md",
+          "label": "6 November local builds, browser, backend and Flutter verification"
+        },
         {
           "path": "docs/launch-board/CONTACT-OAUTH-COMPLETION-2026-10-18.md",
           "label": "Current local browser/native scope and staging boundaries"
@@ -390,8 +402,12 @@
         "testing": "verify",
         "integration": "pending"
       },
-      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "evidenceDate": "6 November 2026; focused real-service local integration checks passed",
       "evidence": [
+        {
+          "path": "docs/launch-board/LOCAL-INTEGRATION-COMPLETION-2026-11-06.md",
+          "label": "Five previously skipped local integration checks completed"
+        },
         {
           "path": "docs/launch-board/S3-RECOVERY-2026-10-21.md",
           "label": "Actual adapter TLS/encryption/version recovery evidence and boundaries"
@@ -413,7 +429,7 @@
           "label": "Received owner inputs, completed setup and remaining access"
         }
       ],
-      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending."
+      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending. Later 6 November: the isolated TLS/SSE storage recovery drill passed with real versioned deletion, signed/private reads and byte-identical restoration. Automatic expiry, production recovery and the 180-day retention interpretation remain unaccepted."
     },
     "M07.5": {
       "stages": {
@@ -611,9 +627,13 @@
         "testing": "done",
         "integration": "done"
       },
-      "note": "Version 2 records hash every standalone web file plus API JAR and debug APK, exclude runtime cache, reject missing assets and unsafe links, and verify recorded contents. All 22 infrastructure tests passed. The previous record rejected changed builds; a refreshed record matched the final 2085-file bundle. Production image/signing/staging approval remains M15.8; releaseApproved stays false.",
-      "evidenceDate": "18 October 2026; local implementation and verification passed",
+      "note": "Version 2 records hash every standalone web file plus API JAR and debug APK, exclude runtime cache, reject missing assets and unsafe links, and verify recorded contents. All 22 infrastructure tests passed. The previous record rejected changed builds; a refreshed record matched the final 2085-file bundle. Production image/signing/staging approval remains M15.8; releaseApproved stays false. 6 November 2026: refreshed API/web identities and the existing debug APK fingerprint; assembled standalone page and 13 assets returned 200, and post-smoke identities matched. Production approval remains false.",
+      "evidenceDate": "6 November 2026; local assembled artifact recording and verification passed",
       "evidence": [
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-11-06.md",
+          "label": "6 November local builds, browser, backend and Flutter verification"
+        },
         {
           "path": "docs/launch-board/LOCAL-BUILD-IDENTITIES.md",
           "label": "Implementation and verification scope"

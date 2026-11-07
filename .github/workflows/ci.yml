@@ -85,6 +85,12 @@ jobs:
         PLAYWRIGHT_PRODUCTION: '1'
     - name: Message pagination regression tests
       run: npm run test:unit
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Verify launch-board interactions and live source refresh
+      working-directory: .
+      run: python infrastructure/verify_launch_board.py
   ai:
     runs-on: ubuntu-latest
     defaults:
@@ -187,10 +193,12 @@ jobs:
         path: .tools/smoke
 'on':
   workflow_call: null
+  workflow_dispatch: {}
   push:
     branches:
     - main
     - develop
+    - feature/**
   pull_request:
     branches:
     - main
