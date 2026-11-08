@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "received": "2026-11-08",
+  "source": "Owner reply in this conversation on 8 November 2026",
+  "activeFilesExpireAutomatically": false,
+  "quotaFullBehavior": "Reject new uploads; preserve existing files; owner chooses deletion or a storage upgrade",
+  "defaultStorageBytes": 1073741824,
+  "maximumPaidStorageBytes": 107374182400,
+  "planPricesSpecified": false,
+  "billingActivated": false,
+  "deletedVersionRecoveryDays": null,
+  "temporaryStoriesHours": 24,
+  "temporaryStoriesNote": "Existing separate story/status behavior retained; ordinary stored attachments do not expire",
+  "releaseApproved": false
+}

@@ -334,8 +334,8 @@
       ],
       "downstreamTasks": [],
       "downstreamCount": 0,
-      "required": "Actual storage lifecycle/recovery setup and isolated synthetic object fixtures; clarification of whether 180 days means active-file expiry or deleted-version recovery.",
-      "nextAction": "Keep existing retention unchanged until clarified; verify deletion/version behavior and media restoration against actual storage without customer data."
+      "required": "Actual storage lifecycle/recovery setup and isolated synthetic object fixtures; a defined deleted-version recovery duration. Active files never expire automatically; initial storage is 1 GB per person with paid plans up to 100 GB.",
+      "nextAction": "Preserve active files and reject uploads above quota; users choose deletion or upgrade. Verify explicit deletion, deleted-version recovery and restoration on actual storage without customer data."
     },
     {
       "id": "M15.8",

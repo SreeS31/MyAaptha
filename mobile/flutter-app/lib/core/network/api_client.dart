@@ -106,7 +106,7 @@ class ApiClient {
       final policy = jsonDecode(response.body) as Map<String, dynamic>;
       final level = policy['level'] as Map<String, dynamic>;
       if (fileBytes.length > (level['uploadBytes'] as num)) throw const FormatException('File exceeds your user level upload limit.');
-      if ((policy['usedBytes'] as num) + fileBytes.length > (level['storageBytes'] as num)) throw const FormatException('Storage is full. Remove files or contact your administrator.');
+      if ((policy['usedBytes'] as num) + fileBytes.length > (level['storageBytes'] as num)) throw const FormatException('Storage is full. Choose files to delete or upgrade your storage plan. Existing files are kept.');
       if (path.endsWith('/stories')) {
         uploadFields['retentionDays'] = '1';
       } else if (!uploadFields.containsKey('retentionDays')) {

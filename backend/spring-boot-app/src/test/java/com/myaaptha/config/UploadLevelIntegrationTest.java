@@ -42,12 +42,34 @@ class UploadLevelIntegrationTest {
   assets.assertAvailable(stored.key());
   assertThatThrownBy(()->assets.store(user,"TEST",file,java.util.Set.of("text/plain"),25,"test/")).isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
   assertThat(assets.usage(user)).isEqualTo(5);
-  jdbc.update("UPDATE media_assets SET expires_at=? WHERE storage_key=?",java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(10)),stored.key());
-  assertThatThrownBy(()->assets.assertAvailable(stored.key())).isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+  assertThat(jdbc.queryForObject("SELECT expires_at FROM media_assets WHERE storage_key=?",java.sql.Timestamp.class,stored.key())).isNull();
+  org.mockito.Mockito.verify(storage,org.mockito.Mockito.never()).delete(stored.key());
  }
  @Test void adminCanAssignExistingLevel()throws Exception{
   login(false);long user=lastUserId;String admin=login(true);
   mvc.perform(put("/api/admin/upload-levels/users/"+user).header("Authorization",admin).contentType("application/json").content("{\"levelId\":2}")).andExpect(status().isOk());
   assertThat(policies.policy(user).id()).isEqualTo(2);
  }
+ @Test void paidQuotaCanReachOneHundredGbButCannotExceedIt(){
+  var maximum=policies.save(new UploadPolicyService.Level(4,"Paid",107374182400L,26214400,36500,true));
+  assertThat(maximum.storageBytes()).isEqualTo(107374182400L);
+  assertThatThrownBy(()->policies.save(new UploadPolicyService.Level(4,"Too large",107374182401L,26214400,36500,true))).isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+ }
+ @Test @org.springframework.transaction.annotation.Transactional
+ void migrationRemovesActiveExpiryButPreservesStoriesAndDeletedRecords()throws Exception{
+  login(false);long user=lastUserId;
+  var file=new MockMultipartFile("file","test.txt","text/plain","hello".getBytes());
+  var normal=assets.store(user,"TEST",file,java.util.Set.of("text/plain"),25,"migration/");
+  var story=assets.store(user,"TEST",file,java.util.Set.of("text/plain"),25,"migration/");
+  var deleted=assets.store(user,"TEST",file,java.util.Set.of("text/plain"),25,"migration/");
+  var when=java.sql.Timestamp.from(java.time.Instant.now().plusSeconds(86400));
+  for(var item:java.util.List.of(normal,story,deleted))jdbc.update("UPDATE media_assets SET expires_at=? WHERE storage_key=?",when,item.key());
+  jdbc.update("UPDATE media_assets SET deleted_at=CURRENT_TIMESTAMP WHERE storage_key=?",deleted.key());
+  jdbc.update("INSERT INTO social_stories(author_user_id,media_key,media_type,expires_at) VALUES(?,?,?,?)",user,story.key(),"text/plain",when);
+  new org.springframework.jdbc.datasource.init.ResourceDatabasePopulator(new org.springframework.core.io.ClassPathResource("db/migration/common/V72__nonexpiring_active_files.sql")).execute(jdbc.getDataSource());
+  assertThat(jdbc.queryForObject("SELECT expires_at FROM media_assets WHERE storage_key=?",java.sql.Timestamp.class,normal.key())).isNull();
+  for(var item:java.util.List.of(story,deleted))assertThat(jdbc.queryForObject("SELECT expires_at FROM media_assets WHERE storage_key=?",java.sql.Timestamp.class,item.key())).isNotNull();
+  assets.assertAvailable(normal.key());
+ }
+
 }

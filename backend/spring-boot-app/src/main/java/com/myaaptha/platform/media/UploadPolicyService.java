@@ -22,7 +22,7 @@ public class UploadPolicyService {
   // The user row serializes quota checks with every concurrent upload and level assignment.
   public Level lockPolicy(long owner){db.queryForObject("SELECT id FROM users WHERE id=? FOR UPDATE",Long.class,owner);return policy(owner);}
   @Transactional public Level save(Level level){
-    if(level.id()<1||level.id()>5||level.name()==null||level.name().trim().isEmpty()||level.name().trim().length()>50||level.storageBytes()<0||level.storageBytes()>109951162777600L||level.uploadBytes()<1||level.uploadBytes()>26214400L||level.maxRetentionDays()<1||level.maxRetentionDays()>36500)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Use levels 1-5, storage up to 100 TB, uploads up to 25 MB and retention 1-36500 days.");
+    if(level.id()<1||level.id()>5||level.name()==null||level.name().trim().isEmpty()||level.name().trim().length()>50||level.storageBytes()<0||level.storageBytes()>107374182400L||level.uploadBytes()<1||level.uploadBytes()>26214400L||!level.allowNever()||level.maxRetentionDays()<1||level.maxRetentionDays()>36500)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Use levels 1-5, storage up to 100 GB, uploads up to 25 MB and never-expiring active files.");
     // Serialize creation as well as edits across API instances.
     db.queryForObject("SELECT id FROM upload_levels WHERE id=1 FOR UPDATE",Integer.class);
     int changed=db.update("UPDATE upload_levels SET name=?,storage_bytes=?,upload_bytes=?,max_retention_days=?,allow_never=? WHERE id=?",level.name().trim(),level.storageBytes(),level.uploadBytes(),level.maxRetentionDays(),level.allowNever(),level.id());
@@ -35,12 +35,10 @@ public class UploadPolicyService {
   }
   public Instant expiry(Level level){
     var attributes=RequestContextHolder.getRequestAttributes();
-    String value=null;boolean status=false;
-    if(attributes instanceof ServletRequestAttributes a){value=a.getRequest().getParameter("retentionDays");status=a.getRequest().getRequestURI().matches(".*/stories/?$");}
-    int days=status?1:(level.allowNever()?0:level.maxRetentionDays());
-    if(value!=null&&!value.isBlank())try{days=Integer.parseInt(value);}catch(NumberFormatException e){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Retention must be a whole number of days");}
-    if(status)days=1;
-    if(days<0||days>level.maxRetentionDays()||(days==0&&!level.allowNever()))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Retention exceeds your user level. Choose 1-"+level.maxRetentionDays()+" days"+(level.allowNever()?" or never":""));
-    return days==0?null:Instant.now().plus(days,ChronoUnit.DAYS);
+    boolean status=false;
+    if(attributes instanceof ServletRequestAttributes a){status=a.getRequest().getRequestURI().matches(".*/stories/?$");}
+    // Older clients may still send retentionDays. Ordinary files never expire.
+    // Stories remain a distinct, explicitly temporary 24-hour feature.
+    return status?Instant.now().plus(1,ChronoUnit.DAYS):null;
   }
 }

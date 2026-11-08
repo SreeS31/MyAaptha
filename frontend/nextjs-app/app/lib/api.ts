@@ -799,7 +799,7 @@ async function validateUploadForm(body:FormData){
  if(!files.length)return;
  const policy=await fetchUploadPolicy();
  if(files.some(f=>f.size>policy.level.uploadBytes))throw new Error(`Your ${policy.level.name} level allows ${(policy.level.uploadBytes/1048576).toFixed(1)} MB per file.`);
- if(files.reduce((n,f)=>n+f.size,policy.usedBytes)>policy.level.storageBytes)throw new Error('Storage is full. Remove files or ask your administrator about another level.');
+ if(files.reduce((n,f)=>n+f.size,policy.usedBytes)>policy.level.storageBytes)throw new Error('Storage is full. Choose files to delete or upgrade your storage plan. Existing files are kept.');
  if(!body.has('retentionDays'))body.set('retentionDays',String(await chooseUploadRetention(policy.level)));
 }
 

@@ -19,7 +19,7 @@ test('documents and media upload to circle chat after server scanning',async({pa
  await page.goto('/circles');await page.getByRole('button',{name:'Open Upload review',exact:true}).click();
  const input=page.locator('input[type=file]').first();await expect(input).toHaveAttribute('accept',/\.docx/);await expect(input).toHaveAttribute('accept',/\.pdf/);
  await input.setInputFiles({name:'document.docx',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',buffer:readFileSync('../../.tools/upload-fixtures/document.docx')});
- await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByLabel('Attachment availability')).toHaveValue('0');await page.getByLabel('Attachment availability').selectOption('days');await page.getByLabel('Days available').fill('7');const sent=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes(`/circles/${id}/posts`));await page.getByRole('button',{name:'Continue upload',exact:true}).click();expect((await sent).status()).toBe(200);await expect(page.getByRole('link',{name:/document.docx/}).first()).toBeVisible({timeout:30000});
+ const sent=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes(`/circles/${id}/posts`));await page.getByRole('button',{name:'Send message',exact:true}).click();expect((await sent).status()).toBe(200);await expect(page.getByRole('link',{name:/document.docx/}).first()).toBeVisible({timeout:30000});
  await page.screenshot({path:`../../.tools/preview/secure-uploads-${test.info().project.name}.png`});
  await api.dispose();
 });

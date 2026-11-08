@@ -16,6 +16,8 @@ The board initially shows the latest verified source. **Status source** switches
 
 [8 November pending-task execution pack](ACCEPTANCE-EXECUTION-PACK-2026-11-08.md) provides scenarios, pass criteria and evidence requirements for all 29 open gates.
 
+[Owner-confirmed storage policy](STORAGE-POLICY-2026-11-08.md): active files never expire automatically, 1 GB initially and storage plans up to 100 GB.
+
 ## Views and controls
 
 - **Board:** Before Launch, Immediately After, Post Launch and Done; card counts, completion bars, expandable subtasks and proposed owners. Drag cards or use their phase dropdown, including with a keyboard.

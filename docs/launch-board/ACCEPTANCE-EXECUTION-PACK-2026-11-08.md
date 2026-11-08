@@ -35,7 +35,7 @@ Use physical Android and iOS devices. Record OS/model and test denied, limited a
 
 ## Providers, policy and review
 
-These are operational review instructions, not legal advice or approved public policy text. The existing content-operations and health-consent drafts remain review material. Public contacts must be reachable before publication. The owner has not clarified whether 180 days means active-file expiry or deleted-file recovery; automatic deletion remains unchanged.
+These are operational review instructions, not legal advice or approved public policy text. The existing content-operations and health-consent drafts remain review material. Public contacts must be reachable before publication. The owner has clarified that active files never expire automatically: 1 GB initially, paid plans up to 100 GB, and user-chosen deletion at quota. The deleted-version recovery duration remains unspecified.
 
 | Gate | Execution and pass criteria |
 |---|---|
@@ -55,7 +55,7 @@ These are operational review instructions, not legal advice or approved public p
 | Gate | Execution and pass criteria |
 |---|---|
 | M14.5 Private media/scanner | Verify actual bucket privacy, least-privilege IAM, encryption, signed-read expiry and unauthorized denial. Verify the production scanner identity, freshness enforcement and monitoring, including failure behavior. |
-| M14.6 Retention/recovery | After the 180-day meaning is clarified, use isolated synthetic objects on the selected platform. Verify intended deletion/version behavior, lifecycle configuration and recovery byte equality. Measure automatic expiry separately; a configuration round-trip is insufficient. |
+| M14.6 Retention/recovery | Use isolated synthetic objects on the selected platform. Verify active files never expire, full quotas preserve existing files, and explicit user deletion and recovery behave as approved. Define and verify the deleted-version recovery window; a lifecycle configuration round-trip alone is insufficient. |
 | M15.6 Backup/PITR | Restore managed DB/PITR and media backups into an isolated recovery environment. Verify accounts/ownership/schema/media integrity and measure RPO and RTO separately against the provisionally interpreted 24-hour targets. Preserve the source environment. |
 | M15.5 Capacity | Run the agreed workload on representative resources with sufficient load generation. Record resource limits, workload, errors and latency against the existing target. The historical failed 5,000-user run is not acceptance. |
 | M15.7 Monitoring/rollback | Verify live runtime metrics and actual alert receipt. Rehearse a reviewed rollback with exact prior digests, compatibility checks and measured recovery timestamps. |

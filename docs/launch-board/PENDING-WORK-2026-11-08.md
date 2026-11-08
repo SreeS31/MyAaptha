@@ -12,7 +12,7 @@ Completed locally today:
 
 [Current acceptance requirements](PENDING-ACCEPTANCE-2026-11-08.md) and [module status](STATUS-2026-11-08.md) retain all open gates. The last complete application/security run remains [the successful 7 November verification](SECURITY-INTEGRATION-2026-11-07.md); this review does not present it as a fresh 8 November application run.
 
-Outstanding requested inputs: reachable public support/privacy contact and clarification of the 180-day retention meaning. Existing policies and deletion behavior remain unchanged pending those decisions. Engineering review material does not substitute for independent approval.
+The owner subsequently confirmed non-expiring active files, user-controlled deletion at quota, 1 GB initially and paid plans up to 100 GB. See [the storage-policy implementation](STORAGE-POLICY-2026-11-08.md). Reachable public support/privacy contact, plan pricing/payment activation and the deleted-version recovery duration remain unspecified. Engineering review material does not substitute for independent approval.
 
 ## Verification of today's preparation
 

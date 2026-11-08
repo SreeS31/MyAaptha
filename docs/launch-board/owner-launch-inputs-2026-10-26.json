@@ -17,7 +17,7 @@
     "audioCallingRequired": true,
     "videoCallingRequired": true,
     "retentionDaysRaw": 180,
-    "retentionInterpretation": "awaiting clarification",
+    "retentionInterpretation": "Active files never expire automatically; users choose deletions when storage is full. Deleted-version recovery duration remains unspecified.",
     "rpoRtoRaw": "1 day",
     "privacyOwner": "Manager, CPET Solutions",
     "supportOwner": "Manager, CPET Solutions",
@@ -27,7 +27,10 @@
     "playOwner": "CPET Solutions",
     "appleOwner": "project owner",
     "macRunnerAvailable": false,
-    "smsCredentialsPromisedLater": true
+    "smsCredentialsPromisedLater": true,
+    "activeFilesExpireAutomatically": false,
+    "defaultStorageBytes": 1073741824,
+    "maximumPaidStorageBytes": 107374182400
   },
   "proposed": {
     "provider": "AWS Lightsail",
@@ -64,5 +67,12 @@
     "policyApproved": false,
     "independentSecurityAccepted": false,
     "productionPromotionApproved": false
-  }
+  },
+  "decisionAddenda": [
+    {
+      "received": "2026-11-08",
+      "sourceFile": "docs/launch-board/storage-policy-2026-11-08.json",
+      "source": "Owner clarification in this conversation; original October source/hash preserved"
+    }
+  ]
 }

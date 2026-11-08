@@ -23,8 +23,7 @@ test('bills, warranty receipts and renewal dates stay in sync across web and nat
     await editor.getByRole('combobox',{name:'Reminder time zone',exact:true}).selectOption('Asia/Kolkata');
     await editor.getByLabel('Receipt (optional)',{exact:true}).setInputFiles({name:'invoice.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.7\n1 0 obj\n<<>>\nendobj')});
     await editor.getByRole('button',{name:'Save item',exact:true}).click();
-    // Use the account-wide attachment-retention control, preserving its policy.
-    await page.getByRole('dialog',{name:'Keep this attachment',exact:true}).getByRole('button',{name:'Continue upload',exact:true}).click();
+    // Receipts use non-expiring account storage without an expiry dialog.
     await expect(editor).not.toBeVisible({timeout:15000});
     let card=tracker.getByRole('article',{name:'Washing machine warranty',exact:true});
     await expect(card.getByText('TEST-INVOICE-1',{exact:true})).toBeVisible();
