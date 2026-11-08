@@ -31,4 +31,14 @@ The earlier [storage-policy report](STORAGE-POLICY-2026-11-08.md) is superseded 
 
 ## Verification
 
-In progress: targeted backend expiry/cleanup/migration checks, native picker and multipart payload checks, production browser selection checks and the complete GitHub CI pipeline. Results will be recorded for the final tested source commit.
+Final source `5971e65bfc897cdc395e7673fc8af7f53351d3a4` passed **all nine jobs** in [GitHub CI run 42457704226](https://github.com/SreeS31/MyAaptha/actions/runs/42457704226): full backend, frontend production build/unit/browser/board checks, mobile analysis/tests, infrastructure, AI, three security scans and production TLS PostgreSQL/Redis smoke.
+
+Local verification also passed:
+
+- 16 backend policy, migration, quota and deletion checks, including every supported duration and invalid-value rejection.
+- Two MockMvc HTTP regression cases using real local file storage: multipart 7-day expiry persistence, expired receipt download denial, Never replacement and old-object removal.
+- 12 native picker, multipart request-payload and account-settings tests, covering short/long expiry, Never default and cancellation.
+- Nine owner-input regression tests, plus a parity assertion that web, native, API and the owner-policy record contain the same 12 choices.
+- Hosted launch-board verification with zero browser errors, including saved-plan preservation. `git diff --check` passed.
+
+The production TLS smoke validates the PostgreSQL migration path using disposable services. These results do not grant physical-device, actual provider lifecycle/recovery or production promotion acceptance. No production deployment or payment collection was performed.
