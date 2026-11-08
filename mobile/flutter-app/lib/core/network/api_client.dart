@@ -110,7 +110,7 @@ class ApiClient {
       if (path.endsWith('/stories')) {
         uploadFields['retentionDays'] = '1';
       } else if (!uploadFields.containsKey('retentionDays')) {
-        final days = await retentionChooser!(level);
+        final days = await retentionChooser!({...level, if (policy['retentionDaysOptions'] != null) 'retentionDaysOptions': policy['retentionDaysOptions']});
         if (days == null) throw const FormatException('Upload cancelled.');
         uploadFields['retentionDays'] = days.toString();
       }

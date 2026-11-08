@@ -1,3 +1,5 @@
+> Superseded for expiry behavior by [the owner correction: selectable expiry or Never](UPLOAD-EXPIRY-POLICY-2026-11-08.md). Quota and payment boundaries remain applicable.
+
 # Owner-confirmed storage policy - 8 November 2026
 
 The owner clarified in this conversation that active files must never expire automatically. When storage is full, users decide which files to delete. Initial storage is **1 GB per person**, extendable through paid plans up to **100 GB**. The existing application byte convention is retained: 1 GB = 1,073,741,824 bytes.

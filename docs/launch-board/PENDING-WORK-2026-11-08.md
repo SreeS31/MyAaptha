@@ -17,3 +17,6 @@ The owner subsequently confirmed non-expiring active files, user-controlled dele
 ## Verification of today's preparation
 
 All 29 pending IDs appear exactly once in the execution pack. Generated Latest checks and Baseline status links resolve to existing 8 November reports with no unresolved date placeholders. The hosted board verifier passed with zero browser errors, including refresh/edit preservation, acceptance guards, import/export and 390px layouts. Dependency-ranking tests (3) and release-preflight tests (5) passed. `git diff --check` passed. Those preparation checks preceded the owner-authorized storage runtime changes recorded in the separate storage-policy report. Production configuration was not activated.
+
+
+The latest owner correction restores per-upload expiry choices, including Never. See [the current upload-expiry contract and verification](UPLOAD-EXPIRY-POLICY-2026-11-08.md); it supersedes the earlier forced-Never interpretation. Quotas remain unchanged.

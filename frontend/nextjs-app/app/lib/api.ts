@@ -788,7 +788,7 @@ export const fetchSecurityReports=(page=0)=>authenticatedRequest<{items:Security
 export const updateSecurityReport=(id:number,action:'resolve'|'unblock')=>authenticatedRequest<void>(`/api/admin/security/${id}/${action}`,{method:'POST'});
 
 export type UploadLevel={id:number;name:string;storageBytes:number;uploadBytes:number;maxRetentionDays:number;allowNever:boolean};
-export type UploadUsage={level:UploadLevel;usedBytes:number};
+export type UploadUsage={level:UploadLevel;usedBytes:number;retentionDaysOptions?:number[];defaultRetentionDays?:number};
 export const fetchUploadPolicy=()=>authenticatedRequest<UploadUsage>('/api/uploads/policy');
 export const fetchUploadLevels=()=>authenticatedRequest<UploadLevel[]>('/api/admin/upload-levels');
 export const saveUploadLevel=(level:UploadLevel)=>authenticatedRequest<UploadLevel>('/api/admin/upload-levels',{method:'PUT',body:JSON.stringify(level)});
@@ -800,7 +800,7 @@ async function validateUploadForm(body:FormData){
  const policy=await fetchUploadPolicy();
  if(files.some(f=>f.size>policy.level.uploadBytes))throw new Error(`Your ${policy.level.name} level allows ${(policy.level.uploadBytes/1048576).toFixed(1)} MB per file.`);
  if(files.reduce((n,f)=>n+f.size,policy.usedBytes)>policy.level.storageBytes)throw new Error('Storage is full. Choose files to delete or upgrade your storage plan. Existing files are kept.');
- if(!body.has('retentionDays'))body.set('retentionDays',String(await chooseUploadRetention(policy.level)));
+ if(!body.has('retentionDays'))body.set('retentionDays',String(await chooseUploadRetention(policy.level,policy.retentionDaysOptions)));
 }
 
 export type ChatSearchHit={type:'DIRECT'|'CIRCLE';conversationId:number;messageId:number;name:string;text:string;createdAt:string};

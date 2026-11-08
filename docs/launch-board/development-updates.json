@@ -1,5 +1,5 @@
 {
-  "revision": "2026-11-08-storage-policy-2",
+  "revision": "2026-11-08-selected-expiry-3",
   "tasks": {
     "M02.4": {
       "title": "Native profile-photo and gallery parity",
@@ -431,9 +431,13 @@
         {
           "path": "docs/launch-board/STORAGE-POLICY-2026-11-08.md",
           "label": "8 November owner-confirmed non-expiring storage policy and migration"
+        },
+        {
+          "path": "docs/launch-board/UPLOAD-EXPIRY-POLICY-2026-11-08.md",
+          "label": "Latest correction: user-selected expiry or Never, API and cleanup contract"
         }
       ],
-      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending. Later 6 November: the isolated TLS/SSE storage recovery drill passed with real versioned deletion, signed/private reads and byte-identical restoration. Automatic expiry, production recovery and the 180-day retention interpretation remain unaccepted. 8 November: owner confirmed non-expiring active files, user-chosen deletion at quota, 1 GB initially and paid plans up to 100 GB. V72 migration and web/native controls implement this policy. The deleted-version recovery duration and actual provider recovery acceptance remain pending."
+      "note": "Local cached-image integration passed trusted TLS, untrusted-certificate rejection, real adapter AES256 writes, private/signed reads, delete markers, byte-identical encrypted version restore and synthetic version purge. Lifecycle configuration was round-tripped; scheduled expiry, actual provider IAM/KMS, production scanner, backup/RPO/RTO and selected-platform acceptance remain open. One integration, six media/scanner and 68 infrastructure checks passed; these are separate test scopes, not additional task closures. 23 October: fixed swallowed local-storage deletion errors; original/preview failure retries verified in nine focused media/scanner tests. Source change awaits preview rebuild; production acceptance remains open. 26 October: 180-day answer received but active-file expiry versus deleted-version recovery is ambiguous; clarification requested. No automatic deletion policy changed. Real storage, recovery setup and restore acceptance remain pending. Later 6 November: the isolated TLS/SSE storage recovery drill passed with real versioned deletion, signed/private reads and byte-identical restoration. Automatic expiry, production recovery and the 180-day retention interpretation remain unaccepted. 8 November: owner confirmed non-expiring active files, user-chosen deletion at quota, 1 GB initially and paid plans up to 100 GB. V72 migration and web/native controls implement this policy. The deleted-version recovery duration and actual provider recovery acceptance remain pending. Later 8 November correction: uploaders choose the listed expiry durations or Never (default). Web/native choices and API expiry enforcement restored; quotas alone never delete files. Existing deadlines are preserved by the corrected unreleased migration. Actual provider recovery acceptance remains pending."
     },
     "M07.5": {
       "stages": {

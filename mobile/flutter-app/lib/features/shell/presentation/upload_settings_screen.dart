@@ -124,7 +124,7 @@ class _UploadSettingsScreenState extends State<UploadSettingsScreen>
                                 : null),
                     number(storage, 'Storage (GB)', 0, 100),
                     number(upload, 'Per file (MB)', 1 / 1048576, 25),
-                    const Text('Active files never expire automatically.'),
+                    const Text('Choose an expiry period for each upload, or Never to keep it until you delete it.'),
                   ]))),
           actions: [
             TextButton(
@@ -241,7 +241,7 @@ class _UploadSettingsScreenState extends State<UploadSettingsScreen>
                   const Center(child: CircularProgressIndicator()),
                 if (level != null) ...[
                   Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-                    InfoHelpLabel(title:'${level['name']} storage',style:Theme.of(context).textTheme.titleMedium,message:'1 GB free per person, with storage plans up to 100 GB. Active files never expire automatically. Choose files to delete or upgrade when storage is full. Status attachments expire after one day. Profile photos are limited to 5 MB.'),
+                    InfoHelpLabel(title:'${level['name']} storage',style:Theme.of(context).textTheme.titleMedium,message:'1 GB free per person, with storage plans up to 100 GB. Choose an expiry period for each upload, or Never to keep it until you delete it. Choose files to delete or upgrade when storage is full. Status attachments expire after one day. Profile photos are limited to 5 MB.'),
                     const SizedBox(height:8),
                     Row(children:[
                       Semantics(label:'Storage used',value:'${(limit>0?used/limit*100:0).toStringAsFixed(1)} percent, ${(used/1073741824).toStringAsFixed(2)} GB used',child:SizedBox.square(dimension:112,child:Stack(alignment:Alignment.center,children:[
@@ -267,7 +267,7 @@ class _UploadSettingsScreenState extends State<UploadSettingsScreen>
                         const Padding(
                             padding: EdgeInsets.all(12),
                             child: Text(
-                                '1 GB free per person, with storage plans up to 100 GB. Active files never expire automatically. Reducing a quota preserves existing files and blocks uploads over the limit. Users choose what to delete. These settings do not charge users.')),
+                                '1 GB free per person, with storage plans up to 100 GB. Choose an expiry period for each upload, or Never to keep it until you delete it. Reducing a quota preserves existing files and blocks uploads over the limit. Users choose what to delete. These settings do not charge users.')),
                         for (final policy in levels)
                           ListTile(
                               title: Text(

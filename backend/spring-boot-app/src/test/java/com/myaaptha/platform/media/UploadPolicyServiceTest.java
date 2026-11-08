@@ -15,9 +15,10 @@ class UploadPolicyServiceTest {
  @AfterEach void clear(){RequestContextHolder.resetRequestAttributes();}
  void request(String path,String days){var req=new MockHttpServletRequest("POST",path);if(days!=null)req.setParameter("retentionDays",days);RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(req));}
  @Test void normalUploadsDefaultToNever(){assertThat(service.expiry(free)).isNull();}
- @Test void legacyFiniteChoicesCannotExpireActiveFiles(){for(String days:new String[]{"7","180","0","abc"}){request("/api/network/messages/with/2",days);assertThat(service.expiry(free)).isNull();}}
+ @Test void everySelectedDurationSetsItsDeadline(){for(int days:UploadPolicyService.RETENTION_DAYS){request("/api/network/messages/with/2",String.valueOf(days));var expiry=service.expiry(free);if(days==0)assertThat(expiry).isNull();else assertThat(expiry).isBetween(Instant.now().plusSeconds(days*86400L-5),Instant.now().plusSeconds(days*86400L+5));}}
+ @Test void invalidDurationsAreRejected(){for(String days:new String[]{"-1","3","366","3651","abc","1.5","999999999999999999"}){request("/api/network/messages/with/2",days);assertThatThrownBy(()->service.expiry(free)).isInstanceOf(ResponseStatusException.class);}}
  @Test void statusAlwaysExpiresInOneDay(){request("/api/social/stories","0");assertThat(service.expiry(free)).isBetween(Instant.now().plusSeconds(86390),Instant.now().plusSeconds(86410));}
- @Test void legacyFiniteLevelsCannotExpireActiveFiles(){var finite=new UploadPolicyService.Level(2,"Limited",100,10,30,false);request("/api/network/messages/with/2",null);assertThat(service.expiry(finite)).isNull();}
+ @Test void olderLevelMetadataDoesNotRemoveExpiryChoices(){var finite=new UploadPolicyService.Level(2,"Limited",100,10,30,false);request("/api/network/messages/with/2","3650");assertThat(service.expiry(finite)).isAfter(Instant.now());}
  @Test void paidPlansAboveOneHundredGbAndFiniteOnlyPlansAreRejected(){
   assertThatThrownBy(()->service.save(new UploadPolicyService.Level(2,"Too large",107374182401L,10,30,true))).isInstanceOf(ResponseStatusException.class);
   assertThatThrownBy(()->service.save(new UploadPolicyService.Level(2,"Finite",100,10,30,false))).isInstanceOf(ResponseStatusException.class);

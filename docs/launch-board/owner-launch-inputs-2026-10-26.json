@@ -17,7 +17,7 @@
     "audioCallingRequired": true,
     "videoCallingRequired": true,
     "retentionDaysRaw": 180,
-    "retentionInterpretation": "Active files never expire automatically; users choose deletions when storage is full. Deleted-version recovery duration remains unspecified.",
+    "retentionInterpretation": "Uploader selects 1, 7, 30, 60, 90, 180, 365, 730, 1095, 1825 or 3650 days, or Never (0, default). Delete expired files according to that choice; quota alone does not delete files. Deleted-version recovery duration is unspecified.",
     "rpoRtoRaw": "1 day",
     "privacyOwner": "Manager, CPET Solutions",
     "supportOwner": "Manager, CPET Solutions",
@@ -28,9 +28,23 @@
     "appleOwner": "project owner",
     "macRunnerAvailable": false,
     "smsCredentialsPromisedLater": true,
-    "activeFilesExpireAutomatically": false,
     "defaultStorageBytes": 1073741824,
-    "maximumPaidStorageBytes": 107374182400
+    "maximumPaidStorageBytes": 107374182400,
+    "retentionDaysOptions": [
+      1,
+      7,
+      30,
+      60,
+      90,
+      180,
+      365,
+      730,
+      1095,
+      1825,
+      3650,
+      0
+    ],
+    "defaultRetentionDays": 0
   },
   "proposed": {
     "provider": "AWS Lightsail",

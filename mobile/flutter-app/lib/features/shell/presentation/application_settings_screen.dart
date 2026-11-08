@@ -81,7 +81,7 @@ class _ApplicationSettingsScreenState extends State<ApplicationSettingsScreen> {
           option('reducedMotion','Reduce motion','Minimize animations and transitions.'),
         ]),
         section('Storage & uploads',[
-          ListTile(title:const Text('Storage usage & upload limits'),subtitle:const Text('View storage usage and upload limits. Active files never expire.'),trailing:const Icon(Icons.chevron_right),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>UploadSettingsScreen(api:widget.api)))),
+          ListTile(title:const Text('Storage usage & upload limits'),subtitle:const Text('View storage usage, upload limits and expiry choices.'),trailing:const Icon(Icons.chevron_right),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>UploadSettingsScreen(api:widget.api)))),
         ]),
         if(status!=null)Padding(padding:const EdgeInsets.all(12),child:Semantics(liveRegion:true,child:Text(status!))),
         FilledButton.icon(onPressed:saving?null:save,icon:const Icon(Icons.check_rounded),label:Text(saving?'Saving…':'Save settings')),

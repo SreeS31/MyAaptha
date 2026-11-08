@@ -53,7 +53,7 @@ class _ProfileMediaCardState extends State<ProfileMediaCard> {
   }
   Widget image(String url,{double size=80})=>ClipRRect(borderRadius:BorderRadius.circular(12),child:Image.network(widget.api.profilePhotoUrl(url),width:size,height:size,fit:BoxFit.cover,errorBuilder:(_,error,stack)=>SizedBox(width:size,height:size,child:const Icon(Icons.person_outline,size:36))));
   @override Widget build(BuildContext context)=>Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-    Row(children:[Expanded(child:Text('Profile photos',style:Theme.of(context).textTheme.titleMedium)),const InfoHelp(title:'Profile photos',message:'JPG, PNG or WebP, up to 5 MB per photo and eight gallery photos. Your storage quota applies. Photos stay until you delete them. Profile photos use publicly accessible media links.')]),
+    Row(children:[Expanded(child:Text('Profile photos',style:Theme.of(context).textTheme.titleMedium)),const InfoHelp(title:'Profile photos',message:'JPG, PNG or WebP, up to 5 MB per photo and eight gallery photos. Your storage quota applies. Choose an expiry period or Never when uploading. Profile photos use publicly accessible media links.')]),
     const SizedBox(height:14),
     if(widget.profile.value('profilePhoto').isNotEmpty) image(widget.profile.value('profilePhoto')),
     Wrap(spacing:8,children:[OutlinedButton.icon(onPressed:enabled?()=>pick(false):null,icon:const Icon(Icons.add_a_photo_outlined),label:Text(widget.profile.value('profilePhoto').isEmpty?'Upload photo':'Change photo')),

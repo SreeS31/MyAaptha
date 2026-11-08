@@ -49,7 +49,7 @@ myaaptha:
     scanner: ${MYAAPTHA_MEDIA_SCANNER:clamav}
     provider: ${MYAAPTHA_STORAGE_PROVIDER:local}
     user-quota-bytes: ${MYAAPTHA_MEDIA_USER_QUOTA_BYTES:1073741824}
-    retention-cleanup-cron: ${MYAAPTHA_MEDIA_CLEANUP_CRON:0 30 2 * * *}
+    retention-cleanup-cron: ${MYAAPTHA_MEDIA_CLEANUP_CRON:0 * * * * *}
     local-directory: ${MYAAPTHA_UPLOAD_DIR:./var/myaaptha/uploads}
     public-base-url: ${MYAAPTHA_MEDIA_BASE_URL:http://localhost:8080}
     s3:
