@@ -23,4 +23,12 @@ The October owner-input source and hashes are preserved. The profile records thi
 
 ## Verification
 
-The first local focused run passed 14 backend quota/migration/policy/security checks. The migration regression verifies that ordinary-file expiry is cleared while stories and deleted records retain their metadata. The native non-expiring-upload widget check passed. A stronger quota assertion additionally checks that a rejected upload never deletes the existing object; final clean CI must verify the committed source. Final application build, client regressions and real-service integration results are recorded after completion.
+[GitHub CI run 42455050687](https://github.com/SreeS31/MyAaptha/actions/runs/42455050687) passed all nine jobs for source commit `0b4335fa25c2f5b5db52a8d408fe8f316e02aa13`.
+
+- Full backend: 256 tests, zero failures/errors and one skipped opt-in S3 drill (255 passed). This includes the migration preservation test and the stronger assertion that a quota-rejected upload does not delete an existing object.
+- Frontend: production build, 23 unit tests and 12 desktop/phone browser checks passed, including rejection of 101 GB and acceptance of 100 GB in the plan editor.
+- Mobile: analysis passed; the complete suite reported 97 passed and two skipped opt-in live integrations. Four affected widget/client regressions also passed locally, including the non-expiring upload path and updated plan editor.
+- Production profile: the disposable TLS PostgreSQL/Redis smoke passed, exercising the PostgreSQL migration path. All three security jobs and the infrastructure and AI jobs passed.
+- Local focused backend run: 14 policy/quota/migration/security checks passed. Nine owner-input regression checks passed. Hosted launch-board verification passed with zero browser errors and saved-plan preservation.
+
+An additional local live native/API attempt was prevented by stale scanner definitions. Official definitions were subsequently updated and the unchanged 48-hour freshness check passed. The retry's temporary API then failed to become ready within 180 seconds under local resource pressure (about 630 MB free physical memory after cleanup); no successful live-client result is claimed for this attempt. The temporary API and database were removed. The passing clean CI production smoke and client suites above are separate evidence. Physical-device, actual storage-provider recovery and production acceptance remain pending.
