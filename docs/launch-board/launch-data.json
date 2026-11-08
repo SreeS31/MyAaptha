@@ -1,7 +1,7 @@
 {
   "project": "MyAaptha",
-  "snapshot": "2026-11-06",
-  "baselineRevision": "2026-11-06-local-integrations-2",
+  "snapshot": "2026-11-08",
+  "baselineRevision": "2026-11-08-acceptance-preparation-1",
   "scope": "Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.",
   "evidencePolicy": "Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.",
   "modules": [
@@ -922,7 +922,7 @@
               "label": "Received owner inputs, completed setup and remaining access"
             }
           ],
-          "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access.",
+          "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access. 8 November: acceptance checklist corrected to reflect the already confirmed audio and video scope; neither calling mode is optional. Device and relay acceptance remain pending.",
           "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
         },
         {
@@ -2601,7 +2601,7 @@
     }
   ],
   "acceptanceAudit": {
-    "reviewed": "2026-10-27",
+    "reviewed": "2026-11-08",
     "items": [
       {
         "id": "M01.5",
@@ -2801,8 +2801,8 @@
       {
         "id": "M07.5",
         "category": "Devices and distribution",
-        "required": "Calling scope decision and physical devices on representative networks",
-        "nextAction": "Validate permission, connectivity, audio/video and network changes if calling is included.",
+        "required": "Physical Android/iOS devices, representative networks and a deployed authenticated TURN relay; audio and video calling are confirmed launch requirements.",
+        "nextAction": "Validate both audio and video calling, permissions, relay transport, reconnects and network changes on physical devices.",
         "title": "Validate real-device calling / network behavior",
         "owner": "Messaging",
         "stages": {
@@ -3226,7 +3226,7 @@
     {
       "id": "M07.5",
       "title": "Validate real-device calling / network behavior",
-      "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access.",
+      "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access. 8 November: acceptance checklist corrected to reflect the already confirmed audio and video scope; neither calling mode is optional. Device and relay acceptance remain pending.",
       "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
       "evidence": [
         {

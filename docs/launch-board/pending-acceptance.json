@@ -1,5 +1,5 @@
 {
-  "reviewed": "2026-10-27",
+  "reviewed": "2026-11-08",
   "items": [
     {
       "id": "M01.5",
@@ -94,8 +94,8 @@
     {
       "id": "M07.5",
       "category": "Devices and distribution",
-      "required": "Calling scope decision and physical devices on representative networks",
-      "nextAction": "Validate permission, connectivity, audio/video and network changes if calling is included."
+      "required": "Physical Android/iOS devices, representative networks and a deployed authenticated TURN relay; audio and video calling are confirmed launch requirements.",
+      "nextAction": "Validate both audio and video calling, permissions, relay transport, reconnects and network changes on physical devices."
     },
     {
       "id": "M16.3",

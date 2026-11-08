@@ -2,7 +2,7 @@
 
 View the board at **http://127.0.0.1:4317**, or open [Launch Board](index.html) directly in a browser. Start the local preview with `powershell -NoProfile -ExecutionPolicy Bypass -File infrastructure/start-launch-board.ps1`. It is a planning artifact and does not require application login, cloud setup or a running API. This board does not add a public administrative route to the application.
 
-Current review: **6 November 2026**. Scope: **18 modules, 90 tracked subtasks, 61 recorded complete and 29 pending**. See [current module status](STATUS-2026-11-06.md), [review results and limits](PENDING-WORK-2026-11-06.md), [all pending acceptance requirements](PENDING-ACCEPTANCE-2026-11-06.md) and [dependency priorities](DEPENDENCY-PRIORITIES.md).
+Current review: **8 November 2026**. Scope: **18 modules, 90 tracked subtasks, 61 recorded complete and 29 pending**. See [current module status](STATUS-2026-11-08.md), [review results and limits](PENDING-WORK-2026-11-08.md), [all pending acceptance requirements](PENDING-ACCEPTANCE-2026-11-08.md) and [dependency priorities](DEPENDENCY-PRIORITIES.md).
 
 The original 86-task checklist includes four explicitly tracked engineering additions. Local tests and fixes do not close requirements for real providers, staging, physical devices or independent approval. The engineering panel calculates coding/testing/integration totals from the current source; N/A checks are excluded from each denominator. Expand **Engineering progress & remaining launch requirements** to see evidence and the full pending-task audit.
 
@@ -14,6 +14,8 @@ The board initially shows the latest verified source. **Status source** switches
 
 [7 November GitHub and security follow-up](GITHUB-HANDOFF-2026-11-07.md) records CI portability fixes and dependency remediation. It supplements the dated task review without granting release approval.
 
+[8 November pending-task execution pack](ACCEPTANCE-EXECUTION-PACK-2026-11-08.md) provides scenarios, pass criteria and evidence requirements for all 29 open gates.
+
 ## Views and controls
 
 - **Board:** Before Launch, Immediately After, Post Launch and Done; card counts, completion bars, expandable subtasks and proposed owners. Drag cards or use their phase dropdown, including with a keyboard.
@@ -22,7 +24,7 @@ The board initially shows the latest verified source. **Status source** switches
 - Add/edit modules and subtasks. Moving a phase does not complete checks. Done requires all applicable checks to be done.
 - Browser edits persist locally. JSON export/import transfers the full plan. CSV exports one row per subtask. Restore baseline discards browser edits after confirmation.
 
-The baseline is [launch-data.json](launch-data.json); the readable report is [STATUS-2026-11-06.md](STATUS-2026-11-06.md). Source data is curated in `build_board.py` with development changes in `development-updates.json`; HTML is generated from `board-template.html`. Regenerate with `python docs/launch-board/build_board.py`. Existing browser edits are preserved; a revision notice identifies a newer source baseline until restored/imported explicitly.
+The baseline is [launch-data.json](launch-data.json); the readable report is [STATUS-2026-11-08.md](STATUS-2026-11-08.md). Source data is curated in `build_board.py` with development changes in `development-updates.json`; HTML is generated from `board-template.html`. Regenerate with `python docs/launch-board/build_board.py`. Existing browser edits are preserved; a revision notice identifies a newer source baseline until restored/imported explicitly.
 
 ## Assessment policy
 

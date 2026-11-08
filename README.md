@@ -2,9 +2,9 @@
 
 ## Launch readiness
 
-[Open launch board](http://127.0.0.1:4317) | [Offline board](docs/launch-board/index.html) | [Current module status](docs/launch-board/STATUS-2026-11-06.md).
+[Open launch board](http://127.0.0.1:4317) | [Offline board](docs/launch-board/index.html) | [Current module status](docs/launch-board/STATUS-2026-11-08.md).
 
-Review: **6 November 2026; 18 modules, 90 tracked subtasks, 61 recorded complete and 29 launch gates pending**. [Current review and verification limits](docs/launch-board/PENDING-WORK-2026-11-06.md) | [Every pending requirement](docs/launch-board/PENDING-ACCEPTANCE-2026-11-06.md) | [Dependency priorities](docs/launch-board/DEPENDENCY-PRIORITIES.md) | [Remaining owner inputs](docs/launch-board/MYAAPTHA-REMAINING-INPUTS-2026-10-26.txt).
+Review: **8 November 2026; 18 modules, 90 tracked subtasks, 61 recorded complete and 29 launch gates pending**. [Current review and verification limits](docs/launch-board/PENDING-WORK-2026-11-08.md) | [Every pending requirement](docs/launch-board/PENDING-ACCEPTANCE-2026-11-08.md) | [Dependency priorities](docs/launch-board/DEPENDENCY-PRIORITIES.md) | [Remaining owner inputs](docs/launch-board/MYAAPTHA-REMAINING-INPUTS-2026-10-26.txt).
 
 Start the board with `powershell -NoProfile -ExecutionPolicy Bypass -File infrastructure/start-launch-board.ps1`. Local engineering completion is separate from production launch approval.
 

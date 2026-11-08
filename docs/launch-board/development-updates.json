@@ -1,5 +1,5 @@
 {
-  "revision": "2026-11-06-local-integrations-2",
+  "revision": "2026-11-08-acceptance-preparation-1",
   "tasks": {
     "M02.4": {
       "title": "Native profile-photo and gallery parity",
@@ -437,7 +437,7 @@
         "testing": "verify",
         "integration": "verify"
       },
-      "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access.",
+      "note": "Fixed web call resource ownership: failure/cancellation/late capture, immediate end release, peer/remote cleanup and unmount. Six unit checks and synthetic calling on desktop/phone passed; profile/timeline/storage regressions passed both layouts. Real media transport, physical devices, native parity, network changes and relay-service acceptance remain open. No task was added or physical-device gate closed. 26 October: authenticated API now issues short-lived TURN credentials; web and native clients consume the same relay settings. Seven backend tests, two native API tests, desktop/mobile browser cancellation checks and live authenticated HTTP checks passed. Production Coturn, certificates, firewall and real-device network acceptance still require deployment/access. 8 November: acceptance checklist corrected to reflect the already confirmed audio and video scope; neither calling mode is optional. Device and relay acceptance remain pending.",
       "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
       "evidence": [
         {

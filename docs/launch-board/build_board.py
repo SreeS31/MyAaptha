@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'infrastructure'))
 from launch_dependencies import write_report
 OUT=Path(__file__).parent
-DATE='2026-11-06'
+DATE='2026-11-08'
 modules=[]
 SYNC='docs/synchronization-2026-10-06.md'
 DESIGN='docs/app-design-2026-10-08.md'
@@ -195,5 +195,5 @@ for m in modules:
         rows += [f"- [{'x' if done(t) else ' '}] **{t['id']} {t['title']}** — {'Recorded complete' if done(t) else 'Pending'}; {t['owner']}. {t['note']}", '  Evidence: '+', '.join(f"[{e['label']}](../../{e['path']})" for e in t['evidence'])+'.'+(' Dependencies: '+', '.join(t['depends']) if t['depends'] else '')]
 (OUT/f'STATUS-{DATE}.md').write_text('\n'.join(rows)+'\n',encoding='utf-8')
 template=(OUT/'board-template.html').read_text(encoding='utf-8')
-(OUT/'index.html').write_text(template.replace('__BASELINE_DATA__',json.dumps(data).replace('</','<\\/')),encoding='utf-8')
+(OUT/'index.html').write_text(template.replace('__SNAPSHOT_DATE__',DATE).replace('__BASELINE_DATA__',json.dumps(data).replace('</','<\\/')),encoding='utf-8')
 print(json.dumps(stats))
