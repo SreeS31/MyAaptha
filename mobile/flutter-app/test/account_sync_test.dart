@@ -98,7 +98,7 @@ void main() {
     expect(find.text('0.50 GB used'), findsOneWidget);
     expect(find.text('50.0%'), findsOneWidget);
   });
-  testWidgets('admin level editing validates retention and sends API fields',
+  testWidgets('admin level editing enforces 100 GB and non-expiring storage',
       (tester) async {
     tester.view.physicalSize=const Size(800,1600);tester.view.devicePixelRatio=1;addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
     final api = SyncApi(admin: true);
@@ -112,18 +112,18 @@ void main() {
     await tester.tap(find.text('Level 1: Free'));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Maximum days'), '0');
+        find.widgetWithText(TextFormField, 'Storage (GB)'), '101');
     await tester.tap(find.text('Save level'));
     await tester.pumpAndSettle();
     expect(api.saved, isNull);
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Maximum days'), '14');
+        find.widgetWithText(TextFormField, 'Storage (GB)'), '100');
     await tester.tap(find.text('Save level'));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
-    expect(api.saved?['maxRetentionDays'], 14);
-    expect(api.saved?['storageBytes'], 1073741824);
+    expect(api.saved?['allowNever'], true);
+    expect(api.saved?['storageBytes'], 107374182400);
   });
   testWidgets('message search and new groups use the shared chat API',
       (tester) async {
