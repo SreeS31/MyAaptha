@@ -2,6 +2,7 @@ package com.myaaptha.domain.finance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.util.*;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 class RenewalControllerTest {
   @TempDir static Path directory;
   @DynamicPropertySource static void mediaDirectory(DynamicPropertyRegistry registry){registry.add("myaaptha.storage.local-directory",()->directory.toString());}
-  @Autowired MockMvc mvc;@Autowired ObjectMapper json;
+  @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;@Autowired jakarta.persistence.EntityManager entityManager;
   String member()throws Exception{
     String name="renewal-api-"+UUID.randomUUID(),password="RenewalSecret123";
     mvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("username",name,"password",password,"phoneNumber","+1776"+String.format("%010d",Math.abs(UUID.randomUUID().getLeastSignificantBits()%10000000000L)))))).andExpect(status().isOk());
@@ -42,9 +43,20 @@ class RenewalControllerTest {
     mvc.perform(put(path+"/state").header("Authorization",owner).contentType(MediaType.APPLICATION_JSON).content("{\"archived\":false}")).andExpect(status().isOk()).andExpect(jsonPath("$.archived").value(false));
     mvc.perform(put(path).header("Authorization",other).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input()))).andExpect(status().isNotFound());
     var pdf=new MockMultipartFile("file","invoice.pdf","application/pdf","%PDF-1.7\n1 0 obj\n<<>>\nendobj".getBytes());
-    mvc.perform(multipart(path+"/attachment").file(pdf).header("Authorization",owner)).andExpect(status().isOk()).andExpect(jsonPath("$.attachmentName").value("invoice.pdf"));
+    mvc.perform(multipart(path+"/attachment").file(pdf).param("retentionDays","7").header("Authorization",owner)).andExpect(status().isOk()).andExpect(jsonPath("$.attachmentName").value("invoice.pdf"));
+    String finiteKey=jdbc.queryForObject("SELECT attachment_key FROM finance_renewals WHERE id=?",String.class,id);
+    var deadline=jdbc.queryForObject("SELECT expires_at FROM media_assets WHERE storage_key=?",java.sql.Timestamp.class,finiteKey);
+    assertThat(deadline.toInstant()).isBetween(java.time.Instant.now().plusSeconds(7*86400L-20),java.time.Instant.now().plusSeconds(7*86400L+20));
     mvc.perform(get(path+"/attachment").header("Authorization",other)).andExpect(status().isNotFound());
     mvc.perform(get(path+"/attachment").header("Authorization",owner)).andExpect(status().isOk()).andExpect(header().string("Cache-Control","no-store")).andExpect(content().bytes(pdf.getBytes()));
+    jdbc.update("UPDATE media_assets SET expires_at=? WHERE storage_key=?",java.sql.Timestamp.from(java.time.Instant.now().minusSeconds(1)),finiteKey);
+    entityManager.clear();
+    mvc.perform(get(path+"/attachment").header("Authorization",owner)).andExpect(status().isGone());
+    mvc.perform(multipart(path+"/attachment").file(pdf).param("retentionDays","0").header("Authorization",owner)).andExpect(status().isOk());
+    String neverKey=jdbc.queryForObject("SELECT attachment_key FROM finance_renewals WHERE id=?",String.class,id);
+    assertThat(jdbc.queryForObject("SELECT expires_at FROM media_assets WHERE storage_key=?",java.sql.Timestamp.class,neverKey)).isNull();
+    assertThat(directory.resolve(finiteKey)).doesNotExist();
+    mvc.perform(get(path+"/attachment").header("Authorization",owner)).andExpect(status().isOk());
     mvc.perform(delete(path+"/attachment").header("Authorization",other)).andExpect(status().isNotFound());
     mvc.perform(delete(path+"/attachment").header("Authorization",owner)).andExpect(status().isNoContent());
     mvc.perform(get(path+"/attachment").header("Authorization",owner)).andExpect(status().isNotFound());
