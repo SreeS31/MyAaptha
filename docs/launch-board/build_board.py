@@ -169,6 +169,27 @@ for item in acceptance['items']:
     item.update(title=by_id[item['id']]['title'],owner=by_id[item['id']]['owner'],stages=by_id[item['id']]['stages'])
 data=dict(project='MyAaptha',snapshot=DATE,baselineRevision=updates.get('revision','2026-10-17-baseline'),scope='Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.',evidencePolicy='Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.',modules=modules)
 data['acceptanceAudit']=acceptance
+native_only={'M04.5','M16.4','M16.5'}
+assert native_only <= set(by_id), 'Unknown native-only launch task'
+for item in acceptance['items']:
+    item['launchScope']='native-only' if item['id'] in native_only else 'website-and-native'
+website=[item for item in acceptance['items'] if item['launchScope']=='website-and-native']
+native=[item for item in acceptance['items'] if item['launchScope']=='native-only']
+launch_rows=[f'# Website launch requirements - {DATE}', '',
+    f"{len(website)} open acceptance tasks apply to the website. {len(native)} additional tasks apply only to native app distribution/permissions. The overall board remains unchanged; separating scope does not approve any task.", '',
+    'Health analysis and audio/video calling remain required owner scope. Browser calling, responsive phone-browser checks, cross-client behavior and real-device/network checks remain website requirements.', '',
+    '## Execution order', '',
+    '1. Deployment access: delegate the cloud/project, registry and DNS through protected access references. Engineering then provisions staging, records immutable image identities and installs the database CA. No new deployment access has been supplied.',
+    '2. Real services: supply approved email/SMS/push, OAuth, AI and TURN configuration and controlled test recipients. Engineering runs delivery, recovery, calling and model acceptance.',
+    '3. Operating decisions: provide public support/privacy contacts, approve reviewed consent/moderation/emergency policies and the deleted-version recovery duration. Active-file expiry choices are already implemented; Never remains available.',
+    '4. Release acceptance: engineering runs staging isolation, capacity, accessibility, storage lifecycle, restore and monitoring drills. An independent reviewer completes security acceptance; the owner approves the measured release before promotion.', '',
+    'The latest protected local preflight found all five application secret files valid. It still lacks a real immutable-image release configuration and database CA. Local secrets do not establish cloud or provider access.', '',
+    'Latest synchronized storage implementation and regression tests passed all nine CI jobs: [verified run](https://github.com/SreeS31/MyAaptha/actions/runs/42457704226). This does not substitute for live acceptance.', '']
+for heading,items in [('Website requirements',website),('Native-only requirements',native)]:
+    launch_rows += [f'## {heading}', '', '| Task | Required input/evidence | Engineering next action |', '|---|---|---|']
+    launch_rows += [f"| {i['id']} {i['title']} | {i['required']} | {i['nextAction']} |" for i in items]
+    launch_rows.append('')
+(OUT/f'WEBSITE-LAUNCH-{DATE}.md').write_text('\n'.join(launch_rows)+'\n',encoding='utf-8')
 write_report(data, OUT)
 audit_rows=[f'# Remaining launch acceptance - {DATE}', '', 'Every currently pending source task is listed below. Local implementation and launch acceptance are separate; this report does not grant external approvals.', '']
 for category in dict.fromkeys(item['category'] for item in acceptance['items']):
