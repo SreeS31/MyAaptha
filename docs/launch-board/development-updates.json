@@ -1,5 +1,5 @@
 {
-  "revision": "2026-11-09-recovery-90-days-4",
+  "revision": "2026-11-09-gcp-beta-5",
   "tasks": {
     "M02.4": {
       "title": "Native profile-photo and gallery parity",
@@ -360,7 +360,7 @@
       "note": " Operational endpoint authorization was hardened and verified with seven focused tests and a packaged production-profile TLS smoke on 20 October. Independent release security review remains pending."
     },
     "M15.4": {
-      "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access.",
+      "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access. 9 November: owner authorized Google Cloud trial for beta. Added a project-scoped Cloud Shell provisioning generator and separate scanned beta-image pipeline. No Project ID, activated trial evidence or delegated GCP/DNS access is available; nothing deployed. Production provider/promotion unchanged.",
       "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
       "evidence": [
         {
@@ -370,6 +370,10 @@
         {
           "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
           "label": "Received owner inputs, completed setup and remaining access"
+        },
+        {
+          "path": "docs/launch-board/GCP-BETA-2026-11-09.md",
+          "label": "Google Cloud beta bundle and exact account/deployment prerequisites"
         }
       ]
     },

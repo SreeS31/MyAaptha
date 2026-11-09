@@ -51,3 +51,9 @@ Targeted Flutter static analysis of all four changed Dart files passed with no i
 Owner confirmed 90 days. Recorded the dated addendum and prepared noncurrent-only S3 lifecycle/versioning templates. Updated M14.6 and remaining-input handoff; no cloud changes or recovery acceptance are claimed. See [policy and implementation boundaries](RECOVERY-POLICY-2026-11-09.md).
 
 Recovery-policy verification: all 85 infrastructure tests passed, including three new lifecycle/owner-contract guards. Hosted board verification passed with zero browser errors. Active-file options/Never remain unchanged; no live cloud lifecycle was applied.
+
+## Google Cloud beta authorization
+
+Owner approved Google Cloud trial for beta. Prepared [the reviewed provisioning and application handoff](GCP-BETA-2026-11-09.md), a no-network plan generator and a separate scan-gated beta image workflow. No local Google Cloud authentication/configuration, Project ID or delegated access was found. Account activation and actual deployment are pending; no cloud resources, paid-billing upgrade, production DNS or production data were changed.
+
+Beta-preparation verification: all 90 infrastructure tests passed, including project isolation, no-public-database/storage ports, IAP-only SSH, retained disk/non-destructive stop, shell rendering and CI/scan-gated beta image publication checks. Hosted board verification passed with zero browser errors. The generator produced a local fixture bundle without contacting cloud services. No authenticated cloud provisioning or full application deployment was tested.

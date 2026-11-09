@@ -49,3 +49,5 @@ Hosted pages automatically check for a new source revision every minute and on t
 For the exact distinction between developer work and owner/external inputs, see [who supplies each launch dependency](OWNER-INPUTS-2026-10-20.md). Shared inputs unblock multiple tasks; routine local development does not need repeated confirmation.
 
 The [22 October continuation](DEVELOPMENT-2026-10-22.md) records verified call cleanup and storage integration. [Current owner-input checklist](LAUNCH-INPUTS-2026-10-22.md). Testing/integration remain engineering-owned; local evidence does not close provider/device/review gates.
+
+The owner selected Google Cloud trial for beta. See [the prepared Cloud Shell bundle, account step and deployment boundaries](GCP-BETA-2026-11-09.md). Beta is not deployed until actual project/DNS access and runtime acceptance are recorded.

@@ -1,7 +1,7 @@
 {
   "project": "MyAaptha",
   "snapshot": "2026-11-09",
-  "baselineRevision": "2026-11-09-recovery-90-days-4",
+  "baselineRevision": "2026-11-09-gcp-beta-5",
   "scope": "Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.",
   "evidencePolicy": "Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.",
   "modules": [
@@ -2054,9 +2054,13 @@
             {
               "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
               "label": "Received owner inputs, completed setup and remaining access"
+            },
+            {
+              "path": "docs/launch-board/GCP-BETA-2026-11-09.md",
+              "label": "Google Cloud beta bundle and exact account/deployment prerequisites"
             }
           ],
-          "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access.",
+          "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access. 9 November: owner authorized Google Cloud trial for beta. Added a project-scoped Cloud Shell provisioning generator and separate scanned beta-image pipeline. No Project ID, activated trial evidence or delegated GCP/DNS access is available; nothing deployed. Production provider/promotion unchanged.",
           "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
         },
         {
@@ -2686,8 +2690,8 @@
       {
         "id": "M15.4",
         "category": "Staging environment",
-        "required": "Actual cloud/project deployment delegation, registry access, issued TLS certificates and DNS administration. India region, domain and budgets have been received.",
-        "nextAction": "Use the prepared profiles and protected application secrets; provision staging after real account access, then record its endpoint and image digests.",
+        "required": "Google Cloud beta trial activation, dedicated beta Project ID and authenticated deployment access, plus DNS delegation, immutable images and issued TLS. Owner authorized this beta provider; production promotion remains separate.",
+        "nextAction": "Use the prepared Cloud Shell bundle in the activated beta project, then configure private services/secrets/TLS and record endpoint, runtime and image digests after actual acceptance.",
         "title": "Provision staging cloud, DNS, TLS, secrets and registry",
         "owner": "DevOps",
         "stages": {
@@ -3583,7 +3587,7 @@
     {
       "id": "M15.4",
       "title": "Provision staging cloud, DNS, TLS, secrets and registry",
-      "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access.",
+      "note": "Read-only release preflight implemented and verified with five focused tests. It validates release configuration, five protected secret files and database CA format without network access or secret disclosure. Current default layout fails all seven prerequisites: selected release configuration and protected production inputs are not provisioned. Cloud/project, region, domain, budget and deployment identity still require owner/platform input; no staging environment was deployed. 26 October owner answers reconciled: India, www.myaaptha.com and hosting budget captured. Five application-owned secret prerequisites now validate; TLS/private database/cache and authenticated relay deployment profiles structurally validate. Cloud delegation, actual DNS/admin/registry access, issued certificates and live deployment remain missing. Nameserver strings are not account access. 9 November: owner authorized Google Cloud trial for beta. Added a project-scoped Cloud Shell provisioning generator and separate scanned beta-image pipeline. No Project ID, activated trial evidence or delegated GCP/DNS access is available; nothing deployed. Production provider/promotion unchanged.",
       "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
       "evidence": [
         {
@@ -3593,6 +3597,10 @@
         {
           "path": "docs/launch-board/OWNER-SETUP-2026-10-26.md",
           "label": "Received owner inputs, completed setup and remaining access"
+        },
+        {
+          "path": "docs/launch-board/GCP-BETA-2026-11-09.md",
+          "label": "Google Cloud beta bundle and exact account/deployment prerequisites"
         }
       ]
     },

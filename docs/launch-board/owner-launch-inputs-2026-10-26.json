@@ -97,6 +97,11 @@
       "received": "2026-11-09",
       "sourceFile": "docs/launch-board/recovery-policy-2026-11-09.json",
       "source": "Owner selected 90 days for deleted-file recovery; original October source/hash preserved"
+    },
+    {
+      "received": "2026-11-09",
+      "sourceFile": "docs/launch-board/beta-hosting-2026-11-09.json",
+      "source": "Owner approved Google Cloud trial for beta; original production proposal and captured source/hash preserved"
     }
   ]
 }

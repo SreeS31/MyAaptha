@@ -28,8 +28,8 @@
     {
       "id": "M15.4",
       "category": "Staging environment",
-      "required": "Actual cloud/project deployment delegation, registry access, issued TLS certificates and DNS administration. India region, domain and budgets have been received.",
-      "nextAction": "Use the prepared profiles and protected application secrets; provision staging after real account access, then record its endpoint and image digests."
+      "required": "Google Cloud beta trial activation, dedicated beta Project ID and authenticated deployment access, plus DNS delegation, immutable images and issued TLS. Owner authorized this beta provider; production promotion remains separate.",
+      "nextAction": "Use the prepared Cloud Shell bundle in the activated beta project, then configure private services/secrets/TLS and record endpoint, runtime and image digests after actual acceptance."
     },
     {
       "id": "M15.5",
