@@ -1,0 +1,14 @@
+{
+  "Rules": [
+    {
+      "ID": "myaaptha-deleted-versions-90-days",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": ""
+      },
+      "NoncurrentVersionExpiration": {
+        "NoncurrentDays": 90
+      }
+    }
+  ]
+}

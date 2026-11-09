@@ -65,7 +65,7 @@ def inspect(profile_path,root=ROOT):
             'full1000UserQuotaScenario':estimate(profile,1000,1000),
             'protectedConfigurationPresence':checks,'externalServicesContacted':False,
             'productionActivated':False,'releaseApproved':False,
-            'remainingExternalDependencies':['delegated cloud and Porkbun DNS access','actual provider projects and credentials','real alert destination and test recipients','physical Android/iOS devices and Apple/Mac signing access','deleted-version recovery duration and approved public policies','independent security and health-quality reviewers']}
+            'remainingExternalDependencies':['delegated cloud and Porkbun DNS access','actual provider projects and credentials','real alert destination and test recipients','physical Android/iOS devices and Apple/Mac signing access','approved public policies and live 90-day deleted-version recovery acceptance','independent security and health-quality reviewers']}
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)

@@ -20,7 +20,7 @@ The immutable-image release configuration and database CA are missing. Cloud/DNS
 1. Use protected cloud, DNS and registry access to provision staging and private storage/scanning. Record actual endpoints, trusted database CA, immutable image digests and deployment identity. Validate configuration with `python infrastructure/preflight_release.py infrastructure/release.json`.
 2. Configure approved provider projects, controlled recipients, OAuth callbacks, AI limits and TURN. Execute [the acceptance scenarios](ACCEPTANCE-EXECUTION-PACK-2026-11-08.md) for real delivery, calling and health processing.
 3. Run exact-release access isolation, expiry/deletion, responsive/accessibility, capacity, restore and alert/rollback checks. Record results against [every website gate](WEBSITE-LAUNCH-2026-11-09.md). Do not reuse local fixtures as live evidence.
-4. Obtain reviewed public policies, delivery verification for the owner-designated Help@myaaptha.com mailbox, deleted-version recovery duration, independent security/health-quality acceptance and final owner release approval. Promote only the accepted immutable artifacts using the [deployment handoff](../MYAAPTHA-DEPLOYMENT-HANDOFF.md).
+4. Obtain reviewed public policies, delivery verification for the owner-designated Help@myaaptha.com mailbox, live acceptance of the confirmed 90-day deleted-version recovery policy, independent security/health-quality acceptance and final owner release approval. Promote only the accepted immutable artifacts using the [deployment handoff](../MYAAPTHA-DEPLOYMENT-HANDOFF.md).
 
 Engineering owns setup and tests; the owner supplies delegated account access and business approvals. Native signing/store work remains separate. The historical 9 November target is not a confirmed launch date.
 
@@ -45,3 +45,9 @@ Added the same Help@myaaptha.com contact to native settings and Help, with selec
 Continuation verification: five focused Flutter tests passed, including copying the address with a failed Help API and settings at 320 px with 1x/2x text. One existing Help test initially scrolled its switch under the toolbar after the new card changed content height; it now scrolls to a hit-testable switch before exercising opt-in. Hosted board verification passed with zero browser errors; web/native public-contact strings match the owner input.
 
 Targeted Flutter static analysis of all four changed Dart files passed with no issues. `git diff --check` passed. The SDK initially required normal cache/tool-state access before tests could start; the reported results are from the subsequent successful run.
+
+## Deleted-file recovery decision
+
+Owner confirmed 90 days. Recorded the dated addendum and prepared noncurrent-only S3 lifecycle/versioning templates. Updated M14.6 and remaining-input handoff; no cloud changes or recovery acceptance are claimed. See [policy and implementation boundaries](RECOVERY-POLICY-2026-11-09.md).
+
+Recovery-policy verification: all 85 infrastructure tests passed, including three new lifecycle/owner-contract guards. Hosted board verification passed with zero browser errors. Active-file options/Never remain unchanged; no live cloud lifecycle was applied.

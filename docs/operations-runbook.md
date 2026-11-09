@@ -33,3 +33,5 @@
 ## Rollback preparation
 
 Use the [offline rollback planner](launch-board/ROLLBACK-PLANNER-2026-10-20.md) to compare reviewed non-secret release configurations before a rehearsal. A generated plan does not establish schema compatibility, live alert delivery, deployment approval or a completed rollback.
+
+Owner-selected deleted-file recovery: **90 days**. See [prepared media versioning/lifecycle and acceptance requirements](launch-board/RECOVERY-POLICY-2026-11-09.md). Active upload expiry choices and Never remain separate. These templates have not been applied to a live bucket.

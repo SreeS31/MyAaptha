@@ -7,9 +7,9 @@
   "maximumPaidStorageBytes": 107374182400,
   "planPricesSpecified": false,
   "billingActivated": false,
-  "deletedVersionRecoveryDays": null,
+  "deletedVersionRecoveryDays": 90,
   "temporaryStoriesHours": 24,
-  "temporaryStoriesNote": "Existing separate story/status behavior retained; ordinary stored attachments do not expire",
+  "temporaryStoriesNote": "Existing separate story/status behavior retained; ordinary attachments follow uploader-selected expiry or Never.",
   "releaseApproved": false,
   "policyRevision": "user-selected-expiry",
   "sourceCorrection": "Owner clarified that uploaders may choose a listed expiry duration or Never.",
@@ -28,5 +28,6 @@
     0
   ],
   "defaultRetentionDays": 0,
-  "automaticDeletionRequiresUserSelection": true
+  "automaticDeletionRequiresUserSelection": true,
+  "recoveryDecisionFile": "docs/launch-board/recovery-policy-2026-11-09.json"
 }

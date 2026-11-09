@@ -40,7 +40,7 @@ Privacy mailbox received: Help@myaaptha.com (same inbox).
 4. RETENTION AND EMERGENCY POLICY
 Already confirmed: active files follow the user-selected upload expiry (1/7/30/60/90/180/365/730/1095/1825/3650 days or Never).
 Already confirmed: 1 GB free per person, paid storage up to 100 GB; no quota-driven automatic deletion.
-Duration for recovering deleted file versions (separate from active-file expiry):
+Deleted-file recovery received: 90 days. Actual versioning/lifecycle and restore acceptance remain pending.
 RPO and RTO: may engineering use 24 hours for each, as provisional targets?:
 CTO-approved eligible emergency document categories:
 CTO-approved grant duration / revocation policy:
