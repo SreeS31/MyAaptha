@@ -10,10 +10,12 @@ Engineering has generated the application-owned secrets locally. You do not
 need to invent database/JWT/encryption passwords or test each module yourself.
 
 1. CLOUD AND DOMAIN ACCESS (unlocks most staging/integration tasks)
-Recommended: AWS Lightsail Mumbai 8 GB + private S3, initially self-managed DB/cache.
-Historical planning baseline approximately INR 5773/month; not a current quote. At the stated storage/FX assumptions,
-usage/egress/SMS/additional infrastructure can exceed that. See the setup report.
-AWS account/project reference and delegated deployment access:
+Selected beta platform: Google Cloud free trial (owner authorized).
+Project MyAaptha: project-5c36c021-87c7-4cfc-833, number 671435485594, organization CPET.
+Authenticated deployment access or the owner's signed-in Cloud Shell is still required.
+Actual free-trial status, remaining credit and project permissions are unverified.
+The earlier AWS Lightsail cost scenario is a historical production proposal, not a Google beta quote.
+Google Cloud authenticated deployment-access reference / Cloud Shell verification output:
 Porkbun DNS delegated access/reference:
 GitHub/container-registry organization or repository access reference:
 Existing account preferred instead of the recommendation (if any):

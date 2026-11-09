@@ -57,3 +57,9 @@ Recovery-policy verification: all 85 infrastructure tests passed, including thre
 Owner approved Google Cloud trial for beta. Prepared [the reviewed provisioning and application handoff](GCP-BETA-2026-11-09.md), a no-network plan generator and a separate scan-gated beta image workflow. No local Google Cloud authentication/configuration, Project ID or delegated access was found. Account activation and actual deployment are pending; no cloud resources, paid-billing upgrade, production DNS or production data were changed.
 
 Beta-preparation verification: all 90 infrastructure tests passed, including project isolation, no-public-database/storage ports, IAP-only SSH, retained disk/non-destructive stop, shell rendering and CI/scan-gated beta image publication checks. Hosted board verification passed with zero browser errors. The generator produced a local fixture bundle without contacting cloud services. No authenticated cloud provisioning or full application deployment was tested.
+
+## Google Cloud project supplied
+
+Owner supplied MyAaptha project `project-5c36c021-87c7-4cfc-833`, number `671435485594`, organization CPET. Updated the beta configuration and project-scoped read-only Cloud Shell checks. The generator now accepts valid opaque project IDs; resource names and labels remain beta-specific, with production-named IDs rejected. No project creation is requested again. Project ownership/access, trial credit and deployment are still not remotely verified. No billing account identifier or credentials were committed.
+
+Project-update verification: 91 infrastructure tests passed, generated Cloud Shell check script passed Bash syntax validation, and hosted board verification passed with zero browser errors. The actual owner project bundle was generated locally without contacting Google Cloud.

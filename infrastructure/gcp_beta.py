@@ -7,8 +7,10 @@ import shlex
 
 
 def plan(project, zone='asia-south1-a'):
-    if not re.fullmatch(r'[a-z][a-z0-9-]{4,28}[a-z0-9]', project) or 'beta' not in project:
-        raise ValueError('Use a dedicated Google project ID containing beta (6–30 characters).')
+    if not re.fullmatch(r'[a-z][a-z0-9-]{4,28}[a-z0-9]', project):
+        raise ValueError('Supply a valid Google project ID (6–30 characters).')
+    if re.search(r'(^|-)prod(uction)?(-|$)', project):
+        raise ValueError('Use an owner-designated beta project, not a production-named project.')
     if re.search(r'example|replace|your-project', project):
         raise ValueError('Supply your actual activated beta project ID, not a placeholder.')
     if zone not in {'asia-south1-a', 'asia-south1-b', 'asia-south1-c'}:
@@ -51,6 +53,10 @@ def plan(project, zone='asia-south1-a'):
                 pauseCommand=command('compute', 'instances', 'stop', tag, '--zone=' + zone),
                 addressCommand=command('compute', 'addresses', 'describe', tag,
                                        '--region=' + region, '--format=value(address)'),
+                checkCommands=[command('projects', 'describe', project,
+                                       '--format=value(projectId,projectNumber,lifecycleState)'),
+                               command('billing', 'projects', 'describe', project,
+                                       '--format=value(billingEnabled)')],
                 outstanding=['activated trial and authenticated project access', 'budget and credit checks',
                              'DNS delegation and issued TLS', 'scanned immutable application images',
                              'private TLS database/cache/object-store configuration and protected secrets',
@@ -72,6 +78,8 @@ def render(data, destination):
         'access.sh': header + shlex.join(data['accessCommand']) + '\n',
         'pause.sh': header + '# Stops compute only; retained disk/IP can still consume credit.\n' + shlex.join(data['pauseCommand']) + '\n',
         'address.sh': header + shlex.join(data['addressCommand']) + '\n',
+        'check-project.sh': header + '# Read-only. Billing enabled does not prove free-trial eligibility or remaining credit.\n' +
+                            '\n'.join(shlex.join(c) for c in data['checkCommands']) + '\n',
         'deployment-plan.json': json.dumps(data, indent=2) + '\n',
     }.items():
         (destination / name).write_text(content, encoding='utf-8', newline='\n')

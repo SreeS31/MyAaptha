@@ -6,6 +6,14 @@ from gcp_beta import plan, render
 
 
 class GcpBetaTests(unittest.TestCase):
+    def test_owner_supplied_generated_project_id_is_accepted(self):
+        project = 'project-5c36c021-87c7-4cfc-833'
+        data = plan(project)
+        for command in data['commands'] + data['checkCommands']:
+            self.assertIn('--project=' + project, command)
+        self.assertEqual(data['checkCommands'][0][1:3], ['projects', 'describe'])
+        self.assertEqual(data['checkCommands'][1][1:4], ['billing', 'projects', 'describe'])
+
     def test_no_public_database_cache_storage_or_ssh(self):
         data = plan('myaaptha-beta-fixture')
         rules = [c for c in data['commands'] if 'firewall-rules' in c]

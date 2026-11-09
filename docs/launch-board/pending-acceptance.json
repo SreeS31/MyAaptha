@@ -28,7 +28,7 @@
     {
       "id": "M15.4",
       "category": "Staging environment",
-      "required": "Google Cloud beta trial activation, dedicated beta Project ID and authenticated deployment access, plus DNS delegation, immutable images and issued TLS. Owner authorized this beta provider; production promotion remains separate.",
+      "required": "Owner supplied MyAaptha project project-5c36c021-87c7-4cfc-833 (number 671435485594), organization CPET. Activated trial/credit and authenticated cloud access remain unverified; DNS delegation, immutable images and issued TLS are still required.",
       "nextAction": "Use the prepared Cloud Shell bundle in the activated beta project, then configure private services/secrets/TLS and record endpoint, runtime and image digests after actual acceptance."
     },
     {

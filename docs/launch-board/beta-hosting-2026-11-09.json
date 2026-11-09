@@ -3,15 +3,20 @@
   "source": "Owner explicitly authorized Google Cloud free-trial beta in this conversation",
   "betaProvider": "Google Cloud",
   "productionProviderChanged": false,
-  "proposedProjectPurpose": "dedicated beta project",
+  "proposedProjectPurpose": "Owner-designated project for MyAaptha beta",
   "proposedRegion": "asia-south1",
   "proposedZone": "asia-south1-a",
   "proposedMachineType": "e2-standard-4",
   "proposedDomain": "beta.myaaptha.com",
   "proposedTurnDomain": "beta-turn.myaaptha.com",
-  "projectId": null,
+  "projectId": "project-5c36c021-87c7-4cfc-833",
   "trialActivationVerified": false,
   "deploymentAccessSupplied": false,
   "betaDeployed": false,
-  "productionPromotionApproved": false
+  "productionPromotionApproved": false,
+  "projectName": "MyAaptha",
+  "projectNumber": "671435485594",
+  "organizationName": "CPET",
+  "projectReferenceSource": "Owner supplied project name, ID and number in this conversation; no remote verification performed",
+  "proposedAccessMethod": "Google Cloud Shell (no local cloud authentication available)"
 }
