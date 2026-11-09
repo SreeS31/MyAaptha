@@ -1,7 +1,7 @@
 {
   "project": "MyAaptha",
   "snapshot": "2026-11-09",
-  "baselineRevision": "2026-11-09-go-live-ux-1",
+  "baselineRevision": "2026-11-09-public-contact-2",
   "scope": "Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.",
   "evidencePolicy": "Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.",
   "modules": [
@@ -2578,12 +2578,12 @@
           },
           "evidence": [
             {
-              "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
-              "label": "Scope / acceptance requirement"
+              "path": "docs/launch-board/public-contacts-2026-11-09.json",
+              "label": "Owner-supplied public support/privacy contact"
             }
           ],
-          "note": " 26 October: CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and project-owner release approval recorded. Actual policy content, reachable contacts, independent reviewers and signed acceptance remain missing.",
-          "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+          "note": "9 November: owner designated Help@myaaptha.com for both public support and privacy enquiries. Added to the landing page, privacy settings and policy handoff. Mailbox delivery/ownership, final policy review, independent reviewers and actual approval remain unverified; this input alone does not close M18.3.",
+          "evidenceDate": "9 November 2026; owner contact supplied; delivery and policy approval remain open"
         },
         {
           "id": "M18.4",
@@ -2926,7 +2926,7 @@
       {
         "id": "M18.3",
         "category": "Policy and independent review",
-        "required": "Reachable policy/support contact details, completed policies and recorded review approvals. CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and release approver have been received.",
+        "required": "Owner supplied Help@myaaptha.com for support and privacy. Verify mailbox reachability and ownership; final reviewed policies and actual owner approvals remain required.",
         "nextAction": "Complete privacy, terms, consent, retention and moderation documents with designated owners; record independent review and release approval.",
         "title": "Approve privacy, terms, consent, support and moderation owners",
         "owner": "Product / Security / Owner",
@@ -3823,12 +3823,12 @@
     {
       "id": "M18.3",
       "title": "Approve privacy, terms, consent, support and moderation owners",
-      "note": " 26 October: CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and project-owner release approval recorded. Actual policy content, reachable contacts, independent reviewers and signed acceptance remain missing.",
-      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open",
+      "note": "9 November: owner designated Help@myaaptha.com for both public support and privacy enquiries. Added to the landing page, privacy settings and policy handoff. Mailbox delivery/ownership, final policy review, independent reviewers and actual approval remain unverified; this input alone does not close M18.3.",
+      "evidenceDate": "9 November 2026; owner contact supplied; delivery and policy approval remain open",
       "evidence": [
         {
-          "path": "docs/MYAAPTHA-DEPLOYMENT-HANDOFF.md",
-          "label": "Scope / acceptance requirement"
+          "path": "docs/launch-board/public-contacts-2026-11-09.json",
+          "label": "Owner-supplied public support/privacy contact"
         }
       ]
     },

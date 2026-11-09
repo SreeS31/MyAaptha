@@ -36,3 +36,7 @@ flowchart TD
 4. Complete physical-device checks, then deliberately enable the switch in the approved environment. Disable it to stop subsequent processing requests; already sent provider requests are not recalled by toggling the switch.
 
 Local tests use synthetic fixtures. The browser enabled branch mocks the analysis endpoint rather than forwarding a provider request. No live extraction accuracy or real-provider acceptance is claimed by these tests.
+
+## Public contact ? owner input, 9 November 2026
+
+Support and privacy enquiries: [Help@myaaptha.com](mailto:Help@myaaptha.com). Mailbox delivery and ownership still require verification. This contact designation does not approve the policy or health-processing enablement.

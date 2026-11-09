@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import {PUBLIC_HELP_EMAIL,PUBLIC_HELP_LINK} from './lib/public-contacts';
 import './home.css';
 
 export default function HomePage() {
@@ -14,6 +15,6 @@ export default function HomePage() {
       <article><span className="feature-icon" aria-hidden="true">✉</span><h2>Conversations &amp; circles</h2><p>Keep personal messages and circle conversations together.</p><Link href="/messages">Open messages <span aria-hidden="true">→</span></Link></article>
     </section>
     <section className="product-storage" aria-labelledby="storage-heading"><div><h2 id="storage-heading">Your files, your choice.</h2><p>Start with 1 GB of free storage per person. Paid storage plans can extend your allowance up to 100 GB.</p><p>Choose an expiry when uploading, from 1 day to 10 years, or choose Never. If your storage fills up, you decide which files to remove.</p></div><Link className="btn btn-primary" href="/auth">Get started with 1 GB</Link></section>
-    <footer className="product-footer"><span>MyAaptha · Your people &amp; memories</span><Link href="/auth">Join your community</Link></footer>
+    <footer className="product-footer"><span>MyAaptha · Your people &amp; memories</span><a href={PUBLIC_HELP_LINK}>Support &amp; privacy: {PUBLIC_HELP_EMAIL}</a><Link href="/auth">Join your community</Link></footer>
   </main>;
 }

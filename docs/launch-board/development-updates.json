@@ -1,5 +1,5 @@
 {
-  "revision": "2026-11-09-go-live-ux-1",
+  "revision": "2026-11-09-public-contact-2",
   "tasks": {
     "M02.4": {
       "title": "Native profile-photo and gallery parity",
@@ -519,8 +519,14 @@
       "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
     },
     "M18.3": {
-      "note": " 26 October: CPET Solutions Pvt. Ltd., India, manager/CTO responsibilities and project-owner release approval recorded. Actual policy content, reachable contacts, independent reviewers and signed acceptance remain missing.",
-      "evidenceDate": "26 October 2026; owner inputs reconciled and local engineering verified; external gates remain open"
+      "note": "9 November: owner designated Help@myaaptha.com for both public support and privacy enquiries. Added to the landing page, privacy settings and policy handoff. Mailbox delivery/ownership, final policy review, independent reviewers and actual approval remain unverified; this input alone does not close M18.3.",
+      "evidenceDate": "9 November 2026; owner contact supplied; delivery and policy approval remain open",
+      "evidence": [
+        {
+          "path": "docs/launch-board/public-contacts-2026-11-09.json",
+          "label": "Owner-supplied public support/privacy contact"
+        }
+      ]
     },
     "M16.5": {
       "note": " 26 October: Apple owner preference captured; Mac/Xcode unavailable. Actual Apple organization enrollment, signing, Mac runner and iOS device acceptance remain outstanding.",

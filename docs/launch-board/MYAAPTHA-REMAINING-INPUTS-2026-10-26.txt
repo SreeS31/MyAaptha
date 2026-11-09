@@ -33,8 +33,9 @@ grant access; engineering will configure and validate the integrations.
 Your test/recovery phone number reference:
 Verified owner/security alert email:
 Second controlled test recipient (for delivery and isolation checks):
-Support mailbox / forwarding destination for the Manager:
-Privacy mailbox / forwarding destination for the Manager:
+Support mailbox received: Help@myaaptha.com (delivery/ownership verification pending).
+Protected mailbox administration or forwarding reference for delivery acceptance:
+Privacy mailbox received: Help@myaaptha.com (same inbox).
 
 4. RETENTION AND EMERGENCY POLICY
 Already confirmed: active files follow the user-selected upload expiry (1/7/30/60/90/180/365/730/1095/1825/3650 days or Never).

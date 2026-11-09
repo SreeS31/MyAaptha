@@ -68,3 +68,7 @@ The API currently permits any listed status update; this diagram describes the p
 - Rehearse one privacy case, one security escalation and one appeal. Record outcomes and reviewer approval.
 
 This document prepares the review. It does not complete M08.4, M18.3 or public-launch approval.
+
+## Public contact ? owner input, 9 November 2026
+
+Support and privacy enquiries: [Help@myaaptha.com](mailto:Help@myaaptha.com). Mailbox delivery and ownership still require verification. This contact designation does not approve the policy or health-processing enablement.
