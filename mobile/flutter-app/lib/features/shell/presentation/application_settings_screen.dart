@@ -1,4 +1,5 @@
 import 'package:myaaptha_mobile/core/widgets/info_help.dart';
+import 'package:myaaptha_mobile/core/widgets/support_contact_card.dart';
 import 'package:flutter/material.dart';
 import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
 import 'upload_settings_screen.dart';
@@ -85,7 +86,8 @@ class _ApplicationSettingsScreenState extends State<ApplicationSettingsScreen> {
         ]),
         if(status!=null)Padding(padding:const EdgeInsets.all(12),child:Semantics(liveRegion:true,child:Text(status!))),
         FilledButton.icon(onPressed:saving?null:save,icon:const Icon(Icons.check_rounded),label:Text(saving?'Saving…':'Save settings')),
-      ]
+      ],
+      const SupportContactCard(),
     ]))),
   );
 }

@@ -35,3 +35,13 @@ Local production browser and unit output is retained in `.tools/launch-board/pro
 The owner supplied **Help@myaaptha.com** for both support and privacy. Added to the public landing page, signed-in privacy settings and review drafts. Original October answers/hash remain preserved with a dated decision addendum. Mailbox delivery has not been tested; no email was sent and no DNS/mailbox changes were made. Policy approval and M18.3 remain open.
 
 Contact-update verification: TypeScript `tsc --noEmit`, nine owner-input regression tests, hosted board verification (zero browser errors) and `git diff --check` passed.
+
+## Pending-work continuation: native contact parity
+
+Confirmed the previous contact/web commit `58208e2` passed [GitHub CI](https://github.com/SreeS31/MyAaptha/actions/runs/42597783127). The owner-input snapshot still reconciles; protected application and TURN groups are present, AI and contacts-OAuth groups remain absent. No new cloud/DNS delegation was supplied.
+
+Added the same Help@myaaptha.com contact to native settings and Help, with selectable text, a copy button and accessible success/failure feedback. The contact is independent of the Help/settings API response, so it remains available during service failures. No email is sent by these controls. This source change does not rebuild or certify a signed mobile release.
+
+Continuation verification: five focused Flutter tests passed, including copying the address with a failed Help API and settings at 320 px with 1x/2x text. One existing Help test initially scrolled its switch under the toolbar after the new card changed content height; it now scrolls to a hit-testable switch before exercising opt-in. Hosted board verification passed with zero browser errors; web/native public-contact strings match the owner input.
+
+Targeted Flutter static analysis of all four changed Dart files passed with no issues. `git diff --check` passed. The SDK initially required normal cache/tool-state access before tests could start; the reported results are from the subsequent successful run.

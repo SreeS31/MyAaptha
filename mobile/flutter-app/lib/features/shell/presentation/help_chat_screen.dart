@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myaaptha_mobile/core/widgets/support_contact_card.dart';
 import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
 
 class HelpChatScreen extends StatefulWidget {
@@ -121,6 +122,7 @@ class _HelpChatScreenState extends State<HelpChatScreen> {
         ]))),
         if(busy) const Padding(padding:EdgeInsets.all(12),child:Text('Finding an answer…')),
         if(error!=null) Text(error!,style:TextStyle(color:Theme.of(context).colorScheme.error)),
+        const SupportContactCard(),
       ])),
       Padding(padding:const EdgeInsets.fromLTRB(16,8,16,12),child:Column(children:[
         TextField(controller:question,enabled:!busy,maxLength:1200,minLines:1,maxLines:3,decoration:const InputDecoration(labelText:'Your question',hintText:'How do I add a new relation?'),onSubmitted:(_)=>send()),

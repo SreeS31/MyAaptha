@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
 import 'package:myaaptha_mobile/features/auth/models/auth_models.dart';
@@ -22,7 +23,27 @@ class FakeHelpApi extends MyAapthaApi {
   }
 }
 
+class UnavailableHelpApi extends FakeHelpApi {
+  @override Future<Map<String,dynamic>> helpStatus() async => throw Exception('Offline fixture');
+}
+
 void main() {
+  testWidgets('public contact remains copyable when help is unavailable', (tester) async {
+    String? copied;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') copied = call.arguments['text'] as String;
+      return null;
+    });
+    addTearDown(()=>tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform,null));
+    await tester.pumpWidget(MaterialApp(home:HelpChatScreen(api:UnavailableHelpApi())));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Copy email address'));
+    await tester.tap(find.text('Copy email address'));
+    await tester.pumpAndSettle();
+    expect(copied,'Help@myaaptha.com');
+    expect(find.text('Email address copied.'),findsOneWidget);
+    expect(tester.takeException(),isNull);
+  });
   testWidgets('help requires opt-in for OpenAI, answers questions and clears chat', (tester) async {
     final api=FakeHelpApi();
     await tester.pumpWidget(MaterialApp(home:HelpChatScreen(api:api)));
@@ -38,7 +59,10 @@ void main() {
     await tester.tap(find.byTooltip('Clear chat'));
     await tester.pumpAndSettle();
     expect(find.text('MyAaptha is free for all users.'),findsNothing);
+    await tester.drag(find.byType(ListView), const Offset(0, 600));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.byType(SwitchListTile));
+    expect(find.byType(SwitchListTile).hitTestable(), findsOneWidget);
     await tester.tap(find.byType(SwitchListTile));
     await tester.enterText(find.byType(TextField),'Is this free?');
     await tester.tap(find.widgetWithText(FilledButton,'Ask'));
