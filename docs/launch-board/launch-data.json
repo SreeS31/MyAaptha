@@ -1,7 +1,7 @@
 {
   "project": "MyAaptha",
-  "snapshot": "2026-11-08",
-  "baselineRevision": "2026-11-08-website-scope-4",
+  "snapshot": "2026-11-09",
+  "baselineRevision": "2026-11-09-go-live-ux-1",
   "scope": "Original 86-task launch checklist plus explicitly tracked engineering additions. New engineering work does not automatically close external release gates.",
   "evidencePolicy": "Done = source present plus linked dated local verification / documentation. Newly completed work records its verification date. Not a production certification or complete web/native parity claim.",
   "modules": [
@@ -2249,9 +2249,13 @@
             {
               "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
               "label": "Current design changes, verification and limitations"
+            },
+            {
+              "path": "docs/launch-board/PENDING-WORK-2026-11-09.md",
+              "label": "9 November UI and go-live preparation; acceptance limits"
             }
           ],
-          "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+          "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements. 9 November: clarified public 1 GB/100 GB storage and file-expiry controls; improved upload expiry summary, keyboard focus and phone controls. Six focused desktop/phone browser checks passed, including scoped expiry accessibility. Exact-release staging acceptance remains open.",
           "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate"
         },
         {
@@ -2609,7 +2613,7 @@
     }
   ],
   "acceptanceAudit": {
-    "reviewed": "2026-11-08",
+    "reviewed": "2026-11-09",
     "items": [
       {
         "id": "M01.5",
@@ -3663,7 +3667,7 @@
     {
       "id": "M16.1",
       "title": "Web production build and 28-route responsive audit",
-      "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements.",
+      "note": "24 October navigation update: nine main categories, grouped Dashboard/Messages/Online Feed tabs, preserved original routes and a temporary 19-item old/new comparison. Four desktop/phone browser navigation/profile scenarios passed against the reviewed production web build; screenshots inspected with no tested overflow or page errors. Existing release acceptance remains separate. See NAVIGATION-2026-10-24.md. 27 October: source-default launch board, preserved browser plans, keyboard tabs and stronger board contrast verified on desktop/mobile. Web root-font scaling and mobile search bounds now have regression assertions. Full 28-route/form checks passed before the static brand-logo update; final cold-load verification passed on desktop/mobile. Final review: 14 browser scenarios passed after one focused setup-navigation rerun, plus 9 native and 22 API tests. The linked report records scope, exact artifacts and remaining release requirements. 9 November: clarified public 1 GB/100 GB storage and file-expiry controls; improved upload expiry summary, keyboard focus and phone controls. Six focused desktop/phone browser checks passed, including scoped expiry accessibility. Exact-release staging acceptance remains open.",
       "evidenceDate": "27 October 2026; local design verification completed; external release gates remain separate",
       "evidence": [
         {
@@ -3677,6 +3681,10 @@
         {
           "path": "docs/launch-board/DESIGN-REVIEW-2026-10-26.md",
           "label": "Current design changes, verification and limitations"
+        },
+        {
+          "path": "docs/launch-board/PENDING-WORK-2026-11-09.md",
+          "label": "9 November UI and go-live preparation; acceptance limits"
         }
       ]
     },
