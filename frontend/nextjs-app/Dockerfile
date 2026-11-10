@@ -16,6 +16,10 @@ RUN npm run build
 
 FROM node:22-alpine
 RUN apk upgrade --no-cache && addgroup -S -g 10001 myaaptha && adduser -S -u 10001 myaaptha -G myaaptha
+# The standalone server needs Node only. Keep build-time package managers and
+# their dependency trees out of the deployed image.
+RUN rm -rf /usr/local/lib/node_modules/npm /opt/yarn-* \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
 COPY --from=build --chown=myaaptha:myaaptha /app/.next/standalone ./
