@@ -28,6 +28,10 @@ The VM plan uses the existing Compute service account with a storage-only OAuth 
 
 New application images must pass the beta CI validation and vulnerability gate before deployment. The beta image workflow now also builds and tests the hardened PostgreSQL and gateway images.
 
+The first release attempt, commit `fe7b2c9` / tag `beta-20261111-gcp-r1`, was blocked by the backend security gate. Local reproduction found HIGH `CVE-2026-102554` in transitive Guava `33.6.0-jre`. The backend now manages Guava at `33.7.2-jre`, containing the [upstream fix](https://github.com/google/guava/releases/tag/v33.7.2). The focused 12 tests and packaging passed; the subsequent backend filesystem vulnerability/secret scan returned exit code 0, zero HIGH/CRITICAL findings and zero secrets. Replacement CI validation remains required; the failed release must not be used.
+
+The user selected `35-244-31-192.sslip.io` as the initial HTTPS beta hostname. The custom production DNS has not been changed.
+
 ## Remaining acceptance work
 
 Deploy immutable CI image digests to the isolated VM, configure DNS/TLS and certificate renewal, then exercise health, authentication, authorization, rate limits, antivirus uploads and native GCS read/delete using the VM identity. Check deployed firewall rules, headers, TLS and unauthenticated bucket denial.

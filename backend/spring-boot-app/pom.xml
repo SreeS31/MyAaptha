@@ -26,6 +26,17 @@
     <postgresql.version>42.7.13</postgresql.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- GCS transitively selects 33.6.0; 33.7.2 fixes CVE-2026-102554. -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>33.7.2-jre</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
