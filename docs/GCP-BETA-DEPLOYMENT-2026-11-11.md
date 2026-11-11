@@ -11,10 +11,10 @@ Project: `project-5c36c021-87c7-4cfc-833`. The user confirmed an active trial wi
 - Private regional bucket `myaaptha-beta-media-671435485594`, uniform access and public access prevention enabled, 90-day soft delete.
 - Bucket IAM readback confirms `roles/storage.objectUser` for `671435485594-compute@developer.gserviceaccount.com`. The user granted this role on the bucket through Console. No project-wide Storage Admin grant was requested.
 - Synthetic object upload/read/delete/restore and content comparison succeeded using the operator account. Application access using the VM identity remains to be tested.
-- No beta VM or boot disk has been created. The reserved IP can incur charges while reserved.
+- The beta VM is running in `asia-south1-a`: `e2-standard-4`, 100 GB preserved boot disk, public IP `35.244.31.192`, Secure Boot/vTPM/integrity monitoring enabled. Readback confirms storage-only OAuth scope and automatic STOP after 604800 seconds. The VM, disk and public IP consume trial credit.
 - `beta.myaaptha.com` still resolves to other IP addresses; DNS and a public TLS certificate remain prerequisites for that hostname.
 
-The VM plan uses the existing Compute service account with a storage-only OAuth scope, Shielded VM settings, a 100 GB boot disk and an automatic stop after seven days. Runtime preparation generates secrets on the VM and restricts container access to its metadata credentials.
+The VM uses the existing Compute service account. Startup installed the host dependencies and is waiting for a non-secret immutable image map in instance metadata; no application has started. Runtime preparation generates secrets on the VM and restricts container access to its metadata credentials.
 
 ## Verification evidence
 
@@ -31,6 +31,8 @@ New application images must pass the beta CI validation and vulnerability gate b
 The first release attempt, commit `fe7b2c9` / tag `beta-20261111-gcp-r1`, was blocked by the backend security gate. Local reproduction found HIGH `CVE-2026-102554` in transitive Guava `33.6.0-jre`. The backend now manages Guava at `33.7.2-jre`, containing the [upstream fix](https://github.com/google/guava/releases/tag/v33.7.2). The focused 12 tests and packaging passed; the subsequent backend filesystem vulnerability/secret scan returned exit code 0, zero HIGH/CRITICAL findings and zero secrets. Replacement CI validation remains required; the failed release must not be used.
 
 The user selected `35-244-31-192.sslip.io` as the initial HTTPS beta hostname. The custom production DNS has not been changed.
+
+The second attempt's backend CI scanner also failed while local Trivy 0.74 reported clean. CI is now pinned to the same tested scanner version, explicitly limits SARIF to the configured HIGH/CRITICAL gate, and publishes vulnerability-only annotations for diagnosis without exposing matched secrets. Replacement validation is pending.
 
 ## Remaining acceptance work
 

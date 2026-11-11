@@ -152,12 +152,32 @@ jobs:
       uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
       with:
         scan-type: fs
+        version: v0.74.0
         scan-ref: ${{ matrix.context }}
         format: sarif
+        limit-severities-for-sarif: true
         output: trivy-results.sarif
         severity: CRITICAL,HIGH
         exit-code: 1
         scanners: vuln,secret
+    - name: Annotate dependency findings
+      if: always()
+      shell: bash
+      run: |
+        python3 - <<'PY'
+        import json
+        from pathlib import Path
+        report = Path('trivy-results.sarif')
+        if report.exists():
+            for run in json.loads(report.read_text()).get('runs', []):
+                for result in run.get('results', []):
+                    rule = result.get('ruleId', '')
+                    # Only vulnerability messages; never publish matched secret content.
+                    if rule.startswith(('CVE-', 'GHSA-')):
+                        message = rule + ' ' + result.get('message', {}).get('text', '')
+                        message = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+                        print('::error title=Dependency vulnerability::' + message)
+        PY
     - uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:

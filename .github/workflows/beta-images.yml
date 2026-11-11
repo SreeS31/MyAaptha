@@ -68,6 +68,7 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-${{ matrix.name }}:beta-${{ github.sha }}
+          version: v0.74.0
           severity: CRITICAL,HIGH
           exit-code: 1
       - name: Generate SBOM
@@ -75,6 +76,7 @@ jobs:
         with:
           image-ref: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-${{ matrix.name }}:beta-${{ github.sha }}
           format: cyclonedx
+          version: v0.74.0
           output: sbom-${{ matrix.name }}.json
       - name: Publish scanned beta image
         shell: bash
