@@ -1,6 +1,6 @@
 # GCP beta deployment status — 11 November 2026
 
-The beta is not live yet. This report supersedes earlier deployment status entries; it does not establish GIGW certification or complete penetration-test coverage.
+**The beta is live at https://35-244-31-192.sslip.io/.** See the [final live verification](LIVE-BETA-VERIFICATION-2026-11-11.md) for passed checks and remaining GIGW gaps. Earlier pending/blocker entries below record deployment history and are superseded by that final result. This does not establish GIGW certification or complete penetration-test coverage.
 
 ## Cloud readback
 
@@ -10,11 +10,11 @@ Project: `project-5c36c021-87c7-4cfc-833`. The user confirmed an active trial wi
 - Reserved public IP `35.244.31.192`; web ingress permits ports 80/443. SSH ingress is restricted to the IAP range.
 - Private regional bucket `myaaptha-beta-media-671435485594`, uniform access and public access prevention enabled, 90-day soft delete.
 - Bucket IAM readback confirms `roles/storage.objectUser` for `671435485594-compute@developer.gserviceaccount.com`. The user granted this role on the bucket through Console. No project-wide Storage Admin grant was requested.
-- Synthetic object upload/read/delete/restore and content comparison succeeded using the operator account. Application access using the VM identity remains to be tested.
+- Synthetic object upload/read/delete/restore and content comparison succeeded using the operator account. Subsequent live application upload, byte-for-byte read and delete succeeded using the VM identity.
 - The beta VM is running in `asia-south1-a`: `e2-standard-4`, 100 GB preserved boot disk, public IP `35.244.31.192`, Secure Boot/vTPM/integrity monitoring enabled. Readback confirms storage-only OAuth scope and automatic STOP after 604800 seconds. The VM, disk and public IP consume trial credit.
 - `beta.myaaptha.com` still resolves to other IP addresses; DNS and a public TLS certificate remain prerequisites for that hostname.
 
-The VM uses the existing Compute service account. Startup installed the host dependencies and is waiting for a non-secret immutable image map in instance metadata; no application has started. Runtime preparation generates secrets on the VM and restricts container access to its metadata credentials.
+The VM uses the existing Compute service account. Runtime preparation generated secrets on the VM and installed container metadata credential restrictions. The approved image metadata was supplied, the network repair completed, all runtime services reported healthy and certificate renewal simulation succeeded.
 
 ## Verification evidence
 

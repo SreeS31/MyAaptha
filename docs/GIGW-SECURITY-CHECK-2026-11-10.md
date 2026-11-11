@@ -4,6 +4,8 @@ Result: **partial technical alignment; production acceptance and certification p
 
 Reference: [official GIGW cybersecurity guidelines](https://guidelines.india.gov.in/security-guidelines-and-attributes/). Its security framework covers application protection, hosting and approved policies; eligible independent audit clearance remains a separate production requirement. Do not describe these local checks as GIGW certification.
 
+Latest deployed evidence: the [11 November live beta verification](LIVE-BETA-VERIFICATION-2026-11-11.md) confirms HTTPS, sessions/CSRF, authorization, native private GCS uploads, public service isolation and landing-page accessibility. The tables and GCP follow-up below are the original review snapshot; remaining policy, audit, accessibility and operational gaps still apply.
+
 ## Feature evidence
 
 “Implemented” means inspected in source; “locally verified” means exercised by the recorded tests. Neither establishes the deployed cloud configuration.
