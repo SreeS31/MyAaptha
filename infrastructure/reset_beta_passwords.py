@@ -13,8 +13,8 @@ import urllib.request
 
 def email_targets(values):
     values = [value.strip().lower() for value in values]
-    if len(values) != 2 or len(set(values)) != 2:
-        raise ValueError('Supply exactly two distinct account emails')
+    if not 1 <= len(values) <= 2 or len(set(values)) != len(values):
+        raise ValueError('Supply one or two distinct account emails')
     if any(len(value) > 254 or value.count('@') != 1 or
            any(c.isspace() or ord(c) < 32 for c in value) for value in values):
         raise ValueError('Invalid account email')
@@ -26,8 +26,8 @@ def literal(value):
 
 
 def reset_sql(accounts, hashes):
-    if len(accounts) != 2 or len({int(a['id']) for a in accounts}) != 2 or len(hashes) != 2:
-        raise ValueError('Expected exactly two distinct existing accounts')
+    if not 1 <= len(accounts) <= 2 or len({int(a['id']) for a in accounts}) != len(accounts) or len(hashes) != len(accounts):
+        raise ValueError('Expected one or two distinct existing accounts and matching hashes')
     if any(not re.fullmatch(r'\$2[aby]\$12\$[./A-Za-z0-9]{53}', value) for value in hashes):
         raise ValueError('Expected BCrypt cost-12 password hashes')
     ids = ','.join(str(int(a['id'])) for a in accounts)
@@ -43,7 +43,7 @@ BEGIN
     WHERE u.id=v.id AND lower(u.email)=v.email
       AND u.account_status='ACTIVE' AND u.identity_type='ACCOUNT';
   GET DIAGNOSTICS changed = ROW_COUNT;
-  IF changed <> 2 THEN RAISE EXCEPTION 'Account eligibility changed; no passwords reset'; END IF;
+  IF changed <> {len(accounts)} THEN RAISE EXCEPTION 'Account eligibility changed; no passwords reset'; END IF;
   DELETE FROM auth_tokens WHERE user_id IN ({ids}) AND token_type='refresh';
 END $reset$;
 COMMIT;
@@ -63,7 +63,7 @@ def sql(statement):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--email', action='append', required=True)
-    parser.add_argument('--apply', action='store_true', help='Reset both eligible existing accounts atomically')
+    parser.add_argument('--apply', action='store_true', help='Reset the selected eligible existing accounts atomically')
     parser.add_argument('--show-passwords', action='store_true', help='Display credentials only in an interactive owner terminal')
     args = parser.parse_args()
     targets = email_targets(args.email)
@@ -82,13 +82,16 @@ def main():
     result = sql("SELECT coalesce(json_agg(x),'[]'::json) FROM (SELECT id,username,email,account_status,identity_type "
                  f"FROM users WHERE lower(email) IN ({values}) ORDER BY id) x;")
     accounts = json.loads(result)
-    if len(accounts) != 2 or {a['email'].lower() for a in accounts} != set(targets):
-        raise RuntimeError('Both emails must identify existing accounts. Nothing was changed; no accounts were created.')
+    missing = set(targets) - {a['email'].lower() for a in accounts}
+    if missing:
+        raise RuntimeError('No existing account found for: ' + ', '.join(sorted(missing)) + '. Nothing was changed; no accounts were created.')
+    if len(accounts) != len(targets):
+        raise RuntimeError('Email matches are ambiguous. Nothing was changed.')
     if any(a['account_status'] != 'ACTIVE' or a['identity_type'] != 'ACCOUNT' for a in accounts):
-        raise RuntimeError('Both accounts must be active sign-in accounts. Nothing was changed.')
+        raise RuntimeError('Selected accounts must be active sign-in accounts. Nothing was changed.')
     print('Verified existing accounts:', ', '.join(a['email'] for a in accounts))
     if not args.apply:
-        print('Read-only check complete. Use --apply to reset these two accounts.')
+        print('Read-only check complete. Use --apply to reset the selected accounts.')
         return
     # Ubuntu 24.04 supplies Python 3.12/libxcrypt BCrypt; refuse weaker fallbacks.
     import warnings
@@ -115,7 +118,7 @@ def main():
     sql(statement)
     with path.open('w') as output:
         json.dump({'status': 'passwords-reset', 'accounts': credentials}, output, indent=2)
-    print('Both passwords reset; existing refresh sessions revoked. Roles and MFA were unchanged.')
+    print('Selected passwords reset; existing refresh sessions revoked. Roles and MFA were unchanged.')
     print('Private owner-only credentials file:', path)
     if args.show_passwords:
         for account in credentials:
