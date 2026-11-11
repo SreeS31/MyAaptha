@@ -27,6 +27,13 @@ class ProductionConfigurationGuardTest {
         .withProperty("myaaptha.cors.allowed-origins", "https://app.myaaptha.test");
   }
   @Test void acceptsCompleteConfiguration() { assertDoesNotThrow(() -> new ProductionConfigurationGuard(valid())); }
+  @Test void acceptsPrivateGcsConfigurationAndRejectsMissingBucket() {
+    var gcs = valid().withProperty("myaaptha.storage.provider", "gcs")
+        .withProperty("myaaptha.storage.gcs.bucket", "myaaptha-beta-private-media");
+    assertDoesNotThrow(() -> new ProductionConfigurationGuard(gcs));
+    assertThrows(IllegalStateException.class, () -> new ProductionConfigurationGuard(
+        gcs.withProperty("myaaptha.storage.gcs.bucket", "")));
+  }
   @Test void rejectsDevelopmentSecret() {
     assertThrows(IllegalStateException.class, () -> new ProductionConfigurationGuard(valid()
         .withProperty("security.jwt.secret", "myaaptha-local-dev-jwt-secret-please-change-2026-strong")));

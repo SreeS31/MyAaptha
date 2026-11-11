@@ -39,10 +39,12 @@ public class ProductionConfigurationGuard {
       throw new IllegalStateException("Production database password must be at least 16 characters and not a placeholder");
     }
     if (!"clamav".equals(env.getProperty("myaaptha.storage.scanner"))) throw new IllegalStateException("Production requires antivirus scanning");
-    if (!"s3".equals(env.getProperty("myaaptha.storage.provider"))) {
-      throw new IllegalStateException("Production requires durable S3-compatible storage");
+    String storage = env.getProperty("myaaptha.storage.provider");
+    if (!java.util.Set.of("s3", "gcs").contains(storage == null ? "" : storage)) {
+      throw new IllegalStateException("Production requires durable S3-compatible or Google Cloud storage");
     }
-    if (placeholder(required(env, "myaaptha.storage.s3.bucket"))) {
+    String bucket = required(env, "myaaptha.storage." + storage + ".bucket");
+    if (placeholder(bucket) || ("gcs".equals(storage) && !bucket.matches("[a-z0-9][a-z0-9._-]{1,220}[a-z0-9]"))) {
       throw new IllegalStateException("Configure a real production storage bucket");
     }
     https(required(env, "myaaptha.contact-oauth.public-api-base-url"));

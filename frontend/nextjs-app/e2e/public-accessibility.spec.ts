@@ -16,7 +16,7 @@ test('public landing remains usable without the API', async ({ page }) => {
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();
 
-  expect(accessibility.violations.filter((violation) => violation.impact === 'critical')).toEqual([]);
+  expect(accessibility.violations).toEqual([]);
 });
 
 test('keyboard navigation reaches the main actions', async ({ page }) => {

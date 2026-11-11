@@ -56,6 +56,8 @@ myaaptha:
       bucket: ${MYAAPTHA_S3_BUCKET:}
       region: ${MYAAPTHA_S3_REGION:ap-south-1}
       endpoint: ${MYAAPTHA_S3_ENDPOINT:}
+    gcs:
+      bucket: ${MYAAPTHA_GCS_BUCKET:}
   notifications:
     dispatch-delay-ms: ${MYAAPTHA_NOTIFICATION_DISPATCH_MS:5000}
     webhook:

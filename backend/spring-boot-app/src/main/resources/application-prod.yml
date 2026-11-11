@@ -88,7 +88,7 @@ management:
       enabled: true
 myaaptha:
   storage:
-    provider: s3
+    provider: ${MYAAPTHA_STORAGE_PROVIDER:s3}
     public-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL}
   contact-oauth:
     public-api-base-url: ${MYAAPTHA_PUBLIC_API_BASE_URL}

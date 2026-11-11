@@ -12,8 +12,11 @@ class BetaImagesWorkflowTests(unittest.TestCase):
         self.assertEqual(workflow['jobs']['validate']['uses'], './.github/workflows/ci.yml')
         images = workflow['jobs']['images']
         self.assertEqual(images['needs'], 'validate')
-        self.assertEqual({i['name'] for i in images['strategy']['matrix']['include']}, {'backend', 'frontend', 'ai-agent'})
+        self.assertEqual({i['name'] for i in images['strategy']['matrix']['include']}, {'backend', 'frontend', 'ai-agent', 'postgres', 'gateway'})
         steps = images['steps']
+        postgres = next(s for s in steps if s.get('name') == 'Verify patched PostgreSQL runtime')
+        self.assertEqual(postgres['if'], "matrix.name == 'postgres'")
+        self.assertIn('smoke_postgres_image.py', postgres['run'])
         scan = next(i for i, s in enumerate(steps) if s.get('name') == 'Block vulnerable images')
         publish = next(i for i, s in enumerate(steps) if s.get('name') == 'Publish scanned beta image')
         self.assertLess(scan, publish)

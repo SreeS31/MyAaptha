@@ -22,6 +22,10 @@ jobs:
             context: frontend/nextjs-app
           - name: ai-agent
             context: ai/agent-service
+          - name: postgres
+            context: infrastructure/images/postgres
+          - name: gateway
+            context: infrastructure/images/gateway
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -44,11 +48,22 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify container runtime restrictions
+        if: matrix.name != 'postgres' && matrix.name != 'gateway'
         env:
           IMAGE: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-${{ matrix.name }}:beta-${{ github.sha }}
         run: |
           docker tag "$IMAGE" myaaptha-${{ matrix.name }}:local-validation
           python infrastructure/smoke_images.py --component ${{ matrix.name }}
+      - name: Verify patched PostgreSQL runtime
+        if: matrix.name == 'postgres'
+        env:
+          IMAGE: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-postgres:beta-${{ github.sha }}
+        run: python infrastructure/smoke_postgres_image.py "$IMAGE"
+      - name: Verify beta gateway TLS and headers
+        if: matrix.name == 'gateway'
+        env:
+          IMAGE: ghcr.io/${{ steps.registry.outputs.owner }}/myaaptha-gateway:beta-${{ github.sha }}
+        run: python infrastructure/smoke_gateway_image.py "$IMAGE"
       - name: Block vulnerable images
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

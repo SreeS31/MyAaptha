@@ -6,6 +6,19 @@ from gcp_beta import plan, render
 
 
 class GcpBetaTests(unittest.TestCase):
+    def test_gcs_identity_is_explicit_and_storage_scoped_without_iam_mutations(self):
+        data = plan('project-5c36c021-87c7-4cfc-833', project_number='671435485594')
+        vm = data['commands'][-1]
+        self.assertIn('--service-account=671435485594-compute@developer.gserviceaccount.com', vm)
+        self.assertIn('--scopes=https://www.googleapis.com/auth/devstorage.read_write', vm)
+        self.assertNotIn('--no-service-account', vm)
+        self.assertFalse(any('add-iam-policy-binding' in command for command in data['commands']))
+
+    def test_rejects_untrusted_project_numbers(self):
+        for number in ('123;echo secret', '671435485594\nvalue', 'invalid'):
+            with self.assertRaises(ValueError):
+                plan('myaaptha-beta-fixture', project_number=number)
+
     def test_owner_supplied_generated_project_id_is_accepted(self):
         project = 'project-5c36c021-87c7-4cfc-833'
         data = plan(project)

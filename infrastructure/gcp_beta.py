@@ -6,7 +6,7 @@ import re
 import shlex
 
 
-def plan(project, zone='asia-south1-a'):
+def plan(project, zone='asia-south1-a', project_number=None):
     if not re.fullmatch(r'[a-z][a-z0-9-]{4,28}[a-z0-9]', project):
         raise ValueError('Supply a valid Google project ID (6–30 characters).')
     if re.search(r'(^|-)prod(uction)?(-|$)', project):
@@ -17,6 +17,12 @@ def plan(project, zone='asia-south1-a'):
         raise ValueError('This reviewed beta profile is restricted to Mumbai zones.')
     region = 'asia-south1'
     tag = 'myaaptha-beta'
+    if project_number is not None and not re.fullmatch(r'[0-9]{6,20}', str(project_number)):
+        raise ValueError('Supply the verified numeric project number for the GCS runtime identity.')
+    identity = (str(project_number) + '-compute@developer.gserviceaccount.com') if project_number else None
+    identity_flags = (['--service-account=' + identity,
+                       '--scopes=https://www.googleapis.com/auth/devstorage.read_write']
+                      if identity else ['--no-service-account', '--no-scopes'])
 
     def command(*args):
         return ['gcloud', *args, '--project=' + project]
@@ -39,7 +45,7 @@ def plan(project, zone='asia-south1-a'):
                 '--subnet=' + tag, '--address=' + tag, '--tags=' + tag,
                 '--image-family=ubuntu-2404-lts-amd64', '--image-project=ubuntu-os-cloud',
                 '--boot-disk-size=100GB', '--boot-disk-type=pd-balanced', '--no-boot-disk-auto-delete',
-                '--no-service-account', '--no-scopes', '--shielded-secure-boot', '--shielded-vtpm',
+                *identity_flags, '--shielded-secure-boot', '--shielded-vtpm',
                 '--shielded-integrity-monitoring', '--metadata=enable-oslogin=TRUE,block-project-ssh-keys=TRUE',
                 '--labels=application=myaaptha,environment=beta',
                 '--max-run-duration=7d', '--instance-termination-action=STOP'),
@@ -48,7 +54,7 @@ def plan(project, zone='asia-south1-a'):
                 proposedDomain='beta.myaaptha.com', proposedTurnDomain='beta-turn.myaaptha.com',
                 machineType='e2-standard-4', memoryGiB=16, bootDiskGiB=100,
                 stopAfterDays=7, diskAutoDelete=False, cloudContacted=False,
-                deployed=False, releaseApproved=False, commands=commands,
+                deployed=False, releaseApproved=False, commands=commands, runtimeServiceAccount=identity,
                 accessCommand=command('compute', 'ssh', tag, '--zone=' + zone, '--tunnel-through-iap'),
                 pauseCommand=command('compute', 'instances', 'stop', tag, '--zone=' + zone),
                 addressCommand=command('compute', 'addresses', 'describe', tag,
@@ -60,6 +66,7 @@ def plan(project, zone='asia-south1-a'):
                 outstanding=['activated trial and authenticated project access', 'budget and credit checks',
                              'DNS delegation and issued TLS', 'scanned immutable application images',
                              'private TLS database/cache/object-store configuration and protected secrets',
+                             'bucket-only object permissions for the GCS runtime identity when selected',
                              'real provider credentials and physical mobile acceptance'])
 
 
@@ -89,10 +96,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', required=True)
     parser.add_argument('--zone', default='asia-south1-a')
+    parser.add_argument('--project-number', help='Verified numeric project number; opts into the existing Compute identity for native GCS, with storage-only scope.')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     try:
-        data = plan(args.project, args.zone)
+        data = plan(args.project, args.zone, args.project_number)
         render(data, args.output)
     except ValueError as error:
         parser.exit(1, str(error) + '\n')
