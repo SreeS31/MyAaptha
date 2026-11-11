@@ -42,6 +42,14 @@ The connected GCP command service rejects both `gcloud compute instances add-met
 
 External isolation checks returned HTTP 403 for the unauthenticated synthetic GCS object request. Public TCP connection attempts to SSH 22, PostgreSQL 5432, Redis 6379, backend 8080 and AI 8081 were not reachable. This is a limited exposure check, not a comprehensive port scan or a test of internal service identity.
 
+### Metadata confirmed and network repair
+
+The user saved `beta-images`; readback matches all seven approved digests. The initial 45-minute startup wait had already expired, so the VM was restarted. Runtime secrets and private database/cache certificates were generated on the VM, and a public certificate was successfully issued for `35-244-31-192.sslip.io`.
+
+Container startup then failed because dynamically addressed dependencies consumed addresses reserved for frontend/backend/gateway. The corrected Compose IPAM reserves `172.30.0.128/25` for dynamic allocation, leaving the fixed `.2`, `.3` and `.4` addresses separate. A disposable Docker reproduction started five dynamic containers first and then all three static containers successfully; 97 infrastructure tests passed, including a regression check of this invariant.
+
+`infrastructure/repair_gcp_beta_network.py` verifies the exact beta host/project and known prior runtime configuration before replacing only the affected Compose file. It recreates the Compose network without removing volumes or changing secrets/certificates, starts the existing approved images, and verifies certificate renewal. Applying this repair remains pending because the connector cannot change startup metadata or run SSH. The application is not yet live.
+
 ## Remaining acceptance work
 
 Deploy immutable CI image digests to the isolated VM, configure DNS/TLS and certificate renewal, then exercise health, authentication, authorization, rate limits, antivirus uploads and native GCS read/delete using the VM identity. Check deployed firewall rules, headers, TLS and unauthenticated bucket denial.

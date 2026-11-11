@@ -1,8 +1,27 @@
 import unittest
+import ipaddress
+from pathlib import Path
+import yaml
 from prepare_gcp_beta import validate
 
 
 class BetaInputSafetyTest(unittest.TestCase):
+    def test_static_service_addresses_cannot_be_allocated_to_dependencies(self):
+        config = yaml.safe_load((Path(__file__).parent / 'production/compose.gcp-beta.yml').read_text())
+        pools = config['networks']['default']['ipam']['config']
+        addresses = [ipaddress.ip_address(network['ipv4_address'])
+                     for service in config['services'].values()
+                     for network in service.get('networks', {}).values()
+                     if 'ipv4_address' in network]
+        self.assertEqual(len(addresses), len(set(addresses)))
+        for pool in pools:
+            subnet = ipaddress.ip_network(pool['subnet'])
+            dynamic = ipaddress.ip_network(pool.get('ip_range', pool['subnet']))
+            self.assertTrue(dynamic.subnet_of(subnet))
+            for address in addresses:
+                self.assertIn(address, subnet)
+                self.assertNotIn(address, dynamic, 'Dynamic allocation can steal a reserved service address')
+
     def images(self):
         return {name: 'registry.test/app@sha256:' + 'a' * 64
                 for name in ('backend', 'frontend', 'ai', 'postgres', 'redis', 'gateway', 'clamav')}

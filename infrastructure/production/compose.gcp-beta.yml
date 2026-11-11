@@ -34,3 +34,5 @@ networks:
     ipam:
       config:
         - subnet: 172.30.0.0/24
+          # Keep dynamic dependency addresses separate from gateway/frontend/backend.
+          ip_range: 172.30.0.128/25
