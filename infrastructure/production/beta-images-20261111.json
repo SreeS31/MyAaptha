@@ -1,0 +1,9 @@
+{
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:97c8a5a7e4e2367e76bb7eb1c7d89d8a6c0a1378344a65a0d447827823a18069",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:e95c3b57bd5abcd7edd83ad4790b16dc38c8ebe876639c0407ed1948ecf2be9e",
+  "ai": "ghcr.io/srees31/myaaptha-ai-agent@sha256:34aa2eadcce9d73a96e755305caac146f3418637aafe97732c8a62bbc9b29a01",
+  "postgres": "ghcr.io/srees31/myaaptha-postgres@sha256:760d6444c5b0930df43e4f7437d5a4bffa38264ea0242a48275d49c08f68fb56",
+  "gateway": "ghcr.io/srees31/myaaptha-gateway@sha256:32384d05ef7a44835db2708b369ab2cfb3a13e3d2ea40406a806a24efd3c61cd",
+  "redis": "redis@sha256:7b1753b4c5ad8458906c272a8132b8c15f5557b000379eb115fb239706a384b7",
+  "clamav": "clamav/clamav@sha256:45fe5149fbee5a46509c9848ef20d0c354b7b2323c9369f285939a37cf33422a"
+}

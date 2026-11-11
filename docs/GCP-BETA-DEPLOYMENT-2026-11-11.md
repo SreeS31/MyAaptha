@@ -34,6 +34,14 @@ The user selected `35-244-31-192.sslip.io` as the initial HTTPS beta hostname. T
 
 The second attempt's backend CI scanner also failed while local Trivy 0.74 reported clean. CI is now pinned to the same tested scanner version, explicitly limits SARIF to the configured HIGH/CRITICAL gate, and publishes vulnerability-only annotations for diagnosis without exposing matched secrets. Replacement validation is pending.
 
+### Approved release and current blocker
+
+Replacement tag `beta-20261111-gcp-r3`, commit `ceb4dc7250aa9ef4ad586eb0294a71789a40f93d`, passed [all beta CI jobs](https://github.com/SreeS31/MyAaptha/actions/runs/42950871197), including backend/frontend/mobile/AI tests, infrastructure tests, production TLS smoke and five image build/runtime/security gates. All five GHCR images are anonymously pullable by digest. The seven-image deployment map is [beta-images-20261111.json](../infrastructure/production/beta-images-20261111.json); Redis and ClamAV retain the separately scanned digests.
+
+The connected GCP command service rejects both `gcloud compute instances add-metadata` and `gcloud compute ssh` as unsupported. Therefore the digest map has not reached the VM. In Compute Engine, open VM `myaaptha-beta`, choose **Edit**, locate **Custom metadata**, and add key `beta-images` with the entire JSON deployment map as its value. Save without changing the existing startup script or security settings. The startup script polls for this metadata for 45 minutes after host setup. If it has already expired, inspect the startup log before restarting the bootstrap; the application is still not live.
+
+External isolation checks returned HTTP 403 for the unauthenticated synthetic GCS object request. Public TCP connection attempts to SSH 22, PostgreSQL 5432, Redis 6379, backend 8080 and AI 8081 were not reachable. This is a limited exposure check, not a comprehensive port scan or a test of internal service identity.
+
 ## Remaining acceptance work
 
 Deploy immutable CI image digests to the isolated VM, configure DNS/TLS and certificate renewal, then exercise health, authentication, authorization, rate limits, antivirus uploads and native GCS read/delete using the VM identity. Check deployed firewall rules, headers, TLS and unauthenticated bucket denial.
