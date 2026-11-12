@@ -1,0 +1,84 @@
+/* Workspace geometry: full available canvas, top-aligned tools, readable density.
+   This owns page layout after the legacy feature styles; dialogs/graphs keep theirs. */
+.workspace-shell { --shell-left:216px; --shell-right:44px; --shell-top:56px; --page-gutter:16px; }
+.workspace-shell.nav-collapsed { --shell-left:64px; }
+.workspace-shell .workspace-topbar { grid-template-columns:var(--shell-left) minmax(0,1fr) auto; gap:12px; padding-block:4px; }
+.workspace-shell .workspace-global-search { width:100%; max-width:960px; height:42px; border-radius:8px; }
+.workspace-shell .workspace-global-search input[type=search] { height:38px; }
+.workspace-shell .workspace-brand { margin-left:40px; gap:6px; }
+.workspace-shell .workspace-brand img { width:28px; height:28px; }
+.workspace-shell .workspace-brand strong { font-size:19px; }
+.workspace-shell .workspace-sidebar { padding:6px; }
+.workspace-shell .workspace-sidebar nav a { height:40px; gap:10px; margin:1px 0; padding-inline:9px; }
+.workspace-shell .workspace-sidebar nav a b { font-size:14px; }
+.workspace-shell .workspace-nav-section>h2 { font-size:12px; margin:10px 9px 4px; }
+.workspace-shell .workspace-utilities { width:var(--shell-right); }
+.workspace-shell .workspace-content { padding-top:var(--shell-top); }
+.workspace-shell .workspace-content>main:not(.messaging-workspace) {
+  width:calc(100% - var(--page-gutter)*2)!important; max-width:1600px!important;
+  min-width:0; margin-inline:auto; padding-top:12px!important;
+}
+.workspace-shell .workspace-content>main>:is(header,.page-heading) {
+  width:100%; box-sizing:border-box; min-height:44px!important;
+  display:flex; align-items:center; justify-content:space-between; gap:8px 16px;
+  padding:8px 12px!important; margin:0 0 12px;
+}
+.workspace-shell .workspace-content>main>header :is(h1,h2),
+.workspace-shell .page-heading h1 { font-size:22px!important; line-height:1.3; }
+.workspace-shell .workspace-section-tabs { margin:8px var(--page-gutter) 0; padding:4px; gap:4px; border-radius:8px; }
+.workspace-shell .workspace-section-tabs a { min-height:36px; padding:7px 12px; font-size:13px; }
+.workspace-shell .workspace-content :is(.compact-circles,.conversation-list) { grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr)); }
+.workspace-shell .workspace-content :is(.profile-form,.finance-layout,.trust-grid) { max-width:none; align-items:start; }
+.workspace-shell .workspace-content :is(.user-dashboard-metrics,.metric-grid) { grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr)); }
+.workspace-shell .workspace-content :is(.health-reports,.notification-list,.moderation-list) { grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr)); }
+.workspace-shell .workspace-content .finance-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.workspace-shell .workspace-content :is(.finance-cashflow,.finance-list) { width:100%; }
+.workspace-shell .workspace-content main.social-page.feed-polished { max-width:1440px!important; }
+.workspace-shell .feed-polished .feed-topbar { align-items:flex-start; gap:8px; margin-bottom:10px; }
+.workspace-shell .feed-polished .feed-topbar .social-header {
+  align-items:center!important; align-self:flex-start; flex:1 1 320px;
+  min-height:40px; background:none!important; border:0; box-shadow:none;
+}
+.workspace-shell .feed-polished .feed-topbar .feed-composer-disclosure { flex:0 0 auto; align-self:flex-start; }
+.workspace-shell .feed-polished .feed-topbar .feed-composer-disclosure[open] { flex:1 0 100%; order:3; }
+.workspace-shell .feed-polished .feed-topbar .feed-composer-disclosure .diary-composer { max-width:none!important; width:100%; box-sizing:border-box; }
+.workspace-shell .workspace-content .feed-polished .social-feed { display:grid!important; grid-template-columns:repeat(auto-fit,minmax(min(450px,100%),1fr)); align-items:start; gap:12px; }
+.workspace-shell .feed-polished .social-post { min-width:0; }
+.workspace-shell .feed-polished .feed-stream-heading { margin:8px 0; }
+.workspace-shell .feed-polished .social-post .social-caption { overflow-wrap:anywhere; }
+.workspace-shell .feed-polished .diary-composer textarea { min-height:80px; }
+.workspace-shell .feed-polished .diary-composer :is(textarea,.diary-audience-summary) { width:100%; max-width:none; box-sizing:border-box; }
+@media (min-width:1001px) {
+  .workspace-shell .feed-polished .feed-composer-disclosure[open] .diary-composer { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,300px); gap:10px 16px; }
+  .workspace-shell .feed-polished .diary-composer>div:first-child { grid-column:1/-1; margin:0; }
+  .workspace-shell .feed-polished .diary-composer textarea { grid-column:1; grid-row:2; min-height:100px; }
+  .workspace-shell .feed-polished .diary-audience-summary { grid-column:1; grid-row:3; margin:0; }
+  .workspace-shell .feed-polished .diary-composer .social-compose-actions { grid-column:2; grid-row:2/4; margin:0; flex-direction:column; align-items:stretch; }
+  .workspace-shell .feed-polished .social-compose-actions :is(select,.diary-file-button,.btn-primary) { width:100%; margin:0; box-sizing:border-box; }
+}
+@media (min-width:1001px) {
+  .workspace-shell .workspace-content .profile-fields { grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); }
+}
+@media (min-width:1200px) {
+  .workspace-shell .workspace-content .finance-page { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); }
+}
+@media (max-width:1100px) and (min-width:761px) {
+  .workspace-shell { --shell-left:196px; --shell-right:0px; --page-gutter:12px; }
+  .workspace-shell .workspace-utilities { display:none; }
+  .workspace-shell .workspace-content .feed-polished .social-feed { grid-template-columns:minmax(0,1fr); }
+}
+@media (pointer:coarse) {
+  .workspace-shell .workspace-sidebar nav a,.workspace-shell .workspace-section-tabs a { min-height:44px; }
+  .workspace-shell .feed-polished .feed-topbar :is(summary,nav button) { min-height:44px; }
+}
+@media (max-width:760px) {
+  .workspace-shell,.workspace-shell.nav-collapsed { --shell-left:0px; --shell-right:0px; --page-gutter:10px; --shell-top:56px; }
+  .workspace-shell .workspace-topbar { grid-template-columns:minmax(0,1fr) auto; padding-left:48px; gap:6px; }
+  .workspace-shell .workspace-content>main>:is(header,.page-heading) { flex-wrap:wrap; padding:8px 10px!important; }
+  .workspace-shell .workspace-section-tabs { flex-wrap:nowrap; overflow-x:auto; }
+  .workspace-shell .workspace-section-tabs a { flex-shrink:0; }
+  .workspace-shell .feed-polished .feed-topbar .social-header { flex-basis:100%; justify-content:space-between; }
+  .workspace-shell .workspace-content .feed-polished .social-feed { grid-template-columns:minmax(0,1fr); }
+  .workspace-shell .feed-polished .social-compose-actions { align-items:stretch; }
+  .workspace-shell .feed-polished .social-compose-actions>button { flex:1 1 auto; }
+}

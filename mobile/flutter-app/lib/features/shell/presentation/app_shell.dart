@@ -306,7 +306,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final content=IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]);
     final selectedPrimary=workspacePrimaryIndexes.contains(index)?workspacePrimaryIndexes.indexOf(index):null;
     final theme=Theme.of(context);
-    return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true?VisualDensity.compact:VisualDensity.standard),
+    final desktopDensity=wide&&!{TargetPlatform.android,TargetPlatform.iOS}.contains(defaultTargetPlatform);
+    return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true||(desktopDensity&&workspaceSettings['compactLayout']!=false)?VisualDensity.compact:VisualDensity.standard),
       child:MediaQuery(data:MediaQuery.of(context).copyWith(disableAnimations:MediaQuery.of(context).disableAnimations||workspaceSettings['reducedMotion']==true),
       child:Scaffold(
         appBar:AppBar(surfaceTintColor:Colors.transparent,
@@ -325,16 +326,16 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           ])),ListTile(leading:const Icon(Icons.logout_rounded),title:const Text('Sign out'),onTap:signOut),
         ]))),
         body:SafeArea(child:wide?Row(children:[
-          NavigationRail(scrollable:true,extended:true,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=workspacePrimaryIndexes[value]),labelType:NavigationRailLabelType.none,
+          NavigationRail(scrollable:true,extended:true,minExtendedWidth:216,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=workspacePrimaryIndexes[value]),labelType:NavigationRailLabelType.none,
             leading:const Padding(padding:EdgeInsets.only(bottom:12),child:_BrandMark()),
             destinations:workspacePrimaryIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:Column(children:[IconButton(tooltip:'Account & tools',onPressed:()=>setState(()=>index=7),icon:const Icon(Icons.tune)),IconButton(tooltip:'Menu comparison',onPressed:()=>openMenuComparison(context,api,widget.session,signOut),icon:const Icon(Icons.compare_arrows))])),
           const VerticalDivider(width:1),Expanded(child:content),
-          const VerticalDivider(width:1),SizedBox(width:60,child:Column(children:[const SizedBox(height:14),
+          if(size.width>=1280)...[const VerticalDivider(width:1),SizedBox(width:48,child:Column(children:[const SizedBox(height:8),
             IconButton(tooltip:'Find people',onPressed:()=>setState(()=>index=5),icon:const Icon(Icons.person_search_outlined)),
             IconButton(tooltip:'Notifications',onPressed:()=>setState(()=>index=4),icon:const Icon(Icons.notifications_none_rounded)),
             IconButton(tooltip:'My profile',onPressed:()=>setState(()=>index=6),icon:const Icon(Icons.person_outline)),
             IconButton(tooltip:'Settings',onPressed:openSettings,icon:const Icon(Icons.tune_rounded)),
-          ])),
+          ]))],
         ]):content),
         bottomNavigationBar:wide?null:NavigationBar(
           selectedIndex:mobileDestinationIndexes.contains(index)?mobileDestinationIndexes.indexOf(index):mobileDestinationIndexes.length-1,
@@ -1935,13 +1936,6 @@ class _PageHeader extends StatelessWidget {
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(eyebrow,
-              style: const TextStyle(
-                  color: AppTheme.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2)),
-          const SizedBox(height: 4),
           InfoHelpLabel(title:title,message:subtitle,
               style: Theme.of(context)
                   .textTheme
@@ -4208,9 +4202,13 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                             ])));
                   })),
         Card(
-            child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(children: [
+            child: ExpansionTile(
+                maintainState: true,
+                leading: const Icon(Icons.add_circle_outline),
+                title: Text(widget.online ? 'Write a post' : 'New diary entry'),
+                children: [Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   TextField(
                       controller: caption,
                       maxLines: 3,
@@ -4218,6 +4216,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                           hintText: 'What would you like to remember today?',
                           border: InputBorder.none)),
                   DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: audience,
                       decoration: const InputDecoration(
                           labelText: 'Who can view this?'),
@@ -4242,6 +4241,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                           })),
                   if (audience == 'CIRCLE')
                     DropdownButtonFormField<int>(
+                        isExpanded: true,
                         initialValue: selectedCircleId,
                         decoration:
                             const InputDecoration(labelText: 'Select circle'),
@@ -4251,12 +4251,11 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                             .toList(),
                         onChanged: (value) =>
                             setState(() => selectedCircleId = value)),
-                  Row(children: [
+                  Wrap(alignment: WrapAlignment.end, spacing: 8, runSpacing: 8, children: [
                     TextButton.icon(
                         onPressed: loading ? null : pick,
                         icon: const Icon(Icons.attach_file_rounded),
                         label: Text(selected?.name ?? 'Attach file')),
-                    const Spacer(),
                     FilledButton(
                         onPressed: loading ||
                                 (audience == 'CIRCLE' &&
@@ -4267,7 +4266,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                             ? 'Save privately'
                             : 'Share entry'))
                   ])
-                ]))),
+                ]))])),
         if (error.isNotEmpty)
           Padding(
               padding: const EdgeInsets.all(8),
@@ -6797,8 +6796,11 @@ class _WorkspaceHubState extends State<WorkspaceHub> {
   int selected=0;
   final visited=<int>{0};
   @override Widget build(BuildContext context)=>Column(children:[
-    Padding(padding:const EdgeInsets.fromLTRB(16,8,16,0),child:Align(alignment:Alignment.centerLeft,child:Text(widget.title,style:Theme.of(context).textTheme.titleLarge))),
-    SingleChildScrollView(scrollDirection:Axis.horizontal,child:Padding(padding:const EdgeInsets.all(12),child:Row(children:[for(int i=0;i<widget.labels.length;i++)Padding(padding:const EdgeInsets.only(right:8),child:ChoiceChip(label:Text(widget.labels[i]),selected:selected==i,onSelected:(_)=>setState((){selected=i;visited.add(i);}))) ]))),
+    Padding(padding:const EdgeInsets.symmetric(horizontal:12,vertical:4),child:Row(children:[
+      Flexible(child:Text(widget.title,maxLines:2,overflow:TextOverflow.ellipsis,style:Theme.of(context).textTheme.titleSmall)),
+      const SizedBox(width:8),
+      Expanded(flex:3,child:SingleChildScrollView(scrollDirection:Axis.horizontal,child:Row(children:[for(int i=0;i<widget.labels.length;i++)Padding(padding:const EdgeInsets.only(right:6),child:ChoiceChip(label:Text(widget.labels[i]),selected:selected==i,onSelected:(_)=>setState((){selected=i;visited.add(i);}))) ]))),
+    ])),
     Expanded(child:IndexedStack(index:selected,children:[for(int i=0;i<widget.pages.length;i++)visited.contains(i)?widget.pages[i]:const SizedBox.shrink()])),
   ]);
 }

@@ -7,6 +7,7 @@ import './core-services.css';
 import './professional.css';
 import './navigation.css';
 import './compact-workspace.css';
+import './enterprise-workspace.css';
 import type { Metadata } from 'next';
 import WorkspaceShell from './components/WorkspaceShell';
 

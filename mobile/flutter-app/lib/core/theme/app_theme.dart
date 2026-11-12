@@ -31,6 +31,7 @@ class AppTheme {
     return ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
       scaffoldBackgroundColor: const Color(0xFFF4F7FA),
       fontFamily: 'MyAapthaRoboto',
       textTheme: const TextTheme(
@@ -91,12 +92,12 @@ class AppTheme {
             borderSide: const BorderSide(color: primary, width: 2)),
       ),
       listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         titleTextStyle: TextStyle(fontFamily: 'MyAapthaRoboto', fontSize: 14, color: ink, fontWeight: FontWeight.w500),
         subtitleTextStyle: TextStyle(fontFamily: 'MyAapthaRoboto', fontSize: 12, color: muted, height: 1.4),
         iconColor: primary,
       ),
-      dividerTheme: const DividerThemeData(color: border, space: 16, thickness: 1),
+      dividerTheme: const DividerThemeData(color: border, space: 12, thickness: 1),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(44, 44),
