@@ -13,8 +13,13 @@ def run(image):
         docker('run', '-d', '--pull=never', '--name', name, '--network=none',
                '-e', 'POSTGRES_PASSWORD=' + secrets.token_hex(24), image)
         for _ in range(90):
+            # pg_isready also accepts the entrypoint's temporary initialization
+            # server. Wait until the entrypoint execs the final daemon as PID 1;
+            # otherwise that temporary server can stop between readiness and SQL.
+            daemon = subprocess.run(['docker', 'exec', name, 'cat', '/proc/1/comm'],
+                                    capture_output=True, text=True)
             ready = subprocess.run(['docker', 'exec', name, 'pg_isready', '-U', 'postgres'], capture_output=True)
-            if ready.returncode == 0:
+            if daemon.returncode == 0 and daemon.stdout.strip() == 'postgres' and ready.returncode == 0:
                 break
             time.sleep(1)
         else:
