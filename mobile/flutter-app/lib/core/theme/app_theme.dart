@@ -5,7 +5,7 @@ class AppTheme {
   static const secondary = Color(0xFFD56B72);
   static const ink = Color(0xFF15233B);
   static const body = Color(0xFF35445D);
-  static const muted = Color(0xFF59697D);
+  static const muted = Color(0xFF526579);
   static const surface = Color(0xFFFFFFFF);
   static const softSurface = Color(0xFFF6F9FC);
   static const lavender = Color(0xFFEEE8FB);
@@ -23,7 +23,9 @@ class AppTheme {
       secondary: secondary,
       error: const Color(0xFFB4233C),
       onError: Colors.white,
-      primaryContainer: sky,
+      primaryContainer: const Color(0xFFEAF4F5),
+      onPrimary: Colors.white,
+      onPrimaryContainer: const Color(0xFF1D5862),
       secondaryContainer: lavender,
       tertiaryContainer: peach,
       surface: surface,
@@ -51,9 +53,9 @@ class AppTheme {
         labelMedium: TextStyle(fontSize: 13,fontWeight:FontWeight.w500),
         labelSmall: TextStyle(fontSize: 12,fontWeight:FontWeight.w500),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(minimumSize:const Size(44,44),backgroundColor:sky,foregroundColor:ink,elevation:0,textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10)))),
-      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(minimumSize:const Size(44,44),foregroundColor:primary,side:const BorderSide(color:border),textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10)))),
-      textButtonTheme: TextButtonThemeData(style:TextButton.styleFrom(minimumSize:const Size(44,44),foregroundColor:primary,textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500))),
+      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(minimumSize:const Size(44,44),padding:const EdgeInsets.symmetric(horizontal:16,vertical:12),backgroundColor:primary,foregroundColor:Colors.white,elevation:0,textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8)))),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(minimumSize:const Size(44,44),padding:const EdgeInsets.symmetric(horizontal:16,vertical:12),foregroundColor:primary,side:const BorderSide(color:border),textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8)))),
+      textButtonTheme: TextButtonThemeData(style:TextButton.styleFrom(shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8)),minimumSize:const Size(44,44),padding:const EdgeInsets.symmetric(horizontal:16,vertical:12),foregroundColor:primary,textStyle:const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight:FontWeight.w500))),
       popupMenuTheme:const PopupMenuThemeData(color:surface,textStyle:TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,color:ink)),
       dialogTheme:const DialogThemeData(backgroundColor:surface,titleTextStyle:TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 20,color:ink,fontWeight:FontWeight.w500),contentTextStyle:TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,color:body,height:1.5)),
       appBarTheme: const AppBarTheme(
@@ -82,13 +84,13 @@ class AppTheme {
         helperMaxLines: 3,
         errorStyle: const TextStyle(fontSize: 12, color: Color(0xFFB4233C)),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: border)),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: border)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: primary, width: 2)),
       ),
       listTileTheme: const ListTileThemeData(
@@ -101,7 +103,10 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(44, 44),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontFamily:'MyAapthaRoboto',fontSize: 14,fontWeight: FontWeight.w500),
         ),
       ),
@@ -117,7 +122,7 @@ class AppTheme {
         backgroundColor: lavender,
         selectedColor: sky,
         side: BorderSide.none,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );

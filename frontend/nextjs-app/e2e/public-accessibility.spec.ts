@@ -24,3 +24,20 @@ test('keyboard navigation reaches the main actions', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(page.locator(':focus')).toBeVisible();
 });
+
+test('public entry screens share the application typography', async ({ page }) => {
+  await page.route('**/api/**', route => route.abort());
+  for (const path of ['/', '/auth', '/recover-account', '/verify-phone']) {
+    await page.goto(path);
+    await page.evaluate(() => document.fonts.ready);
+    for (const [tag, size] of [['h1', '24px'], ['h2', '20px'], ['h3', '18px'], ['button', '14px']]) {
+      for (const element of await page.locator(`main ${tag}`).all()) {
+        if (await element.isVisible()) {
+          await expect(element, path).toHaveCSS('font-size', size);
+          await expect(element, path).toHaveCSS('font-family', /MyAaptha Roboto/);
+        }
+      }
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
+  }
+});

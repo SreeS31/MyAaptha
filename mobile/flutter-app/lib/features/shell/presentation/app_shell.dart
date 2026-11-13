@@ -1930,7 +1930,7 @@ class _PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
       margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      decoration: BoxDecoration(color: eyebrow.contains('MONEY') ? AppTheme.mint : eyebrow.contains('HEALTH') ? AppTheme.rose : AppTheme.lavender, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: AppTheme.surface, border: Border.all(color: AppTheme.border), borderRadius: BorderRadius.circular(12)),
       padding: const EdgeInsets.symmetric(horizontal:12,vertical:8),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Expanded(
@@ -1939,7 +1939,7 @@ class _PageHeader extends StatelessWidget {
           InfoHelpLabel(title:title,message:subtitle,
               style: Theme.of(context)
                   .textTheme
-                  .headlineMedium
+                  .headlineLarge
                   ?.copyWith(fontWeight: FontWeight.w500, color: AppTheme.ink)),
 
         ])),

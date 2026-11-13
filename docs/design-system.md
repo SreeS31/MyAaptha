@@ -7,13 +7,14 @@ Web and Flutter use the same bundled Roboto regular and medium font files. Font 
 | Page heading | 24 | Medium |
 | Section heading | 20 | Medium |
 | Card heading | 18 | Medium |
-| Body, labels, navigation, controls, metadata | 14 | Regular or medium |
+| Body, labels, navigation, controls | 14 | Regular or medium |
+| Supporting metadata | 12 | Regular |
 
-Primary colour: #256F7B. Heading: #15233B. Body: #35445D. Secondary text: #59697D. Border: #D9E2EA. Surface: white. Page background: #F4F7FA. Semantic error, warning and success colours remain distinct.
+Primary colour: #256F7B. Heading: #15233B. Body: #35445D. Secondary text: #526579. Border: #D9E2EA. Surface: white. Page background: #F4F7FA. Semantic error, warning and success colours remain distinct.
 
-Desktop buttons use 34-pixel minimum height and 16-pixel corners. Touch controls retain 44-pixel minimum targets. Fields use 36-pixel minimum height with consistent focus styling. Cards use 12-pixel corners. Web app-bar icon controls have a compact 40-pixel minimum. Native sizes are logical pixels and retain platform accessibility scaling.
+Desktop action buttons use 40-pixel minimum height and 8-pixel corners. Touch controls retain 44-pixel minimum targets. Fields use 36-pixel minimum height with consistent focus styling. Cards use 12-pixel corners. Web app-bar icon controls have a compact 40-pixel minimum. Native sizes are logical pixels and retain platform accessibility scaling.
 
-Web tokens and common rules live in `frontend/nextjs-app/app/design-system.css`, imported after the existing global styles. Native tokens and component themes live in `mobile/flutter-app/lib/core/theme/app_theme.dart`. New screens must reuse these definitions rather than introduce new font sizes, fonts or brand colours. API responses supply data, not client visual styles.
+The final web visual contract lives in `frontend/nextjs-app/app/ui-foundation.css`, imported after the shared geometry and feature styles. Its named CSS layer gives typography and control rules precedence over historical feature overrides. Base assets remain in `frontend/nextjs-app/app/design-system.css`. Native tokens and component themes live in `mobile/flutter-app/lib/core/theme/app_theme.dart`. New screens must reuse these definitions rather than introduce new font sizes, fonts or brand colours. API responses supply data, not client visual styles.
 
 Message actions use a two-column action grid, a separate reaction row, clear selected states and expandable delivery/read information. Private stars and pins retain their existing behaviour.
 
@@ -51,3 +52,11 @@ The dashboard chart switches between saved relationship types and circle members
 Final production web build passed. The route audit passed 26 views on each of desktop and phone-sized Chromium, using document client width to detect overflow. No automated contrast failures were found in these views. Both interaction tests passed for top-bar circle/contact search, collapsed circle details, notification settings navigation, info-popup Escape dismissal and actual viewport bounds, and financial chart values/proportions. Desktop and phone messaging tests also passed. Web unit tests: 11 passed; public-page browser tests: 8 passed. Flutter analysis reported no issues, all 24 tests passed, and the Android debug APK rebuilt successfully.
 
 Screenshots: `.tools/ui-review/` and `.tools/pastel-review/`. Current app: `http://localhost:3000`. These are local browser/widget checks, not physical-device or production-capacity certification.
+
+## Unified visual revision ? 13 November 2026
+
+The shared web contract enforces the same Roboto font, 24/20/18-pixel page/section/card heading scale and 14-pixel control text across public pages, workspaces and dialogs. Supporting metadata is 12 pixels. Phone input text remains 16 pixels to avoid browser focus zoom; touch controls retain 44-pixel targets. Help controls and avatars retain their circular shapes. White cards, restrained shadows, teal selected states and consistent 8-pixel control / 12-pixel card corners replace conflicting feature styling. Semantic error and destructive action colors remain distinct.
+
+Flutter uses the same palette, type family, button padding and control shapes, with shared white page headings. Native page headings use 24 logical pixels and platform text scaling remains enabled. API schemas and authorization are unchanged: API-backed pages use the same client visual contract for loaded, empty and error states.
+
+Regression checks cover shared typography and horizontal overflow on 27 workspace routes and four public entry pages at desktop and phone sizes. API failures are simulated without modifying live accounts. Diary draft preservation, private defaults and accessibility checks remain part of the suite. CI additionally validates backend, AI, mobile, infrastructure and image security before publishing a release. This is an interface update, not a GIGW compliance certification. Native application store publication still requires release signing.

@@ -36,13 +36,14 @@ test('all application routes share typography and fit the viewport',async({page,
   const record=await page.evaluate(()=>{
    const visible=(el:Element)=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden';};
    const headings=Array.from(document.querySelectorAll('main h1,main h2,main h3')).filter(visible).map(el=>({tag:el.tagName,size:getComputedStyle(el).fontSize,text:el.textContent?.slice(0,70)}));
-   const controls=Array.from(document.querySelectorAll('button,input,select,textarea')).filter(visible).map(el=>({size:getComputedStyle(el).fontSize,tag:el.tagName,type:(el as HTMLInputElement).type,font:getComputedStyle(el).fontFamily,text:el.getAttribute('aria-label')||el.textContent?.slice(0,50)}));
+   const controls=Array.from(document.querySelectorAll('button,input,select,textarea')).filter(visible).map(el=>({size:getComputedStyle(el).fontSize,help:el.matches('.info-trigger'),tag:el.tagName,type:(el as HTMLInputElement).type,font:getComputedStyle(el).fontFamily,text:el.getAttribute('aria-label')||el.textContent?.slice(0,50)}));
    return {path:location.pathname,headings,controls,fontLoaded:document.fonts.check('14px "MyAaptha Roboto"'),overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};
   });audit.push(record);
   expect.soft(record.path,route).toBe(route);
   expect.soft(record.fontLoaded,route+' font').toBe(true);
   expect.soft(record.overflow,route+' horizontal overflow').toBe(false);
   if(route==='/feed'){
+   await page.getByLabel('New diary entry',{exact:true}).click();
    const composer=page.locator('.diary-composer');
    const bounds=await composer.boundingBox();
    expect.soft(bounds?.y,'Diary editor should be visible near the top').toBeLessThan(info.project.name==='desktop'?280:390);
@@ -53,7 +54,7 @@ test('all application routes share typography and fit the viewport',async({page,
    await expect(page.getByLabel('Caption',{exact:true})).toBeHidden();
   }
   for(const h of record.headings)expect.soft(h.size,route+' '+h.text).toBe(h.tag==='H1'?'24px':h.tag==='H2'?'20px':'18px');
-  for(const c of record.controls){expect.soft(c.size,route+' '+c.text).toBe(info.project.name==='mobile-web'&&['INPUT','SELECT','TEXTAREA'].includes(c.tag)&&!['checkbox','radio','file','range','color'].includes(c.type)?'16px':'14px');expect.soft(c.font,route+' font').toContain('MyAaptha Roboto');}
+  for(const c of record.controls){expect.soft(c.size,route+' '+c.text).toBe(c.help?'12px':info.project.name==='mobile-web'&&['INPUT','SELECT','TEXTAREA'].includes(c.tag)&&!['checkbox','radio','file','range','color'].includes(c.type)?'16px':'14px');expect.soft(c.font,route+' font').toContain('MyAaptha Roboto');}
   const accessibility=await new AxeBuilder({page}).withRules(['color-contrast','label','select-name','button-name','input-button-name','aria-input-field-name']).analyze();
   (record as any).contrast=accessibility.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}));
   expect.soft(accessibility.violations,route+' contrast').toEqual([]);

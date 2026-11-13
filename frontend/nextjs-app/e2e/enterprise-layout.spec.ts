@@ -58,10 +58,26 @@ for (const width of [390, 1600]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.unroute('**/api/**');
     await page.route('**/api/**', route => route.abort());
-    for (const path of ['/dashboard', '/relationship-tree', '/feed', '/health', '/finance', '/career', '/interests', '/messages', '/online-feed', '/profile', '/timeline', '/circles', '/contacts', '/settings', '/trust', '/help']) {
+    for (const path of ['/dashboard', '/relationship-tree', '/feed', '/health', '/finance', '/career', '/interests', '/messages', '/online-feed', '/profile', '/timeline', '/circles', '/contacts', '/settings', '/trust', '/help', '/notifications', '/reports', '/privacy', '/ai-activity', '/security-reports', '/discover', '/following', '/circle-search', '/menu-comparison', '/workspace-tools', '/people/1']) {
       await page.goto(path);
       await expect(page.locator('main')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
+      await page.evaluate(() => document.fonts.ready);
+      const typography = await page.locator('main').evaluate(main => {
+        const visible = (element: Element) => element.getBoundingClientRect().height > 0;
+        return [...main.querySelectorAll('h1,h2,h3,button,input,select,textarea')].filter(visible).map(element => ({
+          tag: element.tagName, size: getComputedStyle(element).fontSize,
+          help: element.matches('.info-trigger'),
+          font: getComputedStyle(element).fontFamily,
+          field: element.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea'),
+          coarse: matchMedia('(pointer:coarse)').matches,
+        }));
+      });
+      for (const item of typography) {
+        const size = item.help ? '12px' : ({ H1: '24px', H2: '20px', H3: '18px' } as Record<string,string>)[item.tag] || (item.field && item.coarse ? '16px' : '14px');
+        expect(item.size, `${path} ${item.tag}`).toBe(size);
+        expect(item.font, `${path} ${item.tag}`).toContain('MyAaptha Roboto');
+      }
       if (width === 390) {
         await page.getByRole('button', { name: 'Toggle main menu' }).click();
         await expect(page.locator('#workspace-navigation')).not.toHaveAttribute('inert', '');

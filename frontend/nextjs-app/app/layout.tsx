@@ -8,6 +8,7 @@ import './professional.css';
 import './navigation.css';
 import './compact-workspace.css';
 import './enterprise-workspace.css';
+import './ui-foundation.css';
 import type { Metadata } from 'next';
 import WorkspaceShell from './components/WorkspaceShell';
 

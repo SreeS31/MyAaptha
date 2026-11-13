@@ -1,0 +1,64 @@
+/* Shared visual contract. Important rules in this layer take precedence over
+   historical feature overrides; geometry remains in enterprise-workspace.css. */
+:root {
+  --text-size:14px; --heading-page:24px; --heading-section:20px; --heading-card:18px;
+  --brand:#256f7b; --brand-dark:#1d5862; --brand-soft:#eaf4f5;
+  --text-strong:#15233b; --text-body:#35445d; --text-muted:#526579;
+  --surface:#fff; --surface-soft:#f4f7fa; --border:#d6e0e8;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
+  --shadow-card:0 2px 10px #15233b06;
+}
+@layer app-visual-contract {
+  body,button,input,select,textarea,summary {
+    font-family:var(--font-app)!important;
+    -webkit-font-smoothing:antialiased;
+  }
+  body { font-size:14px!important; line-height:1.5!important; }
+  h1,h2,h3,h4,h5,h6 {
+    font-family:var(--font-app)!important; font-weight:500!important;
+    line-height:1.3!important; letter-spacing:-.015em!important;
+  }
+  h1 { font-size:var(--heading-page)!important; }
+  h2 { font-size:var(--heading-section)!important; }
+  h3 { font-size:var(--heading-card)!important; }
+  h4,h5,h6 { font-size:16px!important; }
+  :is(h1,h2,h3,h4,h5,h6) :is(span,strong,b,a) { font-size:inherit!important; }
+  p,li,dt,dd,label { font-size:14px!important; line-height:1.5!important; }
+  small,time { font-size:12px!important; line-height:1.5!important; }
+  button,.btn,summary,input,select,textarea,input::file-selector-button {
+    font-size:14px!important; letter-spacing:normal!important;
+  }
+  button,.btn,input::file-selector-button {
+    font-weight:500!important; border-radius:8px!important;
+  }
+  :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]) {
+    border-radius:8px!important; font-weight:400!important; line-height:1.5!important;
+  }
+  :is(.btn,.action-tag,.circle-file-button,.network-actions button,button[type=submit]) {
+    min-height:40px!important; padding:9px 14px!important;
+  }
+  .info-tip .info-trigger { font-size:12px!important; border-radius:50%!important; }
+  .workspace-nav-section>h2 { font-size:12px!important; letter-spacing:.02em!important; }
+  .workspace-avatar,.social-avatar { border-radius:50%!important; }
+  @media (pointer:coarse) {
+    button,.btn,summary,input::file-selector-button { min-height:44px!important; }
+    .info-tip .info-trigger { min-height:36px!important; }
+    :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]) {
+      font-size:16px!important; min-height:44px!important;
+    }
+  }
+}
+body { background:var(--surface-soft); }
+.workspace-shell .workspace-topbar { box-shadow:0 1px 8px #15233b05; }
+.workspace-shell .workspace-sidebar { background:linear-gradient(180deg,#f8fafc,#f1f6f8); }
+.workspace-shell .workspace-sidebar nav a { transition:background .15s,color .15s; }
+.workspace-shell .workspace-sidebar nav a[aria-current=page] { background:#e3f0f1; color:var(--brand-dark); }
+.workspace-shell .workspace-content :is(.card,.network-section,.trust-panel,.social-post) {
+  border-color:var(--border)!important; border-radius:12px!important; box-shadow:var(--shadow-card)!important;
+}
+.workspace-shell .workspace-section-tabs { background:#edf2f6; border:1px solid var(--border); box-shadow:none; }
+.workspace-shell .workspace-section-tabs a[aria-current=page] { background:white; box-shadow:0 1px 4px #15233b10; color:var(--brand-dark); }
+body .btn-primary,body button[type=submit] { box-shadow:0 2px 4px #1d586214; }
+body .btn-primary:hover:not(:disabled),body button[type=submit]:hover:not(:disabled) { background:var(--brand-dark); }
+body :is(input,textarea,select):focus-visible { outline:3px solid #256f7b40!important; outline-offset:2px; }
+::selection { background:#cfe8eb; color:var(--text-strong); }
