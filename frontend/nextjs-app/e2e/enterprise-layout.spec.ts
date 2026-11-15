@@ -66,7 +66,7 @@ for (const width of [390, 1600]) {
       await page.evaluate(() => document.fonts.ready);
       const typography = await page.locator('main:visible').evaluate(main => {
         const visible = (element: Element) => element.getBoundingClientRect().height > 0;
-        return [...main.querySelectorAll('h1,h2,h3,button,input,select,textarea')].filter(visible).map(element => ({
+        return Array.from(main.querySelectorAll('h1,h2,h3,button,input,select,textarea')).filter(visible).map(element => ({
           tag: element.tagName, size: getComputedStyle(element).fontSize,
           help: element.matches('.info-trigger'),
           font: getComputedStyle(element).fontFamily,
