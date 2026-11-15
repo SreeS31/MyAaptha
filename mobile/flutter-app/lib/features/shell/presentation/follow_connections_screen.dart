@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
 
 class FollowConnectionsScreen extends StatefulWidget {
-  const FollowConnectionsScreen({super.key, required this.api});
+  const FollowConnectionsScreen({super.key, required this.api,this.initialKind='following'});
   final MyAapthaApi api;
+  final String initialKind;
   @override
   State<FollowConnectionsScreen> createState() => _FollowConnectionsState();
 }
@@ -15,7 +16,7 @@ class _FollowConnectionsState extends State<FollowConnectionsScreen> {
   String? error;
   List<dynamic> people = [];
   @override
-  void initState() {super.initState();load();}
+  void initState() {super.initState();kind=widget.initialKind=='followers'?'followers':'following';load();}
   Future<void> load() async {
     final request = ++generation;
     setState(() {loading = true;error = null;});
@@ -28,7 +29,7 @@ class _FollowConnectionsState extends State<FollowConnectionsScreen> {
   }
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Following & followers')),
+    appBar: AppBar(title: Text(kind=='following'?'Following':'Followers')),
     body: Column(children: [
       Padding(padding: const EdgeInsets.all(12),child: SegmentedButton<String>(
         segments: const [ButtonSegment(value:'following',label:Text('Following')),ButtonSegment(value:'followers',label:Text('Followers'))],

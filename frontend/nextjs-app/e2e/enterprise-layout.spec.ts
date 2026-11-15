@@ -58,12 +58,13 @@ for (const width of [390, 1600]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.unroute('**/api/**');
     await page.route('**/api/**', route => route.abort());
-    for (const path of ['/dashboard', '/relationship-tree', '/feed', '/health', '/finance', '/career', '/interests', '/messages', '/online-feed', '/profile', '/timeline', '/circles', '/contacts', '/settings', '/trust', '/help', '/notifications', '/reports', '/privacy', '/ai-activity', '/security-reports', '/discover', '/following', '/circle-search', '/menu-comparison', '/workspace-tools', '/people/1']) {
+    for (const path of ['/dashboard', '/relationship-tree', '/feed', '/health', '/finance', '/career', '/interests', '/messages', '/online-feed', '/profile', '/timeline', '/circles', '/contacts', '/settings', '/trust', '/help', '/notifications', '/reports', '/privacy', '/ai-activity', '/security-reports', '/discover', '/following', '/followers', '/posts', '/circle-search', '/menu-comparison', '/workspace-tools', '/people/1']) {
       await page.goto(path);
-      await expect(page.locator('main')).toBeVisible();
+      await expect(page.locator('main:visible')).toHaveCount(1);
+      await expect(page.locator('main:visible')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
       await page.evaluate(() => document.fonts.ready);
-      const typography = await page.locator('main').evaluate(main => {
+      const typography = await page.locator('main:visible').evaluate(main => {
         const visible = (element: Element) => element.getBoundingClientRect().height > 0;
         return [...main.querySelectorAll('h1,h2,h3,button,input,select,textarea')].filter(visible).map(element => ({
           tag: element.tagName, size: getComputedStyle(element).fontSize,

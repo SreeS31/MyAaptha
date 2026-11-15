@@ -80,7 +80,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         FinanceScreen(api:api),
         ProfileScreen(api:api,area:'Career',onDataChanged:refreshWorkspace),
         ProfileScreen(api:api,area:'Interests',onDataChanged:refreshWorkspace),
-        WorkspaceHub(title:'Online Feed',labels:const ['Updates & thoughts','Following & followers'],pages:[SocialFeedScreen(api:api,online:true),FollowConnectionsScreen(api:api)])
+        WorkspaceHub(title:'Community',labels:const ['Feed','My posts','Followers','Following'],pages:[SocialFeedScreen(api:api,online:true),SocialFeedScreen(api:api,online:true,ownPosts:true),FollowConnectionsScreen(api:api,initialKind:'followers'),FollowConnectionsScreen(api:api)])
       ];
   void refreshWorkspace(){if(mounted)setState(()=>syncVersion++);}
   final visitedPages=<int>{0};
@@ -148,7 +148,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         const NavigationDestination(icon:Icon(Icons.account_balance_wallet_outlined),label:'Finance'),
         const NavigationDestination(icon:Icon(Icons.work_outline),label:'Career'),
         const NavigationDestination(icon:Icon(Icons.interests_outlined),label:'Interests'),
-        const NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),label:'Online Feed')
+        const NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),label:'Feed')
       ];
   @override
   void initState() {
@@ -3854,8 +3854,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
 }
 
 class SocialFeedScreen extends StatefulWidget {
-  const SocialFeedScreen({super.key, required this.api, this.online=false});
+  const SocialFeedScreen({super.key, required this.api, this.online=false,this.ownPosts=false});
   final bool online;
+  final bool ownPosts;
   final MyAapthaApi api;
   @override
   State<SocialFeedScreen> createState() => _SocialFeedScreenState();
@@ -3991,9 +3992,11 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
           circleId: audience == 'CIRCLE' ? selectedCircleId : null,
           bytes: selected?.bytes,
           fileName: selected?.name);
+      final wasPrivate=audience=='PRIVATE';
       caption.clear();
       selected = null;
       await load();
+      if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(wasPrivate?'Saved privately in Diary & Memories.':'Post shared with the selected audience.')));
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -4125,7 +4128,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text(savedOnly ? 'Saved moments' : widget.online?'Online Feed':'Diary & Memories',
+                Text(savedOnly ? 'Saved moments' : widget.ownPosts?'My posts':widget.online?'Your feed':'Diary & Memories',
                     style: Theme.of(context).textTheme.headlineMedium),
                 const Text('Thoughts, memories, documents and shared moments.')
               ])),
@@ -4278,7 +4281,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               child: Padding(
                   padding: EdgeInsets.all(24),
                   child: CircularProgressIndicator())),
-        ...posts.where((p)=>widget.online||p['mine']==true).map((p) => _post(p))
+        ...posts.where((p)=>(!widget.online||p['audience']!='PRIVATE')&&(!widget.ownPosts||p['mine']==true)&&(widget.online||p['mine']==true)).map((p) => _post(p))
       ]));
   Future<void> editPost(Map<String, dynamic> post) async {
     final controller =

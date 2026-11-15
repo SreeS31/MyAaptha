@@ -1,5 +1,10 @@
 // Shared stroke icons avoid platform-dependent symbol and emoji rendering.
 const paths:Record<string,string>={
+ '/posts':'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+ '/followers':'M3 21v-3a6 6 0 0 1 12 0v3M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 9l2 2 3-4',
+ '/following':'M3 21v-3a6 6 0 0 1 12 0v3M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 17h5M19.5 14.5v5',
+ '/discover':'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm4-16-2 8-8 2 2-8 8-2Z',
+ '/profile':'M4 21v-3a8 8 0 0 1 16 0v3M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
  '/dashboard':'M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9',
  '/relationship-tree':'M9 3h6v5H9zM2 16h6v5H2zM16 16h6v5h-6zM12 8v4M5 16v-4h14v4',
  '/feed':'M4 3h12a3 3 0 0 1 3 3v15H7a3 3 0 0 1-3-3V3ZM4 17h15M8 7h7M8 11h5',

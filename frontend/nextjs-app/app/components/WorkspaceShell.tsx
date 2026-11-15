@@ -87,7 +87,8 @@ function useGlobalClientValidation() {
   }, []);
 }
 
-const navigationSections = [{label:'My workspace',items:primaryNavigation}];
+const communityPaths = new Set(['/online-feed','/posts','/followers','/following','/discover','/messages']);
+const navigationSections = [{label:'Community',items:primaryNavigation.filter(item=>communityPaths.has(item.href))},{label:'My workspace',items:primaryNavigation.filter(item=>!communityPaths.has(item.href))}];
 
 const utilities = [
   { href: '/help', icon: '?', label: 'Ask MyAaptha' },
@@ -167,7 +168,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     <aside ref={sidebar} id="workspace-navigation" inert={isMobile&&!mobileOpen} className={`workspace-sidebar ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main navigation">
       {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.map(item => <Link key={item.href} href={item.href as Route} title={item.label} aria-current={isSelected(pathname,item.href)?"page":undefined} className={isSelected(pathname, item.href) ? 'active' : ''}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><b>{item.label}</b></Link>)}</nav></section>)}
       {isAdmin&&<section className="workspace-nav-section"><h2>Administration</h2><nav><Link href={'/security-reports' as Route} className={pathname==='/security-reports'?'active':''}><span><WorkspaceIcon name="/security-reports" /></span><b>Security & errors</b></Link></nav></section>}
-      <section className="workspace-nav-section"><h2>Account & review</h2><nav><Link href={'/workspace-tools' as Route} className={pathname==='/workspace-tools'?'active':''}><span><WorkspaceIcon name="/settings" /></span><b>Account & tools</b></Link><Link href={'/menu-comparison' as Route} className={pathname==='/menu-comparison'?'active':''}><span><WorkspaceIcon name="/menu-comparison" /></span><b>Menu comparison</b></Link></nav></section>
+      <section className="workspace-nav-section"><h2>Account & review</h2><nav><Link href={'/workspace-tools' as Route} className={pathname==='/workspace-tools'?'active':''}><span><WorkspaceIcon name="/settings" /></span><b>Account & tools</b></Link><Link href="/profile" className={pathname==='/profile'?'active':''}><span><WorkspaceIcon name="/profile" /></span><b>My profile</b></Link></nav></section>
       <button type="button" className="workspace-sidebar-sign-out" disabled={signingOut} onClick={()=>void signOut()}><span>↪</span><b>{signingOut?'Signing out...':'Sign out'}</b></button>
     </aside>
     {mobileOpen && <button className="workspace-scrim" onClick={() => setMobileOpen(false)} aria-label="Close navigation" />}

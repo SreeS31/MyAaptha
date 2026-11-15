@@ -1,0 +1,20 @@
+/* Social navigation and people lists share the application visual contract. */
+.workspace-shell .community-tabs { display:flex; gap:6px; flex-wrap:wrap; padding:5px; margin:0 0 14px; border:1px solid var(--border); background:#edf3f5; border-radius:12px; }
+.workspace-shell .community-tabs a { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:8px 16px; border-radius:8px; color:var(--text-muted); font-weight:500; text-decoration:none; box-sizing:border-box; }
+.workspace-shell .community-tabs a[aria-current=page] { background:var(--surface); color:var(--brand-dark); box-shadow:0 2px 6px #15233b10; }
+.workspace-shell .community-tabs a:hover { background:#fff; color:var(--brand-dark); }
+.workspace-shell .community-intro { display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding:24px; margin:0 0 16px; border:1px solid #cde1e5; border-radius:16px; background:linear-gradient(120deg,#eaf4f5,#f4f6fc); }
+.community-intro>div { flex:1 1 220px; }.community-intro h2 { margin:0 0 6px; }.community-intro p { margin:0; color:var(--text-muted); }
+.community-mark { display:grid; place-items:center; width:52px; height:52px; flex:0 0 52px; border-radius:16px; background:var(--brand); color:white; font-size:32px; }
+.community-list-tools { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:16px 0; }.community-list-tools label { color:var(--text-muted); }.community-list-tools input { width:min(100%,360px); }
+.workspace-shell .community-page .follow-people-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr)); gap:12px; }
+.workspace-shell .community-page .follow-person-card { display:flex; align-items:center; gap:12px; padding:18px; background:white; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-card); min-width:0; }
+.community-page .follow-person-card>div { flex:1; min-width:0; }.community-page .follow-person-card a { overflow-wrap:anywhere; text-decoration:none; font-weight:500; }.community-page .follow-person-card small { display:block; color:var(--text-muted); margin-top:4px; }
+.community-page .follow-avatar { display:grid; place-items:center; background:#e3eff1; color:var(--brand-dark); width:48px; height:48px; flex:0 0 48px; border-radius:50%; font-weight:500; }
+.community-page .follow-empty { border:1px dashed var(--border); background:white; text-align:center; padding:32px 16px; border-radius:12px; }.community-page .follow-empty p { color:var(--text-muted); margin-bottom:0; }
+.community-pagination { display:flex; justify-content:center; align-items:center; gap:16px; margin:20px 0; }
+.workspace-shell .workspace-content .own-posts .social-feed { grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr)); }
+.workspace-shell .own-posts .feed-post-content { flex-direction:column; }.workspace-shell .own-posts .feed-post-content .social-attachment { width:100%; flex:0 0 auto; }
+.workspace-shell .own-posts :is(.feed-small-media,.feed-preview-button,.feed-preview-button img,.feed-preview-button video) { height:220px!important; max-height:220px!important; }
+@media(pointer:coarse) { .workspace-shell .community-tabs a { min-height:44px; } }
+@media(max-width:600px) { .workspace-shell .community-intro { padding:16px; gap:12px; }.community-intro>.btn { width:100%; }.workspace-shell .community-tabs a { flex:1 1 auto; padding-inline:10px; }.workspace-shell .community-page .follow-person-card { padding:14px; flex-wrap:wrap; } }

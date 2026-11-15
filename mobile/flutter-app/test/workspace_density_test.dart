@@ -13,7 +13,27 @@ class DensityApi extends MyAapthaApi {
   @override Future<List<CircleModel>> circles() async => [];
 }
 
+class CommunityPostsApi extends DensityApi {
+  @override Future<List<Map<String, dynamic>>> socialFeed() async => [
+    {'id':1,'authorName':'Member','caption':'My shared fixture','audience':'PUBLIC','mine':true},
+    {'id':2,'authorName':'Member','caption':'Private diary fixture','audience':'PRIVATE','mine':true},
+    {'id':3,'authorName':'Other','caption':'Other shared fixture','audience':'PUBLIC','mine':false},
+  ];
+}
+
 void main() {
+  testWidgets('my posts separates shared entries from private diary and other members', (tester) async {
+    tester.view.physicalSize = const Size(390, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(theme:AppTheme.light(),home:Scaffold(body:SocialFeedScreen(api:CommunityPostsApi(),online:true,ownPosts:true))));
+    await tester.pumpAndSettle();
+    expect(find.text('My shared fixture'), findsOneWidget);
+    expect(find.text('Private diary fixture'), findsNothing);
+    expect(find.text('Other shared fixture'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('diary opens on demand and keeps drafts when collapsed', (tester) async {
     tester.view.physicalSize = const Size(390, 1000);
     tester.view.devicePixelRatio = 1;

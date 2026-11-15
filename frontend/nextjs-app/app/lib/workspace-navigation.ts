@@ -1,6 +1,84 @@
 export type WorkspaceSection = {label:string;href:string;icon:string;tabs:{label:string;href:string}[]};
 export const primaryNavigation:WorkspaceSection[] = [
   {
+    "label": "Feed",
+    "href": "/online-feed",
+    "icon": "",
+    "tabs": [
+      {
+        "label": "Feed",
+        "href": "/online-feed"
+      }
+    ]
+  },
+  {
+    "label": "My posts",
+    "href": "/posts",
+    "icon": "",
+    "tabs": [
+      {
+        "label": "My posts",
+        "href": "/posts"
+      }
+    ]
+  },
+  {
+    "label": "Followers",
+    "href": "/followers",
+    "icon": "",
+    "tabs": [
+      {
+        "label": "Followers",
+        "href": "/followers"
+      }
+    ]
+  },
+  {
+    "label": "Following",
+    "href": "/following",
+    "icon": "",
+    "tabs": [
+      {
+        "label": "Following",
+        "href": "/following"
+      }
+    ]
+  },
+  {
+    "label": "Discover",
+    "href": "/discover",
+    "icon": "",
+    "tabs": [
+      {
+        "label": "Discover",
+        "href": "/discover"
+      }
+    ]
+  },
+  {
+    "label": "Messages",
+    "href": "/messages",
+    "icon": "\u2709",
+    "tabs": [
+      {
+        "label": "Personal & groups",
+        "href": "/messages"
+      },
+      {
+        "label": "My circles",
+        "href": "/circles"
+      },
+      {
+        "label": "My contacts",
+        "href": "/contacts"
+      },
+      {
+        "label": "Find people & circles",
+        "href": "/circle-search"
+      }
+    ]
+  },
+  {
     "label": "Dashboard",
     "href": "/dashboard",
     "icon": "\u2302",
@@ -88,44 +166,6 @@ export const primaryNavigation:WorkspaceSection[] = [
         "href": "/interests"
       }
     ]
-  },
-  {
-    "label": "Messages",
-    "href": "/messages",
-    "icon": "\u2709",
-    "tabs": [
-      {
-        "label": "Personal & groups",
-        "href": "/messages"
-      },
-      {
-        "label": "My circles",
-        "href": "/circles"
-      },
-      {
-        "label": "My contacts",
-        "href": "/contacts"
-      },
-      {
-        "label": "Find people & circles",
-        "href": "/circle-search"
-      }
-    ]
-  },
-  {
-    "label": "Online Feed",
-    "href": "/online-feed",
-    "icon": "\u25ce",
-    "tabs": [
-      {
-        "label": "Updates & thoughts",
-        "href": "/online-feed"
-      },
-      {
-        "label": "Following & followers",
-        "href": "/following"
-      }
-    ]
   }
 ];
 export const menuMoves = [
@@ -147,7 +187,7 @@ export const menuMoves = [
   {
     "old": "Following & followers",
     "href": "/following",
-    "destination": "Online Feed > Following & followers"
+    "destination": "Community > Following"
   },
   {
     "old": "Messages",

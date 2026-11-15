@@ -1,10 +1,10 @@
-const workspacePrimaryLabels = <String>['Dashboard', 'Relationships', 'Diary & Memories', 'Health', 'Finance', 'Career', 'Interests', 'Messages', 'Online Feed'];
-const workspacePrimaryIndexes = <int>[0,8,1,9,10,11,12,2,13];
+const workspacePrimaryLabels = <String>['Feed', 'Messages', 'Dashboard', 'Relationships', 'Diary & Memories', 'Health', 'Finance', 'Career', 'Interests'];
+const workspacePrimaryIndexes = <int>[13,2,0,8,1,9,10,11,12];
 const workspaceMenuMoves = <({String old, String destination, String path})>[
   (old: "Dashboard", destination: "Dashboard > Overview", path: "/dashboard"),
   (old: "Relationship tree", destination: "Relationships", path: "/relationship-tree"),
   (old: "Diary & memories", destination: "Diary & Memories", path: "/feed"),
-  (old: "Following & followers", destination: "Online Feed > Following & followers", path: "/following"),
+  (old: "Following & followers", destination: "Community > Following", path: "/following"),
   (old: "Messages", destination: "Messages > Personal & groups", path: "/messages"),
   (old: "My circles", destination: "Messages > My circles", path: "/circles"),
   (old: "My contacts", destination: "Messages > My contacts", path: "/contacts"),
