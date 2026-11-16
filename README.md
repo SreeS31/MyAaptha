@@ -1,5 +1,7 @@
 # MyAaptha
 
+[Functional review — 16 November 2026](docs/FUNCTIONAL-REVIEW-2026-11-16.md): current verification, test-harness fixes, live beta status and the pending GCP frontend rollout.
+
 ## Launch readiness
 
 [Open launch board](http://127.0.0.1:4317) | [Offline board](docs/launch-board/index.html) | [Current module status](docs/launch-board/STATUS-2026-11-09.md).

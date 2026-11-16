@@ -31,11 +31,13 @@ test('public entry screens share the application typography', async ({ page }) =
     await page.goto(path);
     await page.evaluate(() => document.fonts.ready);
     for (const [tag, size] of [['h1', '24px'], ['h2', '20px'], ['h3', '18px'], ['button', '14px']]) {
-      for (const element of await page.locator(`main ${tag}`).all()) {
-        if (await element.isVisible()) {
-          await expect(element, path).toHaveCSS('font-size', size);
-          await expect(element, path).toHaveCSS('font-family', /MyAaptha Roboto/);
-        }
+      const styles = await page.locator(`main ${tag}:visible`).evaluateAll(elements => elements.map(element => {
+        const style = getComputedStyle(element);
+        return { fontSize: style.fontSize, fontFamily: style.fontFamily };
+      }));
+      for (const style of styles) {
+        expect(style.fontSize, `${path} ${tag}`).toBe(size);
+        expect(style.fontFamily, `${path} ${tag}`).toMatch(/MyAaptha Roboto/);
       }
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
