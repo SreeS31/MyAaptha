@@ -90,6 +90,8 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.DELETE, "/api/finance/renewals/*", "/api/finance/renewals/*/attachment").authenticated()
         .requestMatchers(HttpMethod.DELETE, "/api/health/reports/*", "/api/notifications/devices",
             "/api/trust/people/*", "/api/trust/role-models/*/follow").authenticated()
+        .requestMatchers(HttpMethod.PUT, "/api/interests/**").authenticated()
+        .requestMatchers(HttpMethod.DELETE, "/api/interests/**").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
         .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
         .requestMatchers("/api/**").authenticated()

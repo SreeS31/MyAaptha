@@ -817,3 +817,23 @@ export async function pinSocialPost(id:number,pinned:boolean){return authenticat
 
 export type CallIceConfiguration={iceServers:RTCIceServer[];relayConfigured:boolean;credentialsExpireAt:number|null};
 export const fetchCallIceConfiguration=()=>authenticatedRequest<CallIceConfiguration>('/api/network/calls/ice');
+
+export type InterestGroup = { id:string; name:string; topic:string; area:string; description:string; admin:boolean; membership:string|null; memberCount:number };
+export type InterestGroupInput = Pick<InterestGroup,'name'|'topic'|'area'|'description'>;
+export type InterestPage<T> = {items:T[];hasNext:boolean};
+export type InterestMember = {userId:number;name:string};
+export type InterestDiscussion = {id:string;author:string;body:string;createdAt:string;mine:boolean};
+export const fetchInterests=()=>authenticatedRequest<string[]>('/api/interests/me');
+export const saveInterests=(interests:string[])=>authenticatedRequest<string[]>('/api/interests/me',{method:'PUT',body:JSON.stringify({interests})});
+export const findInterestGroups=(q:string,area:string,topic:string,mine:boolean,page:number)=>authenticatedRequest<InterestPage<InterestGroup>>('/api/interests/groups?'+new URLSearchParams({q,area,topic,mine:String(mine),page:String(page)}));
+export const createInterestGroup=(input:InterestGroupInput)=>authenticatedRequest<InterestGroup>('/api/interests/groups',{method:'POST',body:JSON.stringify(input)});
+export const editInterestGroup=(id:string,input:InterestGroupInput)=>authenticatedRequest<InterestGroup>(`/api/interests/groups/${id}`,{method:'PUT',body:JSON.stringify(input)});
+export const joinInterestGroup=(id:string)=>authenticatedRequest<InterestGroup>(`/api/interests/groups/${id}/join`,{method:'POST'});
+export const leaveInterestGroup=(id:string)=>authenticatedRequest<InterestGroup>(`/api/interests/groups/${id}/membership`,{method:'DELETE'});
+export const interestRequests=(id:string,page=0)=>authenticatedRequest<InterestPage<InterestMember>>(`/api/interests/groups/${id}/requests?page=${page}`);
+export const decideInterestRequest=(id:string,user:number,approve:boolean)=>authenticatedRequest<void>(`/api/interests/groups/${id}/requests/${user}`,{method:'PUT',body:JSON.stringify({approve})});
+export const interestMessages=(id:string,page=0)=>authenticatedRequest<InterestPage<InterestDiscussion>>(`/api/interests/groups/${id}/messages?page=${page}`);
+export const postInterestMessage=(id:string,body:string)=>authenticatedRequest<void>(`/api/interests/groups/${id}/messages`,{method:'POST',body:JSON.stringify({body})});
+export const deleteInterestMessage=(id:string,message:string)=>authenticatedRequest<void>(`/api/interests/groups/${id}/messages/${message}`,{method:'DELETE'});
+
+export const fetchInterestGroup=(id:string)=>authenticatedRequest<InterestGroup>(`/api/interests/groups/${id}`);

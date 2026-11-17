@@ -1,5 +1,7 @@
 # MyAaptha
 
+[Interests and community groups — 17 November 2026](docs/INTERESTS-GROUPS-2026-11-17.md): hobby picker, area-based clubs, membership approval, discussions and release status.
+
 [Functional review — 16 November 2026](docs/FUNCTIONAL-REVIEW-2026-11-16.md): current verification, test-harness fixes, live beta status and the pending GCP frontend rollout.
 
 ## Launch readiness
