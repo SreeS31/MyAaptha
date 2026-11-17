@@ -1,3 +1,4 @@
+import 'interests_screen.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
 import 'renewals_screen.dart';
@@ -57,9 +58,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   int unreadCircleMessages = 0;
   int syncVersion = 0;
   List<Widget> get pages => <Widget>[
-        WorkspaceHub(key:const ValueKey('dashboard-hub'),title:'Dashboard',labels:const ['Overview','Life timeline','My profile','Trust center'],pages:[MobileDashboard(api:api),TimelineScreen(api:api),ProfileScreen(api:api,onDataChanged:refreshWorkspace),TrustCenterScreen(api:api)]),
+        MobileDashboard(api:api),
         SocialFeedScreen(key: ValueKey('feed-$syncVersion'), api: api),
-        WorkspaceHub(key:const ValueKey('messages-hub'),title:'Messages',labels:const ['Personal & groups','My circles','My contacts','Find people'],pages:[MessagesScreen(api:api),CirclesScreen(api:api),AddressBookScreen(api:api),DiscoverScreen(api:api)]),
+        MessagesScreen(api:api),
         CirclesScreen(key: ValueKey('circles-$syncVersion'), api: api),
         NotificationsScreen(
             key: ValueKey('notifications-$syncVersion'), api: api),
@@ -79,12 +80,19 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         HealthRecordsScreen(api:api),
         FinanceScreen(api:api),
         ProfileScreen(api:api,area:'Career',onDataChanged:refreshWorkspace),
-        ProfileScreen(api:api,area:'Interests',onDataChanged:refreshWorkspace),
-        WorkspaceHub(title:'Community',labels:const ['Feed','My posts','Followers','Following'],pages:[SocialFeedScreen(api:api,online:true),SocialFeedScreen(api:api,online:true,ownPosts:true),FollowConnectionsScreen(api:api,initialKind:'followers'),FollowConnectionsScreen(api:api)])
+        InterestsScreen(api:api),
+        SocialFeedScreen(api:api,online:true),
+        TimelineScreen(api:api),
+        TrustCenterScreen(api:api),
+        AddressBookScreen(api:api),
+        SocialFeedScreen(api:api,online:true,ownPosts:true),
+        FollowConnectionsScreen(api:api,initialKind:'followers'),
+        FollowConnectionsScreen(api:api),
+        HelpChatScreen(api:api),
+        ChatDiscoveryScreen(api:api)
       ];
   void refreshWorkspace(){if(mounted)setState(()=>syncVersion++);}
   final visitedPages=<int>{0};
-  static const mobileDestinationIndexes = <int>[0,2,13,7];
   int get unreadChats => unreadMessages + unreadCircleMessages;
   List<NavigationDestination> get destinations => [
         const NavigationDestination(
@@ -118,7 +126,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
                     ? '99+'
                     : '$unreadCircleMessages'),
                 child: const Icon(Icons.forum_rounded)),
-            label: 'Circles'),
+            label: 'My circles'),
         NavigationDestination(
             icon: Badge(
                 isLabelVisible: unreadNotifications > 0,
@@ -134,21 +142,29 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         const NavigationDestination(
             icon: Icon(Icons.person_search_outlined),
             selectedIcon: Icon(Icons.person_search_rounded),
-            label: 'Search'),
+            label: 'Discover'),
         const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile'),
+            label: 'My profile'),
         const NavigationDestination(
             icon: Icon(Icons.apps_outlined),
             selectedIcon: Icon(Icons.apps_rounded),
-            label: 'Tools'),
+            label: 'Account & tools'),
         const NavigationDestination(icon:Icon(Icons.account_tree_outlined),label:'Relationships'),
         const NavigationDestination(icon:Icon(Icons.monitor_heart_outlined),label:'Health'),
         const NavigationDestination(icon:Icon(Icons.account_balance_wallet_outlined),label:'Finance'),
         const NavigationDestination(icon:Icon(Icons.work_outline),label:'Career'),
         const NavigationDestination(icon:Icon(Icons.interests_outlined),label:'Interests'),
-        const NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),label:'Feed')
+        const NavigationDestination(icon:Icon(Icons.dynamic_feed_outlined),label:'Feed'),
+        const NavigationDestination(icon:Icon(Icons.timeline),label:'Life timeline'),
+        const NavigationDestination(icon:Icon(Icons.verified_user_outlined),label:'Trust center'),
+        const NavigationDestination(icon:Icon(Icons.contacts_outlined),label:'My contacts'),
+        const NavigationDestination(icon:Icon(Icons.grid_view_outlined),label:'My posts'),
+        const NavigationDestination(icon:Icon(Icons.people_outline),label:'Followers'),
+        const NavigationDestination(icon:Icon(Icons.person_add_alt),label:'Following'),
+        const NavigationDestination(icon:Icon(Icons.help_outline),label:'Ask MyAaptha'),
+        const NavigationDestination(icon:Icon(Icons.search),label:'Find people & circles')
       ];
   @override
   void initState() {
@@ -310,37 +326,20 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true||(desktopDensity&&workspaceSettings['compactLayout']!=false)?VisualDensity.compact:VisualDensity.standard),
       child:MediaQuery(data:MediaQuery.of(context).copyWith(disableAnimations:MediaQuery.of(context).disableAnimations||workspaceSettings['reducedMotion']==true),
       child:Scaffold(
-        appBar:AppBar(surfaceTintColor:Colors.transparent,
-          title:InkWell(borderRadius:BorderRadius.circular(24),onTap:()=>setState(()=>index=5),child:Container(
-            padding:const EdgeInsets.symmetric(horizontal:14,vertical:11),decoration:BoxDecoration(color:theme.colorScheme.surfaceContainerHighest,borderRadius:BorderRadius.circular(24)),
-            child:Row(children:[const Icon(Icons.search_rounded,size:22),const SizedBox(width:10),Expanded(child:Text('Search MyAaptha',overflow:TextOverflow.ellipsis,style:theme.textTheme.bodyLarge))]))),
-          actions:[IconButton(tooltip:'Notifications',onPressed:()=>setState(()=>index=4),icon:Badge(isLabelVisible:unreadNotifications>0,label:Text(unreadNotifications>99?'99+':'$unreadNotifications'),child:const Icon(Icons.notifications_none_rounded))),IconButton(tooltip:'Settings',onPressed:openSettings,icon:const Icon(Icons.settings_outlined))]),
+        appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark()),
         drawer:wide?null:Drawer(child:SafeArea(child:Column(children:[
-          const Padding(padding:EdgeInsets.all(24),child:_BrandMark()),
           Expanded(child:ListView(children:[for(final i in workspacePrimaryIndexes)ListTile(
             selected:index==i,leading:destinations[i].icon,title:Text(destinations[i].label),
             onTap:(){Navigator.pop(context);setState(()=>index=i);}),
             const Divider(),
-            ListTile(leading:const Icon(Icons.tune_rounded),title:const Text('Account & tools'),onTap:(){Navigator.pop(context);setState(()=>index=7);}),
-            ListTile(leading:const Icon(Icons.compare_arrows),title:const Text('Menu comparison'),onTap:(){Navigator.pop(context);openMenuComparison(context,api,widget.session,signOut);}),
+            ListTile(leading:const Icon(Icons.settings_outlined),title:const Text('Settings'),onTap:(){Navigator.pop(context);openSettings();}),
           ])),ListTile(leading:const Icon(Icons.logout_rounded),title:const Text('Sign out'),onTap:signOut),
         ]))),
         body:SafeArea(child:wide?Row(children:[
           NavigationRail(scrollable:true,extended:true,minExtendedWidth:216,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=workspacePrimaryIndexes[value]),labelType:NavigationRailLabelType.none,
-            leading:const Padding(padding:EdgeInsets.only(bottom:12),child:_BrandMark()),
-            destinations:workspacePrimaryIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:Column(children:[IconButton(tooltip:'Account & tools',onPressed:()=>setState(()=>index=7),icon:const Icon(Icons.tune)),IconButton(tooltip:'Menu comparison',onPressed:()=>openMenuComparison(context,api,widget.session,signOut),icon:const Icon(Icons.compare_arrows))])),
+            destinations:workspacePrimaryIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:TextButton.icon(onPressed:openSettings,icon:const Icon(Icons.settings_outlined),label:const Text('Settings'))),
           const VerticalDivider(width:1),Expanded(child:content),
-          if(size.width>=1280)...[const VerticalDivider(width:1),SizedBox(width:48,child:Column(children:[const SizedBox(height:8),
-            IconButton(tooltip:'Find people',onPressed:()=>setState(()=>index=5),icon:const Icon(Icons.person_search_outlined)),
-            IconButton(tooltip:'Notifications',onPressed:()=>setState(()=>index=4),icon:const Icon(Icons.notifications_none_rounded)),
-            IconButton(tooltip:'My profile',onPressed:()=>setState(()=>index=6),icon:const Icon(Icons.person_outline)),
-            IconButton(tooltip:'Settings',onPressed:openSettings,icon:const Icon(Icons.tune_rounded)),
-          ]))],
         ]):content),
-        bottomNavigationBar:wide?null:NavigationBar(
-          selectedIndex:mobileDestinationIndexes.contains(index)?mobileDestinationIndexes.indexOf(index):mobileDestinationIndexes.length-1,
-          onDestinationSelected:(value)=>setState(()=>index=mobileDestinationIndexes[value]),
-          destinations:mobileDestinationIndexes.map((i)=>destinations[i]).toList()),
       )));
   }
 
@@ -352,14 +351,10 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
 
 class _BrandMark extends StatelessWidget {
   const _BrandMark();
-  @override
-  Widget build(BuildContext context) =>
-      Column(mainAxisSize: MainAxisSize.min, children: [
-        Image.asset('assets/brand/myaaptha-logo.png', width: 48, height: 48),
-        const SizedBox(height: 6),
-        const Text('MyAaptha',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14))
-      ]);
+  @override Widget build(BuildContext context)=>Row(mainAxisSize:MainAxisSize.min,children:[
+    Image.asset('assets/brand/myaaptha-logo.png',width:30,height:30),const SizedBox(width:8),
+    const Text('MyAaptha',style:TextStyle(fontWeight:FontWeight.w600,fontSize:18)),
+  ]);
 }
 
 class MoreScreen extends StatelessWidget {
@@ -380,11 +375,10 @@ class MoreScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const _PageHeader(
-              eyebrow: 'MYAAPTHA WORKSPACE',
+              eyebrow: '',
               title: 'Account & tools',
               subtitle:
-                  'The same workspace sections and labels used on the web.'),
-          Card(child:ListTile(leading:const Icon(Icons.compare_arrows),title:const Text('Menu comparison'),onTap:()=>openMenuComparison(context,api,session,onSignOut))),
+                  ''),
           const _MenuSection('ACCOUNT'),
           _moreTile(
               context,
@@ -404,9 +398,6 @@ class MoreScreen extends StatelessWidget {
               'AI controls',
               'Review permissions, approvals and AI outcomes.',
               AiControlScreen(api: api)),
-          _moreTile(context, Icons.help_outline, 'Ask MyAaptha',
-              'Get answers about profiles, relations and broadcasts.',
-              HelpChatScreen(api: api)),
           const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),
@@ -1930,13 +1921,12 @@ class _PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
       margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      decoration: BoxDecoration(color: AppTheme.surface, border: Border.all(color: AppTheme.border), borderRadius: BorderRadius.circular(12)),
       padding: const EdgeInsets.symmetric(horizontal:12,vertical:8),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          InfoHelpLabel(title:title,message:subtitle,
+          if(subtitle.isEmpty)Text(title,style:Theme.of(context).textTheme.headlineLarge) else InfoHelpLabel(title:title,message:subtitle,
               style: Theme.of(context)
                   .textTheme
                   .headlineLarge
@@ -1998,14 +1988,18 @@ class MobileDashboard extends StatefulWidget {
 }
 class _MobileDashboardState extends State<MobileDashboard>{
   late Future<List<Relationship>> relationships=widget.api.relationships();
-  void open(String title,Widget page)=>Navigator.push(context,MaterialPageRoute(builder:(_)=>Scaffold(appBar:AppBar(title:Text(title)),body:page)));
   @override Widget build(BuildContext context)=>ListView(padding:const EdgeInsets.all(16),children:[
-    const _PageHeader(eyebrow:'MYAAPTHA',title:'Dashboard',subtitle:'Your people, memories and conversations at a glance.'),
-    FutureBuilder<List<Relationship>>(future:relationships,builder:(context,snapshot)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:snapshot.hasError?TextButton(onPressed:()=>setState(()=>relationships=widget.api.relationships()),child:const Text('Retry overview')):Text(snapshot.hasData?'${snapshot.data!.length} relationships':'Loading your overview...')))),
-    Card(child:ListTile(leading:const Icon(Icons.account_tree_outlined),title:const Text('Relationship tree'),subtitle:const Text('Explore your tree and message selected levels'),trailing:const Icon(Icons.chevron_right),onTap:()=>open('Relationship tree',NetworkHome(api:widget.api)))),
-    Card(child:ListTile(leading:const Icon(Icons.edit_note),title:const Text('Diary & memories'),onTap:()=>open('Diary & memories',SocialFeedScreen(api:widget.api)))),
-    Card(child:ListTile(leading:const Icon(Icons.mail_outline),title:const Text('Messages'),onTap:()=>open('Messages',MessagesScreen(api:widget.api)))),
-    Card(child:ListTile(leading:const Icon(Icons.timeline),title:const Text('Life timeline'),onTap:()=>open('Life timeline',TimelineScreen(api:widget.api)))),
+    const _PageHeader(eyebrow:'',title:'Dashboard',subtitle:'Your relationship overview.'),
+    FutureBuilder<List<Relationship>>(future:relationships,builder:(context,snapshot){
+      if(snapshot.hasError)return TextButton(onPressed:()=>setState(()=>relationships=widget.api.relationships()),child:const Text('Retry overview'));
+      if(!snapshot.hasData)return const Center(child:CircularProgressIndicator());
+      final counts=<String,int>{};for(final relation in snapshot.data!){counts.update(relation.type,(value)=>value+1,ifAbsent:()=>1);}
+      return Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text('${snapshot.data!.length} relationships',style:Theme.of(context).textTheme.titleLarge),
+        if(counts.isEmpty)const Text('Your saved relationships will appear here.'),
+        ...counts.entries.map((entry)=>Padding(padding:const EdgeInsets.symmetric(vertical:8),child:Row(children:[Expanded(child:Text(entry.key)),Text('${entry.value}')]))),
+      ])));
+    }),
   ]);
 }
 
@@ -3789,10 +3783,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 eyebrow: 'MESSAGES',
                 title: 'Messages',
                 subtitle: 'Recent chats and unread messages.')),
-        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat, group & message search')))),
-        SliverToBoxAdapter(child:SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat or search')))),
+        SliverToBoxAdapter(child:ExpansionTile(title:const Text('Conversation settings'),children:[SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})])),
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Groups & circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
-        const SliverToBoxAdapter(child:Padding(padding:EdgeInsets.symmetric(horizontal:16),child:Text('Archived chats stay archived. Muting stops message alerts until you unmute. Unread reminders do not undo read receipts.'))),
         if (error != null)
           SliverToBoxAdapter(child: _ErrorState(error!, retry: load)),
         if (items == null)
@@ -4976,11 +4969,20 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
     'Address': [('addressLine1','Address line 1'),('addressLine2','Address line 2'),('city','City'),('state','State'),('postalCode','Postal code'),('country','Country')],
     'Communication & social media': [('alternatePhone','Alternate phone'),('website','Website'),('whatsapp','WhatsApp'),('linkedin','LinkedIn'),('facebook','Facebook'),('instagram','Instagram'),('xHandle','X / Twitter handle')],
     'Education': [('highestQualification','Highest qualification'),('institution','School / College / University'),('fieldOfStudy','Field of study'),('graduationYear','Graduation year')],
-    'Interests': [('hobbies','Hobbies & interests (separate with commas)')],
+    'Interests': [('hobbies','Hobbies & interests')],
     'Employment': [('employmentStatus','Employment status'),('employer','Employer'),('jobTitle','Job title'),('industry','Industry'),('workLocation','Work location')],
   };
   Iterable<(String,String)> get definitions => sections.values.expand((items)=>items);
-  void beginEdit(String title) {
+  Future<void> beginEdit(String title) async {
+    if(title=='Interests') {
+      final chosen=await showInterestPicker(context,profile!.value('hobbies').split(',').map((v)=>v.trim()).where((v)=>v.isNotEmpty).toList());
+      if(chosen==null||!mounted)return;
+      setState(()=>saving=true);
+      try{await widget.api.saveInterests(chosen);await load();widget.onDataChanged();}
+      catch(e){if(mounted)setState(()=>error='$e');}
+      finally{if(mounted)setState(()=>saving=false);}
+      return;
+    }
     for(final item in definitions) { fields[item.$1]!.text=profile!.value(item.$1); }
     setState(()=>editing=title);
   }

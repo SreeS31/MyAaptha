@@ -15,8 +15,8 @@ void main(){
  testWidgets('comparison opens the original destination for a relocated feature',(tester)async{
   String? opened;
   await tester.pumpWidget(MaterialApp(home:MenuComparisonScreen(onOpen:(path)=>opened=path)));
-  await tester.scrollUntilVisible(find.text('My contacts'),250);await tester.tap(find.text('My contacts'));expect(opened,'/contacts');
-  expect(workspacePrimaryLabels.length,9);expect(workspaceMenuMoves.length,19);
+  await tester.scrollUntilVisible(find.widgetWithText(ListTile,'My contacts'),250);await tester.tap(find.widgetWithText(ListTile,'My contacts'));expect(opened,'/contacts');
+  expect(workspacePrimaryLabels.length,22);expect(workspacePrimaryIndexes.toSet().length,workspacePrimaryIndexes.length);expect(workspacePrimaryLabels,containsAll(['My contacts','Life timeline','Followers']));expect(workspaceMenuMoves.length,19);
  });
  testWidgets('interests editor preserves concurrent changes to career data',(tester)async{
   tester.view.physicalSize=const Size(800,2200);tester.view.devicePixelRatio=1;addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
@@ -24,8 +24,8 @@ void main(){
   await tester.pumpWidget(MaterialApp(home:Scaffold(body:ProfileScreen(api:api,area:'Interests',onDataChanged:(){}))));await tester.pumpAndSettle();
   expect(find.text('Employment'),findsNothing);
   await tester.scrollUntilVisible(find.text('Interests').last,300,scrollable:find.byType(Scrollable).first);await tester.tap(find.widgetWithText(TextButton,'Edit'));await tester.pumpAndSettle();
-  await tester.enterText(find.byType(TextField),'Reading, Gardening');api.data['employer']='Updated from another session';
-  await tester.scrollUntilVisible(find.text('Save Interests'),300,scrollable:find.byType(Scrollable).first);await tester.tap(find.text('Save Interests'));await tester.pumpAndSettle();
+  await tester.enterText(find.byType(TextField),'Reading');await tester.pumpAndSettle();await tester.tap(find.widgetWithText(CheckboxListTile,'Reading'));await tester.pumpAndSettle();await tester.enterText(find.byType(TextField),'Gardening');await tester.pumpAndSettle();await tester.tap(find.widgetWithText(CheckboxListTile,'Gardening'));await tester.pumpAndSettle();api.data['employer']='Updated from another session';
+  await tester.tap(find.text('Save interests'));await tester.pumpAndSettle();
   expect(api.data['hobbies'],'Reading, Gardening');expect(api.data['employer'],'Updated from another session');
  });
  testWidgets('returning to a scoped profile refreshes saved data while keeping an open draft',(tester)async{

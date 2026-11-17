@@ -6,6 +6,23 @@ import 'dart:typed_data';
 import 'package:myaaptha_mobile/features/auth/data/session_refresher.dart';
 
 class MyAapthaApi {
+  Future<List<String>> interests() async => (await _json(_client.get('/api/interests/me',bearerToken:_token)) as List).cast<String>();
+  Future<List<String>> saveInterests(List<String> values) async => (await _json(_client.put('/api/interests/me',{'interests':values},bearerToken:_token)) as List).cast<String>();
+  Future<Map<String,dynamic>> interestGroups({String query='',String area='',String topic='',bool mine=false,int page=0}) async {
+    final params=Uri(queryParameters:{'q':query,'area':area,'topic':topic,'mine':'$mine','page':'$page'}).query;
+    return Map<String,dynamic>.from(await _json(_client.get('/api/interests/groups?$params',bearerToken:_token)) as Map);
+  }
+  Future<Map<String,dynamic>> createInterestGroup(Map<String,dynamic> value) async => Map<String,dynamic>.from(await _json(_client.post('/api/interests/groups',value,bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> editInterestGroup(String id,Map<String,dynamic> value) async => Map<String,dynamic>.from(await _json(_client.put('/api/interests/groups/${Uri.encodeComponent(id)}',value,bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> interestGroup(String id) async => Map<String,dynamic>.from(await _json(_client.get('/api/interests/groups/${Uri.encodeComponent(id)}',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> joinInterestGroup(String id) async => Map<String,dynamic>.from(await _json(_client.post('/api/interests/groups/${Uri.encodeComponent(id)}/join',{},bearerToken:_token)) as Map);
+  Future<void> leaveInterestGroup(String id) async => _json(_client.delete('/api/interests/groups/${Uri.encodeComponent(id)}/membership',bearerToken:_token));
+  Future<Map<String,dynamic>> interestRequests(String id,{int page=0}) async => Map<String,dynamic>.from(await _json(_client.get('/api/interests/groups/${Uri.encodeComponent(id)}/requests?page=$page',bearerToken:_token)) as Map);
+  Future<void> decideInterestRequest(String id,int user,bool approve) async => _json(_client.put('/api/interests/groups/${Uri.encodeComponent(id)}/requests/$user',{'approve':approve},bearerToken:_token));
+  Future<Map<String,dynamic>> interestMessages(String id,{int page=0}) async => Map<String,dynamic>.from(await _json(_client.get('/api/interests/groups/${Uri.encodeComponent(id)}/messages?page=$page',bearerToken:_token)) as Map);
+  Future<void> postInterestMessage(String id,String body) async => _json(_client.post('/api/interests/groups/${Uri.encodeComponent(id)}/messages',{'body':body},bearerToken:_token));
+  Future<void> deleteInterestMessage(String id,String message) async => _json(_client.delete('/api/interests/groups/${Uri.encodeComponent(id)}/messages/${Uri.encodeComponent(message)}',bearerToken:_token));
+
   Future<List<Map<String,dynamic>>> timelineEvents() async=>(await _json(_client.get('/api/timeline/events',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
   Future<void> deleteTimelineEvent(String key) async => _json(_client.delete('/api/timeline/events/${Uri.encodeComponent(key)}',bearerToken:_token));
   Future<Map<String,dynamic>> saveTimelineEvent(Map<String,dynamic> event) async=>Map<String,dynamic>.from(await _json(_client.put('/api/timeline/events/${Uri.encodeComponent(event['eventKey'] as String)}',event,bearerToken:_token)) as Map);

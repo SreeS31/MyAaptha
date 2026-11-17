@@ -62,6 +62,9 @@ for (const width of [390, 1600]) {
       await page.goto(path);
       await expect(page.locator('main:visible')).toHaveCount(1);
       await expect(page.locator('main:visible')).toBeVisible();
+      await expect(page.locator('.workspace-section-tabs')).toHaveCount(0);
+      await expect(page.locator('.workspace-utilities')).toHaveCount(0);
+      await expect(page.locator('.workspace-topbar input')).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
       await page.evaluate(() => document.fonts.ready);
       const typography = await page.locator('main:visible').evaluate(main => {

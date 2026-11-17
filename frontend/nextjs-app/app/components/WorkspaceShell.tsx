@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import WorkspaceIcon from './WorkspaceIcon';
-import {primaryNavigation, sectionForPath} from '../lib/workspace-navigation';
+import {primaryNavigation} from '../lib/workspace-navigation';
 import Image from 'next/image';
 import type { Route } from 'next';
-import { FormEvent, ReactNode, useEffect, useState, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { ReactNode, useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { logout, fetchApplicationSettings, hasAuthSession, ApplicationSettings, fetchUnreadNotificationCount, fetchSessionProfile } from '../lib/api';
 
 const unsupportedControlCharacters = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
@@ -88,30 +88,30 @@ function useGlobalClientValidation() {
 }
 
 const communityPaths = new Set(['/online-feed','/posts','/followers','/following','/discover','/messages']);
-const navigationSections = [{label:'Community',items:primaryNavigation.filter(item=>communityPaths.has(item.href))},{label:'My workspace',items:primaryNavigation.filter(item=>!communityPaths.has(item.href))}];
-
-const utilities = [
-  { href: '/help', icon: '?', label: 'Ask MyAaptha' },
-  { href: '/contacts', icon: '♧', label: 'Contacts' },
-  { href: '/settings', icon: '⚙', label: 'Settings' },
+const navigationSections = [
+  {label:'Community',items:primaryNavigation.filter(item=>communityPaths.has(item.href)).flatMap(item=>[
+    {label:item.label,href:item.href},...item.tabs.filter(tab=>tab.href!==item.href)
+  ])},
+  {label:'My workspace',items:primaryNavigation.filter(item=>!communityPaths.has(item.href)).flatMap(item=>[
+    {label:item.label,href:item.href},...item.tabs.filter(tab=>tab.href!==item.href)
+  ])},
+  {label:'Account & tools',items:[
+    {label:'Notifications',href:'/notifications'}, {label:'Settings',href:'/settings'}, {label:'Blocked accounts',href:'/privacy'},
+    {label:'Account sessions',href:'/session'}, {label:'AI controls',href:'/ai-activity'},
+    {label:'Ask MyAaptha',href:'/help'}, {label:'My reports',href:'/reports'},
+    {label:'Moderation',href:'/moderation'}
+  ]}
 ];
-
-function isSelected(pathname: string, href: string) {
-  return sectionForPath(pathname)?.href === href;
-}
 
 export default function WorkspaceShell({ children }: { children: ReactNode }) {
   useGlobalClientValidation();
   const pathname = usePathname();
-  const router = useRouter();
-  const currentSection = sectionForPath(pathname);
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile,setIsMobile]=useState(false);
   const menuButton=useRef<HTMLButtonElement>(null);
   const sidebar=useRef<HTMLElement>(null);
   useEffect(()=>{const query=matchMedia('(max-width: 760px)');const update=()=>{setIsMobile(query.matches);if(!query.matches)setMobileOpen(false);};update();query.addEventListener('change',update);return()=>query.removeEventListener('change',update);},[]);
-  const [query, setQuery] = useState('');
   const [upload, setUpload] = useState<{progress:number;status:string;message:string;fileName:string}|null>(null);
   const [signingOut,setSigningOut]=useState(false);
   const [unread,setUnread]=useState(0);
@@ -134,7 +134,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);window.removeEventListener('myaaptha:settings-updated',changed);};
   },[isPublic,pathname]);
   useEffect(()=>{if(!mobileOpen)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';sidebar.current?.querySelector<HTMLElement>('a,button')?.focus();const close=(event:KeyboardEvent)=>{if(event.key==='Escape'){setMobileOpen(false);menuButton.current?.focus();}if(event.key==='Tab'){const items=Array.from(sidebar.current?.querySelectorAll<HTMLElement>('a[href],button:not(:disabled)')||[]);const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}};window.addEventListener('keydown',close);return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener('keydown',close);};},[mobileOpen]);
-  useEffect(() => {setMobileOpen(false);setQuery('');}, [pathname]);
+  useEffect(() => {setMobileOpen(false);}, [pathname]);
   useEffect(()=>{let timer:number|undefined;const listener=(event:Event)=>{const detail=(event as CustomEvent<{progress:number;status:string;message:string;fileName:string}>).detail;setUpload(detail);if(detail.status==='complete')timer=window.setTimeout(()=>setUpload(null),3500);};window.addEventListener('myaaptha:upload-progress',listener);return()=>{window.removeEventListener('myaaptha:upload-progress',listener);if(timer)window.clearTimeout(timer);};},[]);
 
   if (isPublic) return children;
@@ -146,11 +146,6 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
       return !value;
     });
   };
-  const search = (event: FormEvent) => {
-    event.preventDefault();
-    if (pathname === '/contacts' || pathname === '/circles' || pathname === '/messages') {window.dispatchEvent(new CustomEvent('myaaptha:page-search',{detail:query.trim()}));return;}
-    router.push(query.trim() ? `/circle-search?q=${encodeURIComponent(query.trim())}` : '/circle-search');
-  };
   const signOut=()=>{setSigningOut(true);logout();window.location.replace('/auth');};
 
   return <div className={`workspace-shell ${expanded ? 'nav-expanded' : 'nav-collapsed'}`}>
@@ -159,20 +154,13 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     <header className="workspace-topbar">
       <button ref={menuButton} className="workspace-menu-button" onClick={toggle} aria-label="Toggle main menu" aria-expanded={isMobile ? mobileOpen : expanded} aria-controls="workspace-navigation"><WorkspaceIcon name="menu" /></button>
       <Link href="/dashboard" className="workspace-brand" aria-label="MyAaptha home"><Image src="/myaaptha-logo-256.webp" unoptimized width={38} height={38} alt="" priority /><strong>MyAaptha</strong></Link>
-      <form className="workspace-global-search" onSubmit={search} role="search">
-        <span aria-hidden="true"><WorkspaceIcon name="search" /></span><input type="search" value={query} onChange={event => setQuery(event.target.value)} minLength={2} maxLength={160} placeholder={pathname==='/messages'?'Search your chats':pathname==='/contacts'?'Search your contacts':pathname==='/circles'?'Search your circles':'Search people, circles and messages'} aria-label="Search MyAaptha" />
-        <button aria-label="Open search filters" type="submit"><WorkspaceIcon name="/settings" /></button>
-      </form>
-      <nav className="workspace-top-actions" aria-label="Account tools"><Link href="/settings#notifications" aria-label={`Personal settings${unread ? `, ${unread} unread notifications` : ""}`}><WorkspaceIcon name="/settings" /></Link><Link href="/profile" className="workspace-account" aria-label="Profile">ME</Link></nav>
     </header>
     <aside ref={sidebar} id="workspace-navigation" inert={isMobile&&!mobileOpen} className={`workspace-sidebar ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main navigation">
-      {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.map(item => <Link key={item.href} href={item.href as Route} title={item.label} aria-current={isSelected(pathname,item.href)?"page":undefined} className={isSelected(pathname, item.href) ? 'active' : ''}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><b>{item.label}</b></Link>)}</nav></section>)}
+      {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.map(item => <Link key={item.href} href={item.href as Route} title={item.label} aria-current={pathname===item.href?"page":undefined} className={pathname===item.href ? 'active' : ''}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><b>{item.label}{item.href==='/notifications'&&unread>0&&<span className="nav-unread">{unread>99?'99+':unread}</span>}</b></Link>)}</nav></section>)}
       {isAdmin&&<section className="workspace-nav-section"><h2>Administration</h2><nav><Link href={'/security-reports' as Route} className={pathname==='/security-reports'?'active':''}><span><WorkspaceIcon name="/security-reports" /></span><b>Security & errors</b></Link></nav></section>}
-      <section className="workspace-nav-section"><h2>Account & review</h2><nav><Link href={'/workspace-tools' as Route} className={pathname==='/workspace-tools'?'active':''}><span><WorkspaceIcon name="/settings" /></span><b>Account & tools</b></Link><Link href="/profile" className={pathname==='/profile'?'active':''}><span><WorkspaceIcon name="/profile" /></span><b>My profile</b></Link></nav></section>
-      <button type="button" className="workspace-sidebar-sign-out" disabled={signingOut} onClick={()=>void signOut()}><span>↪</span><b>{signingOut?'Signing out...':'Sign out'}</b></button>
+      <button type="button" className="workspace-sidebar-sign-out" disabled={signingOut} onClick={()=>void signOut()}><span><WorkspaceIcon name="logout" /></span><b>{signingOut?'Signing out...':'Sign out'}</b></button>
     </aside>
     {mobileOpen && <button className="workspace-scrim" onClick={() => setMobileOpen(false)} aria-label="Close navigation" />}
-    <div id="workspace-main" tabIndex={-1} className="workspace-content">{currentSection&&currentSection.tabs.length>1&&<nav className="workspace-section-tabs" aria-label={`${currentSection.label} sections`}>{currentSection.tabs.map(tab=><Link key={tab.href} href={tab.href as Route} aria-current={pathname===tab.href?'page':undefined}>{tab.label}</Link>)}</nav>}{children}</div>
-    <aside className="workspace-utilities" aria-label="Quick tools">{utilities.map(item => <Link key={item.label} href={item.href as Route} title={item.label} aria-label={item.label}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><small>{item.href==='/help'?'Ask AI':item.label}</small></Link>)}</aside>
+    <div id="workspace-main" tabIndex={-1} className="workspace-content">{children}</div>
   </div>;
 }

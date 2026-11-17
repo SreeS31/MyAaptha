@@ -1,0 +1,17 @@
+/* One navigation surface; each page owns its search and actions. */
+.workspace-shell{--shell-right:0px}
+.workspace-topbar{display:flex;justify-content:flex-start;padding-right:16px}
+.workspace-brand{margin-left:48px;flex:none}
+.nav-collapsed .workspace-brand strong{display:block}
+.workspace-content{padding-right:0;padding-bottom:20px}
+.workspace-content>main>.page-heading{background:transparent!important;border:0!important;box-shadow:none!important;padding:8px 0!important;min-height:0}
+.workspace-sidebar nav a{height:auto;min-height:42px;white-space:normal}
+.workspace-sidebar nav a b{display:flex;align-items:center;gap:8px}
+.nav-unread{display:inline-block;padding:2px 6px;background:#256f7b;color:white;border-radius:10px;font-size:12px}
+.workspace-shell.nav-collapsed .workspace-sidebar nav a b{display:none}
+@media(max-width:760px){.workspace-topbar{display:flex;padding-left:8px}.workspace-brand{margin-left:48px}.workspace-content{padding-bottom:20px}.workspace-content>main.messaging-workspace{height:calc(100dvh - var(--shell-top,60px))}.workspace-sidebar.mobile-open nav a b{display:flex}}
+@media(max-width:760px){.workspace-shell.nav-collapsed .workspace-sidebar.mobile-open nav a b{display:flex}}
+.workspace-shell .workspace-content>main>header{background:transparent!important;border:0!important;box-shadow:none!important;padding:8px 0!important;min-height:0}
+.workspace-shell .chat-local-search{border:1px solid var(--border);border-radius:8px;background:#fff;padding:4px 8px;box-shadow:none}
+.workspace-shell .chat-local-search input[type=search]{border:0!important;outline:none!important;box-shadow:none!important;background:transparent!important}
+.workspace-shell .chat-local-search:focus-within{outline:2px solid var(--brand);outline-offset:2px}

@@ -9,6 +9,7 @@ import 'package:myaaptha_mobile/features/shell/presentation/app_shell.dart';
 class ProfileApi extends MyAapthaApi {
  ProfileApi():super(AuthTokenBundle(tokenType:'Bearer',accessToken:'test',refreshToken:'test',expiresIn:900));
  Map<String,dynamic> data={'firstName':'Asha','surname':'Rao','highestQualification':'M.Tech','employer':'Original','photos':<String>[]};
+ @override Future<List<String>> saveInterests(List<String> values)async{data['hobbies']=values.join(', ');return values;}
  @override Future<UserProfileModel> profile() async=>UserProfileModel(Map.from(data));
  @override Future<UserProfileModel> saveProfile(Map<String,dynamic> value) async {data=Map.from(value);return UserProfileModel(data);}
 }

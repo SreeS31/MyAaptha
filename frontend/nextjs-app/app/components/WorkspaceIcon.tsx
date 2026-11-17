@@ -1,5 +1,15 @@
 // Shared stroke icons avoid platform-dependent symbol and emoji rendering.
 const paths:Record<string,string>={
+ '/circles':'M9 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm6 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z',
+ '/circle-search':'M9 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM2 22v-2a7 7 0 0 1 11-6M18 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm3 7 2 3',
+ '/timeline':'M4 3v18h17M4 17l5-7 4 3 7-9',
+ '/trust':'m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6l9-4Zm-4 10 3 3 5-6',
+ '/notifications':'M5 17h14l-2-4V9a5 5 0 0 0-10 0v4l-2 4Zm5 3h4M12 2v2',
+ '/session':'M3 3h18v13H3zM8 21h8M12 16v5',
+ '/ai-activity':'m12 3 2 6 6 3-6 2-2 7-2-7-7-2 7-3 2-6ZM20 2v5M18 4h5',
+ '/reports':'M4 22V3h15l-3 5 3 5H4',
+ '/moderation':'m4 15 5 5M8 16l8-8M13 3l8 8M10 6l8 8M3 22h10',
+ '/privacy':'M5 10h14v12H5V10Zm3 0V6a4 4 0 0 1 8 0v4M12 15v3',
  '/posts':'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
  '/followers':'M3 21v-3a6 6 0 0 1 12 0v3M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 9l2 2 3-4',
  '/following':'M3 21v-3a6 6 0 0 1 12 0v3M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 17h5M19.5 14.5v5',
