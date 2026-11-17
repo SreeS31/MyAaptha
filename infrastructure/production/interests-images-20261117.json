@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "10bb6c21b52d11c8010ec0b8590119914760c654",
+  "tag": "beta-20261117-interests-r1",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44022937142",
+  "deployed": false,
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:c72ed226492b5a5749e929de04c8436503d9cf4e2cac65fcb3ebcbbe5d87d157",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:3c5eac6190ad7a0444b367e3fd13e62a22eb68ae3d8dd0ebdfe4f79c8cc3cda3"
+}
