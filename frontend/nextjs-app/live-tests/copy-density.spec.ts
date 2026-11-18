@@ -18,6 +18,8 @@ test('deployed dashboard and workspaces keep compact copy and account access',as
  for(const route of ['/dashboard','/timeline','/feed','/reports','/notifications','/messages','/contacts','/circles','/career','/interests','/profile','/finance','/health']){
   await page.goto(route);await expect(page.locator('main:visible')).toHaveCount(1);
   await expect(page.locator('.workspace-section-tabs,.workspace-utilities,.workspace-global-search')).toHaveCount(0);
+  if(route==='/circles')await expect(page.getByRole('searchbox',{name:'Search circles',exact:true})).toBeVisible();
+  if(route==='/contacts')await expect(page.getByRole('searchbox',{name:'Search contacts',exact:true})).toBeVisible();
   const hrefs=await page.locator('#workspace-navigation a').evaluateAll(items=>items.map(item=>item.getAttribute('href')));expect(new Set(hrefs).size,route).toBe(hrefs.length);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),route).toBe(true);
  }

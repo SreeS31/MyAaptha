@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "d0adcffb0d96a865b437a6ce412fee9ba4835eba",
+  "tag": "beta-20261118-copy-r2",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44251368982",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44251375239",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:a446ce5c698a1cfaadfced88c0a019e2edeccf3dfce0f1316279858d5a93a460",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:6f29f31526647a68077e7b169e305eef3972ca0a23802681857d266ea0b30628",
+  "deployed": true,
+  "apiSchemaVersion": "74",
+  "databaseMigrations": false,
+  "url": "https://35-244-31-192.sslip.io/dashboard",
+  "androidTestApkSha256": "1e4a6a9d114be2af00a8c1c247b922535ea2ce49a8c436f9ed9542121fc98598",
+  "deploymentDate": "2026-11-18",
+  "liveBrowserScenariosPassed": 4,
+  "syntheticAccountsRemoved": true,
+  "backupRestoreVerified": true,
+  "backupFile": "/opt/myaaptha-beta/runtime/release-backups/20261118T063802369353Z.dump",
+  "previousBackend": "ghcr.io/srees31/myaaptha-backend@sha256:c72ed226492b5a5749e929de04c8436503d9cf4e2cac65fcb3ebcbbe5d87d157",
+  "previousFrontend": "ghcr.io/srees31/myaaptha-frontend@sha256:987c4e416b44a6ea76f07ecd6882a2c69fc83358d60fad1f0db5096eb8cf707e"
+}
