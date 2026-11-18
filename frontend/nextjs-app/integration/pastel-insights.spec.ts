@@ -13,22 +13,22 @@ test('pastel charts show saved network and financial data',async({page,playwrigh
  const savedCircle=await circle.json();
  for(const [direction,amount,category] of [['INCOME',10000,'OTHER'],['EXPENSE',2500,'FOOD']] as const){const saved=await api.post('/api/finance/transactions',{headers,data:{direction,amount,category,source:'MANUAL',occurredAt:new Date().toISOString()}});expect(saved.ok()).toBe(true);}
  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
- const chart=page.locator('.network-insights');await expect(chart.getByText('Your chart will appear when you add data.')).toBeVisible();
+ const chart=page.locator('.network-insights');await expect(chart.getByText('No relationships',{exact:true})).toBeVisible();
  await chart.getByRole('button',{name:'Circles',exact:true}).click();
  if(savedCircle.members.length){const row=chart.locator('li').filter({hasText:'Reading friends'});await expect(row.locator('strong')).toHaveText(String(savedCircle.members.length));}
- await expect(chart.getByText('Member counts for your circles. A person can belong to more than one circle.')).toBeVisible();
+ await expect(chart.getByRole('heading')).toHaveText('Network');
  await expect(page.locator('.workspace-sidebar a[href="/feed"]')).toHaveCount(1);
- await expect(page.locator('.workspace-sidebar a[href="/notifications"]')).toHaveCount(0);
+ await expect(page.locator('.workspace-sidebar a[href="/notifications"]')).toHaveCount(1);
  await expect(page.locator('.workspace-sidebar').getByText('New diary entry',{exact:true})).toHaveCount(0);
- await page.goto('/circles');await expect(page.locator('main input[type=search]')).toHaveCount(0);
- const search=page.getByRole('searchbox',{name:'Search MyAaptha'});await search.fill('no such circle');await search.press('Enter');await expect(page.getByText('No circles in this view.',{exact:true})).toBeVisible();
+ await page.goto('/circles');await expect(page.locator('main input[type=search]')).toHaveCount(1);
+ const search=page.getByRole('searchbox',{name:'Search circles'});await search.fill('no such circle');await search.press('Enter');await expect(page.getByText('No circles in this view.',{exact:true})).toBeVisible();
  await search.fill('Reading');await search.press('Enter');await expect(page.getByRole('button',{name:'Open Reading friends',exact:true})).toBeVisible();
  const details=page.getByLabel('Information about Reading friends');await details.click();await expect(page.locator('.circle-detail-lines').getByText('Your role: Admin',{exact:true})).toBeVisible();
  await expect.poll(()=>page.locator('.info-panel').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(page.viewportSize()!.width);await details.press('Escape');await expect(page.locator('.info-panel')).toHaveCount(0);
  await page.screenshot({path:`../../.tools/pastel-review/circles-${info.project.name}.png`,fullPage:true});
- await page.goto('/contacts');await expect(page.locator('main input[type=search]')).toHaveCount(0);await page.getByRole('searchbox',{name:'Search MyAaptha'}).fill('test contact');await page.getByRole('searchbox',{name:'Search MyAaptha'}).press('Enter');await expect(page.getByText('Results for "test contact"',{exact:true})).toBeVisible();
+ await page.goto('/contacts');await expect(page.locator('main input[type=search]')).toHaveCount(1);await page.getByRole('searchbox',{name:'Search contacts'}).fill('test contact');await page.getByRole('searchbox',{name:'Search contacts'}).press('Enter');await expect(page.getByText('Results for "test contact"',{exact:true})).toBeVisible();
  await page.goto('/messages');await expect(page.getByRole('heading',{name:'Messages',exact:true})).toBeVisible();await page.screenshot({path:`../../.tools/pastel-review/info-${info.project.name}.png`,fullPage:true});
- await page.goto('/settings');await expect(page.getByRole('link',{name:/^Notification inbox/})).toBeVisible();
+ await page.goto('/settings');await expect(page.getByRole('link',{name:'View notifications',exact:true})).toBeVisible();
  await page.goto('/finance');const cashflow=page.locator('.finance-cashflow');await expect(cashflow.locator('li')).toHaveCount(2);
  await expect(cashflow.locator('li').filter({hasText:'Income'}).locator('strong')).toContainText('10,000');
  await expect(cashflow.locator('li').filter({hasText:'Spending'}).locator('strong')).toContainText('2,500');

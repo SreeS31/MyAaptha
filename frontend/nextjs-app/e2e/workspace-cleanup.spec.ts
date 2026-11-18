@@ -9,6 +9,21 @@ test.beforeEach(async({page})=>{
   await route.fulfill({json:data});
  });
 });
+
+test('circles and contacts each expose a working local search',async({page})=>{
+ await page.route('**/api/network/circles',route=>route.fulfill({json:[{id:1,name:'Reading friends',description:'Books',ownerName:'Member',members:[],currentUserAdmin:true}]}));
+ await page.goto('/circles');
+ await expect(page.getByRole('button',{name:'Open Reading friends',exact:true})).toBeVisible();
+ const circles=page.getByRole('searchbox',{name:'Search circles',exact:true});
+ await circles.fill('Cycling');await expect(page.getByText('No circles in this view.',{exact:true})).toBeVisible();
+ await circles.fill('Reading');await expect(page.getByRole('button',{name:'Open Reading friends',exact:true})).toBeVisible();
+ await page.goto('/contacts');
+ const request=page.waitForRequest(request=>new URL(request.url()).pathname==='/api/address-book'&&new URL(request.url()).searchParams.get('q')==='Alex');
+ await page.getByRole('searchbox',{name:'Search contacts',exact:true}).fill('Alex');
+ await page.getByRole('button',{name:'Search',exact:true}).click();await request;
+ await expect(page.getByText('Results for "Alex"',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
 test('messages has one navigation and one working search; composer remains reachable',async({page},info)=>{
  const searches:string[]=[];
  page.on('request',request=>{if(request.url().includes('/api/network/chats/search'))searches.push(request.url());});
