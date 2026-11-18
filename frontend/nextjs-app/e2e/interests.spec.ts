@@ -29,10 +29,10 @@ test('interests picker saves multiple choices and custom interests; area groups 
  await page.getByRole('button',{name:'Create a group',exact:true}).click();
  await page.getByLabel('Group name',{exact:true}).fill('Hyderabad Cycle Club');await page.getByLabel('Group interest',{exact:true}).fill('Cycling');await page.getByLabel('Group area',{exact:true}).fill('Hyderabad, India');await page.getByLabel('About this group').fill('Weekend cycling and friendly route discussions.');await page.getByRole('button',{name:'Create group',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Hyderabad Cycle Club',exact:true}).last()).toBeVisible();
- await page.getByRole('button',{name:'Approve Cycle member',exact:true}).click();await expect(page.getByText('No pending requests.')).toBeVisible();
+ await page.getByRole('button',{name:'Approve Cycle member',exact:true}).click();await expect(page.getByText('No requests',{exact:true})).toBeVisible();
  await page.getByLabel('Message to the group').fill('Sunday ride at 7 am?');await page.getByRole('button',{name:'Post message',exact:true}).click();await expect(page.getByText('Sunday ride at 7 am?',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Delete message',exact:true}).click();await expect(page.getByText('Sunday ride at 7 am?',{exact:true})).toHaveCount(0);
- await page.getByLabel('Area',{exact:true}).fill('Mumbai');await expect(page.getByRole('heading',{name:'No groups found'})).toBeVisible();await page.getByLabel('Area',{exact:true}).fill('Hyderabad');await expect(page.locator('.interest-group')).toHaveCount(1);
+ await page.getByLabel('Area',{exact:true}).fill('Mumbai');await expect(page.getByText('No groups',{exact:true})).toBeVisible();await page.getByLabel('Area',{exact:true}).fill('Hyderabad');await expect(page.locator('.interest-group')).toHaveCount(1);
  const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();expect(axe.violations).toEqual([]);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:info.outputPath('interests-groups.png'),fullPage:true});
 });

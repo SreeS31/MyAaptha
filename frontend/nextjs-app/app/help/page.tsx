@@ -67,7 +67,7 @@ export default function HelpPage() {
     catch{setError('Could not publish the reviewed answer.');}finally{setBusy(false);}
   }
   return <main className={styles.page}>
-    <header className={styles.heading}><div><p className="eyebrow">MYAAPTHA HELP</p><h1>Ask MyAaptha</h1><p>Practical answers from your application’s help guide.</p></div>
+    <header className={styles.heading}><div><h1>Ask MyAaptha</h1><p>Practical answers from your application’s help guide.</p></div>
       <button className="btn btn-secondary" disabled={busy} onClick={clear}>Clear chat</button></header>
     <section className={styles.options} aria-label="Answer settings">
       <label><input type="checkbox" checked={useAi} disabled={!configured || busy} onChange={event => setUseAi(event.target.checked)} /> Use OpenAI answers</label>

@@ -469,7 +469,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                   return Column(children: [
                     if (items.isEmpty)
                       const Text(
-                          'No contacts found. Import a list or clear the search.'),
+                          'No matching contacts'),
                     if (cursor != null)
                       OutlinedButton(
                           onPressed: busy

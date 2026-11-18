@@ -1,3 +1,4 @@
+import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -312,7 +313,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                       ]),
                       if (interests.isEmpty)
                         const Text(
-                            'Choose interests from the catalogue or add your own.'),
+                            DisplayCopy.noInterests),
                       Wrap(
                           spacing: 6,
                           children: interests
@@ -386,7 +387,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
           const Padding(
               padding: EdgeInsets.all(16),
               child:
-                  Text('No groups found. Try another area or create a group.')),
+                  Text(DisplayCopy.noGroups)),
         ...groups.map((g) => Card(
             child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -558,7 +559,7 @@ class _InterestGroupScreenState extends State<InterestGroupScreen> {
                   child: const Text('Request to join'))),
         if (admin) ...[
           Text('Join requests', style: Theme.of(context).textTheme.titleLarge),
-          if (requests.isEmpty && !loading) const Text('No pending requests.'),
+          if (requests.isEmpty && !loading) const Text(DisplayCopy.noRequests),
           ...requests.map((r) => Card(
               child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -624,7 +625,7 @@ class _InterestGroupScreenState extends State<InterestGroupScreen> {
                             messagePage = 0;
                           }),
                   child: const Text('Post message'))),
-          if (messages.isEmpty && !loading) const Text('No messages yet.'),
+          if (messages.isEmpty && !loading) const Text(DisplayCopy.noMessages),
           ...messages.map((m) => Card(
               child: Padding(
                   padding: const EdgeInsets.all(12),

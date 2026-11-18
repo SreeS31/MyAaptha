@@ -1,3 +1,4 @@
+import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'interests_screen.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
@@ -1232,7 +1233,7 @@ class ReportsScreen extends StatelessWidget {
             if (snapshot.hasError) return _ErrorState('${snapshot.error}');
             final reports = snapshot.data ?? [];
             if (reports.isEmpty) {
-              return const Center(child: Text('No reports submitted.'));
+              return const Center(child: Text(DisplayCopy.noReports));
             }
             return ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -1996,7 +1997,6 @@ class _MobileDashboardState extends State<MobileDashboard>{
       final counts=<String,int>{};for(final relation in snapshot.data!){counts.update(relation.type,(value)=>value+1,ifAbsent:()=>1);}
       return Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
         Text('${snapshot.data!.length} relationships',style:Theme.of(context).textTheme.titleLarge),
-        if(counts.isEmpty)const Text('Your saved relationships will appear here.'),
         ...counts.entries.map((entry)=>Padding(padding:const EdgeInsets.symmetric(vertical:8),child:Row(children:[Expanded(child:Text(entry.key)),Text('${entry.value}')]))),
       ])));
     }),
@@ -3795,7 +3795,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           const SliverFillRemaining(
               child: Center(
                   child:
-                      Text('No conversations in this view.')))
+                      Text(DisplayCopy.noMessages)))
         else
           SliverList.builder(
               itemCount: visible.length,
@@ -4475,7 +4475,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                                 fontSize: 20, fontWeight: FontWeight.w500)))),
                 Expanded(
                     child: reports.isEmpty
-                        ? const Center(child: Text('No reports submitted yet.'))
+                        ? const Center(child: Text(DisplayCopy.noReports))
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                             itemCount: reports.length,
@@ -6329,7 +6329,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : messages!.every((message)=>message.hiddenForMe)
                     ? const Center(
-                        child: Text('No messages yet. Start the conversation.'))
+                        child: Text(DisplayCopy.noMessages))
                     : ListView.builder(
                         reverse: true,
                         padding: const EdgeInsets.all(14),

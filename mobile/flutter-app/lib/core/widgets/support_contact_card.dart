@@ -15,7 +15,6 @@ class SupportContactCard extends StatelessWidget {
             Text('Support & privacy',
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            const Text('For support or privacy enquiries, email:'),
             const SelectableText(publicHelpEmail),
             TextButton.icon(
               icon: const Icon(Icons.copy_outlined),

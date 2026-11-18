@@ -36,7 +36,7 @@ void main(){
  });
  testWidgets('native area filter uses the shared directory contract',(tester)async{
   final api=InterestsApi();await tester.pumpWidget(MaterialApp(home:Scaffold(body:InterestsScreen(api:api))));await tester.pumpAndSettle();
-  await tester.scrollUntilVisible(find.widgetWithText(TextField,'Area'),200,scrollable:find.byType(Scrollable).first);await tester.enterText(find.widgetWithText(TextField,'Area'),'Mumbai');await tester.pump(const Duration(milliseconds:400));await tester.pumpAndSettle();expect(find.text('No groups found. Try another area or create a group.'),findsOneWidget);
+  await tester.scrollUntilVisible(find.widgetWithText(TextField,'Area'),200,scrollable:find.byType(Scrollable).first);await tester.enterText(find.widgetWithText(TextField,'Area'),'Mumbai');await tester.pump(const Duration(milliseconds:400));await tester.pumpAndSettle();expect(find.text('No groups'),findsOneWidget);
  });
  testWidgets('group editor preserves the selected topic at narrow width and large text',(tester)async{
   tester.view.physicalSize=const Size(320,740);tester.view.devicePixelRatio=1;addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);

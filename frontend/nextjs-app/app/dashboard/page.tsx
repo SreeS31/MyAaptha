@@ -696,7 +696,7 @@ export default function DashboardPage() {
 
       <section className="dashboard-welcome">
         <div>
-          <p className="eyebrow">MYAAPTHA OVERVIEW</p>
+
           <h1>Good to see you{sessionUser ? `, ${sessionUser.username}` : ''}.</h1>
           <p>See your circles, people, and project work at a glance.</p>
         </div>
@@ -713,22 +713,22 @@ export default function DashboardPage() {
 
       <section className="analytics-grid">
         <article className="analytics-card task-chart-card">
-          <div className="chart-heading"><div><p className="eyebrow">WORKFLOW</p><h2>Task momentum</h2></div><span className="chart-badge">{taskTotal} total</span></div>
+          <div className="chart-heading"><div><h2>Task momentum</h2></div><span className="chart-badge">{taskTotal} total</span></div>
           <div className="bar-chart" role="img" aria-label={`Tasks: ${taskStatusCounts.todo} to do, ${taskStatusCounts.inProgress} in progress, and ${taskStatusCounts.done} done`}>
             {[{ label: 'To do', value: taskStatusCounts.todo, tone: 'bar-lilac' }, { label: 'Working', value: taskStatusCounts.inProgress, tone: 'bar-peach' }, { label: 'Done', value: taskStatusCounts.done, tone: 'bar-mint' }].map((item) => <div className="bar-column" key={item.label}><span className="bar-value">{item.value}</span><div className="bar-track"><span className={`bar-fill ${item.tone}`} style={{ height: `${Math.max((item.value / chartMaximum) * 100, item.value ? 12 : 0)}%` }} /></div><span className="bar-label">{item.label}</span></div>)}
           </div>
         </article>
         <article className="analytics-card progress-chart-card">
-          <div className="chart-heading"><div><p className="eyebrow">DELIVERY</p><h2>Completion</h2></div><span className="chart-badge">Live</span></div>
+          <div className="chart-heading"><div><h2>Completion</h2></div><span className="chart-badge">Live</span></div>
           <div className="donut-layout"><div className="donut-chart" style={{ background: `conic-gradient(#6ed0ad 0 ${completionRate}%, #edf0f7 ${completionRate}% 100%)` }}><div><strong>{completionRate}%</strong><span>done</span></div></div><div className="chart-legend"><p><i className="legend-dot dot-mint" />Done <b>{taskStatusCounts.done}</b></p><p><i className="legend-dot dot-peach" />In progress <b>{taskStatusCounts.inProgress}</b></p><p><i className="legend-dot dot-lilac" />To do <b>{taskStatusCounts.todo}</b></p></div></div>
         </article>
         <article className="analytics-card network-chart-card">
-          <div className="chart-heading"><div><p className="eyebrow">CONNECTIONS</p><h2>Circle network</h2></div><span className="chart-badge">{summary.relationshipCount} links</span></div>
+          <div className="chart-heading"><div><h2>Circle network</h2></div><span className="chart-badge">{summary.relationshipCount} links</span></div>
           <div className="network-visual" role="img" aria-label={`${summary.personCount} people, ${summary.circleCount} circles, and ${summary.relationshipCount} relationships`}><span className="network-link link-one" /><span className="network-link link-two" /><span className="network-link link-three" /><span className="network-node node-center">{summary.personCount}</span><span className="network-node node-pink">P</span><span className="network-node node-blue">C</span><span className="network-node node-yellow">R</span></div>
           <p className="network-caption"><b>{summary.personCount}</b> people connected through <b>{summary.circleCount}</b> circles.</p>
         </article>
         <article className="analytics-card milestone-chart-card">
-          <div className="chart-heading"><div><p className="eyebrow">ROADMAP</p><h2>Milestone focus</h2></div><span className="chart-badge">{activeMilestones} active</span></div>
+          <div className="chart-heading"><div><h2>Milestone focus</h2></div><span className="chart-badge">{activeMilestones} active</span></div>
           <div className="milestone-visual"><div className="milestone-wave"><span /><span /><span /><span /><span /></div><div className="milestone-stat"><strong>{milestones.length}</strong><span>Milestones</span></div></div>
           <p className="network-caption">Keep the next milestone moving with clear, visible progress.</p>
         </article>

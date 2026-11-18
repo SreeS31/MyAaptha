@@ -11,6 +11,7 @@ import './enterprise-workspace.css';
 import './ui-foundation.css';
 import './community.css';
 import './workspace-cleanup.css';
+import './copy-density.css';
 import type { Metadata } from 'next';
 import WorkspaceShell from './components/WorkspaceShell';
 

@@ -1,0 +1,7 @@
+.dashboard-overview-grid{align-items:start}
+.dashboard-overview-grid .insight-empty,.timeline-dashboard-preview .timeline-empty{padding:12px 0;border:0;background:transparent;text-align:left;margin:0}
+.dashboard-overview-grid .insight-heading{margin-bottom:12px}
+.contact-organizer>.section-heading{margin-bottom:0;justify-content:flex-start;gap:12px}
+.contact-organizer:has(.contact-organizer-body)>.section-heading{margin-bottom:16px}
+.finance-activity-empty,.finance-chart-empty{min-height:0;padding:16px}
+.finance-guidance>summary{cursor:pointer;font-weight:600}

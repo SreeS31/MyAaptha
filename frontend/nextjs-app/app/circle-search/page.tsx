@@ -89,10 +89,10 @@ function CircleSearchContent() {
   const globalCount = Object.values(globalResults).reduce((total, values) => total + values.length, 0);
 
   return <main className="container circle-search-page">
-    <header className="network-header"><div><p className="eyebrow">SEARCH</p><div className="inline-help-heading"><h1>Search MyAaptha</h1><InfoTip label="About Search MyAaptha">Find people, relationships, circles, and messages across your account.</InfoTip></div></div><Link href="/discover" className="btn btn-secondary">Find people & connections</Link></header>
+    <header className="network-header"><div><div className="inline-help-heading"><h1>Search MyAaptha</h1><InfoTip label="About Search MyAaptha">Find people, relationships, circles, and messages across your account.</InfoTip></div></div><Link href="/discover" className="btn btn-secondary">Find people & connections</Link></header>
     {error && <p className="network-message error-message">{error}</p>}
     {globalQuery && <section className="card global-search-results" aria-live="polite">
-      <header><div><p className="eyebrow">ALL MYAAPTHA</p><h2>Results for &quot;{globalQuery}&quot;</h2></div>{!globalLoading && <span>{globalCount} {globalCount === 1 ? 'match' : 'matches'}</span>}</header>
+      <header><div><h2>Results for &quot;{globalQuery}&quot;</h2></div>{!globalLoading && <span>{globalCount} {globalCount === 1 ? 'match' : 'matches'}</span>}</header>
       {globalLoading ? <div className="social-empty"><p>Searching people, circles, and messages...</p></div> : <>
         {globalResults.people.length > 0 && <GlobalGroup title="People & common connections"><DiscoveryResults people={globalResults.people}/><Link href={`/discover?q=${encodeURIComponent(globalQuery)}`}>Open people search ?</Link></GlobalGroup>}
         {globalResults.relationships.length > 0 && <GlobalGroup title="Relationships">{globalResults.relationships.map(item => <SearchResult key={`relationship-${item.id}`} title={item.person.displayName} detail={item.type} action="Open network" onOpen={() => router.push('/dashboard#relationships')} />)}</GlobalGroup>}
@@ -102,7 +102,7 @@ function CircleSearchContent() {
         {!globalCount && <div className="social-empty"><h2>No matches found</h2><p>Try another name, word, phone number, or attachment name.</p></div>}
       </>}
     </section>}
-    <p>Message results cover up to 20 recent circles and conversations. Use the focused search below for another circle.</p><section className="page-search-section"><header><p className="eyebrow">THIS PAGE</p><h2>Search within one circle</h2></header>
+    <p>Messages searched in up to 20 recent chats.</p><section className="page-search-section"><header><h2>Search within one circle</h2></header>
       <details className="card scoped-search"><summary>Filter within a circle</summary><form className="circle-search-form" onSubmit={search}><label><span>Circle</span><select required value={circleId} onChange={event => { setCircleId(event.target.value); setResults([]); setSearched(false); }}><option value="">Choose a circle</option>{circles.map(circle => <option key={circle.id} value={circle.id}>{circle.name}</option>)}</select></label><label><span>Words or attachment name</span><input required type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search this circle" /></label><button className="btn btn-primary">Search</button></form></details>
       <section className="card circle-search-results">{results.map(post => <article key={post.id}><span className="conversation-avatar">{post.authorPhoto ? <img src={post.authorPhoto} alt="" /> : post.authorName.charAt(0).toUpperCase()}</span><span><strong>{post.authorName}</strong><p>{post.message || post.attachmentName || 'Attachment'}</p><small>{new Date(post.createdAt).toLocaleString()}{post.editedAt ? ' | edited' : ''}</small></span><button className="btn btn-secondary" onClick={() => router.push(`/dashboard?circleId=${post.circleId}`)}>Open circle</button></article>)}{searched && !results.length && <div className="social-empty"><h2>No matching messages</h2><p>Try a different word or attachment name.</p></div>}{!searched && <div className="social-empty"><p>Choose a circle and enter a search term.</p></div>}</section>
     </section>

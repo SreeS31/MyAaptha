@@ -1,3 +1,4 @@
+import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:myaaptha_mobile/core/network/myaaptha_api.dart';
@@ -93,7 +94,7 @@ class _TimelineScreenState extends State<TimelineScreen> with WidgetsBindingObse
     body:loading?const Center(child:CircularProgressIndicator()):error!=null?Center(child:Column(mainAxisSize:MainAxisSize.min,children:[Text(error!),TextButton(onPressed:load,child:const Text('Try again'))])):RefreshIndicator(onRefresh:load,child:ListView(padding:const EdgeInsets.all(16),children:[
       Wrap(spacing:12,runSpacing:12,alignment:WrapAlignment.spaceBetween,children:[SegmentedButton<bool>(segments:const [ButtonSegment(value:false,label:Text('Wave')),ButtonSegment(value:true,label:Text('Compact'))],selected:{compact},onSelectionChanged:(value)=>setState(()=>compact=value.first)),FilledButton.icon(onPressed:()=>edit(),icon:const Icon(Icons.add),label:const Text('Add event'))]),
       const SizedBox(height:16),
-      if(events.isEmpty)const Card(child:Padding(padding:EdgeInsets.all(24),child:Text('No milestones yet. Add your first event.'))),
+      if(events.isEmpty)const Card(child:Padding(padding:EdgeInsets.all(24),child:Text(DisplayCopy.noEvents))),
       for(final event in events) Padding(padding:EdgeInsets.only(bottom:compact?10:22),child:Stack(children:[Positioned.fill(child:IgnorePointer(child:CustomPaint(painter:_TimelineWavePainter(compact)))),Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
         Padding(padding:const EdgeInsets.only(top:16,right:12),child:CircleAvatar(radius:compact?16:22,backgroundColor:color(event['kind'] as String),child:const Icon(Icons.flag_outlined,color:Colors.white,size:20))),
         Expanded(child:Container(padding:EdgeInsets.all(compact?14:20),decoration:BoxDecoration(color:color(event['kind'] as String).withValues(alpha:.04),border:Border.all(color:color(event['kind'] as String),width:1.5),borderRadius:BorderRadius.circular(18)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
