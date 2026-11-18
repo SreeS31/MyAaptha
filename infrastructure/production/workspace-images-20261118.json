@@ -1,0 +1,16 @@
+{
+  "sourceCommit": "9bc6394be118e822285468fdcb6ded0a5de0b7ad",
+  "tag": "beta-20261117-workspace-r1",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44131753440",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44131761688",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:987c4e416b44a6ea76f07ecd6882a2c69fc83358d60fad1f0db5096eb8cf707e",
+  "deployed": true,
+  "backendUnchanged": true,
+  "apiSchemaVersion": "74",
+  "deploymentDate": "2026-11-18",
+  "url": "https://35-244-31-192.sslip.io/messages",
+  "retainedBackend": "ghcr.io/srees31/myaaptha-backend@sha256:c72ed226492b5a5749e929de04c8436503d9cf4e2cac65fcb3ebcbbe5d87d157",
+  "liveBrowserScenariosPassed": 4,
+  "syntheticAccountsRemoved": true,
+  "androidTestApkSha256": "18e2c6ff71bb7ec519c47498d5ee682ec5d5ed4b15e32d6570751277da034f3c"
+}
