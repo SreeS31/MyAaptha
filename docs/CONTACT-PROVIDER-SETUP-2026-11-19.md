@@ -16,7 +16,7 @@ The reviewed activation helper is:
 powershell -ExecutionPolicy Bypass -File infrastructure/configure-contacts-beta.ps1 -CredentialsFile "C:\private\google-oauth-client.json"
 ```
 
-It transfers the file into a private directory through IAP/SSH, verifies the expected project/VM and callback, stores settings in the protected beta runtime, restarts only the backend, checks the applied values without printing them, and checks health. Failure restores the prior runtime settings. It deletes the uploaded credential copy; the original local download remains with its owner. Deploy the updated `compose.gcp-beta.yml` before activation.
+It transfers the file into a private directory through IAP/SSH, verifies the expected project/VM and callback, stores settings in the protected beta runtime, restarts only the backend, checks the applied values without printing them, and checks health. Failure restores the prior runtime settings. After a validated activation attempt it deletes the uploaded credential copy; the original local download remains with its owner. Deploy the updated `compose.gcp-beta.yml` before activation.
 
 For access beyond the provider's testing audience, complete the provider's publishing and verification process. The setup above does not bypass that process.
 
