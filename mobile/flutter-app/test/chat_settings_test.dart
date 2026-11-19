@@ -29,7 +29,7 @@ void main(){
     await tester.tap(find.widgetWithText(ChoiceChip,'Archived'));await tester.pumpAndSettle();expect(find.text('Hello'),findsOneWidget);
     await tester.tap(find.byTooltip('Chat actions'));await tester.pumpAndSettle();
     await tester.tap(find.text('Unarchive'));await tester.pumpAndSettle();expect(api.archived,false);expect(api.muted,true);expect(api.markedUnread,true);
-    await tester.tap(find.widgetWithText(ChoiceChip,'Groups & circles'));await tester.pumpAndSettle();expect(find.text('Family circle'),findsOneWidget);expect(find.text('Hello'),findsNothing);
+    await tester.tap(find.widgetWithText(ChoiceChip,'Circles'));await tester.pumpAndSettle();expect(find.text('Family circle'),findsOneWidget);expect(find.text('Hello'),findsNothing);
     await tester.tap(find.widgetWithText(ChoiceChip,'People'));await tester.pumpAndSettle();expect(find.text('Family circle'),findsNothing);expect(find.text('Hello'),findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });

@@ -30,11 +30,12 @@ public class AddressBookImportService {
         .filter(e->e.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")).distinct().toList();
     return new ContactInput(input.displayName(),phones,emails,input.organization(),input.groups());
   }
+  private static boolean hasIdentity(ContactInput c){return !c.phones().isEmpty()||!c.emails().isEmpty()||(c.displayName()!=null&&!c.displayName().isBlank()&&!c.displayName().equalsIgnoreCase("Unnamed contact"));}
   @org.springframework.transaction.annotation.Transactional
   public ReviewedOutcome saveReviewed(long owner,List<AddressBookController.ReviewedContact> input,String source){
     int added=0,updated=0,unchanged=0,skipped=0;long total=book.list(owner,0,1,"",null).total();
     for(var row:input){
-      var contact=usable(row.contact());if(contact.phones().isEmpty()){skipped++;continue;}
+      var contact=usable(row.contact());if(!hasIdentity(contact)){skipped++;continue;}
       var saved=book.save(owner,List.of(contact),source);
       added+=saved.added();updated+=saved.updated();unchanged+=saved.unchanged();total=saved.total();
       for(long id:saved.contactIds()){
@@ -45,8 +46,8 @@ public class AddressBookImportService {
     return new ReviewedOutcome(added,updated,unchanged,skipped,total,"Saved your reviewed private contact selections. No invitations or relationships were created.");
   }
   public Outcome save(long owner,List<ContactInput> input,String source,boolean organize){
-    input=input.stream().map(AddressBookImportService::usable).filter(c->!c.phones().isEmpty()).toList();
-    if(input.isEmpty())return new Outcome(0,0,0,book.list(owner,0,1,"",null).total(),0,0,"Skipped contacts without usable phone numbers.");
+    input=input.stream().map(AddressBookImportService::usable).filter(AddressBookImportService::hasIdentity).toList();
+    if(input.isEmpty())return new Outcome(0,0,0,book.list(owner,0,1,"",null).total(),0,0,"Skipped empty contacts.");
     var saved=book.save(owner,input,source);int created=0,organized=0;String message="";
     if(organize){
       var settings=preferences.get(owner);

@@ -180,16 +180,54 @@ Future<Map<String, dynamic>> importContactBatches(
 }
 
 
-List<Map<String,dynamic>> prepareContactReview(List<Map<String,dynamic>> input,List<String> existing){
-  String key(String value)=>value.trim().replaceAll(RegExp(r'\s+'),' ').toLowerCase();
-  final result=<Map<String,dynamic>>[];
-  for(final row in input){
-    final phones=(row['phones'] as List? ?? []).cast<String>().expand((p)=>p.split(RegExp(r' ::: |[;,]'))).map((p)=>p.trim().replaceFirst(RegExp(r'^tel:',caseSensitive:false),'').replaceAll(RegExp(r'[ ()\-.]'),'')).where((p)=>RegExp(r'^\+?[0-9]{7,15}$').hasMatch(p)).toSet().take(20).toList();
-    if(phones.isEmpty)continue;
-    final words=key('${row['displayName']}').split(RegExp(r'[^a-z0-9]+'));
-    final matches=[...existing,'INCOIS','Inter','Padmashali'].where((name){final parts=key(name).split(RegExp(r'[^a-z0-9]+')).where((p)=>p.isNotEmpty).toList();return parts.isNotEmpty&&parts.every(words.contains);});
-    final names=[...(row['groups'] as List? ?? []).cast<String>().where((g)=>!RegExp(r'^\*?\s*(my contacts|all contacts)$',caseSensitive:false).hasMatch(g)), '${row['organization'] ?? ''}',...matches].where((s)=>s.trim().isNotEmpty).map((s)=>existing.where((e)=>key(e)==key(s)).firstOrNull??s.trim()).toSet().take(20).toList();
-    result.add({...row,'phones':phones,'emails':(row['emails'] as List? ?? []).cast<String>().map((e)=>e.trim()).where((e)=>RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(e)).toSet().take(20).toList(),'selected':true,'circleNames':names.isEmpty?['Imported contacts']:names});
+String _circleKey(String value)=>value.trim().replaceAll(RegExp(r'\s+'),' ').toLowerCase();
+bool _meaningfulLabel(String value)=>value.trim().isNotEmpty&&!RegExp(r'^\*?\s*(my contacts|all contacts|imported contacts)$',caseSensitive:false).hasMatch(value);
+String _contactIdentity(Map<String,dynamic> c)=>jsonEncode([_circleKey('${c['displayName']}'),[...(c['phones'] as List)].cast<String>()..sort(),[...(c['emails'] as List)].map((e)=>_circleKey('$e')).toList()..sort()]);
+List<Map<String,dynamic>> importCircleSuggestions(List<Map<String,dynamic>> contacts,List<String> existing){
+ final savedNames={for(final name in existing)_circleKey(name):name};
+ final groups=<String,Map<String,dynamic>>{};
+ for(final contact in contacts.where((c)=>c['selected']==true)){
+  for(final raw in (contact['circleNames'] as List).cast<String>()){
+   final key=_circleKey(raw);if(key.isEmpty)continue;
+   final saved=savedNames[key];
+   final group=groups.putIfAbsent(key,()=>{'name':saved??raw.trim(),'existing':saved!=null,'contacts':<String>{}});
+   (group['contacts'] as Set<String>).add(_contactIdentity(contact));
   }
-  return result;
+ }
+ return groups.values.map((g)=>{'name':g['name'],'existing':g['existing'],'count':(g['contacts'] as Set).length,'eligible':true}).toList()
+  ..sort((a,b){final saved=(b['existing']==true?1:0)-(a['existing']==true?1:0);if(saved!=0)return saved;final count=(b['count'] as int)-(a['count'] as int);return count!=0?count:'${a['name']}'.compareTo('${b['name']}');});
+}
+List<Map<String,dynamic>> prepareContactReview(List<Map<String,dynamic>> input,List<String> existing){
+ final savedNames={for(final name in existing)_circleKey(name):name};
+ String canonical(String value)=>savedNames[_circleKey(value)]??value.trim().replaceAll(RegExp(r'\s+'),' ').substring(0,min(100,value.trim().replaceAll(RegExp(r'\s+'),' ').length));
+ final usable=<Map<String,dynamic>>[];
+ for(final row in input){
+  final phones=(row['phones'] as List? ?? []).cast<String>().expand((p)=>p.split(RegExp(r' ::: |[;,]'))).map((p)=>p.trim().replaceFirst(RegExp(r'^tel:',caseSensitive:false),'').replaceAll(RegExp(r'[ ()\-.]'),'')).where((p)=>RegExp(r'^\+?[0-9]{7,15}$').hasMatch(p)).toSet().take(20).toList();
+  final emails=(row['emails'] as List? ?? []).cast<String>().map((e)=>e.trim()).where((e)=>RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(e)).toSet().take(20).toList();
+  final name='${row['displayName']??''}'.trim();
+  if(phones.isEmpty&&emails.isEmpty&&(name.isEmpty||name.toLowerCase()=='unnamed contact'))continue;
+  usable.add({...row,'displayName':name,'organization':'${row['organization']??''}'.trim(),'phones':phones,'emails':emails});
+ }
+ final explicit=_unique([...existing,...usable.expand((r)=>[...(r['groups'] as List? ?? []).cast<String>(),'${r['organization']}'])].where(_meaningfulLabel).map(canonical));
+ final tags=<String,Map<String,dynamic>>{};
+ for(final row in usable){
+  final name='${row['displayName']}';
+  final candidates=[...RegExp(r'#([\p{L}\p{N}_-]{2,40})',unicode:true).allMatches(name).map((m)=>m[1]!),...RegExp(r'\(([^()]{2,40})\)').allMatches(name).map((m)=>m[1]!),if(name.contains(' - '))name.split(' - ').last];
+  if(RegExp('[a-z]').hasMatch(name)){candidates.addAll(RegExp(r'\b[A-Z][A-Z0-9]{2,}\b').allMatches(name).map((m)=>m[0]!));}
+  for(final raw in candidates.where((v)=>RegExp(r'\p{L}',unicode:true).hasMatch(v)&&_meaningfulLabel(v))){
+   final label=canonical(raw),key=_circleKey(label);final tag=tags.putIfAbsent(key,()=>{'name':label,'contacts':<String>{}});(tag['contacts'] as Set<String>).add(_contactIdentity(row));
+  }
+ }
+ final candidates=_unique([...explicit,...tags.values.where((t)=>(t['contacts'] as Set).length>=2).map((t)=>'${t['name']}')]);
+ final candidateIndex=<String,List<Map<String,dynamic>>>{};
+ for(final name in candidates){final parts=_circleKey(name).split(RegExp(r'[^\p{L}\p{N}]+',unicode:true)).where((p)=>p.isNotEmpty).toList();if(parts.isNotEmpty)candidateIndex.putIfAbsent(parts.first,()=>[]).add({'name':name,'parts':parts});}
+ final result=<Map<String,dynamic>>[];
+ for(final row in usable){
+  final words=_circleKey('${row['displayName']}').split(RegExp(r'[^\p{L}\p{N}]+',unicode:true)).where((p)=>p.isNotEmpty).toList();
+  final wordSet=words.toSet();
+  final matches=wordSet.expand((word)=>candidateIndex[word]??<Map<String,dynamic>>[]).where((c)=>(c['parts'] as List<String>).every(wordSet.contains)).map((c)=>'${c['name']}');
+  final names=_unique([...(row['groups'] as List? ?? []).cast<String>(),'${row['organization']}',...matches].where(_meaningfulLabel).map(canonical)).take(20).toList();
+  result.add({...row,'displayName':'${row['displayName']}'.isNotEmpty?row['displayName']:(row['phones'] as List).firstOrNull??(row['emails'] as List).first,'selected':true,'circleNames':names});
+ }
+ return result;
 }

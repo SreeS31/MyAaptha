@@ -3785,7 +3785,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 subtitle: 'Recent chats and unread messages.')),
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat or search')))),
         SliverToBoxAdapter(child:ExpansionTile(title:const Text('Conversation settings'),children:[SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})])),
-        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Groups & circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
         if (error != null)
           SliverToBoxAdapter(child: _ErrorState(error!, retry: load)),
         if (items == null)
@@ -6818,7 +6818,7 @@ class MenuComparisonScreen extends StatelessWidget {
     const Padding(padding:EdgeInsets.symmetric(vertical:12),child:Text('All existing features remain accessible. Review each move and open its destination.')),
     Wrap(spacing:6,children:[for(final label in workspacePrimaryLabels)Chip(label:Text(label))]),
     for(final move in workspaceMenuMoves)Card(child:ListTile(isThreeLine:true,title:Text(move.old),subtitle:Text('New location: ${move.destination}'),trailing:const Icon(Icons.open_in_new),onTap:()=>onOpen(move.path))),
-    const Card(child:Padding(padding:EdgeInsets.all(16),child:Text('Career uses your education and employment details. Interests uses your saved hobbies. Online Feed retains stories, sharing audiences and saved posts. Messages retains calls, group conversations, search, unread and archive controls. Previous mobile shortcuts: Notifications is the top bell; Search is available from the top search bar and Messages > Find people; More / All tools is now Account & tools. Sign out remains in the drawer and account tools. This review view can be removed later.'))),
+    const Card(child:Padding(padding:EdgeInsets.all(16),child:Text('Career uses your education and employment details. Interests uses your saved hobbies. Online Feed retains stories, sharing audiences and saved posts. Messages retains calls, circle conversations, search, unread and archive controls. Previous mobile shortcuts: Notifications is the top bell; Search is available from the top search bar and Messages > Find people; More / All tools is now Account & tools. Sign out remains in the drawer and account tools. This review view can be removed later.'))),
   ]));
 }
 

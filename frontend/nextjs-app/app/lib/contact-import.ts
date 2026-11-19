@@ -1,34 +1,49 @@
 export type AddressContactInput = { displayName:string; phones:string[]; emails:string[]; organization:string; groups?:string[] };
 export type ReviewedContact = AddressContactInput & { selected:boolean; circleNames:string[] };
 const circleKey=(value:string)=>value.trim().replace(/\s+/g,' ').toLowerCase();
+const contactIdentity=(contact:AddressContactInput)=>JSON.stringify([circleKey(contact.displayName),[...contact.phones].sort(),contact.emails.map(circleKey).sort()]);
+const meaningfulLabel=(name:string)=>!!name.trim()&&!/^\*?\s*(my contacts|all contacts|imported contacts)$/i.test(name);
 export function importCircleSuggestions(contacts:ReviewedContact[],existing:string[]=[]){
-  const groups=new Map<string,{name:string;existing:boolean;phones:Set<string>}>();
+  const savedNames=new Map(existing.map(name=>[circleKey(name),name]));
+  const groups=new Map<string,{name:string;existing:boolean;contacts:Set<string>}>();
   for(const contact of contacts.filter(c=>c.selected))for(const raw of contact.circleNames){
     const key=circleKey(raw);if(!key)continue;
-    const saved=existing.find(name=>circleKey(name)===key);
-    const group=groups.get(key)||{name:saved||raw.trim(),existing:!!saved,phones:new Set<string>()};
-    group.phones.add(contact.phones[0]);groups.set(key,group);
+    const saved=savedNames.get(key);
+    const group=groups.get(key)||{name:saved||raw.trim(),existing:!!saved,contacts:new Set<string>()};
+    group.contacts.add(contactIdentity(contact));groups.set(key,group);
   }
-  return Array.from(groups.values()).map(({phones,...group})=>({...group,count:phones.size,eligible:group.existing||phones.size>5})).sort((a,b)=>Number(b.existing)-Number(a.existing)||b.count-a.count||a.name.localeCompare(b.name));
+  return Array.from(groups.values()).map(({contacts,...group})=>({...group,count:contacts.size,eligible:true})).sort((a,b)=>Number(b.existing)-Number(a.existing)||b.count-a.count||a.name.localeCompare(b.name));
 }
 export function reviewedCircleAssignments(contacts:ReviewedContact[],existing:string[]=[]){
-  const allowed=new Map(importCircleSuggestions(contacts,existing).filter(g=>g.eligible).map(g=>[circleKey(g.name),g.name]));
+  const allowed=new Map(importCircleSuggestions(contacts,existing).map(g=>[circleKey(g.name),g.name]));
   return contacts.filter(c=>c.selected).map(c=>({...c,circleNames:unique(c.circleNames.map(name=>allowed.get(circleKey(name))||'')).slice(0,20)}));
 }
 export function prepareContactReview(input:AddressContactInput[],existing:string[]=[]){
-  const canonical=(value:string)=>existing.find(name=>circleKey(name)===circleKey(value))||value.trim().replace(/\s+/g,' ').slice(0,100);
-  const contacts:ReviewedContact[]=[];
-  for(const row of input){
-    const phones=unique(row.phones.flatMap(p=>p.split(/ ::: |[;,]/)).map(p=>p.trim().replace(/^tel:/i,'').replace(/[ ()\-.]/g,'')).filter(p=>/^\+?\d{7,15}$/.test(p))).slice(0,20);
-    if(!phones.length)continue;
-    const words=circleKey(row.displayName).split(new RegExp('[^\\p{L}\\p{N}]+','u'));
-    const matches=[...existing,'INCOIS','Inter','Padmashali'].filter(name=>{const parts=circleKey(name).split(new RegExp('[^\\p{L}\\p{N}]+','u')).filter(Boolean);return parts.length>0&&parts.every(part=>words.includes(part));});
-    const names=unique([...(row.groups||[]).filter(g=>!/^\*?\s*(my contacts|all contacts)$/i.test(g)),row.organization,...matches].filter(Boolean).map(canonical)).slice(0,20);
-    contacts.push({...row,displayName:row.displayName.slice(0,200),organization:row.organization.slice(0,300),phones,emails:unique(row.emails.filter(e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()))).slice(0,20),groups:(row.groups||[]).map(g=>g.slice(0,100)).slice(0,20),selected:true,circleNames:names});
+  const savedNames=new Map(existing.map(name=>[circleKey(name),name]));
+  const canonical=(value:string)=>savedNames.get(circleKey(value))||value.trim().replace(/\s+/g,' ').slice(0,100);
+  const normalized=input.map(row=>({...row,displayName:row.displayName.trim().slice(0,200),organization:row.organization.trim().slice(0,300),
+    phones:unique(row.phones.flatMap(p=>p.split(/ ::: |[;,]/)).map(p=>p.trim().replace(/^tel:/i,'').replace(/[ ()\-.]/g,'')).filter(p=>/^\+?\d{7,15}$/.test(p))).slice(0,20),
+    emails:unique(row.emails.map(e=>e.trim()).filter(e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))).slice(0,20)}));
+  const usable=normalized.filter(row=>row.phones.length||row.emails.length||(row.displayName&&!/^unnamed contact$/i.test(row.displayName)));
+  const explicit=unique([...existing,...usable.flatMap(row=>[...(row.groups||[]),row.organization])].filter(meaningfulLabel).map(canonical));
+  const tags=new Map<string,{name:string;contacts:Set<string>}>();
+  for(const row of usable){
+    const name=row.displayName;
+    const candidates=[...Array.from(name.matchAll(new RegExp('#([\\p{L}\\p{N}_-]{2,40})','gu')),m=>m[1]),...Array.from(name.matchAll(/\(([^()]{2,40})\)/g),m=>m[1]),...(name.includes(' - ')?[name.split(' - ').at(-1)!]:[])];
+    if(/[a-z]/.test(name))candidates.push(...Array.from(name.matchAll(/\b[A-Z][A-Z0-9]{2,}\b/g),m=>m[0]));
+    for(const raw of candidates.filter(v=>new RegExp('[\\p{L}]','u').test(v)&&meaningfulLabel(v))){const label=canonical(raw),key=circleKey(label);const tag=tags.get(key)||{name:label,contacts:new Set<string>()};tag.contacts.add(contactIdentity(row));tags.set(key,tag);}
   }
-  const suggestions=importCircleSuggestions(contacts,existing);
-  const allowed=new Set(suggestions.filter(g=>g.eligible).map(g=>circleKey(g.name)));
-  return {contacts:contacts.map(c=>({...c,circleNames:c.circleNames.filter(name=>allowed.has(circleKey(name)))})),skipped:input.length-contacts.length,suggestions:suggestions.filter(g=>g.eligible)};
+  const candidates=unique([...explicit,...Array.from(tags.values()).filter(t=>t.contacts.size>=2).map(t=>t.name)]);
+  const candidateIndex=new Map<string,{name:string;parts:string[]}[]>();
+  for(const name of candidates){const parts=circleKey(name).split(new RegExp('[^\\p{L}\\p{N}]+','u')).filter(Boolean);if(parts.length)candidateIndex.set(parts[0],[...(candidateIndex.get(parts[0])||[]),{name,parts}]);}
+  const contacts:ReviewedContact[]=usable.map(row=>{
+    const words=circleKey(row.displayName).split(new RegExp('[^\\p{L}\\p{N}]+','u')).filter(Boolean);
+    const wordSet=new Set(words);
+    const matches=Array.from(wordSet).flatMap(word=>candidateIndex.get(word)||[]).filter(candidate=>candidate.parts.every(part=>wordSet.has(part))).map(candidate=>candidate.name);
+    const circleNames=unique([...(row.groups||[]),row.organization,...matches].filter(meaningfulLabel).map(canonical)).slice(0,20);
+    return {...row,displayName:row.displayName||row.phones[0]||row.emails[0],groups:(row.groups||[]).filter(meaningfulLabel).map(g=>g.slice(0,100)).slice(0,20),selected:true,circleNames};
+  });
+  return {contacts,skipped:input.length-contacts.length,suggestions:importCircleSuggestions(contacts,existing)};
 }
 const unique=(values:string[])=>Array.from(new Set(values.map(v=>v.trim()).filter(Boolean)));
 

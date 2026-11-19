@@ -129,11 +129,12 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
     }
     final prepared=prepareContactReview(contacts,circles.map((c)=>'${c['name']}').toList());
     final skipped=contacts.length-prepared.length;
-    if(prepared.isEmpty){setState(()=>message='Skipped $skipped contacts without a usable phone number.');return;}
+    if(prepared.isEmpty){setState(()=>message='Skipped $skipped contacts without a name, phone or email.');return;}
     final accepted=await showDialog<bool>(context:context,builder:(dialogContext)=>StatefulBuilder(builder:(context,update)=>AlertDialog(
       title:const Text('Review contacts'),
       content:SizedBox(width:560,height:440,child:Column(children:[
-        Text('Skipped $skipped without a usable phone number. Nothing is saved until you submit.'),
+        Text('Skipped $skipped without a name, phone or email. Nothing is saved until you submit.'),
+        ExpansionTile(title:Text('Suggested circles (${importCircleSuggestions(prepared,circles.map((c)=>"${c['name']}").toList()).length})'),children:[SizedBox(height:100,child:ListView(children:[for(final suggestion in importCircleSuggestions(prepared,circles.map((c)=>"${c['name']}").toList()))ListTile(dense:true,title:Text("${suggestion['name']}"),trailing:Text("${suggestion['count']} contacts"))]))]),
         CheckboxListTile(title:const Text('Select all'),value:prepared.every((r)=>r['selected']==true),onChanged:(v)=>update((){for(final r in prepared){r['selected']=v??false;}})),
         Expanded(child:ListView.builder(itemCount:prepared.length,itemBuilder:(context,index){final row=prepared[index];return Padding(padding:const EdgeInsets.only(bottom:12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           CheckboxListTile(contentPadding:EdgeInsets.zero,title:Text('${row['displayName']}'),subtitle:Text([...(row['phones'] as List),...(row['emails'] as List)].join(' | ')),value:row['selected']==true,onChanged:(v)=>update(()=>row['selected']=v??false)),
@@ -189,6 +190,9 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
     if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(email.text.trim())) {
       throw const FormatException('Enter a valid email address.');
     }
+    final ready=await widget.api.addressBookProviders();
+    if(mounted)setState(()=>providers=ready);
+    if(ready[provider]!=true)throw FormatException('${provider == 'google' ? 'Google' : 'Outlook'} contact connection is not set up yet. Import a CSV or vCard while setup is completed.');
     if (!await confirm('Import email contacts?',
         'Sign in with ${provider == 'google' ? 'Google' : 'Microsoft'} and approve read-only contacts access. Review contacts and circle suggestions before saving. ',
         action: 'Continue')) {
@@ -380,18 +384,19 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                               child: const Text('Contact permission settings')),
                         TextField(
                             controller: email,
+                            onChanged:(_)=>setState((){}),
                             enabled: !busy,
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
                                 labelText: 'Google or Outlook email')),
                         Wrap(spacing: 8, children: [
                           OutlinedButton(
-                              onPressed: busy || providers['google'] != true
+                              onPressed: busy || !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email.text.trim())
                                   ? null
                                   : () => run(() => connect('google')),
                               child: const Text('Import Google Contacts')),
                           OutlinedButton(
-                              onPressed: busy || providers['microsoft'] != true
+                              onPressed: busy || !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email.text.trim())
                                   ? null
                                   : () => run(() => connect('microsoft')),
                               child: const Text('Import Outlook Contacts'))
@@ -399,7 +404,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                         if (providers['google'] != true ||
                             providers['microsoft'] != true)
                           const Text(
-                              'Unavailable email providers need administrator setup. Device and file imports work without provider setup or an AI key.'),
+                              'Email connections need setup. Device and file import are available.'),
                         if (busy) ...[
                           const LinearProgressIndicator(),
                           Text('Processed $processed contacts'),

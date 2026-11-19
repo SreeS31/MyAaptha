@@ -1,0 +1,169 @@
+[
+  {
+    "name": "email-only and named contacts with explicit and shared circles",
+    "existing": [
+      "acme"
+    ],
+    "contacts": [
+      {
+        "phones": [],
+        "emails": [
+          "asha@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Asha INCOIS"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "venu@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Venu INCOIS"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "meera@example.test"
+        ],
+        "organization": "Acme",
+        "groups": [],
+        "displayName": "Meera"
+      },
+      {
+        "phones": [
+          "+919876543210"
+        ],
+        "emails": [],
+        "organization": "Acme",
+        "groups": [],
+        "displayName": "Shreya"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "bike@example.test"
+        ],
+        "organization": "",
+        "groups": [
+          "Cycling",
+          "My Contacts"
+        ],
+        "displayName": "Cyclist"
+      },
+      {
+        "phones": [],
+        "emails": [],
+        "organization": "",
+        "groups": [
+          "College"
+        ],
+        "displayName": "College friend"
+      },
+      {
+        "phones": [],
+        "emails": [],
+        "organization": "",
+        "groups": [],
+        "displayName": ""
+      }
+    ],
+    "expectedContacts": 6,
+    "expectedCircles": {
+      "acme": 2,
+      "INCOIS": 2,
+      "Cycling": 1,
+      "College": 1
+    }
+  },
+  {
+    "name": "name tags work without hardcoded community names",
+    "existing": [],
+    "contacts": [
+      {
+        "phones": [],
+        "emails": [
+          "ravi@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Ravi #Cycling"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "maya@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Maya #Cycling"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "asha@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Asha (School)"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "bala@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Bala (School)"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "unlabeled@example.test"
+        ],
+        "organization": "",
+        "groups": [],
+        "displayName": "Unlabeled person"
+      }
+    ],
+    "expectedContacts": 5,
+    "expectedCircles": {
+      "Cycling": 2,
+      "School": 2
+    }
+  },
+  {
+    "name": "duplicate contact does not inflate a circle count",
+    "existing": [],
+    "contacts": [
+      {
+        "phones": [],
+        "emails": [
+          "asha@example.test"
+        ],
+        "organization": "",
+        "groups": [
+          "Friends"
+        ],
+        "displayName": "Asha"
+      },
+      {
+        "phones": [],
+        "emails": [
+          "asha@example.test"
+        ],
+        "organization": "",
+        "groups": [
+          "Friends"
+        ],
+        "displayName": "Asha"
+      }
+    ],
+    "expectedContacts": 2,
+    "expectedCircles": {
+      "Friends": 1
+    }
+  }
+]

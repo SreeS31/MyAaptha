@@ -138,10 +138,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, 'Find members'), '');
     await tester.enterText(
-        find.widgetWithText(TextField, 'Group name'), 'Family');
+        find.widgetWithText(TextField, 'Circle name'), 'Family');
     await tester.tap(find.text('Friend'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Create group'));
+    await tester.tap(find.text('Create circle'));
     await tester.pumpAndSettle();
     expect(api.groupName, 'Family');
     expect(api.members, [2]);

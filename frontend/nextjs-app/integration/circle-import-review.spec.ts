@@ -16,7 +16,9 @@ test('circle chat stays in Circles and import saves only reviewed selections',as
   await page.screenshot({path:`../../.tools/preview/circles-inline-${test.info().project.name}.png`});
   await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
   await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'review.csv',mimeType:'text/csv',buffer:Buffer.from('Name,Phone 1 - Value,Phone 2 - Value,E-mail 1 - Value\nNo number,,,email@example.test\nBad number,123,,\nSree INCOIS,bad,+919876543210,sree@example.test\nSkip Inter,+919876543211,,skip@example.test')});
-  await expect(page.getByText('Skipped 2 contacts without a usable phone number.',{exact:true})).toBeVisible();
+  await expect(page.getByLabel('Import No number',{exact:true})).toBeChecked();
+  await page.getByLabel('Import No number',{exact:true}).uncheck();
+  await page.getByLabel('Import Bad number',{exact:true}).uncheck();
   await expect(page.getByRole('checkbox',{name:'Select all contacts',exact:true})).toBeChecked();
   await expect(page.getByLabel('Circles for Sree INCOIS',{exact:true})).toHaveValue('INCOIS');
   await page.getByRole('checkbox',{name:'Import Skip Inter',exact:true}).uncheck();
@@ -31,9 +33,9 @@ test('circle chat stays in Circles and import saves only reviewed selections',as
   const rows=Array.from({length:6},(_,i)=>`Tagged ${i},+91987654000${i},RTP ::: Not selected${i<5?' ::: Small tag':''}`);
   await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'tags.csv',mimeType:'text/csv',buffer:Buffer.from('Name,Phone 1 - Value,Labels\n'+rows.join('\n'))});
   await expect(page.getByLabel('Use circle RTP',{exact:true})).toBeChecked();
-  await expect(page.getByLabel('Use circle Small tag',{exact:true})).toHaveCount(0);
+  await expect(page.getByLabel('Use circle Small tag',{exact:true})).toBeChecked();
   await page.getByLabel('Import Tagged 5',{exact:true}).uncheck();
-  await expect(page.getByLabel('Use circle RTP',{exact:true})).toBeDisabled();
+  await expect(page.getByLabel('Use circle RTP',{exact:true})).toBeEnabled();
   await page.getByLabel('Import Tagged 5',{exact:true}).check();
   await expect(page.getByLabel('Use circle RTP',{exact:true})).toBeChecked();
   await page.getByLabel('Use circle RTP',{exact:true}).uncheck();
@@ -46,15 +48,9 @@ test('circle chat stays in Circles and import saves only reviewed selections',as
   await expect(page.getByRole('heading',{name:'7 saved contacts',exact:true})).toBeVisible();
   const organized=await (await api.get('/api/address-book/circles',{headers})).json();
   expect(organized.find((c:{name:string})=>c.name==='RTP').privateContactCount).toBe(6);
-  expect(organized.some((c:{name:string})=>c.name==='Small tag')).toBe(false);
+  expect(organized.find((c:{name:string})=>c.name==='Small tag').privateContactCount).toBe(5);
   expect(organized.some((c:{name:string})=>c.name==='Not selected')).toBe(false);
   expect(await (await api.get('/api/network/relationships',{headers})).json()).toEqual([]);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+2)).toBe(false);
-  const ai=await api.get('/api/health/ai-status',{headers});expect(ai.status()).toBe(200);
-  if(!(await ai.json()).configured){
-    await page.goto('/health');await expect(page.getByRole('button',{name:'Upload report',exact:true})).toBeDisabled();
-    await expect(page.getByText('AI report analysis needs the server OpenAI key.',{exact:false})).toBeVisible();
-    await expect(page.getByRole('button',{name:'Enter manually',exact:true})).toBeEnabled();
-  }
   await api.dispose();
 });

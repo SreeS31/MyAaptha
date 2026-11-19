@@ -40,7 +40,7 @@ test('mixed forwarding is limited to ten and circle chats open from Messages',as
     await page.goto('/messages');
     await expect(page.getByRole('heading',{name:'Messages',exact:true})).toBeVisible();
     await expect(page.locator('.chat-inbox-row')).toHaveCount(11);
-    await page.getByRole('button',{name:'Groups & circles',exact:true}).click();await expect(page.locator('.chat-inbox-row')).toHaveCount(10);
+    await page.getByRole('button',{name:'Circles',exact:true}).click();await expect(page.locator('.chat-inbox-row')).toHaveCount(10);
     const circle=page.locator('.chat-inbox-row').filter({hasText:'Circle 01'});
     await expect(circle).toContainText('Mixed forward example');
     await circle.getByRole('button').click();

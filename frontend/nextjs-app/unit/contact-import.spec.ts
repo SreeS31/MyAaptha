@@ -23,21 +23,27 @@ test('cancellation and failed batches stop further requests',async()=>{
   await expect(importContactBatches(contacts,async()=>{throw new Error('Unavailable');},()=>{})).rejects.toThrow('Unavailable');
 });
 
-test('review skips unusable phone rows, selects eligible rows and reuses explicit labels',()=>{
+test('review keeps phone, email and named contacts; only empty rows are skipped',()=>{
  const base={emails:[],organization:'',groups:[]};
- const review=prepareContactReview([{...base,displayName:'Skip',phones:['bad','123']},{...base,displayName:'Sree INCOIS',phones:['bad','+91 (98765) 43210'],emails:['bad','sree@example.test']},{...base,displayName:'Person',phones:['7654321'],groups:['Inter']}],['incois']);
+ const review=prepareContactReview([{...base,displayName:'',phones:['bad','123']},{...base,displayName:'Sree INCOIS',phones:['bad','+91 (98765) 43210'],emails:['bad','sree@example.test']},{...base,displayName:'Person',phones:[],emails:['person@example.test'],groups:['Inter']}],['incois']);
  expect(review.skipped).toBe(1);expect(review.contacts.every(c=>c.selected)).toBe(true);
- expect(review.contacts[0].phones).toEqual(['+919876543210']);expect(review.contacts[0].emails).toEqual(['sree@example.test']);expect(review.contacts[0].circleNames).toEqual(['incois']);expect(review.contacts[1].circleNames).toEqual([]);
+ expect(review.contacts[0].phones).toEqual(['+919876543210']);expect(review.contacts[0].emails).toEqual(['sree@example.test']);expect(review.contacts[0].circleNames).toEqual(['incois']);expect(review.contacts[1].circleNames).toEqual(['Inter']);
 });
 
-test('new circle suggestions require six distinct usable contacts; existing names are reused',()=>{
- const rows=Array.from({length:6},(_,i)=>({displayName:`Person ${i}`,phones:[`+91987654321${i}`],emails:[],organization:'',groups:['Work','Friends','Tiny']}));
- rows[5].groups=['Work','Friends'];
- const review=prepareContactReview(rows,['friends']);
- expect(review.suggestions).toEqual([{name:'friends',existing:true,count:6,eligible:true},{name:'Work',existing:false,count:6,eligible:true}]);
- expect(review.contacts[0].circleNames).toEqual(['Work','friends']);
- const selected=review.contacts.map((c,i)=>({...c,selected:i<5}));
- expect(importCircleSuggestions(selected,['friends']).find(g=>g.name==='Work')?.eligible).toBe(false);
- expect(reviewedCircleAssignments(selected,['friends']).every(c=>c.circleNames.join()==='friends')).toBe(true);
- expect(prepareContactReview([...rows.slice(0,5),rows[0]]).suggestions).toEqual([]);
+test('small explicit circles remain eligible and deselection excludes their contacts',()=>{
+ const review=prepareContactReview([{displayName:'Asha',phones:[],emails:['asha@example.test'],organization:'Work',groups:['Friends']},{displayName:'Bala',phones:[],emails:['bala@example.test'],organization:'Work',groups:[]}],['friends']);
+ expect(review.suggestions.map(c=>[c.name,c.count])).toEqual([['friends',1],['Work',2]]);
+ const selected=review.contacts.map((c,i)=>({...c,selected:i===0}));
+ expect(importCircleSuggestions(selected,['friends']).every(c=>c.eligible)).toBe(true);
+ expect(reviewedCircleAssignments(selected,['friends'])).toHaveLength(1);
+});
+
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+const fixtures=JSON.parse(readFileSync(resolve(__dirname,'../../../shared/contact-import-review-fixtures.json'),'utf8'));
+for(const fixture of fixtures)test(`shared contact review: ${fixture.name}`,()=>{
+ const result=prepareContactReview(fixture.contacts,fixture.existing);
+ expect(result.contacts).toHaveLength(fixture.expectedContacts);
+ expect(Object.fromEntries(result.suggestions.map(c=>[c.name,c.count]))).toEqual(fixture.expectedCircles);
+ expect(result.contacts.find(c=>c.displayName==='Unlabeled person')?.circleNames??[]).toEqual([]);
 });

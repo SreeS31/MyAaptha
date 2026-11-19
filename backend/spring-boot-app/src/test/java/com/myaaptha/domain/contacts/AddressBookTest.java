@@ -44,10 +44,19 @@ class AddressBookTest {
   String body(List<?> contacts,boolean organize)throws Exception{return json.writeValueAsString(Map.of("consent",true,"contacts",contacts,"source","csv","organize",organize));}
   @Test void reviewedImportSkipsInvalidRowsAndUsesOnlyChosenCircleNames()throws Exception{
     var owner=member();var valid=contact("Reviewed");
-    var invalid=Map.of("displayName","Skip","phones",List.of("bad",""),"emails",List.of("email@example.test"));
+    var invalid=Map.of("displayName","","phones",List.of("bad",""),"emails",List.of("bad"));
     var rows=List.of(Map.of("contact",valid,"circleNames",List.of("INCOIS")),Map.of("contact",invalid,"circleNames",List.of("Never create")));
     mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("consent",true,"contacts",rows,"source","csv")))).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(1)).andExpect(jsonPath("$.skipped").value(1));
     mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].name").value("INCOIS"));
+  }
+  @Test void emailOnlyAndNamedContactsAreReviewedAndReimportedWithoutDuplicates()throws Exception{
+    var owner=member();
+    var rows=List.of(Map.of("contact",Map.of("displayName","Email friend","phones",List.of(),"emails",List.of("friend@example.test")),"circleNames",List.of("Friends")),Map.of("contact",Map.of("displayName","Named friend","phones",List.of(),"emails",List.of()),"circleNames",List.of("College")));
+    String payload=json.writeValueAsString(Map.of("consent",true,"contacts",rows,"source","google"));
+    mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(2)).andExpect(jsonPath("$.skipped").value(0));
+    mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(0)).andExpect(jsonPath("$.unchanged").value(2));
+    mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
+    assertEquals(2L,jdbc.queryForObject("SELECT COUNT(*) FROM circle_members m JOIN circles c ON c.id=m.circle_id WHERE c.owner_user_id=?",Long.class,owner.id()));
   }
   @Test void importIsPrivateEncryptedIdempotentAndDoesNotCreateAccountsOrRelations()throws Exception{
     var owner=member();var stranger=member();long users=jdbc.queryForObject("SELECT COUNT(*) FROM users",Long.class),relations=jdbc.queryForObject("SELECT COUNT(*) FROM relationships",Long.class);

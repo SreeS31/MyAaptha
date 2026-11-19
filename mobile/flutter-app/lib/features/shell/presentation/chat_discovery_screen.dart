@@ -121,7 +121,7 @@ class _ChatDiscoveryScreenState extends State<ChatDiscoveryScreen> {
             target.name.toLowerCase().contains(query.text.trim().toLowerCase()))
         .toList();
     return Scaffold(
-      appBar: AppBar(title: Text(group ? 'New group' : 'Find a conversation')),
+      appBar: AppBar(title: Text(group ? 'New circle' : 'Find a conversation')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         SwitchListTile(
             title: const Text('Create a group'),
@@ -137,7 +137,7 @@ class _ChatDiscoveryScreenState extends State<ChatDiscoveryScreen> {
               controller: name,
               maxLength: 100,
               enabled: !saving,
-              decoration: const InputDecoration(labelText: 'Group name'),
+              decoration: const InputDecoration(labelText: 'Circle name'),
               onChanged: (_) => setState(() {})),
         TextField(
             controller: query,
@@ -182,7 +182,7 @@ class _ChatDiscoveryScreenState extends State<ChatDiscoveryScreen> {
               onPressed: saving || name.text.trim().isEmpty || selected.isEmpty
                   ? null
                   : createGroup,
-              child: const Text('Create group')),
+              child: const Text('Create circle')),
         if (!group && query.text.trim().length >= 2) ...[
           Text('Messages', style: Theme.of(context).textTheme.titleLarge),
           for (final hit in hits)

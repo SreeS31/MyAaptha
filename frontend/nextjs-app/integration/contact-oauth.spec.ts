@@ -32,7 +32,7 @@ test('organizer OAuth readiness, terminal errors, empty results and cancellation
     const organizer=page.locator('.contact-organizer');
     const open=async()=>{await organizer.getByRole('button',{name:'Import contacts',exact:true}).click();await organizer.getByRole('checkbox',{name:/Allow this one-time analysis/}).check();await organizer.getByRole('textbox',{name:'Email address containing the contacts'}).fill('fixture@example.test');};
     const google=organizer.getByRole('button',{name:'Connect Google Contacts',exact:true});
-    await open();await expect(google).toBeDisabled();await expect(organizer.getByText('Email contact providers are not available yet. You can import a file below.')).toBeVisible();expect(starts).toBe(0);
+    await open();await expect(google).toBeEnabled();await expect(organizer.getByText('Email connections need setup. You can import a file below.')).toBeVisible();expect(starts).toBe(0);
 
     // Readiness lookup failures can be retried independently of file import.
     lookupFails=true;await page.reload();await open();await expect(organizer.getByRole('button',{name:'Retry providers'})).toBeVisible();available=true;lookupFails=false;

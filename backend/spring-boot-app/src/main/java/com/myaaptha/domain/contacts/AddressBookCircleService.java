@@ -21,8 +21,6 @@ public class AddressBookCircleService {
   @Transactional
   public Organized organize(long owner,List<Assignment> assignments){
     lock(owner);var existing=list(owner);Map<String,Long> byName=new HashMap<>();existing.forEach(c->byName.putIfAbsent(key(c.name()),c.id()));
-    Set<String> proposed=new HashSet<>();for(var a:assignments)for(String name:a.names())proposed.add(key(name));
-    if(existing.size()+proposed.stream().filter(n->!byName.containsKey(n)).count()>500)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Automatic organization supports up to 500 owned circles. Assign contacts manually to existing circles.");
     int created=0,organized=0;
     for(var assignment:assignments){
       requireContact(owner,assignment.contactId());boolean assigned=false;
