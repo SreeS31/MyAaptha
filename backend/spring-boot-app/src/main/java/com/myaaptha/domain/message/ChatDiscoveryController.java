@@ -21,7 +21,7 @@ public class ChatDiscoveryController {
  public ChatDiscoveryController(EntityManager em,NetworkService network,UserRepository users,CircleRepository circles){this.em=em;this.network=network;this.users=users;this.circles=circles;}
  public record Group(@NotBlank @Size(max=100) String name,@NotNull @Size(max=100) List<@NotNull @Positive Long> memberIds){}
  @PostMapping("/groups") @Transactional public NetworkCircleDto group(Principal principal,@Valid @RequestBody Group group){
-  long user=Long.parseLong(principal.getName());var created=network.createCircle(user,new CreateNetworkCircleRequest(group.name(),"Group conversation"));
+  long user=Long.parseLong(principal.getName());var created=network.createCircle(user,new CreateNetworkCircleRequest(group.name(),"Circle conversation"));
   for(long member:new LinkedHashSet<>(group.memberIds()))if(member!=user)network.addCircleMember(user,created.id(),member);
   return created;
  }

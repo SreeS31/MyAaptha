@@ -125,7 +125,7 @@ void main() {
     expect(api.saved?['allowNever'], true);
     expect(api.saved?['storageBytes'], 107374182400);
   });
-  testWidgets('message search and new groups use the shared chat API',
+  testWidgets('message search and new circles use the shared chat API',
       (tester) async {
     final api = SyncApi();
     await tester.pumpWidget(MaterialApp(theme:AppTheme.light(),home: ChatDiscoveryScreen(api: api)));
@@ -134,7 +134,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('Shared message needle'), findsOneWidget);
-    await tester.tap(find.text('Create a group'));
+    await tester.tap(find.text('Create a circle'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, 'Find members'), '');
     await tester.enterText(

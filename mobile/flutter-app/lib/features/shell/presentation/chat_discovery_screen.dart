@@ -124,7 +124,7 @@ class _ChatDiscoveryScreenState extends State<ChatDiscoveryScreen> {
       appBar: AppBar(title: Text(group ? 'New circle' : 'Find a conversation')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         SwitchListTile(
-            title: const Text('Create a group'),
+            title: const Text('Create a circle'),
             value: group,
             onChanged: saving
                 ? null

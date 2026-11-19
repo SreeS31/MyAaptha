@@ -10,7 +10,7 @@ test('deployed contact review preserves email-only contacts, circles and messagi
  const username='contacts19'+randomBytes(5).toString('hex'),password=randomBytes(24).toString('base64url');
  const created=await page.request.post('/api/users',{data:{username,password,phoneNumber:'+1999'+String(parseInt(randomBytes(5).toString('hex'),16)%10000000000).padStart(10,'0')}});
  expect(created.ok()).toBeTruthy();const user=await created.json();
- const fixturePath=resolve(__dirname,'../../../.tools/contact-live-fixtures-20261119.json');
+ const fixturePath=resolve(__dirname,'../../../.tools/contact-live-r2-fixtures-20261119.json');
  const fixtures=existsSync(fixturePath)?JSON.parse(readFileSync(fixturePath,'utf8')):{accounts:[]};fixtures.accounts.push({id:user.id,username});writeFileSync(fixturePath,JSON.stringify(fixtures,null,2));
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).not.toHaveURL(/\/auth$/);
@@ -37,7 +37,7 @@ test('deployed contact review preserves email-only contacts, circles and messagi
  await page.getByRole('button',{name:'New chat',exact:true}).click();await page.getByRole('button',{name:'New circle',exact:false}).click();
  await page.getByLabel('Circle name',{exact:true}).fill('Message circle '+username);await page.getByRole('button',{name:'Create circle',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'New circle',exact:true})).toHaveCount(0);
- await expect.poll(async()=>{const result=await page.request.get('/api/network/circles');return (await result.json()).some((c:any)=>c.name==='Message circle '+username);}).toBe(true);
+ await expect.poll(async()=>{const result=await page.request.get('/api/network/circles');return (await result.json()).some((c:any)=>c.name==='Message circle '+username&&c.description==='Circle conversation');}).toBe(true);
  await page.screenshot({path:info.outputPath('messages-circle-wording.png'),fullPage:true});
  expect(errors).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  const logout=await page.request.post('/api/web-auth/logout',{data:{},headers:{'X-MyAaptha-Web':'1','Origin':new URL(page.url()).origin}});expect(logout.status()).toBe(204);

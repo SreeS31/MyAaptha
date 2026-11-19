@@ -32,7 +32,7 @@ class ChatDiscoveryTest {
     long before=jdbc.queryForObject("SELECT count(*) FROM circles",Long.class);
     mvc.perform(post("/api/network/chats/groups").header("Authorization",owner.token()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("name","Invalid group","memberIds",List.of(friend.id(),outsider.id()))))).andExpect(status().isBadRequest());
     org.assertj.core.api.Assertions.assertThat(jdbc.queryForObject("SELECT count(*) FROM circles",Long.class)).isEqualTo(before);
-    var created=mvc.perform(post("/api/network/chats/groups").header("Authorization",owner.token()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("name","Our group","memberIds",List.of(friend.id()))))).andExpect(status().isOk()).andReturn();
+    var created=mvc.perform(post("/api/network/chats/groups").header("Authorization",owner.token()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("name","Our group","memberIds",List.of(friend.id()))))).andExpect(status().isOk()).andExpect(jsonPath("$.description").value("Circle conversation")).andReturn();
     long circle=json.readTree(created.getResponse().getContentAsString()).get("id").asLong();
     String path="/api/network/circles/"+circle+"/posts";long groupMessage=send(owner,path,"discoveryneedle group");
     long direct=send(owner,"/api/network/messages/with/"+friend.id(),"discoveryneedle direct");

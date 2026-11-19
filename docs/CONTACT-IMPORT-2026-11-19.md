@@ -16,4 +16,4 @@ Local checks completed: 16 backend contact/OAuth tests, 26 web unit tests, 116 m
 
 Deployment: pending scanned release images. Live provider activation: awaiting owner OAuth application credentials.
 
-Android debug test APK: `.tools/preview/MyAaptha-beta-contacts-20261119.apk`, API origin `https://35-244-31-192.sslip.io`, SHA-256 `1095ccc6d392ad9b48715f2045eba07e6b965d29594f600120dc4690f6c21192`. This is a test build, not an app-store publication.
+Android debug test APK: `.tools/preview/MyAaptha-beta-contacts-20261119-r2.apk`, API origin `https://35-244-31-192.sslip.io`, SHA-256 `e58b0d26bc44e5874f8bf05da02cf73cdc14514426b76b5acdefcb91244ea467`. This is a test build, not an app-store publication.
