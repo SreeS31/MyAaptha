@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "b18acea91e0952d059b2086b4d06a9d0d0d7e59b",
+  "tag": "beta-20261120-contact-signin-r2",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44709280744",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44709280829",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:2c562631aa39971c310584c87146d466fc14e4623ff8b51bf80b6199d664734f",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:b65d47e050e21da565432bab8b275660f74338867f24ea55e0e7e0271421f734",
+  "deployed": true,
+  "previousBetaOverlaySha256": "ed96e87dec22017e2cec6d0c78504ca72b5b77f8d200f429298c2ee2f515de5c",
+  "betaOverlaySha256": "ed96e87dec22017e2cec6d0c78504ca72b5b77f8d200f429298c2ee2f515de5c",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "74",
+  "databaseMigrations": false,
+  "url": "https://35-244-31-192.sslip.io/contacts",
+  "androidTestApkSha256": "f2c56f4997f38df0a05e3079f0df8c97156d7afec06877561b15c3fadeeaa399",
+  "deploymentDate": "2026-11-20",
+  "liveBrowserScenariosPassed": 4,
+  "ciBrowserTestsPassed": 55,
+  "webUnitTestsPassed": 26,
+  "syntheticAccountsRemoved": true,
+  "backupRestoreVerified": true,
+  "backupFile": "/opt/myaaptha-beta/runtime/release-backups/20261120T092350334606Z.dump",
+  "providerAvailabilityAtVerification": {
+    "google": false,
+    "microsoft": false
+  },
+  "externalOAuthImportVerified": false,
+  "providerActivation": "One-time MyAaptha owner OAuth application configuration pending",
+  "previousBackend": "ghcr.io/srees31/myaaptha-backend@sha256:77ab10013b95efe7b4eae82fcb878076d0043cf82f8c7c3f9e03267b6fc7adef",
+  "previousFrontend": "ghcr.io/srees31/myaaptha-frontend@sha256:33df4f56d6124b1279564be92a67e248b51ca52fb9273191a99f74c43935f6b0"
+}
