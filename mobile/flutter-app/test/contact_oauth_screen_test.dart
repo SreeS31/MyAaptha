@@ -57,7 +57,7 @@ void main() {
     await tester
         .pumpWidget(MaterialApp(home: ContactOrganizerScreen(api: api)));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Google'), 200,
+    await tester.scrollUntilVisible(find.text('Sign in with Google'), 200,
         scrollable: find.byType(Scrollable).first);
   }
 
@@ -67,11 +67,11 @@ void main() {
     final api = OAuthFixtureApi()..available = false;
     await open(tester, api);
     final button = tester.widget<FilledButton>(find.ancestor(
-        of: find.text('Google'), matching: find.byType(FilledButton)));
+        of: find.text('Sign in with Google'), matching: find.byType(FilledButton)));
     expect(button.onPressed, isNull);
     expect(api.starts, 0);
-    expect(find.textContaining('Email contact providers are not available'),
-        findsOneWidget);
+    await tester.scrollUntilVisible(find.textContaining('Contact sign-in is temporarily unavailable'),150,scrollable:find.byType(Scrollable).first);
+    expect(find.textContaining('Contact sign-in is temporarily unavailable'),findsOneWidget);
   });
   testWidgets(
       'provider lookup failure can be retried without reading device contacts',
@@ -83,12 +83,12 @@ void main() {
     api.availabilityFails = false;
     await tester.tap(find.text('Retry providers'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Google'), -150,
+    await tester.scrollUntilVisible(find.text('Sign in with Google'), -150,
         scrollable: find.byType(Scrollable).first);
     expect(
         tester
             .widget<FilledButton>(find.ancestor(
-                of: find.text('Google'), matching: find.byType(FilledButton)))
+                of: find.text('Sign in with Google'), matching: find.byType(FilledButton)))
             .onPressed,
         isNotNull);
     expect(api.starts, 0);
@@ -97,10 +97,7 @@ void main() {
       (tester) async {
     final api = OAuthFixtureApi()..terminal = 422;
     await open(tester, api);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email containing your contacts'),
-        'fixture@example.test');
-    await tester.tap(find.text('Google'));
+    await tester.tap(find.text('Sign in with Google'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
@@ -112,10 +109,7 @@ void main() {
       (tester) async {
     final api = OAuthFixtureApi();
     await open(tester, api);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email containing your contacts'),
-        'fixture@example.test');
-    await tester.tap(find.text('Google'));
+    await tester.tap(find.text('Sign in with Google'));
     await tester.pump();
     await tester.tap(find.text('Cancel connection'));
     await tester.pump(const Duration(seconds: 3));
@@ -127,10 +121,7 @@ void main() {
       (tester) async {
     final api = OAuthFixtureApi();
     await open(tester, api);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email containing your contacts'),
-        'fixture@example.test');
-    await tester.tap(find.text('Google'));
+    await tester.tap(find.text('Sign in with Google'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();

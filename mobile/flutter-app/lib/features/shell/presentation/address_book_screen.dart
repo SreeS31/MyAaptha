@@ -19,9 +19,8 @@ class AddressBookScreen extends StatefulWidget {
 }
 
 class _AddressBookScreenState extends State<AddressBookScreen> {
-  final email = TextEditingController(), search = TextEditingController();
+  final search = TextEditingController();
   List<Map<String, dynamic>> items = [], circles = [];
-  Map<String, dynamic> providers = {};
   bool busy = false, organize = true, cancelled = false;
   String? error, message;
   int total = 0, processed = 0;
@@ -32,17 +31,12 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
   void initState() {
     super.initState();
     load();
-    widget.api.addressBookProviders().then((v) {
-      if (mounted) setState(() => providers = v);
-    }).catchError((Object e) {
-      if (mounted) setState(() => error = '$e');
-    });
+
   }
 
   @override
   void dispose() {
     cancelled = true;
-    email.dispose();
     search.dispose();
     super.dispose();
   }
@@ -187,19 +181,10 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
   }
 
   Future<void> connect(String provider) async {
-    if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(email.text.trim())) {
-      throw const FormatException('Enter a valid email address.');
-    }
-    final ready=await widget.api.addressBookProviders();
-    if(mounted)setState(()=>providers=ready);
-    if(ready[provider]!=true)throw FormatException('${provider == 'google' ? 'Google' : 'Outlook'} contact connection is not set up yet. Import a CSV or vCard while setup is completed.');
-    if (!await confirm('Import email contacts?',
-        'Sign in with ${provider == 'google' ? 'Google' : 'Microsoft'} and approve read-only contacts access. Review contacts and circle suggestions before saving. ',
-        action: 'Continue')) {
-      return;
-    }
-    final started = await widget.api
-        .connectAddressBook(email.text.trim(), provider, organize);
+    Map<String,dynamic> started;
+    try{started=await widget.api.connectAddressBook('',provider,organize);}
+    on MyAapthaApiException catch(e){if(e.statusCode==503)throw MyAapthaApiException('${provider=='google'?'Google':'Microsoft'} contact import is temporarily unavailable. Try again later or import a contact file.');rethrow;}
+    if(!mounted||cancelled)return;
     if (!await launchUrl(Uri.parse(started['authorizationUrl'].toString()),
         mode: LaunchMode.externalApplication)) {
       throw const MyAapthaApiException(
@@ -350,11 +335,11 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                   return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('PRIVATE ADDRESS BOOK',
-                            style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 8),
-                        const Text(
-                            'Review the contacts allowed by your device permission before importing. Saved contacts stay private and are available on web and mobile.'),
+                        Wrap(spacing:8,runSpacing:8,children:[
+                          FilledButton(onPressed:busy?null:()=>run(()=>connect('google')),child:const Text('Sign in with Google')),
+                          OutlinedButton(onPressed:busy?null:()=>run(()=>connect('microsoft')),child:const Text('Sign in with Microsoft'))
+                        ]),
+                        const Text('Choose your account, allow read-only contact access, then review what to import.'),
                         SwitchListTile(
                             contentPadding: EdgeInsets.zero,
                             title: const Text('Suggest circles for review'),
@@ -364,6 +349,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                             onChanged: busy
                                 ? null
                                 : (v) => setState(() => organize = v)),
+                        ExpansionTile(title:const Text('Other ways to import'),children:[
                         FilledButton.icon(
                             onPressed: busy
                                 ? null
@@ -382,29 +368,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                           TextButton(
                               onPressed: busy ? null : () => openAppSettings(),
                               child: const Text('Contact permission settings')),
-                        TextField(
-                            controller: email,
-                            onChanged:(_)=>setState((){}),
-                            enabled: !busy,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                                labelText: 'Google or Outlook email')),
-                        Wrap(spacing: 8, children: [
-                          OutlinedButton(
-                              onPressed: busy || !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email.text.trim())
-                                  ? null
-                                  : () => run(() => connect('google')),
-                              child: const Text('Import Google Contacts')),
-                          OutlinedButton(
-                              onPressed: busy || !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email.text.trim())
-                                  ? null
-                                  : () => run(() => connect('microsoft')),
-                              child: const Text('Import Outlook Contacts'))
                         ]),
-                        if (providers['google'] != true ||
-                            providers['microsoft'] != true)
-                          const Text(
-                              'Email connections need setup. Device and file import are available.'),
                         if (busy) ...[
                           const LinearProgressIndicator(),
                           Text('Processed $processed contacts'),

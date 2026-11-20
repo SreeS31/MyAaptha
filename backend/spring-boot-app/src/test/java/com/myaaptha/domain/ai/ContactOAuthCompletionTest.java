@@ -23,6 +23,21 @@ class ContactOAuthCompletionTest {
   ContactOAuthService.StartResult start(){return service.start(42L,new ContactOAuthService.StartRequest("fixture@example.test","google"));}
   String state(ContactOAuthService.StartResult started){return UriComponentsBuilder.fromUriString(started.authorizationUrl()).build().getQueryParams().getFirst("state");}
 
+  @Test void accountChooserWorksWithoutAnEmailHintForBothProviders(){
+    for(String provider:List.of("google","microsoft")){
+      var result=service.startAddressBook(42L,new ContactOAuthService.StartRequest(null,provider),true);
+      var params=UriComponentsBuilder.fromUriString(result.authorizationUrl()).build().getQueryParams();
+      assertFalse(params.containsKey("login_hint"));
+      assertNotNull(params.getFirst("state"));assertNotNull(params.getFirst("code_challenge"));
+      assertEquals("S256",params.getFirst("code_challenge_method"));
+      assertEquals("select_account",params.getFirst("prompt"));
+      assertFalse(params.getFirst("scope").toLowerCase().contains("write"));
+    }
+    var legacy=service.startAddressBook(42L,new ContactOAuthService.StartRequest("fixture@example.test","google"),true);
+    assertEquals("fixture@example.test",UriComponentsBuilder.fromUriString(legacy.authorizationUrl()).build().getQueryParams().getFirst("login_hint"));
+    assertThrows(ResponseStatusException.class,()->service.startAddressBook(42L,new ContactOAuthService.StartRequest("invalid@","google"),true));
+  }
+
   @Test void organizerDenialIsTerminalAndOwnerScopedWhilePrivateBookKeepsItsContract(){
     var started=start();
     service.callback("google",null,state(started),"access_denied");

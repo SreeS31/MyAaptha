@@ -51,7 +51,7 @@ class MyAapthaApi {
   Future<void> removeAddressContact(int id) async => _json(_client.delete('/api/address-book/$id',bearerToken:_token));
   Future<void> clearAddressBook() async => _json(_client.delete('/api/address-book?confirm=true',bearerToken:_token));
   Future<Map<String,dynamic>> addressBookProviders() async => Map<String,dynamic>.from(await _json(_client.get('/api/address-book/providers',bearerToken:_token)) as Map);
-  Future<Map<String,dynamic>> connectAddressBook(String email,String provider,bool organize) async => Map<String,dynamic>.from(await _json(_client.post('/api/address-book/oauth/start',{'consent':true,'email':email,'provider':provider,'organize':organize},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> connectAddressBook(String email,String provider,bool organize) async => Map<String,dynamic>.from(await _json(_client.post('/api/address-book/oauth/start',{'consent':true,if(email.trim().isNotEmpty)'email':email.trim(),'provider':provider,'organize':organize},bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> addressBookOAuthResult(String key) async => Map<String,dynamic>.from(await _json(_client.get('/api/address-book/oauth/results/${Uri.encodeComponent(key)}',bearerToken:_token)) as Map);
   Future<List<Map<String,dynamic>>> addressCircles() async => (await _json(_client.get('/api/address-book/circles',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
   Future<void> assignAddressCircles(int id,List<int> circles) async => _json(_client.put('/api/address-book/$id/circles',{'circleIds':circles},bearerToken:_token));
@@ -713,7 +713,7 @@ class MyAapthaApi {
           String email, String provider) async =>
       Map<String, dynamic>.from(await _json(_client.post(
           '/api/contact-organizer/oauth/start',
-          {'email': email, 'provider': provider},
+          {if(email.trim().isNotEmpty)'email':email.trim(),'provider':provider},
           bearerToken: _token)) as Map);
 
   Future<List<Map<String, dynamic>>> contactOAuthResult(String resultKey) async {

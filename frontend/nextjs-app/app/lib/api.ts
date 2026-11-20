@@ -13,7 +13,7 @@ export const deleteAddressContact=(id:number)=>authenticatedRequest<void>(`/api/
 export const clearAddressBook=()=>authenticatedRequest<void>('/api/address-book?confirm=true',{method:'DELETE'});
 export const relateAddressContact=(id:number,relationship:string,phone:string|null)=>authenticatedRequest<AddressContact>(`/api/address-book/${id}/relation`,{method:'POST',body:JSON.stringify({consent:true,relationship,phone})});
 export const addressBookProviders=()=>authenticatedRequest<{google:boolean;microsoft:boolean}>('/api/address-book/providers');
-export const connectAddressBook=(email:string,provider:string,organize=false)=>authenticatedRequest<{authorizationUrl:string;resultKey:string}>('/api/address-book/oauth/start',{method:'POST',body:JSON.stringify({consent:true,email,provider,organize})});
+export const connectAddressBook=(email:string,provider:string,organize=false)=>authenticatedRequest<{authorizationUrl:string;resultKey:string}>('/api/address-book/oauth/start',{method:'POST',body:JSON.stringify({consent:true,...(email.trim()?{email:email.trim()}:{}),provider,organize})});
 export type AddressBookOAuthResult={contacts?:import('./contact-import').AddressContactInput[];status:string;message:string;added?:number;updated?:number;unchanged?:number};
 export const addressBookOAuthResult=(key:string)=>authenticatedRequest<AddressBookOAuthResult>(`/api/address-book/oauth/results/${encodeURIComponent(key)}`);
 
@@ -416,7 +416,7 @@ export async function acceptImportedContacts(suggestions:ContactSuggestion[]){
   return authenticatedRequest<ContactOrganizerResult>('/api/contact-organizer/accept',{method:'POST',body:JSON.stringify({consent:true,suggestions:suggestions.map(item=>({displayName:item.display_name,phone:item.phone,email:item.email,relationship:item.suggested_relationship,circles:item.suggested_circles,selected:item.selected===true}))})});
 }
 export async function startContactOAuth(email:string,provider:'google'|'microsoft'){
-  return authenticatedRequest<{authorizationUrl:string;provider:string;resultKey:string}>('/api/contact-organizer/oauth/start',{method:'POST',body:JSON.stringify({email,provider})});
+  return authenticatedRequest<{authorizationUrl:string;provider:string;resultKey:string}>('/api/contact-organizer/oauth/start',{method:'POST',body:JSON.stringify({...(email.trim()?{email:email.trim()}:{}),provider})});
 }
 export async function fetchContactOAuthResult(resultKey:string){
   const result=await authenticatedRequest<unknown>(`/api/contact-organizer/oauth/results/${encodeURIComponent(resultKey)}`);

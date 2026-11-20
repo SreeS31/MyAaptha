@@ -7,26 +7,28 @@ test.skip(process.env.MYAAPTHA_LIVE_WRITE_TESTS!=='1','Explicit synthetic-accoun
 
 test('deployed contact review preserves email-only contacts, circles and messaging wording',async({page},info)=>{
  test.setTimeout(240_000);
- const username='contacts19'+randomBytes(5).toString('hex'),password=randomBytes(24).toString('base64url');
+ const username='signin20'+randomBytes(5).toString('hex'),password=randomBytes(24).toString('base64url');
  const created=await page.request.post('/api/users',{data:{username,password,phoneNumber:'+1999'+String(parseInt(randomBytes(5).toString('hex'),16)%10000000000).padStart(10,'0')}});
  expect(created.ok()).toBeTruthy();const user=await created.json();
- const fixturePath=resolve(__dirname,'../../../.tools/contact-live-r2-fixtures-20261119.json');
+ const fixturePath=resolve(__dirname,'../../../.tools/contact-signin-live-fixtures-20261120.json');
  const fixtures=existsSync(fixturePath)?JSON.parse(readFileSync(fixturePath,'utf8')):{accounts:[]};fixtures.accounts.push({id:user.id,username});writeFileSync(fixturePath,JSON.stringify(fixtures,null,2));
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).not.toHaveURL(/\/auth$/);
  await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
- const google=page.getByRole('button',{name:'Import Google Contacts',exact:true});
- await expect(google).toBeDisabled();await page.getByLabel('Google or Outlook email',{exact:true}).fill('fixture@example.test');
- await page.getByRole('checkbox',{name:'I allow these contacts to be saved to my private MyAaptha address book.',exact:true}).check();await expect(google).toBeEnabled();
+ const google=page.getByRole('button',{name:'Sign in with Google',exact:true});
+ await expect(google).toBeEnabled();await expect(page.locator('main input[type=email]')).toHaveCount(0);
+ await page.screenshot({path:info.outputPath('provider-signin.png'),fullPage:true});
  const providers=await page.request.get('/api/address-book/providers');expect(providers.ok()).toBeTruthy();const readiness=await providers.json();
  writeFileSync(info.outputPath('provider-readiness.json'),JSON.stringify(readiness,null,2));
- if(!readiness.google){await google.click();await expect(page.locator('main').getByRole('alert')).toContainText('not set up yet');}
+ if(!readiness.google){await google.click();await expect(page.locator('main').getByRole('alert')).toContainText('temporarily unavailable');}
  const csv='Name,E-mail 1 - Value,Organization 1 - Name,Group Membership\nAsha INCOIS,asha@example.test,,\nVenu INCOIS,venu@example.test,,\nCyclist,bike@example.test,,Cycling';
  await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'synthetic-email-contacts.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});
  await expect(page.getByRole('heading',{name:'Review contacts (3 selected)',exact:true})).toBeVisible();
  await expect(page.getByLabel('Use circle INCOIS',{exact:true})).toBeChecked();await expect(page.getByLabel('Use circle Cycling',{exact:true})).toBeChecked();
  const before=await page.request.get('/api/address-book');expect((await before.json()).total).toBe(0);
  await page.screenshot({path:info.outputPath('contact-preview.png'),fullPage:true});
+ await expect(page.getByRole('button',{name:'Import selected (3)',exact:true})).toBeDisabled();
+ await page.getByRole('checkbox',{name:'I allow these contacts to be saved to my private MyAaptha address book.',exact:true}).check();
  await page.getByRole('button',{name:'Import selected (3)',exact:true}).click();await expect(page.getByRole('heading',{name:'3 saved contacts',exact:true})).toBeVisible();
  const contacts=await (await page.request.get('/api/address-book')).json();expect(contacts.total).toBe(3);expect(contacts.items.every((c:any)=>c.phones.length===0&&c.emails.length===1)).toBe(true);
  const circles=await (await page.request.get('/api/address-book/circles')).json();expect(circles.find((c:any)=>c.name==='INCOIS').privateContactCount).toBe(2);expect(circles.find((c:any)=>c.name==='Cycling').privateContactCount).toBe(1);

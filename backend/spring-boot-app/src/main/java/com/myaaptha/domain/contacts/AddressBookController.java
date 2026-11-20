@@ -15,7 +15,7 @@ public class AddressBookController {
   private final AddressBookCircleService circles;
   public AddressBookController(AddressBookService book,com.myaaptha.domain.ai.ContactOAuthService oauth,AddressBookImportService importer,AddressBookCircleService circles) { this.book = book;this.oauth=oauth;this.importer=importer;this.circles=circles; }
 
-  public record ProviderRequest(@AssertTrue boolean consent,@NotBlank @Email String email,@Pattern(regexp="google|microsoft") @NotNull String provider,boolean organize) {}
+  public record ProviderRequest(@AssertTrue boolean consent,@Email @Size(max=254) String email,@Pattern(regexp="google|microsoft") @NotNull String provider,boolean organize) {}
   @GetMapping("/providers")
   public java.util.Map<String,Boolean> providers(){return oauth.availability();}
   @PostMapping("/oauth/start")

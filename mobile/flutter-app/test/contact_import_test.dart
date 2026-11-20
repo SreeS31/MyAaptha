@@ -12,6 +12,8 @@ class ContactApi extends MyAapthaApi {
   int saved=0,calls=0;
   @override Future<Map<String,dynamic>> addressBook({String query='',int afterId=0,int? circleId}) async => {'items':[],'total':saved,'nextCursor':null};
   @override Future<Map<String,dynamic>> addressBookProviders() async => {'google':false,'microsoft':false};
+  String? connectedEmail;
+  @override Future<Map<String,dynamic>> connectAddressBook(String email,String provider,bool organize) async {connectedEmail=email;throw const MyAapthaApiException('Unavailable',statusCode:503);}
   @override Future<List<Map<String,dynamic>>> addressCircles() async => [];
   @override Future<Map<String,dynamic>> importReviewedAddressBook(List<Map<String,dynamic>> contacts,String source,bool organize) async {saved+=contacts.length;calls++;return {'added':contacts.length,'updated':0,'unchanged':0,'organizationMessage':''};}
 }
@@ -42,23 +44,21 @@ void main(){
   });
   testWidgets('review keeps named contacts and saves only selected device contacts',(tester) async {
     final api=ContactApi();await tester.pumpWidget(MaterialApp(home:AddressBookScreen(api:api,readDeviceContacts:()async=>List.generate(201,(i)=>{'displayName':'Contact $i','phones':i==200?<String>[]:<String>['+15551234567'],'emails':<String>[],'organization':''}))));await tester.pumpAndSettle();
-    await tester.tap(find.text('Import all device contacts'));await tester.pump(const Duration(milliseconds:400));expect(api.saved,0);expect(find.text('Review contacts'),findsOneWidget);
+    await tester.tap(find.text('Other ways to import'));await tester.pumpAndSettle();await tester.ensureVisible(find.text('Import all device contacts'));await tester.tap(find.text('Import all device contacts'));await tester.pump(const Duration(milliseconds:400));expect(api.saved,0);expect(find.text('Review contacts'),findsOneWidget);
     await tester.tap(find.text('Contact 0'));await tester.pump(const Duration(milliseconds:400));
     await tester.tap(find.text('Import selected'));await tester.pumpAndSettle();expect(api.saved,200);expect(api.calls,2);
   });
-  testWidgets('valid email enables provider buttons and setup failures are explained',(tester) async {
+  testWidgets('provider sign-in is available without an email form or owner setup',(tester) async {
     final api=ContactApi();await tester.pumpWidget(MaterialApp(home:AddressBookScreen(api:api)));await tester.pumpAndSettle();
-    final email=find.widgetWithText(TextField,'Google or Outlook email');
-    await tester.scrollUntilVisible(email,200,scrollable:find.byType(Scrollable).first);
-    final google=find.widgetWithText(OutlinedButton,'Import Google Contacts');
-    expect(tester.widget<OutlinedButton>(google).onPressed,isNull);
-    await tester.enterText(email,'member@example.test');await tester.pumpAndSettle();
-    expect(tester.widget<OutlinedButton>(google).onPressed,isNotNull);
-    await tester.ensureVisible(google);await tester.tap(google);await tester.pumpAndSettle();
-    expect(find.textContaining('Google contact connection is not set up yet'),findsOneWidget);expect(api.calls,0);
+    final google=find.widgetWithText(FilledButton,'Sign in with Google');
+    await tester.scrollUntilVisible(google,200,scrollable:find.byType(Scrollable).first);
+    expect(tester.widget<FilledButton>(google).onPressed,isNotNull);
+    expect(find.widgetWithText(TextField,'Google or Outlook email'),findsNothing);
+    await tester.tap(google);await tester.pumpAndSettle();
+    expect(find.textContaining('Google contact import is temporarily unavailable'),findsOneWidget);expect(api.calls,0);expect(api.connectedEmail,'');
   });
   testWidgets('permission denial leaves the address book unchanged',(tester) async {
     final api=ContactApi();await tester.pumpWidget(MaterialApp(home:AddressBookScreen(api:api,readDeviceContacts:()async=>throw const MyAapthaApiException('Permission denied. Nothing was uploaded.'))));await tester.pumpAndSettle();
-    await tester.tap(find.text('Import all device contacts'));await tester.pumpAndSettle();expect(api.calls,0);expect(find.text('Permission denied. Nothing was uploaded.'),findsOneWidget);
+    await tester.tap(find.text('Other ways to import'));await tester.pumpAndSettle();await tester.ensureVisible(find.text('Import all device contacts'));await tester.tap(find.text('Import all device contacts'));await tester.pumpAndSettle();expect(api.calls,0);expect(find.text('Permission denied. Nothing was uploaded.'),findsOneWidget);
   });
 }

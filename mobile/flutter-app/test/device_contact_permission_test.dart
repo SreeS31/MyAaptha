@@ -150,7 +150,7 @@ void main() {
     final api = PermissionContactApi();
     await tester.pumpWidget(MaterialApp(home: AddressBookScreen(api: api)));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Import all device contacts'));
+    await tester.tap(find.text('Other ways to import'));await tester.pumpAndSettle();await tester.ensureVisible(find.text('Import all device contacts'));await tester.tap(find.text('Import all device contacts'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Review contacts'), findsOneWidget);
     expect(find.text('Allowed Person'), findsOneWidget);

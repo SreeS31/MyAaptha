@@ -30,9 +30,9 @@ test('organizer OAuth readiness, terminal errors, empty results and cancellation
   try{
     await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
     const organizer=page.locator('.contact-organizer');
-    const open=async()=>{await organizer.getByRole('button',{name:'Import contacts',exact:true}).click();await organizer.getByRole('checkbox',{name:/Allow this one-time analysis/}).check();await organizer.getByRole('textbox',{name:'Email address containing the contacts'}).fill('fixture@example.test');};
-    const google=organizer.getByRole('button',{name:'Connect Google Contacts',exact:true});
-    await open();await expect(google).toBeEnabled();await expect(organizer.getByText('Email connections need setup. You can import a file below.')).toBeVisible();expect(starts).toBe(0);
+    const open=async()=>{await organizer.getByRole('button',{name:'Import contacts',exact:true}).click();await organizer.getByRole('checkbox',{name:/Allow this one-time analysis/}).check();};
+    const google=organizer.getByRole('button',{name:'Sign in with Google',exact:true});
+    await open();await expect(google).toBeEnabled();await expect(organizer.getByText('Contact sign-in is temporarily unavailable. You can import a file below.')).toBeVisible();expect(starts).toBe(0);
 
     // Readiness lookup failures can be retried independently of file import.
     lookupFails=true;await page.reload();await open();await expect(organizer.getByRole('button',{name:'Retry providers'})).toBeVisible();available=true;lookupFails=false;

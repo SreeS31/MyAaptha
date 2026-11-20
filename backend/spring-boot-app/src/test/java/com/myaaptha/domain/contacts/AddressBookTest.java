@@ -19,7 +19,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(properties={"spring.datasource.url=jdbc:h2:mem:addressbook-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1","security.fields.enabled=true","security.fields.active-key-id=test","security.fields.keys=test=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="})
+@SpringBootTest(properties={"myaaptha.contact-oauth.google-client-id=","myaaptha.contact-oauth.google-client-secret=","spring.datasource.url=jdbc:h2:mem:addressbook-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1","security.fields.enabled=true","security.fields.active-key-id=test","security.fields.keys=test=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="})
 @AutoConfigureMockMvc
 class AddressBookTest {
   @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired JdbcTemplate jdbc;
@@ -48,6 +48,13 @@ class AddressBookTest {
     var rows=List.of(Map.of("contact",valid,"circleNames",List.of("INCOIS")),Map.of("contact",invalid,"circleNames",List.of("Never create")));
     mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("consent",true,"contacts",rows,"source","csv")))).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(1)).andExpect(jsonPath("$.skipped").value(1));
     mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].name").value("INCOIS"));
+  }
+  @Test void signInRequestDoesNotRequireUsersToEnterEmail()throws Exception{
+    var owner=member();
+    // This test profile intentionally has no provider credentials: 503 proves the optional email
+    // passes validation and reaches the configuration check, rather than returning 400.
+    mvc.perform(post("/api/address-book/oauth/start").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content("{\"consent\":true,\"provider\":\"google\",\"organize\":true}")).andExpect(status().isServiceUnavailable());
+    mvc.perform(post("/api/address-book/oauth/start").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content("{\"consent\":false,\"provider\":\"google\"}")).andExpect(status().isBadRequest());
   }
   @Test void emailOnlyAndNamedContactsAreReviewedAndReimportedWithoutDuplicates()throws Exception{
     var owner=member();

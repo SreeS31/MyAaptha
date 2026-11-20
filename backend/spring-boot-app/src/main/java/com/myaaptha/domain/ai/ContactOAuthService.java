@@ -45,19 +45,19 @@ public class ContactOAuthService {
   public StartResult startAddressBook(Long userId,StartRequest request,boolean organize){return start(userId,request,true,organize);}
   private StartResult start(Long userId,StartRequest request,boolean privateBook,boolean organize){
     String provider=normalizeProvider(request.provider());String email=clean(request.email());
-    if(email==null||!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Enter a valid email address");
+    if(email!=null&&!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Enter a valid email address");
     configured(provider);String state=token(32),verifier=token(48),resultKey=token(32),challenge=base64(sha256(verifier));
     stateStore.putPending(state,new Pending(userId,provider,verifier,resultKey,privateBook));
     String callback=callback(provider);String url;
     if(provider.equals("google"))url=UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
         .queryParam("client_id",googleId).queryParam("redirect_uri",callback).queryParam("response_type","code")
         .queryParam("scope","https://www.googleapis.com/auth/contacts.readonly")
-        .queryParam("access_type","online").queryParam("prompt","select_account consent").queryParam("login_hint",email)
+        .queryParam("access_type","online").queryParam("prompt","select_account").queryParamIfPresent("login_hint",Optional.ofNullable(email))
         .queryParam("state",state).queryParam("code_challenge",challenge).queryParam("code_challenge_method","S256").build().encode().toUriString();
     else url=UriComponentsBuilder.fromUriString("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
         .queryParam("client_id",microsoftId).queryParam("redirect_uri",callback).queryParam("response_type","code")
         .queryParam("response_mode","query").queryParam("scope","openid profile https://graph.microsoft.com/Contacts.Read")
-        .queryParam("prompt","select_account").queryParam("login_hint",email).queryParam("state",state)
+        .queryParam("prompt","select_account").queryParamIfPresent("login_hint",Optional.ofNullable(email)).queryParam("state",state)
         .queryParam("code_challenge",challenge).queryParam("code_challenge_method","S256").build().encode().toUriString();
     return new StartResult(url,provider,resultKey);
   }

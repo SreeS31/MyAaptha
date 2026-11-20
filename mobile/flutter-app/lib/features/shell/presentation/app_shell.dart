@@ -5210,7 +5210,6 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
   bool loading = false;
   String? error;
   List<Map<String, dynamic>> suggestions = [];
-  final TextEditingController emailController = TextEditingController();
   Map<String, dynamic> providers = {};
   bool providersLoading = false, oauthConnecting = false;
   String? providerError;
@@ -5267,7 +5266,6 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
 
   @override
   void dispose() {
-    emailController.dispose();
     super.dispose();
   }
 
@@ -5330,26 +5328,18 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                   style: const TextStyle(
                       color: Colors.red, fontWeight: FontWeight.w500))),
         const SizedBox(height: 16),
-        TextField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-            decoration: const InputDecoration(
-                labelText: 'Email containing your contacts',
-                hintText: 'name@gmail.com or name@outlook.com')),
-        const SizedBox(height: 10),
         Row(children: [
           Expanded(
               child: FilledButton.icon(
                   onPressed: providers['google'] == true && !providersLoading ? () => connectProvider('google') : null,
                   icon: const Icon(Icons.contact_mail_outlined),
-                  label: const Text('Google'))),
+                  label: const Text('Sign in with Google'))),
           const SizedBox(width: 8),
           Expanded(
               child: OutlinedButton.icon(
                   onPressed: providers['microsoft'] == true && !providersLoading ? () => connectProvider('microsoft') : null,
                   icon: const Icon(Icons.business_outlined),
-                  label: const Text('Outlook')))
+                  label: const Text('Sign in with Microsoft')))
         ]),
         const Padding(
             padding: EdgeInsets.only(top: 8),
@@ -5359,7 +5349,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                 style: TextStyle(fontSize: 14, color: Color(0xFF59697D)))),
         if (providersLoading) const Text('Checking contact providers...'),
         if (!providersLoading && providerError == null && providers['google'] != true && providers['microsoft'] != true)
-          const Text('Email contact providers are not available yet. You can use this device or import a file in My contacts.'),
+          const Text('Contact sign-in is temporarily unavailable. You can import a file in My contacts.'),
         if (providerError != null) ...[
           Text(providerError!),
           TextButton(onPressed: loadProviders, child: const Text('Retry providers')),
@@ -5384,16 +5374,11 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
 
   Future<void> connectProvider(String provider) async {
     if (loading || providersLoading || providers[provider] != true) return;
-    final email = emailController.text.trim();
-    if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(email)) {
-      setState(() => error = 'Enter a valid Google or Outlook email address.');
-      return;
-    }
     final generation = ++oauthGeneration;
     bool active() => mounted && generation == oauthGeneration;
     setState(() { loading = true; oauthConnecting = true; error = null; });
     try {
-      final started = await widget.api.startContactOAuth(email, provider);
+      final started = await widget.api.startContactOAuth('', provider);
       if (!active()) return;
       if (!await launchUrl(Uri.parse(started['authorizationUrl'].toString()), mode: LaunchMode.externalApplication)) {
         throw const MyAapthaApiException('The provider consent page could not be opened.');
