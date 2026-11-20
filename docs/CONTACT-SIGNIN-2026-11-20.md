@@ -13,3 +13,5 @@ Verification and deployment evidence will be recorded after release validation. 
 Local validation: frontend production build, 50 browser checks, 26 web unit tests, 116 native tests (two expected live integration skips), clean Flutter analysis, and 18 targeted backend OAuth/address-book cases. The account-chooser assertions were repeated after removing forced repeat consent. Popup lifecycle checks are recorded with release verification.
 
 Android debug test build: `.tools/preview/MyAaptha-beta-contact-signin-20261120.apk`; SHA-256 `f2c56f4997f38df0a05e3079f0df8c97156d7afec06877561b15c3fadeeaa399`. This is a test APK, not an app-store publication.
+
+The Contacts/Dashboard OAuth entry pages and the two provider callbacks use `same-origin-allow-popups`, as recommended by [Google](https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid). Other pages retain `same-origin`; CSP, nonce, frame and transport protections are unchanged. Cross-origin browser fixtures cover successful preview, actual window cancellation and blocked popups.

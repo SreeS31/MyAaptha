@@ -22,7 +22,12 @@ const nextConfig: NextConfig = {
         { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
         { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' }
       ]
-    }];
+    }, ...['/contacts', '/dashboard', '/api/contact-organizer/oauth/callback/google', '/api/contact-organizer/oauth/callback/microsoft'].map(source => ({
+      source,
+      // Provider authorization popups must remain connected to the page that opened them.
+      // All other routes retain same-origin; CSP and frame protections remain unchanged.
+      headers: [{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' }]
+    }))];
   }
 };
 

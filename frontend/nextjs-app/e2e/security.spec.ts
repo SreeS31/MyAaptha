@@ -1,5 +1,18 @@
 import { test, expect } from '@playwright/test';
 
+test('OAuth popup policy is scoped to contact-import pages',async({request})=>{
+ for(const path of ['/contacts','/dashboard']){
+  const response=await request.get(path);
+  expect(response.headers()['cross-origin-opener-policy'],path).toBe('same-origin-allow-popups');
+  expect(response.headers()['content-security-policy'],path).toContain("frame-ancestors 'none'");
+  expect(response.headers()['x-frame-options'],path).toBe('DENY');
+ }
+ for(const path of ['/','/auth','/profile','/finance']){
+  const response=await request.get(path);
+  expect(response.headers()['cross-origin-opener-policy'],path).toBe('same-origin');
+ }
+});
+
 test('production CSP rejects injected scripts and generates a fresh nonce', async ({ page, request }) => {
   test.skip(!process.env.PLAYWRIGHT_PRODUCTION, 'Requires the actual production build');
   const response = await page.goto('/');

@@ -25,7 +25,7 @@ test('provider preview retains email-only contacts and small circles until revie
  let saved:any;
  await page.route('**/api/address-book/providers',route=>route.fulfill({json:{google:true,microsoft:false}}));
  await context.route('**/oauth-fixture',route=>route.fulfill({contentType:'text/html',body:'<p>Synthetic provider consent; no real mailbox accessed.</p>'}));
- await page.route('**/api/address-book/oauth/start',route=>route.fulfill({json:{provider:'google',resultKey:'fixture',authorizationUrl:new URL('/oauth-fixture',page.url()).href}}));
+ await page.route('**/api/address-book/oauth/start',route=>route.fulfill({json:{provider:'google',resultKey:'fixture',authorizationUrl:'https://contact-provider.example.test/oauth-fixture'}}));
  await page.route('**/api/address-book/oauth/results/fixture',route=>route.fulfill({json:{status:'review',contacts,message:'Review contacts'}}));
  await page.route('**/api/address-book/import-reviewed',async route=>{saved=route.request().postDataJSON();await route.fulfill({json:{added:saved.contacts.length,updated:0,unchanged:0,total:saved.contacts.length,skipped:0}});});
  await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
@@ -56,7 +56,7 @@ test('messages uses circle wording while retaining its compatible API route',asy
 
 test('closing provider sign-in cancels the wait without saving contacts',async({page,context})=>{
  await context.route('**/oauth-fixture',route=>route.fulfill({contentType:'text/html',body:'<p>Synthetic sign-in page.</p>'}));
- await page.route('**/api/address-book/oauth/start',route=>route.fulfill({json:{provider:'google',resultKey:'pending',authorizationUrl:new URL('/oauth-fixture',page.url()).href}}));
+ await page.route('**/api/address-book/oauth/start',route=>route.fulfill({json:{provider:'google',resultKey:'pending',authorizationUrl:'https://contact-provider.example.test/oauth-fixture'}}));
  await page.route('**/api/address-book/oauth/results/pending',route=>route.fulfill({status:404,json:{message:'Pending'}}));
  await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
  const popupPromise=page.waitForEvent('popup');await page.getByRole('button',{name:'Sign in with Google',exact:true}).click();

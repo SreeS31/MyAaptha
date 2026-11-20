@@ -14,7 +14,7 @@ test('deployed contact review preserves email-only contacts, circles and messagi
  const fixtures=existsSync(fixturePath)?JSON.parse(readFileSync(fixturePath,'utf8')):{accounts:[]};fixtures.accounts.push({id:user.id,username});writeFileSync(fixturePath,JSON.stringify(fixtures,null,2));
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).not.toHaveURL(/\/auth$/);
- await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
+ const contactPage=await page.goto('/contacts');expect(contactPage?.headers()['cross-origin-opener-policy']).toBe('same-origin-allow-popups');await page.locator('summary').filter({hasText:'Import contacts'}).click();
  const google=page.getByRole('button',{name:'Sign in with Google',exact:true});
  await expect(google).toBeEnabled();await expect(page.locator('main input[type=email]')).toHaveCount(0);
  await page.screenshot({path:info.outputPath('provider-signin.png'),fullPage:true});
