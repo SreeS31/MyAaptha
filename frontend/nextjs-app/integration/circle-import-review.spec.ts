@@ -12,8 +12,8 @@ test('circle chat stays in Circles and import saves only reviewed selections',as
   expect((await api.post('/api/network/circles',{headers,data:{name:'Inter',description:'Existing circle'}})).status()).toBe(200);
   expect((await api.post(`/api/network/circles/${id}/posts`,{headers,multipart:{message:'Circle stays here'}})).ok()).toBe(true);
   await page.goto('/auth');await page.getByLabel('Username or mobile number',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Continue',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
-  await page.goto('/circles');await page.getByRole('button',{name:'Open INCOIS',exact:true}).click();await expect(page).toHaveURL(/\/circles$/);await expect(page.getByText('Circle stays here',{exact:true})).toBeVisible();
-  await page.screenshot({path:`../../.tools/preview/circles-inline-${test.info().project.name}.png`});
+  await page.goto('/circles');await page.getByRole('button',{name:'Open INCOIS',exact:true}).click();await expect(page).toHaveURL(/\/circles$/);await expect(page.getByText('Circle stays here',{exact:true})).toHaveCount(0);await page.locator('main').getByRole('link',{name:'Messages',exact:true}).click();await expect(page).toHaveURL(new RegExp('/messages\\?circle='+id+'$'));await expect(page.getByText('Circle stays here',{exact:true})).toBeVisible();
+  await page.screenshot({path:`../../.tools/preview/circle-messages-${test.info().project.name}.png`});
   await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
   await page.getByLabel('Contact file',{exact:true}).setInputFiles({name:'review.csv',mimeType:'text/csv',buffer:Buffer.from('Name,Phone 1 - Value,Phone 2 - Value,E-mail 1 - Value\nNo number,,,email@example.test\nBad number,123,,\nSree INCOIS,bad,+919876543210,sree@example.test\nSkip Inter,+919876543211,,skip@example.test')});
   await expect(page.getByLabel('Import No number',{exact:true})).toBeChecked();

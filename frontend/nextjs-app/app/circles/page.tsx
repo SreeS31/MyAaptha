@@ -1,22 +1,22 @@
 'use client';
 import {startPolling} from '../lib/polling';
-import Link from 'next/link';
-import InfoTip from '../components/InfoTip';
-import ChatThread from '../messages/ChatThread';
+import PageHeading from '../components/PageHeading';
+import CircleBranch from './CircleBranch';
+import styles from './page.module.css';
 import {FormEvent,useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {createMyCircle,fetchMyCircles,hasAuthSession,isUnauthorizedError,NetworkCircle} from '../lib/api';
+import {AddressCircle,createMyCircle,fetchAddressCircles,fetchMyCircles,hasAuthSession,isUnauthorizedError,NetworkCircle} from '../lib/api';
 
 export default function CirclesPage(){
   const router=useRouter();
-  const [selected,setSelected]=useState<number|null>(null);
+  const [expanded,setExpanded]=useState<Set<number>>(new Set());
+  const [privateCircles,setPrivateCircles]=useState<AddressCircle[]>([]);
   const [circles,setCircles]=useState<NetworkCircle[]>([]),[query,setQuery]=useState('');
-  const active=circles.find(c=>c.id===selected);
   const [loading,setLoading]=useState(true),[error,setError]=useState('');
   const [saving,setSaving]=useState(false),[createError,setCreateError]=useState('');
   const dialog=useRef<HTMLDialogElement>(null);
   const load=useCallback(async()=>{
-    try{setCircles(await fetchMyCircles());setError('');}
+    try{const [network,privateLists]=await Promise.all([fetchMyCircles(),fetchAddressCircles()]);setCircles(network);setPrivateCircles(privateLists);setError('');}
     catch(caught){if(isUnauthorizedError(caught))router.replace('/auth');else setError((caught as Error).message);}
     finally{setLoading(false);}
   },[router]);
@@ -32,17 +32,15 @@ export default function CirclesPage(){
     catch(caught){if(isUnauthorizedError(caught))router.replace('/auth');else setCreateError((caught as Error).message);}
     finally{setSaving(false);}
   }
-  return <main className={`messaging-workspace ${active?'has-chat':''}`}>
-    <aside className="chat-inbox" aria-label="Your circles">
-      <header className="chat-inbox-heading"><h1>Circles</h1><button aria-label="Create circle" title="Create circle" onClick={()=>{setCreateError('');dialog.current?.showModal();}}>+</button></header>
-      <div className="chat-local-search"><input type="search" aria-label="Search circles" placeholder="Search circles" value={query} onChange={event=>setQuery(event.target.value)}/></div>
-      {error&&<p role="alert">{error}</p>}
-      <div className="chat-inbox-list">{visible.map(circle=><article className={`chat-inbox-row ${selected===circle.id?'selected':''}`} key={circle.id}>
-        <button className="chat-open-row" aria-label={`Open ${circle.name}`} aria-current={selected===circle.id?'true':undefined} onClick={()=>setSelected(circle.id)}><span className="chat-avatar circle">{circle.name.charAt(0)}</span><span className="chat-row-copy"><strong>{circle.name}</strong><small>{circle.members.length} {circle.members.length===1?'member':'members'}</small></span></button>
-        <div className="circle-inbox-tools"><InfoTip label={`Information about ${circle.name}`}><span className="circle-detail-lines"><strong>{circle.name}</strong><span>{circle.description}</span><span>Created by: {circle.ownerName}</span><span>Posting: {circle.currentUserCanPost?'Allowed':'Admins only'}</span><span>Your role: {circle.currentUserAdmin?'Admin':'Member'}</span></span></InfoTip>{circle.ownedByCurrentUser&&<Link href={`/contacts?circleId=${circle.id}`}>Private contacts</Link>}</div>
-      </article>)}{!visible.length&&<p className="chat-thread-empty">{loading?'Loading circles...':'No circles in this view.'}</p>}</div>
-    </aside>
-    {active?<ChatThread key={active.id} chat={{type:'CIRCLE',id:active.id,name:active.name}} onBack={()=>setSelected(null)} onChanged={load} onOpenPerson={chat=>router.push(`/messages?person=${chat.id}`)}/>:<section className="chat-welcome"><span aria-hidden="true">◎</span><h2>Select a circle</h2></section>}
+  return <main className={styles.page}>
+    <PageHeading title="My circles" actions={<button className="btn btn-primary" aria-label="Create circle" onClick={()=>{setCreateError('');dialog.current?.showModal();}}>+ Create circle</button>}/>
+    <div className={styles.toolbar}><input type="search" aria-label="Search circles" placeholder="Search circles" value={query} onChange={event=>setQuery(event.target.value)}/><button type="button" className="btn btn-secondary" onClick={()=>setExpanded(new Set())}>Collapse all</button></div>
+    {error&&<p role="alert">{error}</p>}
+    <section aria-label="Circle tree" className={styles.tree}>
+      <div className={styles.root}><span aria-hidden="true">{'\u25ce'}</span><strong>You</strong><small>{circles.length} {circles.length===1?'circle':'circles'}</small></div>
+      <ul className={styles.branches}>{visible.map(circle=><li key={circle.id}><CircleBranch circle={circle} privateCount={privateCircles.find(item=>item.id===circle.id)?.privateContactCount||0} expanded={expanded.has(circle.id)} onToggle={()=>setExpanded(current=>{const next=new Set(current);if(next.has(circle.id))next.delete(circle.id);else next.add(circle.id);return next;})}/></li>)}</ul>
+      {!visible.length&&<p className={styles.empty}>{loading?'Loading circles...':'No circles in this view.'}</p>}
+    </section>
     <dialog ref={dialog} className="workspace-dialog" aria-labelledby="create-circle-title" onCancel={event=>{if(saving)event.preventDefault();}}>
       <form onSubmit={submit}><header><h2 id="create-circle-title">Create circle</h2><button type="button" className="compact-icon-button" aria-label="Close create circle" disabled={saving} onClick={()=>dialog.current?.close()}>×</button></header>
         {createError&&<p role="alert" className="error-message">{createError}</p>}

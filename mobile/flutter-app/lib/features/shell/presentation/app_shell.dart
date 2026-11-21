@@ -1,5 +1,6 @@
 import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'interests_screen.dart';
+import 'circle_tree_branch.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
 import 'renewals_screen.dart';
@@ -4660,6 +4661,7 @@ class CirclesScreen extends StatefulWidget {
 class _CirclesScreenState extends State<CirclesScreen> {
   List<CircleModel>? circles;
   Map<int, int> unread = {};
+  Map<int,int> privateCounts = {};
   String? error;
   @override
   void initState() {
@@ -4670,13 +4672,14 @@ class _CirclesScreenState extends State<CirclesScreen> {
   Future<void> load() async {
     try {
       final values = await Future.wait<dynamic>(
-          [widget.api.circles(), widget.api.circleUnreadCounts()]);
+          [widget.api.circles(), widget.api.circleUnreadCounts(), widget.api.addressCircles()]);
       final data = values[0] as List<CircleModel>;
       final counts = values[1] as Map<int, int>;
       if (mounted) {
         setState(() {
           circles = data;
           unread = counts;
+          privateCounts = {for(final row in values[2] as List<Map<String,dynamic>>) (row['id'] as num).toInt():(row['privateContactCount'] as num).toInt()};
           error = null;
         });
       }
@@ -4697,13 +4700,13 @@ class _CirclesScreenState extends State<CirclesScreen> {
           child: CustomScrollView(slivers: [
             SliverToBoxAdapter(
                 child: _PageHeader(
-                    eyebrow: 'MY GROUPS',
-                    title: 'Circles',
-                    subtitle: 'Private spaces for the people who matter.',
+                    eyebrow: '',
+                    title: 'My circles',
+                    subtitle: '',
                     action: IconButton.filledTonal(
                         onPressed: load,
                         icon: const Icon(Icons.refresh_rounded)))),
-            SliverToBoxAdapter(child: ListTile(leading: const Icon(Icons.contacts_outlined),title: const Text('Private contact lists'),subtitle: const Text('View imported contacts by circle. These contacts are separate from messaging members.'),onTap: ()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>AddressBookScreen(api:widget.api))))),
+            const SliverToBoxAdapter(child: Center(child: Chip(avatar: Icon(Icons.account_tree_outlined),label: Text('You')))),
             if (error != null)
               SliverFillRemaining(child: _ErrorState(error!, retry: load))
             else if (circles == null)
@@ -4717,42 +4720,15 @@ class _CirclesScreenState extends State<CirclesScreen> {
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final circle = circles![i];
-                        return Card(
-                            child: ListTile(
-                                contentPadding: const EdgeInsets.all(14),
-                                leading: CircleAvatar(
-                                    radius: 26,
-                                    backgroundColor: AppTheme.primary,
-                                    child: Text(circle.name.characters.first,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500))),
-                                title: Text(circle.name,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w500)),
-                                subtitle: Text(
-                                    '${circle.members.length} members · ${circle.currentUserAdmin ? 'Admin' : 'Member'}\n${circle.description}',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis),
-                                isThreeLine: true,
-                                trailing: (unread[circle.id] ?? 0) > 0
-                                    ? Badge(
-                                        label: Text(
-                                            (unread[circle.id] ?? 0) > 99
-                                                ? '99+'
-                                                : '${unread[circle.id]}'),
-                                        child: const Icon(
-                                            Icons.chevron_right_rounded))
-                                    : const Icon(Icons.chevron_right_rounded),
-                                onTap: () async {
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => CircleChatScreen(
-                                              api: widget.api,
-                                              circle: circle)));
-                                  await load();
-                                }));
+                        return CircleTreeBranch(
+                          key: ValueKey(circle.id), api: widget.api, circle: circle,
+                          privateCount: privateCounts[circle.id] ?? 0,
+                          unread: unread[circle.id] ?? 0,
+                          onMessages: () async {
+                            await Navigator.push(context,MaterialPageRoute(builder: (_) => CircleChatScreen(api: widget.api,circle: circle)));
+                            await load();
+                          },
+                        );
                       }))
           ])));
   Future<void> create() async {
