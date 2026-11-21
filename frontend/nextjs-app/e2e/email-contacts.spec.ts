@@ -60,7 +60,11 @@ test('closing provider sign-in cancels the wait without saving contacts',async({
  await page.route('**/api/address-book/oauth/results/pending',route=>route.fulfill({status:404,json:{message:'Pending'}}));
  await page.goto('/contacts');await page.locator('summary').filter({hasText:'Import contacts'}).click();
  const popupPromise=page.waitForEvent('popup');await page.getByRole('button',{name:'Sign in with Google',exact:true}).click();
- const popup=await popupPromise;await popup.close();
+ const popup=await popupPromise;
+ // Wait for the provider document before closing its target. Closing the initial
+ // about:blank target during Chromium's cross-origin swap races the protocol session.
+ await expect(popup.getByText('Synthetic sign-in page.',{exact:true})).toBeVisible();
+ await popup.close();
  await expect(page.locator('main').getByText('Sign-in cancelled. No contacts were saved.',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Sign in with Google',exact:true})).toBeEnabled();
  await expect(page.getByRole('heading',{name:'0 saved contacts',exact:true})).toBeVisible();
