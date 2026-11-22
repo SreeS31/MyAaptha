@@ -1,0 +1,59 @@
+{
+  "sourceCommit": "3094bd0e14792816944ce42e18ae72fcf472c43d",
+  "tag": "beta-20261122-messaging-r1",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44985463513",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/44985463594",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:eb0903a8b257351f436791a768c6483c40fe8509148b629daa6df2633e05ad50",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:96f139c1a78927faef39ad2fdaca853f61b0b4229ca6b9337e8f3c28c1ce90f7",
+  "deployed": false,
+  "previousBetaOverlaySha256": "ed96e87dec22017e2cec6d0c78504ca72b5b77f8d200f429298c2ee2f515de5c",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "75",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/messages",
+  "androidTestApkSha256": "7bc7f9f834971425832c2e6f66d8dd47984c9db83b6afa8f70d47bd617f1acf3",
+  "previousSourceCommit": "1c6dbeb280bd5d335038b81dfa95a3b6d60a808a",
+  "previousBackend": "ghcr.io/srees31/myaaptha-backend@sha256:f50caf144778a6eec9c6bdac617134aac8fa66cd5a38600fe730212c215b5e35",
+  "previousFrontend": "ghcr.io/srees31/myaaptha-frontend@sha256:e542c3e4b57e0e6e49a67ab88b3188a57a888e8ac0a45b15d7d96ccaa593e14f",
+  "liveApiSchemaVersionBeforeDeployment": "74",
+  "migrationApplied": false,
+  "relayServiceStaged": true,
+  "relayInactive": true,
+  "networkAccessApproved": false,
+  "externalRelayAcceptanceVerified": false,
+  "deploymentBlocker": "Explicit authorization for public beta call-relay ingress is pending; automatic approval review rejected the rule and VM tag change.",
+  "validation": {
+    "ciSuccess": true,
+    "imageValidationSuccess": true,
+    "imageValidationBrowserTestsPassed": 64,
+    "webUnitTestsPassed": 26,
+    "nativeTestsPassed": 119,
+    "nativeExpectedSkips": 2,
+    "backendCallTestsPassed": 6,
+    "relayConfigurationTestsPassed": 3,
+    "ciBrowserRetryNote": "Two existing diary layout checks passed on retry; independent image-validation browser run passed all 64 without retries.",
+    "liveRelayTestsRun": false,
+    "nativeHardwareAcceptanceVerified": false
+  },
+  "proposedFirewall": {
+    "project": "project-5c36c021-87c7-4cfc-833",
+    "network": "myaaptha-beta",
+    "vm": "myaaptha-beta",
+    "zone": "asia-south1-a",
+    "targetTag": "myaaptha-beta-turn",
+    "sourceRanges": [
+      "0.0.0.0/0"
+    ],
+    "tcpPorts": [
+      "3478",
+      "5349"
+    ],
+    "udpPorts": [
+      "3478",
+      "49160-49239"
+    ],
+    "ruleApplied": false,
+    "tagApplied": false
+  }
+}
