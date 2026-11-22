@@ -14,6 +14,8 @@ import './workspace-cleanup.css';
 import './copy-density.css';
 import type { Metadata } from 'next';
 import WorkspaceShell from './components/WorkspaceShell';
+import MessagingCalls from './messages/MessagingCalls';
+import './messages/messaging-upgrade.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +34,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body><WorkspaceShell>{children}</WorkspaceShell></body>
+      <body><MessagingCalls><WorkspaceShell>{children}</WorkspaceShell></MessagingCalls></body>
     </html>
   );
 }

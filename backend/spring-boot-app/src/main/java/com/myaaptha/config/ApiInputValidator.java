@@ -73,6 +73,8 @@ public class ApiInputValidator {
           String name=component.getName();
           if(value instanceof com.myaaptha.domain.contacts.AddressBookController.ContactInput
               && (name.equals("phones")||name.equals("emails"))) name="contact value";
+          if(value instanceof com.myaaptha.domain.message.CommunicationCallController.Signal
+              && name.equals("payload")) name="callSdp";
           walk(component.getAccessor().invoke(value), name, depth + 1, nodes, visited);
         } catch (ReflectiveOperationException exception) {
           reject("Request could not be validated");

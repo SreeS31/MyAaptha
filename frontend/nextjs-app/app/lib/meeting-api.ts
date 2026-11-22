@@ -1,0 +1,12 @@
+import {authenticatedRequest} from './api';
+export type CallRoom={id:string;scope:'DIRECT'|'CIRCLE';targetId:number;creatorId:number;name:string;callType:'AUDIO'|'VIDEO';createdAt:string;ended:boolean;currentUserId:number;capacity:number;members:{userId:number;name:string;status:string}[]};
+export type CallSignal={id:number;senderId:number;type:'offer'|'answer'|'ice';payload:string};
+export const callHistory=()=>authenticatedRequest<CallRoom[]>('/api/network/meetings/history');
+export const activeCalls=()=>authenticatedRequest<CallRoom[]>('/api/network/meetings');
+export const createCall=(scope:'DIRECT'|'CIRCLE',targetId:number,callType:'AUDIO'|'VIDEO')=>authenticatedRequest<CallRoom>('/api/network/meetings',{method:'POST',body:JSON.stringify({scope,targetId,callType})});
+export const getCall=(id:string)=>authenticatedRequest<CallRoom>(`/api/network/meetings/${id}`);
+export const joinCall=(id:string)=>authenticatedRequest<CallRoom>(`/api/network/meetings/${id}/join`,{method:'POST'});
+export const leaveCall=(id:string)=>authenticatedRequest<void>(`/api/network/meetings/${id}/leave`,{method:'POST'});
+export const endCall=(id:string)=>authenticatedRequest<void>(`/api/network/meetings/${id}/end`,{method:'POST'});
+export const sendCallSignal=(id:string,recipientId:number,type:CallSignal['type'],payload:unknown)=>authenticatedRequest<void>(`/api/network/meetings/${id}/signals`,{method:'POST',body:JSON.stringify({recipientId,type,payload:JSON.stringify(payload)})});
+export const callSignals=(id:string,after:number)=>authenticatedRequest<CallSignal[]>(`/api/network/meetings/${id}/signals?after=${after}`);

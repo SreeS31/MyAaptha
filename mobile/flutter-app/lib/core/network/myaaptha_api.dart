@@ -624,6 +624,14 @@ class MyAapthaApi {
         onProgress: onProgress)) as Map);
   }
 
+  Future<List<Map<String,dynamic>>> communicationCallHistory() async => (await _json(_client.get('/api/network/meetings/history',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<List<Map<String,dynamic>>> communicationCalls() async => (await _json(_client.get('/api/network/meetings',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<Map<String,dynamic>> createCommunicationCall(String scope,int target,String type) async => Map<String,dynamic>.from(await _json(_client.post('/api/network/meetings',{'scope':scope,'targetId':target,'callType':type},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> communicationCall(String id) async => Map<String,dynamic>.from(await _json(_client.get('/api/network/meetings/$id',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> joinCommunicationCall(String id) async => Map<String,dynamic>.from(await _json(_client.post('/api/network/meetings/$id/join',{},bearerToken:_token)) as Map);
+  Future<void> leaveCommunicationCall(String id,{bool everyone=false}) async => _json(_client.post('/api/network/meetings/$id/${everyone?'end':'leave'}',{},bearerToken:_token));
+  Future<void> sendCommunicationSignal(String id,int recipient,String type,String payload) async => _json(_client.post('/api/network/meetings/$id/signals',{'recipientId':recipient,'type':type,'payload':payload},bearerToken:_token));
+  Future<List<Map<String,dynamic>>> communicationSignals(String id,int after) async => (await _json(_client.get('/api/network/meetings/$id/signals?after=$after',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
   Future<Map<String,dynamic>> callIceConfiguration() async => Map<String,dynamic>.from(await _json(_client.get('/api/network/calls/ice',bearerToken:_token)) as Map);
 
   Future<DirectCallModel> startCall(

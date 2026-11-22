@@ -253,7 +253,7 @@ export async function refreshSession() {
   return refreshSessionOrThrow();
 }
 
-async function authenticatedRequest<T>(path: string, init?: RequestOptions): Promise<T> {
+export async function authenticatedRequest<T>(path: string, init?: RequestOptions): Promise<T> {
   try {
     return await request<T>(path, init);
   } catch (error) {

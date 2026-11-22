@@ -1,6 +1,8 @@
 import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'interests_screen.dart';
 import 'circle_tree_branch.dart';
+import 'communication_call_screen.dart';
+import 'native_voice_note.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
 import 'renewals_screen.dart';
@@ -239,7 +241,21 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       }
     } catch (_) {}
     }
-    if (showingIncomingCall) return;
+    if (showingIncomingCall || CommunicationCallScreen.isOpen) return;
+    try {
+      final rooms=await api.communicationCalls();
+      final incoming=rooms.where((room)=>room['creatorId']!=room['currentUserId']&&!(room['members'] as List).any((member)=>member['userId']==room['currentUserId']&&member['status']=='JOINED')).toList();
+      if(mounted&&incoming.isNotEmpty){
+        showingIncomingCall=true;
+        try {
+          final room=incoming.first;
+          final accept=await showDialog<bool>(context:context,barrierDismissible:false,builder:(context)=>AlertDialog(title:Text(room['name'] as String),content:Text('${room['callType']=='VIDEO'?'Video':'Voice'} call${room['scope']=='CIRCLE'?' in your circle':''}'),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const Text('Decline')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const Text('Answer'))]));
+          if(accept==true&&mounted){await Navigator.push(context,MaterialPageRoute(builder:(_)=>CommunicationCallScreen(api:api,incoming:room)));}
+          else {await api.leaveCommunicationCall(room['id'] as String);}
+        } finally {showingIncomingCall=false;}
+        return;
+      }
+    } catch(_){/* Older servers may not yet expose the shared call API. */}
     try {
       final calls = await api.incomingCalls();
       if (!mounted || calls.isEmpty) return;
@@ -3143,8 +3159,8 @@ class RelationshipTile extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => DirectCallScreen(
-                api: api, person: relationship.person, callType: type)));
+            builder: (_) => CommunicationCallScreen(
+                api: api, scope:'DIRECT', target:relationship.person.id, type:type)));
   }
 
   Future<void> _edit(BuildContext context) async {
@@ -3785,6 +3801,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 title: 'Messages',
                 subtitle: 'Recent chats and unread messages.')),
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat or search')))),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:TextButton.icon(onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>CommunicationCallsScreen(api:widget.api))),icon:const Icon(Icons.call_outlined),label:const Text('Calls')))),
         SliverToBoxAdapter(child:ExpansionTile(title:const Text('Conversation settings'),children:[SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})])),
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
         if (error != null)
@@ -5564,6 +5581,7 @@ class DirectChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ConversationScreen(
       title: person.displayName,
+      actions:[CommunicationCallButton(api:api,scope:'DIRECT',target:person.id)],
       subtitle: 'Private conversation',
       forwardMessage:(id,targets)=>api.forwardChatMessage('DIRECT',person.id,id,targets),
       forwardTargets:api.forwardTargets,
@@ -5628,6 +5646,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
           loadPresence: () => widget.api.circlePresence(circle.id),
           setTyping: (typing) => widget.api.setCircleTyping(circle.id, typing),
           actions: [
+            CommunicationCallButton(api:widget.api,scope:'CIRCLE',target:circle.id),
             IconButton(
                 tooltip: 'Members',
                 onPressed: showMembers,
@@ -6270,7 +6289,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   onPressed: search,
                   icon: const Icon(Icons.search_rounded)),
             ...widget.actions,
-            IconButton(onPressed: load, icon: const Icon(Icons.refresh_rounded))
           ]),
       body: Column(children: [
         if(widget.loadSaved!=null) Padding(padding:const EdgeInsets.symmetric(horizontal:12),child:DropdownButtonFormField<String>(initialValue:savedKind??'all',decoration:const InputDecoration(labelText:'Show messages'),items:const [DropdownMenuItem(value:'all',child:Text('All')),DropdownMenuItem(value:'starred',child:Text('Starred')),DropdownMenuItem(value:'pinned',child:Text('Pinned for me'))],onChanged:(value){setState((){savedKind=value=='all'?null:value;messages=null;showingSearchResults=false;hasEarlier=true;});load();})),
@@ -6523,6 +6541,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           textCapitalization: TextCapitalization.sentences,
                           decoration: const InputDecoration(
                               hintText: 'Message…', isDense: true))),
+                  if (!kIsWeb && defaultTargetPlatform==TargetPlatform.android) NativeVoiceNote(disabled:sending||selectedFile!=null,onReady:(file){if(mounted)setState(()=>selectedFile=file);}),
                   const SizedBox(width: 7),
                   IconButton.filled(
                       onPressed: sending ? null : send,

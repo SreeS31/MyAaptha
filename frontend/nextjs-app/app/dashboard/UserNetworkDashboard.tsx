@@ -1,4 +1,5 @@
 'use client';
+import {useMessagingCalls} from '../messages/MessagingCalls';
 import InfoTip from '../components/InfoTip';
 import {fetchCallIceConfiguration} from '../lib/api';
 import {CallResources} from '../lib/call-resources';
@@ -170,6 +171,7 @@ function SearchableSelect({ value, placeholder, options, onChange, className = '
 }
 
 export default function UserNetworkDashboard({ username, treeOnly=false }: { username: string; treeOnly?:boolean }) {
+  const messagingCalls=useMessagingCalls();
   const router = useRouter();
   const searchParams=useSearchParams();
   const deepLinkHandled=useRef(false);
@@ -485,19 +487,7 @@ export default function UserNetworkDashboard({ username, treeOnly=false }: { use
     connection.onconnectionstatechange=()=>{if(!callResources.isCurrent(token))return;if(connection.connectionState==='failed'){clearCallMedia();setDirectCallPhase('idle');setDirectCallError('Call connection failed. End this call and try again.');}else if(connection.connectionState==='disconnected')setDirectCallError('Call connection was interrupted.');};
     return connection;
   };
-  const beginDirectCall=async(person:NetworkPerson,type:'AUDIO'|'VIDEO')=>{
-    const token=callResources.begin();setLocalCallStream(null);setRemoteCallStream(null);setDirectCallPerson(person);setDirectCallPhase('preparing');setDirectCallError('');
-    try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='VIDEO'});
-      if(!callResources.attachLocal(token,stream))return;setLocalCallStream(stream);
-      const connection=await createCallConnection(stream,token);if(!connection)return;
-      await connection.setLocalDescription(await connection.createOffer());if(!callResources.isCurrent(token))return;
-      await waitForIceGathering(connection);if(!callResources.isCurrent(token))return;
-      const call=await startDirectCall(person.id,type,JSON.stringify(connection.localDescription));
-      if(!callResources.isCurrent(token)){void endDirectCall(call.id).catch(()=>{});return;}
-      activeCallRef.current=call;setDirectCall(call);setDirectCallPhase('ringing');
-    }catch(error){if(!callResources.isCurrent(token))return;clearCallMedia();setDirectCallError(error instanceof DOMException&&error.name==='NotAllowedError'?'Microphone or camera permission was denied. Allow access in your browser and try again.':errorMessage(error));setDirectCallPhase('idle');}
-  };
+  const beginDirectCall=async(person:NetworkPerson,type:'AUDIO'|'VIDEO')=>{messagingCalls.begin('DIRECT',person.id,type);};
   const answerIncomingCall=async()=>{
     if(!directCall)return;const token=callResources.begin();setLocalCallStream(null);setRemoteCallStream(null);setDirectCallError('');setDirectCallPhase('preparing');
     try{
