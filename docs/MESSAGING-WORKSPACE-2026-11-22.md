@@ -4,9 +4,9 @@ Implemented the core chat/calling experience using MyAaptha's own identity and t
 
 ## Delivery status
 
-The application source is published as commit `3094bd0e14792816944ce42e18ae72fcf472c43d`, tagged `beta-20261122-messaging-r1`. CI and scanned image validation passed. The new application release has **not yet been deployed to GCP**. The previous beta release remains active while explicit approval for the relay's public network ports is pending. Automatic approval review rejected that network change because its exact internet exposure had not been explicitly authorized.
+The application source is published as commit `3094bd0e14792816944ce42e18ae72fcf472c43d`, tagged `beta-20261122-messaging-r1`. CI and scanned image validation passed. The validated backend and frontend images are deployed to the GCP beta VM with schema 75. The user explicitly approved the scoped public relay ports before activation.
 
-Coturn was installed from the beta VM's Ubuntu repositories and configured with a protected signing secret, the existing issued TLS certificate, certificate renewal handling and resource limits. It is staged **inactive** pending network approval. No public firewall rule or relay VM tag was added. The protected environment contains staged TURN settings; the existing backend has not been restarted with the new wiring.
+Coturn was installed from the beta VM's Ubuntu repositories and configured with a protected signing secret, the existing issued TLS certificate, certificate renewal handling and resource limits. The relay is active. The approved `myaaptha-beta-call-relay` firewall rule applies only to the `myaaptha-beta-turn` tag on the beta VM; the deployed backend requires the configured relay.
 
 ## Implemented behavior
 
@@ -42,19 +42,23 @@ Migration V75 adds `communication_calls`, `communication_call_members` and `comm
 
 SDP is bounded and validated; UUID route keys do not use the numeric-ID validator. Signaling and history cleanup also cover abandoned clients. The existing authenticated `/api/network/calls/ice` endpoint issues short-lived relay credentials; the static signing key remains server-side.
 
-## Pending network approval and activation
+## Approved relay network and deployment
 
-The concrete proposed firewall rule is on VPC `myaaptha-beta`, targets only a new `myaaptha-beta-turn` tag on VM `myaaptha-beta`, and allows source `0.0.0.0/0` to TCP 3478/5349 and UDP 3478/49160-49239. These are TURN listeners and a bounded media relay range. Authentication, TLS and short-lived credentials do not remove the fact that this changes public ingress.
+The approved firewall rule is on VPC `myaaptha-beta`, targets only the `myaaptha-beta-turn` tag on VM `myaaptha-beta`, and allows source `0.0.0.0/0` to TCP 3478/5349 and UDP 3478/49160-49239. These are TURN listeners and a bounded media relay range. Authentication, TLS and short-lived credentials do not remove the fact that this changes public ingress.
 
-After explicit approval: apply that scoped firewall rule/tag, activate the staged relay, deploy the reviewed compose overlay and scanned application images using the guarded backup/restore rollout, verify actual relayed media on HTTPS, then remove synthetic test data. Do not retry or work around the automatic-review rejection before approval. Keep the relay inactive and the previous beta application running until this activation can be completed.
+After explicit user approval, the scoped firewall rule/tag was applied and the relay activated. The guarded rollout verified a database backup restore before applying migration 75. The SSH session dropped during container health checks; an independent reconnect confirmed the exact immutable image digests, reviewed overlay checksum, relay wiring and healthy public API.
 
 ## Validation and release artifacts
 
 - [CI run 44985463513](https://github.com/SreeS31/MyAaptha/actions/runs/44985463513): all jobs passed. Two existing diary layout checks needed retries and then passed.
 - [Image validation run 44985463594](https://github.com/SreeS31/MyAaptha/actions/runs/44985463594): all validation and image scans passed, including an independent clean run of all 64 browser scenarios and 26 web unit tests.
 - Local backend call coverage: six passing tests. Relay configuration: three passing tests. Native analysis: no issues; native tests: 119 passed and two expected opt-in skips.
-- Local browser calls verified actual peer connections and inbound media with synthetic devices. These checks do not establish GCP relay connectivity or real phone hardware acceptance. The opt-in live suite is prepared but has not run against this release.
-- Immutable backend/frontend image references, overlay hashes, prior release references and the pending deployment state are recorded in [the release manifest](../infrastructure/production/messaging-images-20261122.json). The candidate requires schema 75; the previous deployed release uses schema 74. The migration has not been applied.
+- Live GCP tests passed for individual audio forced through TLS TURN and three-person circle video forced through UDP TURN, on both desktop and mobile browser layouts. All participants had connected peers, selected relay candidates and nonzero received RTP media. Synthetic camera/microphone devices were used; real phone hardware acceptance remains pending.
+- Immutable backend/frontend image references, overlay hashes, prior release references and deployment evidence are recorded in [the release manifest](../infrastructure/production/messaging-images-20261122.json). Migration 75 has been applied; the previous release used schema 74. The database backup is `/opt/myaaptha-beta/runtime/release-backups/20261122T111058747878Z.dump`.
 - Android artifact: `.tools/preview/MyAaptha-beta-messaging-20261122.apk`, SHA256 `7bc7f9f834971425832c2e6f66d8dd47984c9db83b6afa8f70d47bd617f1acf3`. This is a debug test build for the new backend, not an app-store publication.
 
 This release implements the core features listed above. It does not establish full WhatsApp feature parity. In particular, end-to-end message encryption, background incoming-call push, large SFU calls and iOS audio-only voice recording remain pending.
+
+## Final live verification
+
+All six opt-in live scenarios passed: four actual relayed-media call scenarios and two public navigation/accessibility/viewport checks. The ten exact synthetic accounts and their contacts, owned circles, call rooms, membership and signaling rows were removed; remaining fixture counts were zero. Final HTTPS API health was UP. Google Contacts credentials remain configured; Microsoft Contacts credentials are not configured.
