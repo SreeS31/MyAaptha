@@ -9,6 +9,10 @@ import java.util.List;
 
 @Repository
 public interface CircleRepository extends JpaRepository<CircleEntity, Long> {
+  @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+  @Query("select c from CircleEntity c where c.id=:id")
+  java.util.Optional<CircleEntity> findForUpdate(@Param("id") Long id);
+
   List<CircleEntity> findByOwnerUserId(Long ownerUserId);
 
   @Query(value = "SELECT c.* FROM circles c WHERE c.owner_user_id = :userId UNION SELECT c.* FROM circles c JOIN circle_members cm ON cm.circle_id = c.id "

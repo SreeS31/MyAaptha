@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service @Transactional
 public class CircleConversationService {
+  @org.springframework.beans.factory.annotation.Autowired private com.myaaptha.domain.message.ChatRetentionService chatRetention;
   @org.springframework.beans.factory.annotation.Autowired private CircleReadWriter readWriter;
   private final CircleRepository circles; private final CirclePostRepository posts; private final UserRepository users;
   private final UserProfileRepository profiles; private final CircleMediaStorage storage; private final NotificationService notificationService; private final CirclePostReactionRepository reactions; private final CirclePostReadRepository reads;
@@ -35,8 +36,8 @@ public class CircleConversationService {
     if(clean.isBlank()&&(file==null||file.isEmpty()))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Write a message or choose a file");
     CirclePostEntity post=new CirclePostEntity();post.setCircleId(circleId);post.setAuthorUserId(userId);post.setParentPostId(parent==null?null:parent.getId());post.setMessage(clean);
     if(file!=null&&!file.isEmpty()){var media=storage.store(userId,file);post.setAttachmentKey(media.key());post.setAttachmentName(media.name());post.setAttachmentType(media.type());post.setAttachmentSize(media.size());}
-    post=posts.save(post); UserEntity author=users.findById(userId).orElseThrow(); String authorName=name(author);
-    for(Long memberId:circle.getMemberUserIds()) if(!memberId.equals(userId)) notificationService.notify(new NotificationCommand(memberId,"CIRCLE_MESSAGE",circle.getName(),authorName+": "+(clean.isBlank()?"Sent an attachment":clean),"/dashboard?circleId="+circleId,"CIRCLE_POST",post.getId()));
+    post=posts.save(post);chatRetention.register("CIRCLE",userId,circleId,post.getId()); UserEntity author=users.findById(userId).orElseThrow(); String authorName=name(author);
+    for(Long memberId:circle.getMemberUserIds()) if(!memberId.equals(userId)&&!chatRetention.muted(memberId,"CIRCLE",circleId)) notificationService.notify(new NotificationCommand(memberId,"CIRCLE_MESSAGE",circle.getName(),authorName+": "+(clean.isBlank()?"Sent an attachment":clean),"/dashboard?circleId="+circleId,"CIRCLE_POST",post.getId()));
     return dto(post,userId);
   }
   public CirclePostDto edit(Long userId,Long circleId,Long postId,String message){memberCircle(userId,circleId);CirclePostEntity post=ownedPost(userId,circleId,postId);if(post.getDeletedAt()!=null)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Deleted messages cannot be edited");String clean=message==null?"":message.trim();if(clean.length()>4000)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Message must be 4000 characters or less");if(clean.isBlank()&&post.getAttachmentKey()==null)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"A message cannot be empty");post.setMessage(clean);post.setEditedAt(Instant.now());return dto(posts.save(post),userId);}

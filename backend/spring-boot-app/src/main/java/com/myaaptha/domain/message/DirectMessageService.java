@@ -32,6 +32,7 @@ public class DirectMessageService {
   private final UserBlockRepository blocks;
   private final DirectMessageReactionRepository reactions;
   private final MessagePersonalization personalization;
+  @org.springframework.beans.factory.annotation.Autowired private ChatRetentionService chatRetention;
   private static final Set<String> ALLOWED_REACTIONS=Set.of("👍","❤️","😂","😮","😢","🙏");
   public DirectMessageService(DirectMessageRepository messages,UserRepository users,RelationshipRepository relationships,UserProfileRepository profiles,CircleMediaStorage storage,NotificationService notificationService,UserBlockRepository blocks,DirectMessageReactionRepository reactions,MessagePersonalization personalization){this.messages=messages;this.users=users;this.relationships=relationships;this.profiles=profiles;this.storage=storage;this.notificationService=notificationService;this.blocks=blocks;this.reactions=reactions;this.personalization=personalization;}
 
@@ -48,8 +49,8 @@ public class DirectMessageService {
     DirectMessageEntity directMessage=new DirectMessageEntity();directMessage.setSenderUserId(senderId);directMessage.setRecipientUserId(recipientId);directMessage.setMessage(clean);
     if(replyToMessageId!=null){DirectMessageEntity reply=participantMessage(senderId,recipientId,replyToMessageId);if(reply.getDeletedAt()!=null)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The replied message was deleted");directMessage.setReplyToMessageId(replyToMessageId);}
     if(file!=null&&!file.isEmpty()){var media=storage.store(senderId,file);directMessage.setAttachmentKey(media.key());directMessage.setAttachmentName(media.name());directMessage.setAttachmentType(media.type());directMessage.setAttachmentSize(media.size());}
-    DirectMessageEntity saved=messages.save(directMessage); UserEntity sender=users.findById(senderId).orElseThrow();
-    if(!personalization.muted(recipientId,senderId)) notificationService.notify(new NotificationCommand(recipientId,"DIRECT_MESSAGE","New message from "+name(sender),clean.isBlank()?"Sent an attachment":clean,"/dashboard?messageUserId="+senderId,"DIRECT_MESSAGE",saved.getId()));
+    DirectMessageEntity saved=messages.save(directMessage);chatRetention.register("DIRECT",senderId,recipientId,saved.getId()); UserEntity sender=users.findById(senderId).orElseThrow();
+    if(!personalization.muted(recipientId,senderId)&&!chatRetention.muted(recipientId,"DIRECT",senderId)) notificationService.notify(new NotificationCommand(recipientId,"DIRECT_MESSAGE","New message from "+name(sender),clean.isBlank()?"Sent an attachment":clean,"/dashboard?messageUserId="+senderId,"DIRECT_MESSAGE",saved.getId()));
     return dto(saved,senderId);
   }
   public DirectMessageDto send(Long senderId,Long recipientId,String message,MultipartFile file){return send(senderId,recipientId,message,file,null);}

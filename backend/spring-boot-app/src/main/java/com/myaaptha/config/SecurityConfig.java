@@ -76,6 +76,7 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.PUT, "/api/network/circles/**").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/network/messages/**").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/network/chats/circles/*/*/flags").authenticated()
+        .requestMatchers(HttpMethod.PUT, "/api/network/chats/workspace/*/*").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/address-book/**").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/notifications/preferences").authenticated()
         .requestMatchers(HttpMethod.PUT, "/api/people/**").authenticated()

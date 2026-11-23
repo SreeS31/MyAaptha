@@ -45,10 +45,12 @@ public class MessagePersonalization {
   }
   @Transactional(readOnly=true)
   public boolean muted(Long owner,Long other) {
+    var workspace=jdbc.queryForList("SELECT CASE WHEN muted_until>CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END FROM chat_workspace_options WHERE user_id=? AND kind='DIRECT' AND target_id=?",Boolean.class,owner,other);if(!workspace.isEmpty())return workspace.getFirst();
     return !jdbc.queryForList("SELECT other_user_id FROM direct_chat_settings WHERE user_id=? AND other_user_id=? AND muted=TRUE",Long.class,owner,other).isEmpty();
   }
   public void saveChatSettings(Long owner,Long other,Boolean archived,Boolean muted,Boolean markedUnread) {
     lock(owner);
+    if(muted!=null)jdbc.update("UPDATE chat_workspace_options SET muted_until=? WHERE user_id=? AND kind='DIRECT' AND target_id=?",muted?java.sql.Timestamp.from(java.time.Instant.now().plusSeconds(2147483647)):null,owner,other);
     var old=chatSettings(owner).getOrDefault(other,DEFAULT_CHAT);
     jdbc.update("DELETE FROM direct_chat_settings WHERE user_id=? AND other_user_id=?",owner,other);
     jdbc.update("INSERT INTO direct_chat_settings(user_id,other_user_id,archived,muted,marked_unread) VALUES (?,?,?,?,?)",

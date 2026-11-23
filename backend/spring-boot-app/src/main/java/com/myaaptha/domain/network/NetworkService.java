@@ -318,7 +318,7 @@ public class NetworkService {
   }
 
   private CircleEntity administeredCircle(Long userId, Long circleId) {
-    CircleEntity circle = circleRepository.findById(circleId)
+    CircleEntity circle = circleRepository.findForUpdate(circleId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Circle not found"));
     if (!circle.getAdminUserIds().contains(userId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only circle admins can manage members");

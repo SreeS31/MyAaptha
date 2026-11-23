@@ -8,6 +8,7 @@ import 'package:myaaptha_mobile/features/shell/presentation/app_shell.dart';
 class ChatApi extends MyAapthaApi {
   ChatApi():super(AuthTokenBundle(tokenType:'Bearer',accessToken:'test',refreshToken:'test',expiresIn:900));
   bool archived=false,muted=false,markedUnread=false;
+  @override Future<List<Map<String,dynamic>>> allChatOptions() async=>[];
   @override
   Future<List<CircleConversation>> circleConversations()async=>[CircleConversation.fromJson({'circleId':8,'displayName':'Family circle','lastMessage':'Circle update','lastMessageAt':'2026-09-30T00:00:00Z','unreadCount':2})];
   @override Future<List<DirectConversation>> directConversations() async => [DirectConversation(userId:2,displayName:'Friend',lastMessage:'Hello',lastMessageAt:DateTime(2026),unreadCount:0,archived:archived,muted:muted,markedUnread:markedUnread)];

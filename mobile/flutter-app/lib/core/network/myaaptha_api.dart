@@ -6,6 +6,16 @@ import 'dart:typed_data';
 import 'package:myaaptha_mobile/features/auth/data/session_refresher.dart';
 
 class MyAapthaApi {
+  Future<Map<String,dynamic>> chatOptions(String kind,int id) async => Map<String,dynamic>.from(await _json(_client.get('/api/network/chats/workspace/$kind/$id',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> saveChatOptions(String kind,int id,Map<String,dynamic> value) async => Map<String,dynamic>.from(await _json(_client.put('/api/network/chats/workspace/$kind/$id',value,bearerToken:_token)) as Map);
+  Future<List<Map<String,dynamic>>> allChatOptions() async => (await _json(_client.get('/api/network/chats/workspace',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<void> clearChat(String kind,int id) async => _json(_client.delete('/api/network/chats/workspace/$kind/$id/history',bearerToken:_token));
+  Future<void> exitCircle(int id,int? successor,{bool deleteEmptyCircle=false}) async => _json(_client.post('/api/network/chats/workspace/CIRCLE/$id/exit',{'successorId':successor,'deleteEmptyCircle':deleteEmptyCircle},bearerToken:_token));
+  Future<List<Map<String,dynamic>>> exportChat(String kind,int id) async {
+    final result=<Map<String,dynamic>>[];var before=9007199254740991;
+    while(true){final page=(await _json(_client.get('/api/network/chats/workspace/$kind/$id/export?before=$before',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();result.addAll(page);if(page.length<500)break;final next=page.map((v)=>(v['id'] as num).toInt()).reduce((a,b)=>a<b?a:b);if(next>=before)throw StateError('Export pagination did not advance');before=next;}
+    return result.reversed.toList();
+  }
   Future<List<String>> interests() async => (await _json(_client.get('/api/interests/me',bearerToken:_token)) as List).cast<String>();
   Future<List<String>> saveInterests(List<String> values) async => (await _json(_client.put('/api/interests/me',{'interests':values},bearerToken:_token)) as List).cast<String>();
   Future<Map<String,dynamic>> interestGroups({String query='',String area='',String topic='',bool mine=false,int page=0}) async {

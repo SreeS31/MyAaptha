@@ -8,13 +8,15 @@ function fixture(initialMembers=2){
  const members=new Map<number,string>(),signals:{id:number;senderId:number;recipientId:number;type:string;payload:string}[]=[];
  let circle={id:9,name:'Cycling circle',description:'Weekend rides',ownerName:'Member 1',ownedByCurrentUser:true,currentUserAdmin:true,currentUserCanPost:true,postingPermission:'ALL_MEMBERS',members:Array.from({length:initialMembers},(_,i)=>i+1).map(id=>({person:{id,displayName:`Member ${id}`,accountStatus:'ACTIVE'},creator:id===1,admin:id===1}))};
  const room=(user:number)=>({id:'fixture-call',scope,targetId:target,creatorId:creator,name:scope==='CIRCLE'?circle.name:`Member ${user===creator?target:creator}`,callType:mode,createdAt:new Date().toISOString(),ended,currentUserId:user,capacity:8,members:Array.from(members,([userId,status])=>({userId,name:`Member ${userId}`,status}))});
- let uploaded='';
+ let uploaded='';const preferences=new Map<number,Record<string,unknown>>();
  async function mount(context:BrowserContext,user:number){
   await context.addInitScript(()=>{const Native=window.RTCPeerConnection;const peers:RTCPeerConnection[]=[];(window as unknown as {testCallPeers:RTCPeerConnection[]}).testCallPeers=peers;window.RTCPeerConnection=class extends Native{constructor(configuration?:RTCConfiguration){super(configuration);peers.push(this);}};});
   await context.addInitScript(()=>localStorage.setItem('myaaptha.web-session.metadata',JSON.stringify({expiresIn:3600,receivedAtEpochMs:Date.now(),expiresAtEpochMs:Date.now()+3600000})));
   await context.route('**/api/**',async route=>{
    const request=route.request(),url=new URL(request.url()),path=url.pathname,method=request.method();let data:unknown=[];
    if(path==='/api/auth/me')data={id:user,username:`Member ${user}`,role:'USER'};
+   else if(path==='/api/network/chats/workspace')data=preferences.has(user)?[{kind:'CIRCLE',targetId:9,...preferences.get(user)}]:[];
+   else if(path.startsWith('/api/network/chats/workspace/')){const previous=preferences.get(user)||{favourite:false,archived:false,mutedUntil:null,theme:'DEFAULT',listName:'',disappearingSeconds:0,canManage:user===1,creator:user===1};if(method==='PUT'){preferences.set(user,{...previous,...request.postDataJSON()});}data=path.endsWith('/export')?[{id:100,message:'Sunday ride at 7 am?'}]:preferences.get(user)||previous;}
    else if(path==='/api/network/calls/ice')data={iceServers:[],relayConfigured:false,credentialsExpireAt:null};
    else if(path==='/api/network/meetings'&&method==='POST'){const value=request.postDataJSON();scope=value.scope;target=value.targetId;mode=value.callType;created=true;ended=false;creator=user;members.set(user,'JOINED');data=room(user);}
    else if(path==='/api/network/meetings'||path==='/api/network/meetings/history')data=created&&!ended?[room(user)]:[];
@@ -32,6 +34,7 @@ function fixture(initialMembers=2){
    else if(path==='/api/network/circles')data=[circle];
    else if(path==='/api/network/circles/9'&&method==='PUT'){circle={...circle,...request.postDataJSON()};data=circle;}
    else if(path==='/api/network/circles/9/members'&&method==='POST'){const id=request.postDataJSON().userId;circle={...circle,members:[...circle.members,{person:{id,displayName:`Member ${id}`,accountStatus:'ACTIVE'},creator:false,admin:false}]};data=circle;}
+   else if(path.match(/\/api\/network\/circles\/9\/admins\/\d+$/)){const id=Number(path.split('/').pop());circle={...circle,members:circle.members.map(m=>m.person.id===id?{...m,admin:method==='POST'}:m)};data=circle;}
    else if(path==='/api/network/relationships')data=[{id:3,type:'Friend',person:{id:3,displayName:'Member 3',accountStatus:'ACTIVE'}}];
    else if(path==='/api/uploads/policy')data={level:{id:1,name:'Free',storageBytes:1073741824,uploadBytes:26214400,maxRetentionDays:3650,allowNever:true},usedBytes:0,retentionDaysOptions:[0,7,365],defaultRetentionDays:0};
    else if(path.includes('unread'))data={count:0};
@@ -64,7 +67,7 @@ for(const scope of ['DIRECT','CIRCLE'] as const)test(`${scope==='DIRECT'?'indivi
 
 test('circle info manages real API fields and voice notes are reviewed before send',async({page,context},info)=>{
  const server=fixture();await server.mount(context,1);await page.goto('/messages?circle=9');
- await page.getByRole('button',{name:'Conversation info',exact:true}).click();const pane=page.getByRole('complementary',{name:'Circle info'});await expect(pane).toBeVisible();
+ await page.getByRole('button',{name:'Circle info',exact:true}).click();const pane=page.getByRole('complementary',{name:'Circle info'});await expect(pane).toBeVisible();
  await pane.getByRole('button',{name:'Add member',exact:true}).click();await pane.getByRole('button',{name:'+ Member 3',exact:true}).click();await expect(pane.getByRole('heading',{name:'3 members',exact:true})).toBeVisible();
  await pane.getByRole('button',{name:'Edit circle',exact:true}).click();await pane.getByLabel('Circle name',{exact:true}).fill('Hyderabad cyclists');await pane.getByRole('button',{name:'Save',exact:true}).click();await expect(pane.getByRole('heading',{name:'Hyderabad cyclists',exact:true})).toBeVisible();
  await pane.evaluate(node=>{node.scrollTop=0;});
@@ -73,4 +76,19 @@ test('circle info manages real API fields and voice notes are reviewed before se
  await page.goto('/messages?person=2');await page.getByRole('button',{name:'Record voice note'}).click();await expect(page.getByRole('status').filter({hasText:'Recording 0:01'})).toBeVisible();await page.getByRole('button',{name:'Stop voice recording'}).click();
  await expect(page.getByLabel('Voice note preview')).toBeVisible();expect(server.uploaded()).toBe('');await page.getByRole('button',{name:'Send message',exact:true}).click();await page.getByRole('dialog',{name:'Keep this attachment',exact:true}).getByRole('button',{name:'Continue upload',exact:true}).click();await expect.poll(()=>server.uploaded()).toContain('voice-note-');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+
+test('circle options expose members, admins, themes, lists, timers and safe history controls',async({page,context},info)=>{
+ const server=fixture();await server.mount(context,1);await page.goto('/messages?circle=9');
+ const menu=page.getByLabel('Circle options',{exact:true});await menu.click();
+ for(const name of ['Add member','Circle info','Search','Select messages','Mute notifications','Disappearing messages','Chat theme','Add to favourites','Add to list','Export chat','Close chat','Clear chat','Exit circle'])await expect(page.locator('.chat-thread-options').getByRole('button',{name,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Add member',exact:true}).click();const pane=page.getByRole('complementary',{name:'Circle info'});await pane.getByRole('button',{name:'+ Member 3',exact:true}).click();
+ await pane.getByLabel('Actions for Member 3',{exact:true}).click();await pane.getByRole('button',{name:'Make admin',exact:true}).click();await expect(pane.getByText('Admin',{exact:true})).toBeVisible();await pane.getByRole('button',{name:'Close circle info',exact:true}).click();
+ await menu.click();await page.getByRole('button',{name:'Chat theme',exact:true}).click();let dialog=page.getByRole('dialog',{name:'Chat options'});await dialog.getByRole('button',{name:'Ocean',exact:true}).click();await expect(page.locator('.chat-theme-ocean')).toBeVisible();
+ await menu.click();await page.getByRole('button',{name:'Add to list',exact:true}).click();dialog=page.getByRole('dialog',{name:'Chat options'});await dialog.getByLabel('List name',{exact:true}).fill('College friends');await dialog.getByRole('button',{name:'Save',exact:true}).click();await expect(page.locator('.chat-inbox-filters button').filter({hasText:'College friends'})).toHaveCount(1);
+ await menu.click();await page.getByRole('button',{name:'Disappearing messages',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'7 days',exact:true}).click();
+ await menu.click();await page.getByRole('button',{name:'Select messages',exact:true}).click();await page.getByLabel('Select message 100',{exact:true}).check();await expect(page.getByText('1 selected',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Cancel selection',exact:true}).click();
+ await menu.click();await page.getByRole('button',{name:'Clear chat',exact:true}).click();await expect(page.getByRole('dialog').getByText('Remove the existing history for you. Other members keep their messages.')).toBeVisible();await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByText('Sunday ride at 7 am?',{exact:true})).toBeVisible();
+ await page.screenshot({path:info.outputPath('circle-options.png'),fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

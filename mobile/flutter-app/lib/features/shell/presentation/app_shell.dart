@@ -3,6 +3,7 @@ import 'interests_screen.dart';
 import 'circle_tree_branch.dart';
 import 'communication_call_screen.dart';
 import 'native_voice_note.dart';
+import 'chat_workspace_menu.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
 import 'renewals_screen.dart';
@@ -3746,6 +3747,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
   List<DirectConversation>? items;
   List<CircleConversation> circleItems=[];
+  List<Map<String,dynamic>> workspaceOptions=[];
   String? error;
   Timer? poller;
   bool? readReceipts;
@@ -3757,7 +3759,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       ...circleItems.where((item)=>folder!='archived'&&folder!='direct'&&(folder!='unread'||item.unreadCount>0))];
     DateTime date(Object item)=>item is DirectConversation?item.lastMessageAt:(item as CircleConversation).lastMessageAt??DateTime(1970);
     result.sort((a,b){final pinA=a is DirectConversation&&a.pinned;final pinB=b is DirectConversation&&b.pinned;return pinA!=pinB?(pinA?-1:1):date(b).compareTo(date(a));});
-    return result;
+    return result.where((item){final kind=item is DirectConversation?'DIRECT':'CIRCLE';final id=item is DirectConversation?item.userId:(item as CircleConversation).id;final matches=workspaceOptions.where((o)=>o['kind']==kind&&o['targetId']==id);final option=matches.isEmpty?null:matches.first;if(folder=='favourites')return option!=null&&option['favourite']==true;if(folder.startsWith('list:'))return option!=null&&option['listName']==folder.substring(5);return true;}).toList();
   }
   Future<void> change(Future<void> Function() action) async {setState(()=>saving=true);try{await action();await load();}catch(e){if(mounted)setState(()=>error='$e');}finally{if(mounted)setState(()=>saving=false);}}
   @override
@@ -3778,10 +3780,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
       final value = await widget.api.directConversations();
       final receipts = await widget.api.messagePreferences();
       final groups=await widget.api.circleConversations();
+      final options=await widget.api.allChatOptions();
       if (mounted) {
         setState(() {
           items = value;
-          circleItems=groups;
+          circleItems=groups;workspaceOptions=options;
           readReceipts=receipts;
           error = null;
         });
@@ -3803,7 +3806,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:OutlinedButton.icon(onPressed:saving?null:findConversation,icon:const Icon(Icons.search),label:const Text('New chat or search')))),
         SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:TextButton.icon(onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>CommunicationCallsScreen(api:widget.api))),icon:const Icon(Icons.call_outlined),label:const Text('Calls')))),
         SliverToBoxAdapter(child:ExpansionTile(title:const Text('Conversation settings'),children:[SwitchListTile(title:const Text('Share read receipts'),subtitle:const Text('When off, neither side sees direct-message read times. Unread counts still update.'),value:readReceipts??false,onChanged:readReceipts==null||saving?null:(value)async{final previous=readReceipts;setState((){saving=true;readReceipts=value;});try{await widget.api.saveMessagePreferences(value);}catch(e){if(mounted)setState((){readReceipts=previous;error='$e';});}finally{if(mounted)setState(()=>saving=false);}})])),
-        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','archived']) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Circles':'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.all(16),child:Wrap(spacing:8,children:[for(final value in ['inbox','unread','direct','circles','favourites','archived',...workspaceOptions.map((o)=>o['listName'] as String? ?? '').where((n)=>n.isNotEmpty).toSet().map((n)=>'list:$n')]) ChoiceChip(label:Text(value=='inbox'?'Inbox':value=='unread'?'Unread':value=='direct'?'People':value=='circles'?'Circles':value=='favourites'?'Favourites':value.startsWith('list:')?value.substring(5):'Archived'),selected:folder==value,onSelected:(_)=>setState(()=>folder=value))]))),
         if (error != null)
           SliverToBoxAdapter(child: _ErrorState(error!, retry: load)),
         if (items == null)
@@ -5581,6 +5584,7 @@ class DirectChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ConversationScreen(
       title: person.displayName,
+      workspaceApi:api,workspaceTarget:person.id,
       actions:[CommunicationCallButton(api:api,scope:'DIRECT',target:person.id)],
       subtitle: 'Private conversation',
       forwardMessage:(id,targets)=>api.forwardChatMessage('DIRECT',person.id,id,targets),
@@ -5621,6 +5625,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
   @override
   Widget build(BuildContext context) => ConversationScreen(
           circleConversation:true,
+          workspaceApi:widget.api,workspaceTarget:circle.id,onCircleInfo:showMembers,onAddCircleMember:()=>addMember(context),
           title: circle.name,
           subtitle: '${circle.members.length} members',
           forwardTargets:widget.api.forwardTargets,
@@ -5647,15 +5652,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
           setTyping: (typing) => widget.api.setCircleTyping(circle.id, typing),
           actions: [
             CommunicationCallButton(api:widget.api,scope:'CIRCLE',target:circle.id),
-            IconButton(
-                tooltip: 'Members',
-                onPressed: showMembers,
-                icon: const Icon(Icons.group_rounded)),
-            if (circle.currentUserAdmin)
-              IconButton(
-                  tooltip: 'Circle settings',
-                  onPressed: showSettings,
-                  icon: const Icon(Icons.settings_rounded))
+
           ]);
 
   Future<void> showSettings() async {
@@ -5713,6 +5710,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
 
   Future<void> showMembers() async {
     if (!mounted) return;
+    var memberQuery='';
     await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -5724,9 +5722,9 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                   Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 12, 8),
                       child: Row(children: [
-                        Expanded(
-                            child: Text('Members (${circle.members.length})',
-                                style: const TextStyle(
+                        const Expanded(
+                            child: Text('Circle info',
+                                style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500))),
                         if (circle.currentUserAdmin)
@@ -5738,11 +5736,14 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                               icon: const Icon(Icons.person_add_rounded),
                               label: const Text('Add'))
                       ])),
+                  ListTile(title:Text(circle.name),subtitle:Text(circle.description),trailing:circle.currentUserAdmin?IconButton(tooltip:'Edit circle',icon:const Icon(Icons.edit_outlined),onPressed:()async{await showSettings();setModal((){});}):null),
+                  Padding(padding:const EdgeInsets.symmetric(horizontal:20),child:TextField(decoration:const InputDecoration(labelText:'Search members'),onChanged:(value)=>setModal(()=>memberQuery=value.toLowerCase()))),
                   Expanded(
                       child: ListView.builder(
                           itemCount: circle.members.length,
                           itemBuilder: (context, index) {
                             final member = circle.members[index];
+                            if(!member.person.displayName.toLowerCase().contains(memberQuery))return const SizedBox.shrink();
                             return ListTile(
                                 leading: _Avatar(member.person),
                                 title: Text(member.person.displayName,
@@ -5867,6 +5868,7 @@ class ConversationScreen extends StatefulWidget {
       required this.send,
       required this.sendAttachment,
       required this.fetchAttachment,
+      this.workspaceApi,this.workspaceTarget,this.onCircleInfo,this.onAddCircleMember,
       this.actions = const [],
       this.allowReplies = false,
       this.circleConversation = false,
@@ -5878,6 +5880,7 @@ class ConversationScreen extends StatefulWidget {
       this.loadPresence,
       this.setTyping,
       this.person, this.setMessageFlags, this.loadSaved, this.acknowledgeRead, this.forwardTargets, this.forwardMessage});
+  final MyAapthaApi? workspaceApi;final int? workspaceTarget;final VoidCallback? onCircleInfo,onAddCircleMember;
   final String title, subtitle;
   final Future<List<ConversationMessage>> Function() load;
   final Future<List<ConversationMessage>> Function(int beforeId)? loadEarlier;
@@ -5924,6 +5927,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   bool showingSearchResults = false;
   String? presenceText;
   String? savedKind;
+  String chatTheme="DEFAULT";bool selecting=false,selectionBusy=false;final selectedMessages=<int>{};
+  Future<void> applySelection(bool star) async {setState(()=>selectionBusy=true);try{for(final id in selectedMessages){if(star){await widget.setMessageFlags?.call(id,true,null);}else{await widget.deleteForMe?.call(id);}}if(mounted){setState((){selecting=false;selectedMessages.clear();messages=null;});await load();}}catch(e){if(mounted)setState(()=>error="$e");}finally{if(mounted)setState(()=>selectionBusy=false);}}
   final viewportKey=GlobalKey();
   final messageKeys=<int,GlobalKey>{};
   final acknowledged=<int>{};
@@ -6265,6 +6270,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+      backgroundColor:const {'SAGE':Color(0xFFE6EEE5),'OCEAN':Color(0xFFE4EFF8),'ROSE':Color(0xFFF5E8ED),'DARK':Color(0xFF182C31)}[chatTheme],
       appBar: AppBar(
           title: Row(children: [
             if (widget.person != null) ...[
@@ -6289,8 +6295,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   onPressed: search,
                   icon: const Icon(Icons.search_rounded)),
             ...widget.actions,
+            if(widget.workspaceApi!=null&&widget.workspaceTarget!=null)ChatWorkspaceMenu(api:widget.workspaceApi!,kind:widget.circleConversation?'CIRCLE':'DIRECT',target:widget.workspaceTarget!,onSearch:search,onSelect:()=>setState((){selecting=true;selectedMessages.clear();}),onCleared:(){if(mounted){setState((){messages=[];hasEarlier=false;replyingTo=null;});}},onTheme:(value){if(mounted)setState(()=>chatTheme=value);},onInfo:widget.onCircleInfo,onAdd:widget.onAddCircleMember),
           ]),
       body: Column(children: [
+        if(selecting)Wrap(crossAxisAlignment:WrapCrossAlignment.center,children:[Text('${selectedMessages.length} selected'),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()async{await Clipboard.setData(ClipboardData(text:(messages??[]).where((m)=>selectedMessages.contains(m.id)).map((m)=>m.message).join('\n')));},child:const Text('Copy')),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()=>applySelection(true),child:const Text('Star')),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()async{if(await _confirmDestructiveAction(context,title:'Delete selected messages?',message:'Remove these messages for you only.',confirmLabel:'Delete for me'))await applySelection(false);},child:const Text('Delete for me')),TextButton(onPressed:selectionBusy?null:()=>setState(()=>selecting=false),child:const Text('Cancel selection'))]),
         if(widget.loadSaved!=null) Padding(padding:const EdgeInsets.symmetric(horizontal:12),child:DropdownButtonFormField<String>(initialValue:savedKind??'all',decoration:const InputDecoration(labelText:'Show messages'),items:const [DropdownMenuItem(value:'all',child:Text('All')),DropdownMenuItem(value:'starred',child:Text('Starred')),DropdownMenuItem(value:'pinned',child:Text('Pinned for me'))],onChanged:(value){setState((){savedKind=value=='all'?null:value;messages=null;showingSearchResults=false;hasEarlier=true;});load();})),
 
         if (!showingSearchResults && hasEarlier && (messages?.length ?? 0) >= 50 && widget.loadEarlier != null)
@@ -6347,6 +6355,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                               item.mine ? 4 : 16))),
                                   child:
                                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                    if(selecting)CheckboxListTile(title:const Text('Select message'),value:selectedMessages.contains(item.id),onChanged:selectionBusy?null:(value)=>setState((){if(value==true){selectedMessages.add(item.id);}else{selectedMessages.remove(item.id);}})),
                                     Text(item.mine ? 'You' : item.authorName,
                                           style: const TextStyle(
                                               color: AppTheme.primary,
