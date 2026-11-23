@@ -96,6 +96,8 @@ class _ChatWorkspaceMenuState extends State<ChatWorkspaceMenu> {
     }
     setState(() => busy = true);
     try {
+      await refresh();
+      if (!mounted) return;
       Map<String, dynamic>? change;
       if (action == 'mute') {
         final value = await choose('Mute notifications', {

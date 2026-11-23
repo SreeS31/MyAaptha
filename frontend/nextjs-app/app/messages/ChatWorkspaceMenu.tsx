@@ -8,7 +8,7 @@ export default function ChatWorkspaceMenu({chat,onInfo,onSearch,onSelect,onClose
  useEffect(()=>{let active=true;workspace.getChatOptions(chat.type,chat.id).then(value=>{if(active){setOptions(value);setList(value.listName);onTheme(value.theme||'DEFAULT');}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[chat.type,chat.id,onTheme]);
  useEffect(()=>{if(panel)dialog.current?.showModal();},[panel]);
  const close=()=>setPanel('');
- function open(value:string){if(menu.current)menu.current.open=false;setPanel(value);setError('');if(value==='exit')api.fetchMyCircles().then(circles=>{const members=circles.find(c=>c.id===chat.id)?.members||[];setAdmins(members.filter(m=>m.admin&&!m.creator));}).catch(e=>setError(e.message));}
+ function open(value:string){if(menu.current)menu.current.open=false;setPanel(value);setError('');setBusy(true);workspace.getChatOptions(chat.type,chat.id).then(setOptions).catch(e=>setError(e.message)).finally(()=>setBusy(false));if(value==='exit')api.fetchMyCircles().then(circles=>{const members=circles.find(c=>c.id===chat.id)?.members||[];setAdmins(members.filter(m=>m.admin&&!m.creator));}).catch(e=>setError(e.message));}
  async function task(action:()=>Promise<unknown>){setBusy(true);setError('');try{await action();onChanged();close();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  async function save(value:workspace.OptionChange){const next=await workspace.saveChatOptions(chat.type,chat.id,value);setOptions(next);onTheme(next.theme);}
  const action=(run:()=>void)=>{if(menu.current)menu.current.open=false;run();};
