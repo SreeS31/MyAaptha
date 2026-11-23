@@ -1,0 +1,10 @@
+import {authenticatedRequest as request} from './api';
+export type Activity={id:number;kind:'POLL'|'EVENT';title:string;details:string;location:string;startsAt:string|null;endsAt:string|null;multiple:boolean;closed:boolean;canManage:boolean;options:{id:number;label:string;count:number;selected:boolean}[];responses:Record<string,number>;myResponse:string|null};
+export type ActivityPage={items:Activity[];hasNext:boolean;nextBefore:number|null};
+const path=(circle:number)=>`/api/network/circles/${circle}/activities`;
+export const activities=(circle:number,before?:number)=>request<ActivityPage>(path(circle)+(before?`?before=${before}`:''));
+export const createActivity=(circle:number,value:{kind:string;title:string;details?:string;location?:string;startsAt?:string;endsAt?:string;multiple?:boolean;options?:string[]})=>request<Activity>(path(circle),{method:'POST',body:JSON.stringify(value)});
+export const voteActivity=(circle:number,id:number,optionIds:number[])=>request<Activity>(path(circle)+`/${id}/vote`,{method:'POST',body:JSON.stringify({optionIds})});
+export const rsvpActivity=(circle:number,id:number,response:string)=>request<Activity>(path(circle)+`/${id}/rsvp`,{method:'POST',body:JSON.stringify({response})});
+export const closeActivity=(circle:number,id:number)=>request<Activity>(path(circle)+`/${id}/close`,{method:'POST',body:'{}'});
+export const deleteActivity=(circle:number,id:number)=>request<void>(path(circle)+`/${id}`,{method:'DELETE'});

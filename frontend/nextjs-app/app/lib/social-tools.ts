@@ -1,0 +1,17 @@
+import {authenticatedRequest as request,SocialPost,SocialStory} from './api';
+export type SocialPage={items:SocialPost[];hasNext:boolean;nextBefore:number|null};
+export type Friend={id:number;name:string};
+export const browsePosts=(mode='ALL',before?:number)=>request<SocialPage>('/api/social/browse?mode='+mode+(before?'&before='+before:''));
+export const closeFriends=()=>request<Friend[]>('/api/social/tools/close-friends');
+export const setCloseFriend=(id:number,selected:boolean)=>request<void>('/api/social/tools/close-friends/'+id,{method:selected?'POST':'DELETE',...(selected?{body:'{}'}:{})});
+export const storyArchive=()=>request<SocialStory[]>('/api/social/tools/archive');
+export const storyHighlights=()=>request<SocialStory[]>('/api/social/tools/highlights');
+export const setHighlight=(id:number,name:string)=>request<SocialStory>(`/api/social/tools/stories/${id}/highlight`,{method:'POST',body:JSON.stringify({name})});
+export const storyViewers=(id:number)=>request<Friend[]>(`/api/social/tools/stories/${id}/viewers`);
+export const storyReactions=(id:number)=>request<{counts:Record<string,number>;mine:string|null}>(`/api/social/tools/stories/${id}/reactions`);
+export const reactStory=(id:number,emoji:string|null)=>request<{counts:Record<string,number>;mine:string|null}>(`/api/social/tools/stories/${id}/reaction`,{method:'POST',body:JSON.stringify({emoji})});
+export const replyStory=(id:number,message:string)=>request<void>(`/api/social/tools/stories/${id}/reply`,{method:'POST',body:JSON.stringify({message})});
+export const collections=()=>request<{name:string;count:number}[]>('/api/social/tools/collections');
+export const collectionPosts=(name:string,before?:number)=>request<SocialPage>('/api/social/tools/collections/posts?name='+encodeURIComponent(name)+(before?'&before='+before:''));
+export const collectPost=(id:number,name:string)=>request<void>('/api/social/tools/collections/'+id,{method:'POST',body:JSON.stringify({name})});
+export const uncollectPost=(id:number,name:string)=>request<void>('/api/social/tools/collections/'+id+'?name='+encodeURIComponent(name),{method:'DELETE'});

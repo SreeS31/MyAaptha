@@ -6,6 +6,25 @@ import 'dart:typed_data';
 import 'package:myaaptha_mobile/features/auth/data/session_refresher.dart';
 
 class MyAapthaApi {
+  Future<void> createReel(String caption,String audience,Uint8List bytes,String name)async=>_json(_client.postMultipart('/api/social/reels',{'caption':caption,'audience':audience},fileBytes:bytes,fileName:name,bearerToken:_token));
+  Future<Map<String,dynamic>> socialPost(int id)async=>Map<String,dynamic>.from(await _json(_client.get('/api/social/posts/$id',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> socialBrowse(String mode,{int? before}) async=>Map<String,dynamic>.from(await _json(_client.get('/api/social/browse?mode=$mode${before==null?'':'&before=$before'}',bearerToken:_token)) as Map);
+  Future<List<Map<String,dynamic>>> socialToolList(String name) async=>(await _json(_client.get('/api/social/tools/$name',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<void> setCloseFriend(int member,bool chosen) async {final path='/api/social/tools/close-friends/$member';if(chosen){await _json(_client.post(path,{},bearerToken:_token));}else{await _json(_client.delete(path,bearerToken:_token));}}
+  Future<void> highlightStory(int id,String name)async=>_json(_client.post('/api/social/tools/stories/$id/highlight',{'name':name},bearerToken:_token));
+  Future<Map<String,dynamic>> storyReactions(int id)async=>Map<String,dynamic>.from(await _json(_client.get('/api/social/tools/stories/$id/reactions',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> reactStory(int id,String? emoji)async=>Map<String,dynamic>.from(await _json(_client.post('/api/social/tools/stories/$id/reaction',{'emoji':emoji},bearerToken:_token)) as Map);
+  Future<void> replyToStory(int id,String message)async=>_json(_client.post('/api/social/tools/stories/$id/reply',{'message':message},bearerToken:_token));
+  Future<void> collectSocialPost(int id,String name)async=>_json(_client.post('/api/social/tools/collections/$id',{'name':name},bearerToken:_token));
+  Future<void> removeSocialCollection(int id,String name)async=>_json(_client.delete('/api/social/tools/collections/$id?name=${Uri.encodeQueryComponent(name)}',bearerToken:_token));
+  Future<Map<String,dynamic>> socialCollectionPosts(String name,{int? before})async=>Map<String,dynamic>.from(await _json(_client.get('/api/social/tools/collections/posts?name=${Uri.encodeQueryComponent(name)}${before==null?'':'&before=$before'}',bearerToken:_token)) as Map);
+  Future<void> createStoryUpdate(String caption,String audience,{Uint8List? bytes,String? fileName,bool archive=false})async=>_json(_client.postMultipart('/api/social/stories',{'caption':caption,'audience':audience,'archive':'$archive'},fileBytes:bytes,fileName:fileName,bearerToken:_token));
+  Future<Map<String,dynamic>> circleActivities(int id,{int? before})async=>Map<String,dynamic>.from(await _json(_client.get('/api/network/circles/$id/activities${before==null?'':'?before=$before'}',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> createCircleActivity(int circle,Map<String,dynamic> value)async=>Map<String,dynamic>.from(await _json(_client.post('/api/network/circles/$circle/activities',value,bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> voteCircleActivity(int circle,int id,List<int> options)async=>Map<String,dynamic>.from(await _json(_client.post('/api/network/circles/$circle/activities/$id/vote',{'optionIds':options},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> rsvpCircleActivity(int circle,int id,String response)async=>Map<String,dynamic>.from(await _json(_client.post('/api/network/circles/$circle/activities/$id/rsvp',{'response':response},bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> closeCircleActivity(int circle,int id)async=>Map<String,dynamic>.from(await _json(_client.post('/api/network/circles/$circle/activities/$id/close',{},bearerToken:_token)) as Map);
+  Future<void> deleteCircleActivity(int circle,int id)async=>_json(_client.delete('/api/network/circles/$circle/activities/$id',bearerToken:_token));
   Future<Map<String,dynamic>> chatOptions(String kind,int id) async => Map<String,dynamic>.from(await _json(_client.get('/api/network/chats/workspace/$kind/$id',bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> saveChatOptions(String kind,int id,Map<String,dynamic> value) async => Map<String,dynamic>.from(await _json(_client.put('/api/network/chats/workspace/$kind/$id',value,bearerToken:_token)) as Map);
   Future<List<Map<String,dynamic>>> allChatOptions() async => (await _json(_client.get('/api/network/chats/workspace',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();

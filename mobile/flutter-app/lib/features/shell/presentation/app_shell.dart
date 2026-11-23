@@ -4,6 +4,11 @@ import 'circle_tree_branch.dart';
 import 'communication_call_screen.dart';
 import 'native_voice_note.dart';
 import 'chat_workspace_menu.dart';
+import 'community_activities_screen.dart';
+import 'social_tools_screen.dart';
+import 'social_video.dart';
+import 'social_media_picker.dart';
+import 'reels_screen.dart';
 import 'workspace_navigation.dart';
 import 'post_options_sheet.dart';
 import 'renewals_screen.dart';
@@ -4022,130 +4027,19 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
   }
 
   Future<void> story() async {
-    final result = await FilePicker.platform
-        .pickFiles(type: FileType.media, withData: true);
-    final f = result?.files.single;
-    if (f?.bytes == null) return;
-    setState(() => loading = true);
-    try {
-      await widget.api.createSocialStory('', f!.bytes!, f.name);
-      await load();
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          loading = false;
-          error = '$e';
-        });
-      }
-    }
+    final text=TextEditingController();PlatformFile? file;String audience='RELATIONSHIPS';bool keepArchive=false;
+    final yes=await showDialog<bool>(context:context,builder:(c)=>StatefulBuilder(builder:(c,setModal)=>AlertDialog(title:const Text('New story'),content:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,children:[TextField(controller:text,maxLength:1000,maxLines:3,decoration:const InputDecoration(labelText:'Text or caption')),DropdownButtonFormField<String>(initialValue:audience,decoration:const InputDecoration(labelText:'Audience'),items:const [DropdownMenuItem(value:'RELATIONSHIPS',child:Text('Connections')),DropdownMenuItem(value:'CLOSE_FRIENDS',child:Text('Close Friends')),DropdownMenuItem(value:'PUBLIC',child:Text('Public'))],onChanged:(value)=>audience=value!),TextButton(onPressed:()async{try{final picked=await pickSocialMedia(FileType.media);if(picked!=null&&c.mounted)setModal(()=>file=picked);}catch(e){if(c.mounted)ScaffoldMessenger.of(c).showSnackBar(SnackBar(content:Text('$e')));}},child:Text(file?.name??'Add photo or video (optional)')),CheckboxListTile(title:const Text('Keep a private archive for 30 days after expiry'),value:keepArchive,onChanged:(v)=>setModal(()=>keepArchive=v==true)),const Text('Stories expire after 24 hours.')])),actions:[TextButton(onPressed:()=>Navigator.pop(c,false),child:const Text('Cancel')),FilledButton(onPressed:()=>Navigator.pop(c,true),child:const Text('Share'))])));
+    final caption=text.text.trim();text.dispose();if(yes!=true||!mounted||caption.isEmpty&&file==null)return;setState(()=>loading=true);
+    try{await widget.api.createStoryUpdate(caption,audience,bytes:file?.bytes,fileName:file?.name,archive:keepArchive);await load();}catch(e){if(mounted)setState((){loading=false;error='$e';});}
   }
 
-  Future<void> viewStory(Map<String, dynamic> story) async {
-    final path = story['mediaUrl']?.toString();
-    if (path == null) return;
-    try {
-      if (story['mine'] != true) {
-        story.addAll(
-            await widget.api.viewSocialStory((story['id'] as num).toInt()));
-        if (mounted) setState(() {});
-      }
-      final bytes = await widget.api.socialMedia(path);
-      if (!mounted) return;
-      final type = story['mediaType']?.toString() ?? 'application/octet-stream';
-      if (!type.startsWith('image/')) {
-        final extension = type.startsWith('video/') ? 'mp4' : 'bin';
-        final opened = await openAttachmentBytes(
-            bytes, type, 'story-${story['id']}.$extension');
-        if (!opened && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('No app is available to open this story.')));
-        }
-        return;
-      }
-      await showDialog<void>(
-          context: context,
-          builder: (dialogContext) => Dialog.fullscreen(
-              backgroundColor: Colors.black,
-              child: SafeArea(
-                  child: Stack(children: [
-                Center(
-                    child: InteractiveViewer(
-                        child: Image.memory(bytes,
-                            width: double.infinity, fit: BoxFit.contain))),
-                Positioned(
-                    left: 16,
-                    right: 8,
-                    top: 8,
-                    child: Row(children: [
-                      CircleAvatar(
-                          child: Text((story['authorName'] ?? '?')
-                              .toString()
-                              .substring(0, 1)
-                              .toUpperCase())),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: Text(story['authorName']?.toString() ?? '',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500))),
-                      if (story['mine'] == true)
-                        IconButton(
-                            tooltip: 'Delete story',
-                            color: Colors.white,
-                            onPressed: () async {
-                              final confirmed = await _confirmDestructiveAction(
-                                  dialogContext,
-                                  title: 'Delete story?',
-                                  message:
-                                      'This story will be removed immediately and people will no longer be able to view it. This action cannot be undone.',
-                                  confirmLabel: 'Delete story');
-                              if (!confirmed) return;
-                              await widget.api.deleteSocialStory(
-                                  (story['id'] as num).toInt());
-                              if (dialogContext.mounted) {
-                                Navigator.pop(dialogContext);
-                              }
-                              await load();
-                            },
-                            icon: const Icon(Icons.delete_outline_rounded)),
-                      IconButton(
-                          tooltip: 'Close',
-                          color: Colors.white,
-                          onPressed: () => Navigator.pop(dialogContext),
-                          icon: const Icon(Icons.close_rounded))
-                    ])),
-                if ((story['caption'] ?? '').toString().isNotEmpty)
-                  Positioned(
-                      left: 20,
-                      right: 20,
-                      bottom: 24,
-                      child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Text(story['caption'].toString(),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white))))
-              ]))));
-    } catch (e) {
-      if (mounted) setState(() => error = '$e');
-    }
-  }
+  Future<void> viewStory(Map<String,dynamic> story)async{await Navigator.push(context,MaterialPageRoute(builder:(_)=>SocialStoryScreen(api:widget.api,story:story)));await load();}
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
       onRefresh: load,
       child: ListView(padding: const EdgeInsets.all(16), children: [
-        Row(children: [
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text(savedOnly ? 'Saved moments' : widget.ownPosts?'My posts':widget.online?'Your feed':'Diary & Memories',
-                    style: Theme.of(context).textTheme.headlineMedium),
-                const Text('Thoughts, memories, documents and shared moments.')
-              ])),
+        Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(savedOnly?'Saved moments':widget.ownPosts?'My posts':widget.online?'Your feed':'Diary & Memories',style:Theme.of(context).textTheme.headlineMedium),Wrap(spacing:8,crossAxisAlignment:WrapCrossAlignment.center,children:[
           IconButton.filledTonal(
               tooltip: savedOnly ? 'Show all posts' : 'Saved posts',
               onPressed: loading
@@ -4162,11 +4056,13 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               onPressed: loading ? null : story,
               icon: const Icon(Icons.add_circle_outline),
               label: const Text('Story')),
+          if(widget.online)IconButton(tooltip:'Social library',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SocialToolsScreen(api:widget.api))),icon:const Icon(Icons.collections_bookmark_outlined)),
+          if(widget.online)IconButton(tooltip:'Reels',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>ReelsScreen(api:widget.api))),icon:const Icon(Icons.video_collection_outlined)),
           IconButton(
               tooltip: 'My reports',
               onPressed: showMyReports,
               icon: const Icon(Icons.flag_outlined))
-        ]),
+        ])]),
         const SizedBox(height: 14),
         if (stories.isNotEmpty)
           SizedBox(
@@ -4244,6 +4140,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                             value: 'PUBLIC', child: Text('Public — everyone')),
                         DropdownMenuItem(
                             value: 'FRIENDS', child: Text('Friends')),
+                        DropdownMenuItem(value:'CLOSE_FRIENDS',child:Text('Close Friends')),
                         DropdownMenuItem(
                             value: 'RELATIVES', child: Text('Relatives')),
                         DropdownMenuItem(
@@ -4566,7 +4463,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               title: Text(p['authorName']?.toString() ?? ''),
               subtitle: Text(p['audience'] == 'RELATIONSHIPS'
                   ? 'Relationships'
-                  : p['audience']?.toString() ?? ''),
+                  :p['audience']=='CLOSE_FRIENDS'?'Close Friends': p['audience']?.toString() ?? ''),
               trailing: IconButton(tooltip:'Post options',icon:const Icon(Icons.more_horiz),onPressed:()=>postOptions(p))),
           if ((p['caption'] ?? '').toString().isNotEmpty)
             Padding(
@@ -4582,7 +4479,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                     : const SizedBox(
                         height: 160,
                         child: Center(child: CircularProgressIndicator()))),
-          if (media != null && !type.startsWith('image/'))
+          if(media!=null&&type.startsWith('video/'))SizedBox(height:300,child:SocialVideo(api:widget.api,path:media)),
+          if (media != null && !type.startsWith('image/')&&!type.startsWith('video/'))
             ListTile(
                 leading: Icon(type.startsWith('video/')
                     ? Icons.video_file_outlined
@@ -4593,7 +4491,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                     : 'Shared attachment')),
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(children: [
+              child: Wrap(spacing:4,crossAxisAlignment:WrapCrossAlignment.center,children: [
                 TextButton.icon(
                     onPressed: () async {
                       await widget.api.toggleSocialLike(id);
@@ -4614,6 +4512,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                     icon: Icon(p['savedByMe'] == true
                         ? Icons.bookmark_rounded
                         : Icons.bookmark_outline_rounded)),
+                IconButton(tooltip:'Add to collection',icon:const Icon(Icons.playlist_add),onPressed:()async{final name=await socialText(context,'Collection name',maxLength:60);if(name==null||name.isEmpty)return;try{await widget.api.collectSocialPost(id,name);await load();}catch(e){if(mounted)setState(()=>error='$e');}}),
                 IconButton(
                     tooltip: 'Share post',
                     onPressed: () => sharePost(p),
@@ -4623,7 +4522,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                       tooltip: 'Report post',
                       onPressed: () => reportPost(p),
                       icon: const Icon(Icons.flag_outlined)),
-                const Spacer(),
+
                 Text('${p['commentCount'] ?? 0} comments')
               ])),
           ...comments.map((c) => Padding(
@@ -6295,7 +6194,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   onPressed: search,
                   icon: const Icon(Icons.search_rounded)),
             ...widget.actions,
-            if(widget.workspaceApi!=null&&widget.workspaceTarget!=null)ChatWorkspaceMenu(api:widget.workspaceApi!,kind:widget.circleConversation?'CIRCLE':'DIRECT',target:widget.workspaceTarget!,onSearch:search,onSelect:()=>setState((){selecting=true;selectedMessages.clear();}),onCleared:(){if(mounted){setState((){messages=[];hasEarlier=false;replyingTo=null;});}},onTheme:(value){if(mounted)setState(()=>chatTheme=value);},onInfo:widget.onCircleInfo,onAdd:widget.onAddCircleMember),
+            if(widget.workspaceApi!=null&&widget.workspaceTarget!=null)ChatWorkspaceMenu(api:widget.workspaceApi!,kind:widget.circleConversation?'CIRCLE':'DIRECT',target:widget.workspaceTarget!,onSearch:search,onSelect:()=>setState((){selecting=true;selectedMessages.clear();}),onCleared:(){if(mounted){setState((){messages=[];hasEarlier=false;replyingTo=null;});}},onTheme:(value){if(mounted)setState(()=>chatTheme=value);},onInfo:widget.onCircleInfo,onAdd:widget.onAddCircleMember,onActivities:widget.circleConversation?()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>CommunityActivitiesScreen(api:widget.workspaceApi!,circle:widget.workspaceTarget!))):null),
           ]),
       body: Column(children: [
         if(selecting)Wrap(crossAxisAlignment:WrapCrossAlignment.center,children:[Text('${selectedMessages.length} selected'),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()async{await Clipboard.setData(ClipboardData(text:(messages??[]).where((m)=>selectedMessages.contains(m.id)).map((m)=>m.message).join('\n')));},child:const Text('Copy')),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()=>applySelection(true),child:const Text('Star')),TextButton(onPressed:selectedMessages.isEmpty||selectionBusy?null:()async{if(await _confirmDestructiveAction(context,title:'Delete selected messages?',message:'Remove these messages for you only.',confirmLabel:'Delete for me'))await applySelection(false);},child:const Text('Delete for me')),TextButton(onPressed:selectionBusy?null:()=>setState(()=>selecting=false),child:const Text('Cancel selection'))]),

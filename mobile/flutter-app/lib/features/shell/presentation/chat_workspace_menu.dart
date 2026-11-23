@@ -15,13 +15,14 @@ class ChatWorkspaceMenu extends StatefulWidget {
       required this.onCleared,
       required this.onTheme,
       this.onInfo,
+      this.onActivities,
       this.onAdd});
   final MyAapthaApi api;
   final String kind;
   final int target;
   final VoidCallback onSearch, onSelect, onCleared;
   final ValueChanged<String> onTheme;
-  final VoidCallback? onInfo, onAdd;
+  final VoidCallback? onInfo, onAdd,onActivities;
   @override
   State<ChatWorkspaceMenu> createState() => _ChatWorkspaceMenuState();
 }
@@ -74,6 +75,7 @@ class _ChatWorkspaceMenuState extends State<ChatWorkspaceMenu> {
               ]));
   Future<void> run(String action) async {
     if (busy) return;
+    if (action == 'activities') { widget.onActivities?.call();return; }
     if (action == 'info') {
       widget.onInfo?.call();
       return;
@@ -240,7 +242,8 @@ class _ChatWorkspaceMenuState extends State<ChatWorkspaceMenu> {
                   child: Text(widget.kind == 'CIRCLE'
                       ? 'Circle info'
                       : 'Contact info')),
-            const PopupMenuItem(value: 'search', child: Text('Search')),
+            if(widget.kind=='CIRCLE')const PopupMenuItem(value:'activities',child:Text('Polls & events')),
+          const PopupMenuItem(value: 'search', child: Text('Search')),
             const PopupMenuItem(
                 value: 'select', child: Text('Select messages')),
             const PopupMenuItem(

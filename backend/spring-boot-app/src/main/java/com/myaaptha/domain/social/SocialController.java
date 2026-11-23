@@ -2,8 +2,11 @@ package com.myaaptha.domain.social;
 import java.security.Principal; import java.util.List; import org.springframework.core.io.Resource; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import org.springframework.web.multipart.MultipartFile;
 @RestController @RequestMapping("/api/social") public class SocialController { private final SocialService service; public SocialController(SocialService s){service=s;}
  @GetMapping("/feed") public List<SocialDtos.Post> feed(Principal p){return service.feed(id(p));}
+ @GetMapping("/browse") public SocialService.PostPage browse(Principal p,@RequestParam(defaultValue="ALL") String mode,@RequestParam(defaultValue="9223372036854775807") long before){return service.browse(id(p),mode,before,null);}
+ @GetMapping("/posts/{postId}") public SocialDtos.Post post(Principal p,@PathVariable long postId){return service.post(id(p),postId);}
  @GetMapping("/saved") public List<SocialDtos.Post> saved(Principal p){return service.saved(id(p));}
  @PostMapping(value="/posts",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public SocialDtos.Post create(Principal p,@RequestParam(required=false) String caption,@RequestParam(required=false) String audience,@RequestParam(required=false) Long circleId,@RequestPart(required=false) MultipartFile file){return service.createPost(id(p),caption,audience,circleId,file);}
+ @PostMapping(value="/reels",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public SocialDtos.Post reel(Principal p,@RequestParam(required=false) String caption,@RequestParam(required=false) String audience,@RequestParam(required=false) Long circleId,@RequestPart MultipartFile file){return service.createReel(id(p),caption,audience,circleId,file);}
  @PutMapping("/posts/{postId}") public SocialDtos.Post update(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.CaptionRequest r){return service.updatePost(id(p),postId,r.caption());}
  @DeleteMapping("/posts/{postId}") public ResponseEntity<Void> delete(Principal p,@PathVariable Long postId){service.deletePost(id(p),postId);return ResponseEntity.noContent().build();}
  @PostMapping("/posts/{postId}/like") public SocialDtos.Post like(Principal p,@PathVariable Long postId){return service.toggleLike(id(p),postId);}
@@ -15,7 +18,7 @@ import java.security.Principal; import java.util.List; import org.springframewor
  @DeleteMapping("/posts/{postId}/comments/{commentId}") public ResponseEntity<Void> deleteComment(Principal p,@PathVariable Long postId,@PathVariable Long commentId){service.deleteComment(id(p),postId,commentId);return ResponseEntity.noContent().build();}
  @GetMapping("/posts/{postId}/media") public ResponseEntity<Resource> postMedia(Principal p,@PathVariable Long postId){return resource(service.postMedia(id(p),postId));}
  @GetMapping("/stories") public List<SocialDtos.Story> stories(Principal p){return service.activeStories(id(p));}
- @PostMapping(value="/stories",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public SocialDtos.Story story(Principal p,@RequestParam(required=false) String caption,@RequestParam(required=false) String audience,@RequestPart MultipartFile file){return service.createStory(id(p),caption,audience,file);}
+ @PostMapping(value="/stories",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public SocialDtos.Story story(Principal p,@RequestParam(required=false) String caption,@RequestParam(required=false) String audience,@RequestPart(required=false) MultipartFile file,@RequestParam(defaultValue="false") boolean archive){return service.createStory(id(p),caption,audience,file,archive);}
  @PostMapping("/stories/{storyId}/view") public SocialDtos.Story viewStory(Principal p,@PathVariable Long storyId){return service.viewStory(id(p),storyId);}
  @DeleteMapping("/stories/{storyId}") public ResponseEntity<Void> deleteStory(Principal p,@PathVariable Long storyId){service.deleteStory(id(p),storyId);return ResponseEntity.noContent().build();}
  @GetMapping("/stories/{storyId}/media") public ResponseEntity<Resource> storyMedia(Principal p,@PathVariable Long storyId){return resource(service.storyMedia(id(p),storyId));}
