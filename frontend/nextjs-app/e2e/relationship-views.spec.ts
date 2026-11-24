@@ -20,6 +20,7 @@ test('original tree and chain are independent views of the same relationships', 
   const views = page.getByRole('group', {name:'Relationship view', exact:true});
   await expect(views.getByRole('button', {name:'Family tree',exact:true})).toHaveAttribute('aria-pressed','true');
   await expect(page.getByRole('button', {name:/Modern/})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Collapse branch for Alex',exact:true})).toHaveCSS('border-radius','50%');
   await views.getByRole('button', {name:'Chain explorer',exact:true}).click();
   const chain = page.getByRole('region', {name:'Relationship chain explorer'});
   await expect(chain).toBeVisible();
@@ -29,6 +30,7 @@ test('original tree and chain are independent views of the same relationships', 
   await expect(chain.getByRole('button', {name:'View details for Maya',exact:true})).toHaveCount(0);
   const expand = chain.getByRole('button', {name:'Expand branch for Alex',exact:true});
   await expect(expand).toHaveCSS('background-color', 'rgb(56, 118, 214)');
+  await expect(expand).toHaveCSS('border-radius','50%');
   await expect(chain.getByText('End of available chain', {exact:true})).toHaveCount(0);
   await expand.click();
   await expect(chain.getByRole('button', {name:'View details for Maya',exact:true})).toBeVisible();
