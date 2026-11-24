@@ -43,6 +43,19 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
     for (final n in widget.nodes) {
       children.putIfAbsent(n['parentKey'] as String?, () => []).add(n);
     }
+    final byKey = {for (final n in widget.nodes) n['key']: n};
+    final priority = <String>{};
+    var focus = byKey[widget.selected];
+    while (focus != null && priority.add(focus['key'] as String)) {
+      focus = byKey[focus['parentKey']];
+    }
+    List<Map<String, dynamic>> ordered(List<Map<String, dynamic>> list) =>
+        priority.isEmpty
+            ? list
+            : [
+                ...list.where((n) => priority.contains(n['key'])),
+                ...list.where((n) => !priority.contains(n['key']))
+              ];
     final entries = <_Entry>[];
     final seen = <String>{};
     var leaf = 0;
@@ -54,7 +67,8 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
       entries.add(entry);
       final positions = <double>[];
       if (expanded.contains(node['key'])) {
-        for (final child in children[node['key']] ?? <Map<String, dynamic>>[]) {
+        for (final child
+            in ordered(children[node['key']] ?? <Map<String, dynamic>>[])) {
           final p = visit(child, depth + 1, node['key'] as String);
           if (p >= 0) positions.add(p);
         }
@@ -66,7 +80,7 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
       return pos;
     }
 
-    for (final root in children[null] ?? <Map<String, dynamic>>[]) {
+    for (final root in ordered(children[null] ?? <Map<String, dynamic>>[])) {
       visit(root, 0, null);
     }
     for (var i = 0; i < entries.length; i++) {
