@@ -4,7 +4,7 @@ test.beforeEach(async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('myaaptha.web-session.metadata',JSON.stringify({expiresIn:3600,receivedAtEpochMs:Date.now(),expiresAtEpochMs:Date.now()+3600000})));
  await page.route('**/api/**',async route=>{
   const path=new URL(route.request().url()).pathname;
-  const data=path==='/api/auth/me'?{id:1,username:'Member',role:'USER'}:path==='/api/profile/me'?{photos:[]}:path==='/api/address-book/providers'?{google:false,microsoft:false}:path==='/api/address-book'?{items:[],total:0,nextCursor:null}:path.includes('unread')?{count:0}:path.includes('preferences')?{readReceipts:true}:[];
+  const data=path==='/api/people/highlights'?{enabled:true,days:90,items:[],nextCursor:null}:path==='/api/auth/me'?{id:1,username:'Member',role:'USER'}:path==='/api/profile/me'?{photos:[]}:path==='/api/address-book/providers'?{google:false,microsoft:false}:path==='/api/address-book'?{items:[],total:0,nextCursor:null}:path.includes('unread')?{count:0}:path.includes('preferences')?{readReceipts:true}:[];
   await route.fulfill({json:data});
  });
 });

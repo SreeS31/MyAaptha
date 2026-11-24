@@ -20,7 +20,7 @@ for (const width of [390, 900, 1600]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/feed');
     await expect(page.getByRole('article').first()).toBeVisible();
-    const main = await page.locator('main').boundingBox();
+    const main = await page.getByRole('main').boundingBox();
     const heading = await page.getByRole('heading', { name: 'Your memories', exact: true }).boundingBox();
     const firstPost = await page.getByRole('article').first().boundingBox();
     expect(main && heading && firstPost).toBeTruthy();
