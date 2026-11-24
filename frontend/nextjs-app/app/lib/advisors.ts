@@ -1,0 +1,12 @@
+import {authenticatedRequest as request,SocialPost} from './api';
+export type AdvisorCategory={key:string;name:string;people:number;custom:boolean};
+export type Advisor={id:number;kind:'MEMBER'|'CONTACT'|'EXTERNAL';memberId:number|null;contactId:number|null;name:string;photo:string|null;url:string|null;notes:string;categories:string[];followPosts:boolean;version:number};
+export type AdvisorInput={memberId:number|null;contactId:number|null;name:string;url:string|null;notes:string;categories:string[];followPosts:boolean;version?:number};
+export type AdvisorFeed={items:SocialPost[];nextCursor:string|null;hasNext:boolean};
+export const advisorCategories=()=>request<AdvisorCategory[]>('/api/advisors/categories');
+export const createAdvisorCategory=(name:string)=>request<AdvisorCategory>('/api/advisors/categories',{method:'POST',body:JSON.stringify({name})});
+export const advisors=(category='ALL',afterId=0)=>request<{items:Advisor[];nextCursor:number|null}>('/api/advisors?'+new URLSearchParams({category,afterId:String(afterId)}));
+export const searchAdvisorMembers=(q:string)=>request<{id:number;name:string;photo:string|null}[]>('/api/advisors/members?'+new URLSearchParams({q}));
+export const saveAdvisor=(value:AdvisorInput,id?:number)=>request<Advisor>(`/api/advisors${id?`/${id}/update`:''}`,{method:'POST',body:JSON.stringify(value)});
+export const removeAdvisor=(id:number)=>request<void>(`/api/advisors/${id}/delete`,{method:'POST',body:'{}'});
+export const advisorFeed=(category='ALL',before?:string,saved=false)=>request<AdvisorFeed>('/api/advisors/feed?'+new URLSearchParams({category,...(before?{before}:{}),saved:String(saved)}));

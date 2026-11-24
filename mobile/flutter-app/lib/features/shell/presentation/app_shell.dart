@@ -1,3 +1,5 @@
+import 'advisors_screen.dart';
+import 'reviewed_trees_screen.dart';
 import 'finance_statements_screen.dart';
 import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'interests_screen.dart';
@@ -100,7 +102,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         FollowConnectionsScreen(api:api,initialKind:'followers'),
         FollowConnectionsScreen(api:api),
         HelpChatScreen(api:api),
-        ChatDiscoveryScreen(api:api)
+        ChatDiscoveryScreen(api:api),
+        AdvisorsScreen(api:api,postsBuilder:(category)=>SocialFeedScreen(api:api,online:true,advisorCategory:category))
       ];
   void refreshWorkspace(){if(mounted)setState(()=>syncVersion++);}
   final visitedPages=<int>{0};
@@ -175,7 +178,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         const NavigationDestination(icon:Icon(Icons.people_outline),label:'Followers'),
         const NavigationDestination(icon:Icon(Icons.person_add_alt),label:'Following'),
         const NavigationDestination(icon:Icon(Icons.help_outline),label:'Ask MyAaptha'),
-        const NavigationDestination(icon:Icon(Icons.search),label:'Find people & circles')
+        const NavigationDestination(icon:Icon(Icons.search),label:'Find people & circles'),
+        const NavigationDestination(icon:Icon(Icons.diversity_1_outlined),label:'Advisors & well-wishers')
       ];
   @override
   void initState() {
@@ -2036,6 +2040,7 @@ class NetworkHome extends StatefulWidget {
 }
 
 class _NetworkHomeState extends State<NetworkHome> {
+  String collectionView='network';
   List<Relationship>? items;
   UserProfileModel? profile;
   String treeView = 'tree';
@@ -2104,9 +2109,11 @@ class _NetworkHomeState extends State<NetworkHome> {
                       },
                       showSelectedIcon: false,
                       onSelectionChanged: (value) =>
-                          setState(() => treeView = value.first)),
+                          setState(() {treeView = value.first;collectionView='network';})),
                 ]))),
-        if (error != null)
+        SliverToBoxAdapter(child:Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:Wrap(spacing:8,children:[for(final mode in ['network','suggestions','saved'])ChoiceChip(label:Text(mode=='network'?'Relationships':mode=='suggestions'?'Suggested trees':'My trees'),selected:collectionView==mode,onSelected:(_)=>setState(()=>collectionView=mode))]))),
+        if(collectionView!='network')SliverFillRemaining(hasScrollBody:true,child:ReviewedTreesScreen(key:ValueKey(collectionView),api:widget.api,saved:collectionView=='saved',embedded:true))
+        else if (error != null)
           SliverFillRemaining(child: _ErrorState(error!, retry: load))
         else if (items == null)
           const SliverFillRemaining(
@@ -3875,7 +3882,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 }
 
 class SocialFeedScreen extends StatefulWidget {
-  const SocialFeedScreen({super.key, required this.api, this.online=false,this.ownPosts=false});
+  const SocialFeedScreen({super.key, required this.api, this.online=false,this.ownPosts=false,this.advisorCategory});
+  final String? advisorCategory;
   final bool online;
   final bool ownPosts;
   final MyAapthaApi api;
@@ -3893,6 +3901,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
   String error = '';
   PlatformFile? selected;
   bool savedOnly = false;
+  String? advisorCursor;
   String audience = 'PRIVATE';
   int? selectedCircleId;
   List<CircleModel> availableCircles = [];
@@ -3912,6 +3921,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
 
   Future<void> load() async {
     try {
+      if(widget.advisorCategory!=null){final page=await widget.api.advisorFeed(widget.advisorCategory!,saved:savedOnly);if(mounted){setState((){posts=(page['items'] as List).map((value)=>Map<String,dynamic>.from(value as Map)).toList();advisorCursor=page['nextCursor'] as String?;stories=[];availableCircles=[];loading=false;error='';});}return;}
       final values = await Future.wait([
         savedOnly ? widget.api.savedSocialPosts() : widget.api.socialFeed(),
         widget.api.socialStories(),
@@ -4041,7 +4051,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
   Widget build(BuildContext context) => RefreshIndicator(
       onRefresh: load,
       child: ListView(padding: const EdgeInsets.all(16), children: [
-        Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(savedOnly?'Saved moments':widget.ownPosts?'My posts':widget.online?'Your feed':'Diary & Memories',style:Theme.of(context).textTheme.headlineMedium),Wrap(spacing:8,crossAxisAlignment:WrapCrossAlignment.center,children:[
+        Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(widget.advisorCategory!=null?'Advisor posts':savedOnly?'Saved moments':widget.ownPosts?'My posts':widget.online?'Your feed':'Diary & Memories',style:Theme.of(context).textTheme.headlineMedium),Wrap(spacing:8,crossAxisAlignment:WrapCrossAlignment.center,children:[
           IconButton.filledTonal(
               tooltip: savedOnly ? 'Show all posts' : 'Saved posts',
               onPressed: loading
@@ -4054,12 +4064,12 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                   ? Icons.dynamic_feed_outlined
                   : Icons.bookmark_outline_rounded)),
           const SizedBox(width: 8),
-          FilledButton.tonalIcon(
+          if(widget.advisorCategory==null) FilledButton.tonalIcon(
               onPressed: loading ? null : story,
               icon: const Icon(Icons.add_circle_outline),
               label: const Text('Story')),
-          if(widget.online)IconButton(tooltip:'Social library',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SocialToolsScreen(api:widget.api))),icon:const Icon(Icons.collections_bookmark_outlined)),
-          if(widget.online)IconButton(tooltip:'Reels',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>ReelsScreen(api:widget.api))),icon:const Icon(Icons.video_collection_outlined)),
+          if(widget.online&&widget.advisorCategory==null)IconButton(tooltip:'Social library',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SocialToolsScreen(api:widget.api))),icon:const Icon(Icons.collections_bookmark_outlined)),
+          if(widget.online&&widget.advisorCategory==null)IconButton(tooltip:'Reels',onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>ReelsScreen(api:widget.api))),icon:const Icon(Icons.video_collection_outlined)),
           IconButton(
               tooltip: 'My reports',
               onPressed: showMyReports,
@@ -4116,7 +4126,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                                         Theme.of(context).textTheme.labelSmall)
                             ])));
                   })),
-        Card(
+        if(widget.advisorCategory==null) Card(
             child: ExpansionTile(
                 maintainState: true,
                 leading: const Icon(Icons.add_circle_outline),
@@ -4194,7 +4204,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
               child: Padding(
                   padding: EdgeInsets.all(24),
                   child: CircularProgressIndicator())),
-        ...posts.where((p)=>(!widget.online||p['audience']!='PRIVATE')&&(!widget.ownPosts||p['mine']==true)&&(widget.online||p['mine']==true)).map((p) => _post(p))
+        ...posts.where((p)=>(!widget.online||p['audience']!='PRIVATE')&&(!widget.ownPosts||p['mine']==true||p['repostedByMe']==true)&&(widget.online||p['mine']==true)).map((p) => _post(p)),
+        if(widget.advisorCategory!=null&&advisorCursor!=null)TextButton(onPressed:loading?null:()async{setState(()=>loading=true);try{final page=await widget.api.advisorFeed(widget.advisorCategory!,before:advisorCursor,saved:savedOnly);if(mounted){setState((){final all=[...posts,...(page['items'] as List).map((r)=>Map<String,dynamic>.from(r as Map))];posts={for(final row in all)row['id']:row}.values.toList();advisorCursor=page['nextCursor'] as String?;});}}catch(e){if(mounted){setState(()=>error='$e');}}finally{if(mounted){setState(()=>loading=false);}}},child:const Text('Load more advisor posts'))
       ]));
   Future<void> editPost(Map<String, dynamic> post) async {
     final controller =
@@ -4456,6 +4467,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
         margin: const EdgeInsets.only(top: 12),
         clipBehavior: Clip.antiAlias,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if(p['repostedByName']!=null)Padding(padding:const EdgeInsets.all(12),child:Text("Reposted by ${p['repostedByName']}")),
           ListTile(
               leading: CircleAvatar(
                   child: Text((p['authorName'] ?? '?')
@@ -4514,6 +4526,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
                     icon: Icon(p['savedByMe'] == true
                         ? Icons.bookmark_rounded
                         : Icons.bookmark_outline_rounded)),
+                if(p['audience']!='PRIVATE')TextButton(onPressed:()async{try{if(p['repostedByMe']!=true){if(!await _confirmDestructiveAction(context,title:'Repost to your feed?',message:'The original audience still applies.',confirmLabel:'Repost')){return;}}await widget.api.setSocialRepost(id,p['repostedByMe']!=true);await load();}catch(e){if(mounted){setState(()=>error='$e');}}},child:Text(p['repostedByMe']==true?'Remove repost':'Repost')),
                 IconButton(tooltip:'Add to collection',icon:const Icon(Icons.playlist_add),onPressed:()async{final name=await socialText(context,'Collection name',maxLength:60);if(name==null||name.isEmpty)return;try{await widget.api.collectSocialPost(id,name);await load();}catch(e){if(mounted)setState(()=>error='$e');}}),
                 IconButton(
                     tooltip: 'Share post',
@@ -6718,6 +6731,7 @@ void openMenuComparison(BuildContext context,MyAapthaApi api,AuthTokenBundle ses
       '/dashboard'=>MobileDashboard(api:api),
       '/relationship-tree'=>NetworkHome(api:api),
       '/feed'=>SocialFeedScreen(api:api),
+      '/advisors'=>AdvisorsScreen(api:api,postsBuilder:(category)=>SocialFeedScreen(api:api,online:true,advisorCategory:category)),
       '/following'=>FollowConnectionsScreen(api:api),
       '/messages'=>MessagesScreen(api:api),
       '/circles'=>CirclesScreen(api:api),

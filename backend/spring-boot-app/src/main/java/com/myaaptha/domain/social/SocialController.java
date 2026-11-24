@@ -10,6 +10,7 @@ import java.security.Principal; import java.util.List; import org.springframewor
  @PutMapping("/posts/{postId}") public SocialDtos.Post update(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.CaptionRequest r){return service.updatePost(id(p),postId,r.caption());}
  @DeleteMapping("/posts/{postId}") public ResponseEntity<Void> delete(Principal p,@PathVariable Long postId){service.deletePost(id(p),postId);return ResponseEntity.noContent().build();}
  @PostMapping("/posts/{postId}/like") public SocialDtos.Post like(Principal p,@PathVariable Long postId){return service.toggleLike(id(p),postId);}
+ @PostMapping("/posts/{postId}/repost") public SocialDtos.Post repost(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.RepostRequest r){return service.repost(id(p),postId,r.reposted());}
  @PostMapping("/posts/{postId}/save") public SocialDtos.Post save(Principal p,@PathVariable Long postId){return service.toggleSave(id(p),postId);}
  @PutMapping("/posts/{postId}/reaction") public SocialDtos.Post react(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.ReactionRequest r){return service.react(id(p),postId,r.emoji());}
  @PutMapping("/posts/{postId}/pin") public SocialDtos.Post pin(Principal p,@PathVariable Long postId,@RequestBody SocialDtos.PinRequest r){return service.pin(id(p),postId,r.pinned());}

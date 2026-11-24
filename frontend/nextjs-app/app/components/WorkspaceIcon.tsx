@@ -1,5 +1,6 @@
 // Shared stroke icons avoid platform-dependent symbol and emoji rendering.
 const paths:Record<string,string>={
+ '/advisors':'M4 21v-3a6 6 0 0 1 12 0v3M10 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M18 5h4M20 3v4M18 12l2 2 3-4',
  '/circles':'M9 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm6 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z',
  '/circle-search':'M9 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM2 22v-2a7 7 0 0 1 11-6M18 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm3 7 2 3',
  '/timeline':'M4 3v18h17M4 17l5-7 4 3 7-9',

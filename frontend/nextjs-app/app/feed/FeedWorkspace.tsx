@@ -6,6 +6,8 @@ import InfoTip from '../components/InfoTip';
 import './feed-polish.css';
 import PostOptions from './PostOptions';
 import StoryCard from './StoryCard';
+import {advisorFeed} from '../lib/advisors';
+import {setSocialRepost} from '../lib/api';
 import SocialLibrary,{CollectPostButton} from './SocialLibrary';
 
 function FeedIcon({name}:{name:'heart'|'comment'|'save'|'share'}) {
@@ -104,8 +106,11 @@ function Avatar({ name, src, userId }: { name: string; src?: string | null; user
   return userId ? <Link className="person-avatar-link" href={`/people/${userId}`} title={`View ${name}'s profile`}>{avatar}</Link> : avatar;
 }
 
-function FeedContent({online=false,ownPosts=false}:{online?:boolean;ownPosts?:boolean}) {
+function FeedContent({online=false,ownPosts=false,advisorCategory}:{online?:boolean;ownPosts?:boolean;advisorCategory?:string}) {
   const router = useRouter();
+  const advisorMode=advisorCategory!==undefined;
+  const feedLoadSequence=useRef(0);
+  const [advisorCursor,setAdvisorCursor]=useState<string|null>(null);
   const searchParams = useSearchParams();
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [stories, setStories] = useState<SocialStory[]>([]);
@@ -134,15 +139,19 @@ function FeedContent({online=false,ownPosts=false}:{online?:boolean;ownPosts?:bo
 
   const targetPostId=Number(searchParams.get('postId'));
   const load = useCallback(async () => {
+    const sequence=++feedLoadSequence.current;
     try {
-      const [postData, storyData, circleData, relationshipData] = await Promise.all([savedOnly ? fetchSavedSocialPosts() : fetchSocialFeed(), fetchSocialStories(), fetchMyCircles(), fetchMyRelationships()]);
+      const [page, storyData, circleData, relationshipData] = await Promise.all([advisorCategory!==undefined?advisorFeed(advisorCategory,undefined,savedOnly):(savedOnly ? fetchSavedSocialPosts() : fetchSocialFeed()).then(items=>({items,nextCursor:null})),advisorCategory!==undefined?Promise.resolve([]):fetchSocialStories(),fetchMyCircles(),fetchMyRelationships()]);
+      if(sequence!==feedLoadSequence.current)return;
+      setAdvisorCursor(page.nextCursor);
+      const postData=page.items;
       if(Number.isSafeInteger(targetPostId)&&targetPostId>0&&!postData.some(post=>post.id===targetPostId))postData.unshift(await fetchSocialPost(targetPostId));
-      setPosts([...postData].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||Date.parse(b.createdAt)-Date.parse(a.createdAt)||b.id-a.id)); setStories(storyData); setCircles(circleData); setRelationships(relationshipData);
+      setPosts([...postData].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||Date.parse(b.feedAt||b.createdAt)-Date.parse(a.feedAt||a.createdAt)||b.id-a.id)); setStories(storyData); setCircles(circleData); setRelationships(relationshipData);
     } catch (error) {
       if (isUnauthorizedError(error)) router.replace('/auth?reason=session-expired');
       else setMessage((error as Error).message);
     }
-  }, [router, savedOnly,targetPostId]);
+  }, [router, savedOnly,targetPostId,advisorCategory]);
 
   useEffect(() => { if (!hasAuthSession()) router.replace('/auth'); else return startPolling(load,30000); }, [load, router]);
   useEffect(() => {
@@ -179,32 +188,35 @@ function FeedContent({online=false,ownPosts=false}:{online?:boolean;ownPosts?:bo
     finally { setPendingAction(current=>({...current,[id]:false})); }
   };
 
-  const visiblePosts=posts.filter(post=>(!online||post.audience!=='PRIVATE')&&(!ownPosts||post.mine)&&(!diaryOnly||post.mine));
+  const visiblePosts=posts.filter(post=>(!online||post.audience!=='PRIVATE')&&(!ownPosts||post.mine||post.repostedByMe)&&(!diaryOnly||post.mine));
   const composer = <form id="write-memory" className="social-composer diary-composer card" onSubmit={publish}><div><span className="diary-composer-icon" aria-hidden="true">✎</span><div><div className="inline-help-heading"><h2>{online?'Share a thought':'Write in your diary'}</h2><InfoTip label="About diary entries">Capture a thought, feeling, memory or important information. Entries are private unless you choose another audience.</InfoTip></div></div></div><textarea value={caption} maxLength={4000} onChange={event => setCaption(event.target.value)} aria-label="Diary entry" placeholder="What would you like to remember today?" /><div className="diary-audience-summary" role="status"><span aria-hidden="true">◇</span>{audience==='PRIVATE'?'Only you can view this entry.':audience==='PUBLIC'?'Everyone can view this entry.':audience==='CIRCLE'?`Visible to members of ${circles.find(circle=>String(circle.id)===circleId)?.name||'the circle you select'}.`:`Visible to your ${audience==='RELATIONSHIPS'?'relationships':audience==='CLOSE_FRIENDS'?'close friends':audience.toLowerCase()}.`}</div><div className="social-compose-actions"><label className="audience-field"><span>Who can view this?</span><select aria-label="Who can view this?" value={audience} onChange={event => {setAudience(event.target.value as SocialPost['audience']);setCircleId('');}}><option value="PRIVATE">Private — only me</option><option value="PUBLIC">Public — everyone</option><option value="FRIENDS">Friends</option><option value="RELATIVES">Relatives</option><option value="CLOSE_FRIENDS">Close Friends</option><option value="RELATIONSHIPS">All my relationships</option><option value="CIRCLE">Selected circle</option></select></label>{audience === 'CIRCLE' && <label className="audience-field"><span>Select a circle</span><select aria-label="Select a circle" required value={circleId} onChange={event => setCircleId(event.target.value)}><option value="">Choose circle…</option>{circles.map(circle => <option key={circle.id} value={circle.id}>{circle.name}</option>)}</select></label>}<label className="btn btn-secondary diary-file-button">{file ? file.name : 'Attach a memory'}<input aria-label="Attach a diary memory" className="visually-hidden-input" type="file" accept={attachmentAccept} onChange={event => setFile(event.target.files?.[0])} /></label>{file&&<button type="button" className="diary-remove-file" onClick={()=>setFile(undefined)} aria-label="Remove attachment">×</button>}<button className="btn btn-primary" disabled={busy || (!caption.trim() && !file) || (audience==='CIRCLE'&&!circleId)}>{busy ? 'Saving…' : audience==='PRIVATE'?'Save privately':'Share entry'}</button></div></form>;
 
-  return <main className={`social-page feed-polished ${online?'online-stream':'diary-stream'} ${ownPosts?'own-posts':''}`}>
-    {online&&<nav className="community-tabs" aria-label="Your community"><Link href="/online-feed" aria-current={!ownPosts?"page":undefined}>Feed</Link><Link href="/posts" aria-current={ownPosts?"page":undefined}>My posts</Link><Link href="/followers">Followers</Link><Link href="/following">Following</Link></nav>}
-    <div className="feed-topbar"><header className="social-header"><div><small>{online?'YOUR PEOPLE, YOUR MOMENTS':'MY DIGITAL DIARY'}</small><div className="inline-help-heading"><h1>{ownPosts?'My posts':diaryOnly?'Your memories':savedOnly?'Saved moments':online?'Your feed':'Diary & memories'}</h1><InfoTip label="About this feature">Keep important information, feelings, photos, videos and documents—with you in control of every entry.</InfoTip></div></div>{!ownPosts&&<nav>{!online&&<button className={`btn ${diaryOnly?'btn-primary':'btn-secondary'}`} onClick={()=>{setDiaryOnly(value=>!value);setSavedOnly(false);}}>{online?(diaryOnly?'Everyone':'My posts'):(diaryOnly?'All entries':'My diary')}</button>}<button className="btn btn-secondary" onClick={()=>{setSavedOnly(value=>!value);setDiaryOnly(false);}}>{savedOnly?'All posts':'Saved posts'}</button></nav>}</header>
+  const Root=advisorMode?'section':'main';
+  const Title=advisorMode?'h2':'h1';
+  return <Root className={`social-page feed-polished ${advisorMode?'advisor-stream':''} ${online?'online-stream':'diary-stream'} ${ownPosts?'own-posts':''}`}>
+    {online&&!advisorMode&&<nav className="community-tabs" aria-label="Your community"><Link href="/online-feed" aria-current={!ownPosts?"page":undefined}>Feed</Link><Link href="/posts" aria-current={ownPosts?"page":undefined}>My posts</Link><Link href="/followers">Followers</Link><Link href="/following">Following</Link></nav>}
+    <div className="feed-topbar"><header className="social-header"><div>{!advisorMode&&<small>{online?'YOUR PEOPLE, YOUR MOMENTS':'MY DIGITAL DIARY'}</small>}<div className="inline-help-heading"><Title>{advisorMode?'Advisor posts':ownPosts?'My posts':diaryOnly?'Your memories':savedOnly?'Saved moments':online?'Your feed':'Diary & memories'}</Title><InfoTip label="About this feature">Keep important information, feelings, photos, videos and documents—with you in control of every entry.</InfoTip></div></div>{!ownPosts&&<nav>{!online&&<button className={`btn ${diaryOnly?'btn-primary':'btn-secondary'}`} onClick={()=>{setDiaryOnly(value=>!value);setSavedOnly(false);}}>{online?(diaryOnly?'Everyone':'My posts'):(diaryOnly?'All entries':'My diary')}</button>}<button className="btn btn-secondary" onClick={()=>{setSavedOnly(value=>!value);setDiaryOnly(false);}}>{savedOnly?'All posts':'Saved posts'}</button></nav>}</header>
     {notice&&<p className="network-message" role="status">{notice}</p>}
     {message && <p className="network-message error-message" role="alert">{message}</p>}
-    <details className="feed-composer-disclosure"><summary aria-label={online?'Create a post':'New diary entry'}><span aria-hidden="true">+</span><strong>{online?'Write a post':'New diary entry'}</strong></summary>{composer}</details>
-    {online&&<SocialLibrary/>}
-    <details className="story-composer">
+    {!advisorMode&&<details className="feed-composer-disclosure"><summary aria-label={online?'Create a post':'New diary entry'}><span aria-hidden="true">+</span><strong>{online?'Write a post':'New diary entry'}</strong></summary>{composer}</details>}
+    {online&&!advisorMode&&<SocialLibrary/>}
+    {!advisorMode&&<details className="story-composer">
       <summary>Add a story <span>Text, photo or video</span></summary>
       <div className="story-create">
         <label>Photo or video<input type="file" accept="image/*,video/*" onChange={event => setStoryFile(event.target.files?.[0])} /></label>
         <label>Caption<input value={storyCaption} onChange={event => setStoryCaption(event.target.value)} placeholder="Add a caption" /></label>
         <label>Story audience<select aria-label="Story audience" value={storyAudience} onChange={e=>setStoryAudience(e.target.value as SocialStory['audience'])}><option value="RELATIONSHIPS">Connections</option><option value="CLOSE_FRIENDS">Close Friends</option><option value="PUBLIC">Public</option></select></label><label><input type="checkbox" checked={archiveStory} onChange={e=>setArchiveStory(e.target.checked)}/> Keep a private archive for 30 days after expiry</label><small>Expires after 24 hours</small><button type="button" className="btn btn-primary" disabled={busy || (!storyFile&&!storyCaption.trim())} onClick={publishStory}>Share story</button>
       </div>
-    </details>
+    </details>}
     </div>
     <section className="story-strip" aria-label="Stories" hidden={stories.length === 0}>
       {stories.map(story=><StoryCard key={story.id} story={story} onChanged={()=>void load()}/>)}
     </section>
     <div className="feed-stream-heading"><h2>{ownPosts?'Your shared posts':savedOnly?'Saved moments':diaryOnly?'Your entries':'Latest moments'}</h2><span>Newest first</span></div>
     <section className="social-feed" aria-label="Posts, newest first">
-      {visiblePosts.length === 0 && <p className="card social-empty">{diaryOnly?displayCopy.noMemories:displayCopy.noPosts}</p>}
+      {visiblePosts.length === 0 && <p className="card social-empty">{advisorMode?'No visible posts from the people you follow here yet.':diaryOnly?displayCopy.noMemories:displayCopy.noPosts}</p>}
       {visiblePosts.map(post => <article className={`social-post card ${post.audience==='PRIVATE'?'diary-private-entry':''} ${Number(searchParams.get('postId')) === post.id ? 'is-targeted' : ''}`} key={post.id} id={`feed-post-${post.id}`} aria-label={`Post by ${post.authorName}`}>
+        {post.repostedByName&&<div className="advisor-repost-attribution">Reposted by {post.repostedByName}</div>}
         <header><Avatar name={post.authorName} src={post.authorPhoto} userId={post.authorUserId}/><div><strong>{post.authorName}</strong><small className="diary-entry-date">{new Date(post.createdAt).toLocaleDateString([], {day:'numeric',month:'short',year:'numeric'})}</small><small className="diary-audience-badge">{post.audience==='PRIVATE'?'Private · only you':post.audience==='CIRCLE'?'Selected circle':post.audience==='RELATIONSHIPS'?'All relationships':post.audience.charAt(0)+post.audience.slice(1).toLowerCase()}{post.updatedAt !== post.createdAt ? ' · edited' : ''}</small></div>{post.pinned&&<small className="feed-pinned-label">Pinned for you</small>}<PostOptions post={post} busy={pendingAction[post.id]} onNotice={setNotice} onReact={emoji=>act(post.id,()=>reactSocialPost(post.id,emoji))} onPin={()=>act(post.id,()=>pinSocialPost(post.id,!post.pinned))} onStar={()=>act(post.id,()=>toggleSocialSave(post.id))} onReply={()=>{setOpenComments(current=>({...current,[post.id]:true}));requestAnimationFrame(()=>document.querySelector<HTMLInputElement>(`#comments-${post.id} input`)?.focus());}} onForward={()=>{setSharePost(post);setShareTarget('');setShareNote('');}} onEdit={()=>void editPost(post)} onDelete={async()=>{if(confirm('Delete this entry?'))await act(post.id,()=>deleteSocialPost(post.id));}} onReport={()=>void reportPost(post)} onAsk={()=>{try{sessionStorage.setItem('myaaptha-help-draft',`Help me understand this post. Do not take any actions: ${post.caption||'An attachment-only post.'}`.slice(0,1200));router.push('/help');}catch{setNotice('Could not prepare the question. Open Ask MyAaptha from Account & tools.');}}}/>
         </header>
         <div className={`feed-post-content ${post.mediaUrl?'has-attachment':''}`}>{post.caption&&<PostText text={post.caption}/>} {post.mediaUrl&&<div className="social-attachment"><AttachmentMedia compact path={post.mediaUrl} type={post.mediaType} name={post.mediaName} alt={post.caption||post.mediaName||'Diary attachment'}/></div>}</div>
@@ -213,15 +225,17 @@ function FeedContent({online=false,ownPosts=false}:{online?:boolean;ownPosts?:bo
           <button type="button" aria-label={`Comments (${post.commentCount})`} aria-expanded={!!openComments[post.id]} aria-controls={`comments-${post.id}`} onClick={()=>setOpenComments(current=>({...current,[post.id]:!current[post.id]}))}><FeedIcon name="comment"/><span>{post.commentCount || 'Comment'}</span></button>
           <button type="button" aria-label="Share post" title="Share post" onClick={()=>{setSharePost(post);setShareTarget('');setShareNote('');}}><FeedIcon name="share"/></button>
           <button type="button" className={`feed-save ${post.savedByMe?'is-saved':''}`} aria-label={post.savedByMe?'Unsave post':'Save post'} aria-pressed={post.savedByMe} title={post.savedByMe?'Unsave':'Save'} disabled={pendingAction[post.id]} onClick={()=>void act(post.id,()=>toggleSocialSave(post.id))}><FeedIcon name="save"/></button>
+          {post.audience!=='PRIVATE'&&<button type="button" aria-pressed={!!post.repostedByMe} disabled={pendingAction[post.id]} onClick={()=>{if(post.repostedByMe||confirm('Repost to your feed? The original audience still applies.'))void act(post.id,()=>setSocialRepost(post.id,!post.repostedByMe));}}>{post.repostedByMe?'Remove repost':'Repost'}{post.repostCount?` (${post.repostCount})`:''}</button>}
           <CollectPostButton postId={post.id}/><span className="feed-reaction-summary" role="group" aria-label="Post reactions">{Object.entries(post.reactions||{}).slice(0,2).map(([emoji,count])=><span key={emoji}>{emoji} {count}</span>)}</span>
         </div>
         <div id={`comments-${post.id}`} className="social-comments" hidden={!openComments[post.id]}>{post.comments.map(comment => <div key={comment.id}><Avatar name={comment.authorName} src={comment.authorPhoto} userId={comment.authorUserId}/><p><strong>{comment.authorName}</strong> {comment.message}</p>{(comment.mine || post.mine) && <button aria-label="Delete comment" disabled={pendingAction[post.id]} onClick={()=>void act(post.id,()=>deleteSocialComment(post.id, comment.id))}>×</button>}</div>)}<form onSubmit={async event => { event.preventDefault(); const text = comments[post.id]?.trim(); if (!text) return; await act(post.id,async()=>{await addSocialComment(post.id,text);setComments(current=>({...current,[post.id]:''}));}); }}><input aria-label="Write a comment" value={comments[post.id] || ''} maxLength={1000} onChange={event => setComments(current => ({ ...current, [post.id]: event.target.value }))} placeholder="Write a comment..." /><button disabled={pendingAction[post.id]||!comments[post.id]?.trim()}>Post</button></form></div>
       </article>)}
     </section>
     {sharePost&&<div className="direct-chat-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setSharePost(null);}}><section className="card social-share-dialog" role="dialog" aria-modal="true"><header><div><small>SHARE POST</small><h2>Send privately</h2></div><button className="btn btn-secondary" onClick={()=>setSharePost(null)}>Close</button></header><label><span>Destination</span><select value={shareType} onChange={event=>{setShareType(event.target.value as 'DIRECT'|'CIRCLE');setShareTarget('');}}><option value="DIRECT">Direct conversation</option><option value="CIRCLE">Circle</option></select></label><label><span>{shareType==='DIRECT'?'Person':'Circle'}</span><select required value={shareTarget} onChange={event=>setShareTarget(event.target.value)}><option value="">Choose…</option>{shareType==='DIRECT'?relationships.filter((item,index,all)=>item.person.accountStatus==='ACTIVE'&&item.person.identityType!=='MANAGED'&&all.findIndex(candidate=>candidate.person.id===item.person.id)===index).map(item=><option key={item.person.id} value={item.person.id}>{item.person.displayName}</option>):circles.map(circle=><option key={circle.id} value={circle.id}>{circle.name}</option>)}</select></label><label><span>Message (optional)</span><textarea value={shareNote} onChange={event=>setShareNote(event.target.value)} maxLength={1000}/></label><button className="btn btn-primary" disabled={!shareTarget||busy} onClick={async()=>{setBusy(true);try{await shareSocialPost(sharePost.id,shareType,Number(shareTarget),shareNote);setMessage('Post shared successfully.');setSharePost(null);}catch(error){setMessage((error as Error).message);}finally{setBusy(false);}}}>Share post</button></section></div>}
-  </main>;
+    {advisorMode&&advisorCursor&&<button disabled={busy} onClick={async()=>{setBusy(true);try{const page=await advisorFeed(advisorCategory!,advisorCursor,savedOnly);setPosts(old=>Array.from(new Map([...old,...page.items].map(post=>[post.id,post])).values()));setAdvisorCursor(page.nextCursor);}catch(e){setMessage((e as Error).message);}finally{setBusy(false);}}}>Load more advisor posts</button>}
+  </Root>;
 }
 
-export default function FeedWorkspace({online=false,ownPosts=false}:{online?:boolean;ownPosts?:boolean}) {
-  return <Suspense fallback={<main className="social-page"><div className="card social-empty"><p>Loading your feed…</p></div></main>}><FeedContent online={online} ownPosts={ownPosts} /></Suspense>;
+export default function FeedWorkspace({online=false,ownPosts=false,advisorCategory}:{online?:boolean;ownPosts?:boolean;advisorCategory?:string}) {
+  return <Suspense fallback={<main className="social-page"><div className="card social-empty"><p>Loading your feed…</p></div></main>}><FeedContent online={online} ownPosts={ownPosts} advisorCategory={advisorCategory} /></Suspense>;
 }

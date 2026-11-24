@@ -16,7 +16,7 @@ void main(){
   String? opened;
   await tester.pumpWidget(MaterialApp(home:MenuComparisonScreen(onOpen:(path)=>opened=path)));
   await tester.scrollUntilVisible(find.widgetWithText(ListTile,'My contacts'),250);await tester.tap(find.widgetWithText(ListTile,'My contacts'));expect(opened,'/contacts');
-  expect(workspacePrimaryLabels.length,22);expect(workspacePrimaryIndexes.toSet().length,workspacePrimaryIndexes.length);expect(workspacePrimaryLabels,containsAll(['My contacts','Life timeline','Followers']));expect(workspaceMenuMoves.length,19);
+  expect(workspacePrimaryLabels.length,23);expect(workspacePrimaryIndexes.toSet().length,workspacePrimaryIndexes.length);expect(workspacePrimaryLabels,containsAll(['My contacts','Life timeline','Followers']));expect(workspaceMenuMoves.length,19);
  });
  testWidgets('interests editor preserves concurrent changes to career data',(tester)async{
   tester.view.physicalSize=const Size(800,2200);tester.view.devicePixelRatio=1;addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);

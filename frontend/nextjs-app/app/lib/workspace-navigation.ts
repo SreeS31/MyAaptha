@@ -156,6 +156,7 @@ export const primaryNavigation:WorkspaceSection[] = [
       }
     ]
   },
+  {"label":"Advisors & well-wishers","href":"/advisors","icon":"","tabs":[{"label":"Advisors & well-wishers","href":"/advisors"}]},
   {
     "label": "Interests",
     "href": "/interests",
