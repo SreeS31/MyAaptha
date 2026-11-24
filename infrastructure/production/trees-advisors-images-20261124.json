@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "3a71924ca8221f0ca28fb2c9cf953d7c33ba06ef",
+  "tag": "beta-20261124-trees-advisors-r1",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45361173824",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45361173853",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:88f9d6ef386d5791aa7cf73ff0f1cf1eab6efa21edc2ba3f569ab5a433cd2be9",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:e4a2ea54ca0ec85f39bfc736940dee7d956bfa59a0a85888e2f485b4ac3108e0",
+  "deployed": true,
+  "previousBetaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "79",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/advisors",
+  "androidTestApkSha256": "a91ae7428149c76fd736bac4473e73359a5b5775d4c8207877437c6f5ae1eb1b",
+  "backup": "/opt/myaaptha-beta/runtime/release-backups/20261124T104440408086Z.dump",
+  "backupRestoreVerified": true,
+  "httpsHealth": "UP",
+  "googleContactsConfigured": true,
+  "microsoftContactsConfigured": false,
+  "authenticatedTurnPreserved": true,
+  "validation": {
+    "backend": {
+      "tests": 314,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browser": {
+      "passed": 88
+    },
+    "webUnit": {
+      "passed": 26
+    },
+    "native": {
+      "passed": 131,
+      "skipped": 2,
+      "analysis": "clean"
+    },
+    "targetedLocalBrowserPassed": 10,
+    "targetedNativePassed": 8,
+    "liveAdvisorApi": "passed: privacy, category filter, like/save/comment, idempotent repost, ownership, pause",
+    "liveBrowser": {
+      "passed": 4,
+      "layouts": [
+        "desktop",
+        "mobile"
+      ],
+      "initialAttempt": "One desktop check timed out awaiting async save; harness now awaits save response and dialog completion"
+    },
+    "fixtureCleanup": {
+      "accountsRemoved": 6,
+      "remainingAccounts": 0,
+      "remainingContacts": 0,
+      "remainingTrees": 0,
+      "remainingAdvisors": 0,
+      "remainingReposts": 0,
+      "remainingActiveMedia": 0,
+      "syntheticPostsRemovedThroughApi": 2
+    }
+  },
+  "relationshipTreesUrl": "https://35-244-31-192.sslip.io/relationship-tree?view=suggestions",
+  "androidTestApkPath": ".tools/preview/MyAaptha-beta-trees-advisors-20261124.apk"
+}

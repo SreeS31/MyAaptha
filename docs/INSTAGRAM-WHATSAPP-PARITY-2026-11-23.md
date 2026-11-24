@@ -51,7 +51,7 @@ Product availability varies by device, account and region. The rows below descri
 | Story polls, questions, link stickers and mentions | Missing; circle polls do not provide story sticker tools. |
 | Photo/video carousels | Missing; a standard post still has one attachment. |
 | Filters, cropping, clip editing, covers, captions/transcription, remix and collaborative posts | Missing or incomplete. Licensed music is deferred with commercial/provider work. |
-| Hashtags, mentions, tagging, location discovery and repost attribution | Captions/sharing exist; dedicated indexing, consent controls and repost-attribution flows are missing. |
+| Hashtags, mentions, tagging, location discovery and repost attribution | Attributed reposts were added on 24 November with original-audience checks. Dedicated hashtag/mention/location indexing and tagging consent controls remain missing. |
 | Followers, following and profiles | Present through existing social/trust features. Full private-account follow requests, professional/profile-grid controls and Instagram-style relationship semantics are incomplete. |
 | Explore and recommendations | Existing discovery is partial; no mature interest-ranking or content recommendation engine. |
 | Notes, close-friend instant photos and shared recommendation feeds | Missing. |
