@@ -1,6 +1,6 @@
 # Statement imports and finance reports
 
-The finance update adds reviewed statement imports and calendar reports to the shared API, web and Flutter app. This document describes the implemented scope; deployment evidence is added after validation.
+The finance update adds reviewed statement imports and calendar reports to the shared API, web and Flutter app. This update was deployed and verified on the beta VM on 24 November 2026.
 
 ## User flow
 
@@ -34,3 +34,13 @@ Existing manual/SMS APIs remain compatible. Exact re-import detection uses accou
 ## Validation and release
 
 Pending final local checks, exact-commit CI/image scans and the guarded GCP rollout. Live checks use synthetic CSV statements and removable test accounts only.
+
+
+## Verified release
+
+- Source `9e1b074eb0a58b19bbc5d7d4a138746fb27289dd`, tag `beta-20261124-finance-statements-r3`; [CI](https://github.com/SreeS31/MyAaptha/actions/runs/45325304451) and [image validation/scans](https://github.com/SreeS31/MyAaptha/actions/runs/45325303724) passed.
+- Backend: 306 tests, zero failures/errors, one skip. This includes 22 targeted finance tests. Browser: 80 scenarios completed, with one existing diary-layout check passing on retry in image validation; finance scenarios passed first attempt. Web units: 26 passed. Native: clean analysis, 127 tests passed, two expected skips.
+- Matching Android debug test APK: `.tools/preview/MyAaptha-beta-finance-statements-20261124.apk`, SHA-256 `6fed086d00ff1464d44fc059ce690f87f093fe50392359cbab5f30d2ad776bf1`. Physical-device and iOS acceptance remain pending; this is not an app-store publication.
+- GCP immutable image references and deployment evidence: `infrastructure/production/finance-statements-images-20261124.json`. Fresh database backup restored into a disposable database and user count checked before the rollout. Existing schema 77 was retained; no new migration was required. Final HTTPS/API health: UP; Google Contacts and TURN configuration/service preserved.
+- Four live desktop/mobile finance and public-quality checks passed. Invented statement data produced INR 1,000 income, 150 spending and 850 net, excluding 200 of transfer movements. Category correction, calendar-quarter/year reports, CSV download and repeat-import duplicate exclusion passed.
+- Two exact synthetic accounts and eight private ledger rows were removed with identity-guarded cleanup. Zero test transactions or active media remain. No real bank statements were used in validation.
