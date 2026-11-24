@@ -4,6 +4,7 @@ import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
 test.skip(process.env.MYAAPTHA_LIVE_WRITE_TESTS!=='1','Requires removable synthetic-account live-write opt-in');
+test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream','--autoplay-policy=no-user-gesture-required']}});
 test.use({permissions:['camera'],launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream','--autoplay-policy=no-user-gesture-required']}});
 test('personal community features persist and enforce audiences on the live beta',async({browser},info)=>{
  test.setTimeout(240_000);const contexts:BrowserContext[]=[],accounts:{id:number;username:string;page:Page}[]=[];let postId:number|undefined,storyId:number|undefined;
