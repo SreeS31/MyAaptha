@@ -1,3 +1,4 @@
+import 'finance_statements_screen.dart';
 import 'package:myaaptha_mobile/core/config/display_copy.dart';
 import 'interests_screen.dart';
 import 'circle_tree_branch.dart';
@@ -853,6 +854,7 @@ class _FinanceScreenState extends State<FinanceScreen> with WidgetsBindingObserv
               title: 'Financial wellbeing',
               subtitle:
                   'See spending patterns and make thoughtful next steps.'),
+          Card(child:ListTile(leading:const Icon(Icons.upload_file_outlined),title:const Text('Statements & reports'),subtitle:const Text('Upload statement; monthly, quarterly or yearly reports'),trailing:const Icon(Icons.chevron_right),onTap:()async{await Navigator.push(context,MaterialPageRoute(builder:(_)=>FinanceStatementsScreen(api:widget.api)));if(mounted)await load();})),
           Card(child:ListTile(leading:const Icon(Icons.event_available_outlined),title:const Text('Bills & warranties'),subtitle:const Text('Expiry dates, receipts and renewal reminders'),trailing:const Icon(Icons.chevron_right),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>RenewalsScreen(api:widget.api))))),
           const SizedBox(height:12),
           Row(children: [

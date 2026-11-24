@@ -14,7 +14,7 @@ test('upload expiry choices reach the API, including Never and ten years',async(
   const data=path==='/api/auth/me'?{id:1,username:'Expiry fixture',role:'USER'}
    :path==='/api/uploads/policy'?{level:{id:1,name:'Free',storageBytes:1073741824,uploadBytes:26214400,maxRetentionDays:3650,allowNever:true},usedBytes:0,retentionDaysOptions:choices,defaultRetentionDays:0}
    :path==='/api/finance/renewals'&&route.request().method()==='POST'?{id:1}
-   :path==='/api/finance/summary'?{income:0,spending:0,net:0,categories:{},transactions:[],suggestions:[]}
+   :(path==='/api/finance/summary'||path==='/api/finance/reports')?{income:0,spending:0,net:0,categories:{},transactions:[],suggestions:[]}
    :path.includes('unread')?{count:0}:[];
   await route.fulfill({json:data});
  });

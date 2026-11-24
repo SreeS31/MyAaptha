@@ -172,7 +172,7 @@ export function isUnauthorizedError(error: unknown): boolean {
 }
 
 async function request<T>(path: string, init?: RequestOptions): Promise<T> {
-  if(init?.body instanceof FormData){if(path==='/api/health/reports/analyze')await validateUploadFiles(init.body);else await validateUploadForm(init.body);}
+  if(init?.body instanceof FormData){if(path==='/api/health/reports/analyze'||path==='/api/finance/statements/preview')await validateUploadFiles(init.body);else await validateUploadForm(init.body);}
   const session = getStoredAuthSession();
   const headers: Record<string, string> = {
     ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
@@ -183,7 +183,7 @@ async function request<T>(path: string, init?: RequestOptions): Promise<T> {
 
   let response: Response;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  const timeout = window.setTimeout(() => controller.abort(), path==='/api/finance/statements/preview'?90000:12000);
   if (init?.signal) init.signal.addEventListener('abort', () => controller.abort(), { once: true });
   try {
     response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, credentials:'include', signal: controller.signal });
