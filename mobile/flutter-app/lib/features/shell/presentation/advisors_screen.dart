@@ -1,3 +1,4 @@
+import 'external_feeds_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -130,7 +131,14 @@ class _AdvisorsState extends State<AdvisorsScreen> {
                       builder: (_) => Scaffold(
                           appBar: AppBar(title: const Text('Advisors')),
                           body: widget.postsBuilder(category)))),
-              child: const Text('Posts'))
+              child: const Text('Posts')),
+          TextButton(
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => ExternalFeedsScreen(
+                          api: widget.api, category: category))),
+              child: const Text('External feeds'))
         ]),
         DropdownButtonFormField<String>(
             key: ValueKey(category),
@@ -352,8 +360,8 @@ class _AdvisorEditorState extends State<_AdvisorEditor> {
             ? []
             : await widget.api.searchAdvisorMembers(query.text);
       } else {
-        final result = await widget.api
-            .relationshipTreeContacts(query: query.text, afterId: more ? cursor ?? 0 : 0);
+        final result = await widget.api.relationshipTreeContacts(
+            query: query.text, afterId: more ? cursor ?? 0 : 0);
         values = (result['items'] as List)
             .map((value) => Map<String, dynamic>.from(value as Map))
             .toList();

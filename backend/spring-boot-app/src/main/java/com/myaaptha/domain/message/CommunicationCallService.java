@@ -62,7 +62,7 @@ public class CommunicationCallService {
     if(db.queryForObject("SELECT COUNT(*) FROM communication_calls WHERE creator_user_id=? AND ended_at IS NULL AND created_at>?",Integer.class,user,Timestamp.from(Instant.now().minusSeconds(90)))>=5)throw error(HttpStatus.TOO_MANY_REQUESTS,"Please wait before starting another call");
     db.update("DELETE FROM communication_calls WHERE created_at<?",Timestamp.from(Instant.now().minusSeconds(604800)));
     String id=UUID.randomUUID().toString();db.update("INSERT INTO communication_calls(id,scope,target_id,creator_user_id,call_type) VALUES (?,?,?,?,?)",id,input.scope(),input.targetId(),user,input.callType());
-    db.update("INSERT INTO communication_call_members(call_id,user_id,status) VALUES (?,?,'JOINED')",id,user);
+    db.update("INSERT INTO communication_call_members(call_id,user_id,status,joined_at) VALUES (?,?,'JOINED',CURRENT_TIMESTAMP)",id,user);
     if(input.scope().equals("DIRECT"))db.update("INSERT INTO communication_call_members(call_id,user_id,status) VALUES (?,?,'INVITED')",id,input.targetId());
     return dto(user,row(id,false));
   }
@@ -77,7 +77,7 @@ public class CommunicationCallService {
     db.update("UPDATE communication_call_members SET status='LEFT' WHERE call_id=? AND status='JOINED' AND last_seen<?",id,Timestamp.from(Instant.now().minusSeconds(90)));
     boolean already=db.queryForObject("SELECT COUNT(*) FROM communication_call_members WHERE call_id=? AND user_id=? AND status='JOINED'",Integer.class,id,user)>0;
     if(!already&&db.queryForObject("SELECT COUNT(*) FROM communication_call_members WHERE call_id=? AND status='JOINED'",Integer.class,id)>=8)throw error(HttpStatus.CONFLICT,"This call is full (8 participants)");
-    if(db.update("UPDATE communication_call_members SET status='JOINED',last_seen=CURRENT_TIMESTAMP WHERE call_id=? AND user_id=?",id,user)==0)db.update("INSERT INTO communication_call_members(call_id,user_id,status) VALUES (?,?,'JOINED')",id,user);
+    if(db.update("UPDATE communication_call_members SET status='JOINED',last_seen=CURRENT_TIMESTAMP,joined_at=COALESCE(joined_at,CURRENT_TIMESTAMP) WHERE call_id=? AND user_id=?",id,user)==0)db.update("INSERT INTO communication_call_members(call_id,user_id,status,joined_at) VALUES (?,?,'JOINED',CURRENT_TIMESTAMP)",id,user);
     return dto(user,row(id,false));
   }
   public void leave(long user,String id){var call=row(id,true);access(user,call);if(db.update("UPDATE communication_call_members SET status=CASE WHEN status='INVITED' THEN 'DECLINED' ELSE 'LEFT' END WHERE call_id=? AND user_id=?",id,user)==0&&call.scope.equals("CIRCLE"))db.update("INSERT INTO communication_call_members(call_id,user_id,status) VALUES (?,?,'DECLINED')",id,user);

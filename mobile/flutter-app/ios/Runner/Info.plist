@@ -11,7 +11,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>MyAaptha uses the camera for profile photos, shared photos and video calls.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>MyAaptha uses the microphone for audio and video calls.</string>
+	<string>MyAaptha uses the microphone for voice notes and audio or video calls.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>MyAaptha lets you choose photos and videos to share with people and circles.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -59,10 +59,6 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>MyAaptha uses the camera for private video calls.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>MyAaptha uses the microphone for private audio and video calls.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

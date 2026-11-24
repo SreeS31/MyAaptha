@@ -152,6 +152,17 @@ class MyAapthaApi {
   Future<void> restoreRelationshipTrees()async=>_json(_client.post('/api/relationship-trees/suggestions/restore',{},bearerToken:_token));
   Future<void> deleteReviewedRelationshipTree(int id)async=>_json(_client.post('/api/relationship-trees/$id/delete',{},bearerToken:_token));
   Future<Map<String,dynamic>> relationshipTreeContacts({String query='',int afterId=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees/contacts?${Uri(queryParameters:{'q':query,'afterId':'$afterId'}).query}',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> peopleHighlights({String view='frequent',int afterId=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/people/highlights?${Uri(queryParameters:{'view':view,'afterId':'$afterId'}).query}',bearerToken:_token)) as Map);
+  Future<void> chooseHighlight({int? memberId,int? contactId,required bool starred,bool hidden=false})async{await _json(_client.post('/api/people/highlights',{'memberId':memberId,'contactId':contactId,'starred':starred,'hidden':hidden},bearerToken:_token));}
+  Future<void> highlightPreferences(bool enabled)async{await _json(_client.post('/api/people/highlights/preferences',{'enabled':enabled},bearerToken:_token));}
+  Future<Map<String,dynamic>> externalSources({int afterId=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/advisors/external/sources?afterId=$afterId',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> connectExternalFeed(int advisorId,String url)async=>Map<String,dynamic>.from(await _json(_client.post('/api/advisors/external/sources',{'advisorId':advisorId,'url':url,'consent':true},bearerToken:_token)) as Map);
+  Future<void> refreshExternalFeed(int id)async{await _json(_client.post('/api/advisors/external/sources/$id/refresh',{},bearerToken:_token));}
+  Future<void> externalSourceState(int id,bool enabled)async{await _json(_client.post('/api/advisors/external/sources/$id/state',{'enabled':enabled},bearerToken:_token));}
+  Future<void> removeExternalFeed(int id)async{await _json(_client.post('/api/advisors/external/sources/$id/delete',{},bearerToken:_token));}
+  Future<Map<String,dynamic>> externalItems({String category='ALL',bool saved=false,int? beforeId})async=>Map<String,dynamic>.from(await _json(_client.get('/api/advisors/external?${Uri(queryParameters:{'category':category,'saved':'$saved',if(beforeId!=null)'beforeId':'$beforeId'}).query}',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> externalFlags(int id,{required bool saved,required bool liked})async=>Map<String,dynamic>.from(await _json(_client.post('/api/advisors/external/items/$id',{'saved':saved,'liked':liked},bearerToken:_token)) as Map);
+  Future<void> repostExternalLink(int id)async{await _json(_client.post('/api/advisors/external/items/$id/repost',{'confirm':true},bearerToken:_token));}
   Future<List<Map<String,dynamic>>> advisorCategories()async=>(await _json(_client.get('/api/advisors/categories',bearerToken:_token)) as List).map((r)=>Map<String,dynamic>.from(r as Map)).toList();
   Future<Map<String,dynamic>> createAdvisorCategory(String name)async=>Map<String,dynamic>.from(await _json(_client.post('/api/advisors/categories',{'name':name},bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> advisors(String category,{int afterId=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/advisors?${Uri(queryParameters:{'category':category,'afterId':'$afterId'}).query}',bearerToken:_token)) as Map);

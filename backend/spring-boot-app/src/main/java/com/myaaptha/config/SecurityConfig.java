@@ -62,6 +62,8 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.DELETE, "/api/ai/help/history").authenticated()
         // These are platform-wide administration APIs, not the owner-scoped
         // /api/network and /api/people/{id}/profile APIs used by members.
+        .requestMatchers(HttpMethod.GET,"/api/people/highlights").authenticated()
+        .requestMatchers(HttpMethod.POST,"/api/people/highlights","/api/people/highlights/preferences").authenticated()
         .requestMatchers("/api/users", "/api/users/*", "/api/circles", "/api/circles/**",
             "/api/relationships", "/api/relationships/**", "/api/permissions", "/api/permissions/**",
             "/api/people", "/api/people/*", "/api/dashboard/summary").hasRole("ADMIN")

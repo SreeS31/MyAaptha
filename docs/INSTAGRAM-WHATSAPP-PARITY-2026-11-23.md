@@ -18,7 +18,7 @@ Product availability varies by device, account and region. The rows below descri
 | Photos, videos, documents and audio attachments | Implemented with authenticated media access, quotas and retention choices. File/size limits differ from WhatsApp. |
 | Reply, reactions, forwarding, editing, deletion and message info | Implemented. Deletion permissions/time windows differ; message stars/pins are personal. |
 | Delivery/read receipts, typing, online state and search | Implemented; polling rather than WhatsApp's delivery architecture. |
-| Voice notes | Web and Android implemented. iOS audio-only recording remains missing because the existing recorder requires video. |
+| Voice notes | Web recording is implemented. The 24 November update replaces native recording with an audio-only Android/iOS recorder and lifecycle tests; real iPhone acceptance remains pending. |
 | Contact/circle information and member administration | Implemented, including ownership transfer and explicit sole-member circle removal. |
 | Mute, themes, favourites, custom lists, export and private clearing | Implemented in the preceding release. A chat currently has one custom-list assignment. |
 | Disappearing messages | Implemented for new messages, with scheduled cleanup. This does not recall exports/screenshots or provide view-once semantics. |

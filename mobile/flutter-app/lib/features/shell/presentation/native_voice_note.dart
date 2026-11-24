@@ -1,14 +1,48 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:record/record.dart' as audio;
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+
+abstract interface class VoiceNoteCapture {
+  Future<bool> hasPermission();
+  Future<void> start(String path);
+  Future<void> stop();
+  Future<void> dispose();
+}
+
+class AudioVoiceNoteCapture implements VoiceNoteCapture {
+  final audio.AudioRecorder recorder = audio.AudioRecorder();
+  @override
+  Future<bool> hasPermission() => recorder.hasPermission();
+  @override
+  Future<void> start(String path) => recorder.start(
+      const audio.RecordConfig(
+          encoder: audio.AudioEncoder.aacLc,
+          bitRate: 128000,
+          sampleRate: 44100,
+          numChannels: 1),
+      path: path);
+  @override
+  Future<void> stop() async {
+    await recorder.stop();
+  }
+
+  @override
+  Future<void> dispose() => recorder.dispose();
+}
 
 /// Captures input audio only. The temporary recording is erased after review bytes are returned.
 class NativeVoiceNote extends StatefulWidget {
   const NativeVoiceNote(
-      {super.key, required this.onReady, required this.disabled});
+      {super.key,
+      required this.onReady,
+      required this.disabled,
+      this.capture,
+      this.temporaryDirectory});
+  final VoiceNoteCapture? capture;
+  final Future<Directory> Function()? temporaryDirectory;
   static Future<void> Function()? cancelActive;
   final ValueChanged<PlatformFile> onReady;
   final bool disabled;
@@ -34,6 +68,7 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
 
   Future<void> cancel() async {
     generation++;
+    await starting;
     await cleanup();
     if (mounted) setState(() => busy = false);
   }
@@ -41,8 +76,10 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
   bool recording = false, busy = false;
   int seconds = 0;
   Timer? timer;
-  MediaRecorder? recorder;
-  MediaStream? stream;
+  VoiceNoteCapture? _capture;
+  VoiceNoteCapture get capture =>
+      _capture ??= widget.capture ?? AudioVoiceNoteCapture();
+  Future<void>? starting;
   File? file;
   int generation = 0;
   Future<void> cleanup() async {
@@ -50,14 +87,9 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
     if (recording) {
       recording = false;
       try {
-        await recorder?.stop();
+        await capture.stop();
       } catch (_) {}
     }
-    for (final track in stream?.getTracks() ?? <MediaStreamTrack>[]) {
-      track.stop();
-    }
-    await stream?.dispose();
-    stream = null;
     try {
       if (await file?.exists() ?? false) await file?.delete();
     } catch (_) {}
@@ -71,28 +103,40 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
     if (NativeVoiceNote.cancelActive == cancel) {
       NativeVoiceNote.cancelActive = null;
     }
-    unawaited(cleanup());
+    unawaited(() async {
+      await starting;
+      await cleanup();
+      await _capture?.dispose();
+    }());
     super.dispose();
   }
 
-  Future<void> begin() async {
+  Future<void> begin() {
+    final task = start();
+    starting = task;
+    return task.whenComplete(() {
+      if (identical(starting, task)) {
+        starting = null;
+      }
+    });
+  }
+
+  Future<void> start() async {
     if (busy || recording) return;
     final token = ++generation;
     NativeVoiceNote.cancelActive = cancel;
     setState(() => busy = true);
     File? destination;
     try {
-      final media = await navigator.mediaDevices
-          .getUserMedia({'audio': true, 'video': false});
+      if (!await capture.hasPermission()) {
+        throw const FormatException(
+            'Allow microphone access to record a voice note.');
+      }
       if (!mounted || token != generation) {
-        for (final track in media.getTracks()) {
-          track.stop();
-        }
-        await media.dispose();
         return;
       }
-      stream = media;
-      final directory = await getTemporaryDirectory();
+      final directory =
+          await (widget.temporaryDirectory?.call() ?? getTemporaryDirectory());
       if (!mounted || token != generation) {
         await cleanup();
         return;
@@ -100,9 +144,7 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
       file = File(
           '${directory.path}/myaaptha-voice-${DateTime.now().microsecondsSinceEpoch}.m4a');
       destination = file;
-      recorder = MediaRecorder();
-      await recorder!
-          .start(file!.path, audioChannel: RecorderAudioChannel.INPUT);
+      await capture.start(file!.path);
       if (!mounted || token != generation) {
         recording = true;
         await cleanup();
@@ -122,7 +164,7 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
       });
     } catch (e) {
       await cleanup();
-      if (mounted) {
+      if (mounted && token == generation) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Voice recording could not start: $e')));
       }
@@ -140,9 +182,10 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
     if (busy) return;
     setState(() => busy = true);
     timer?.cancel();
+    final token = generation;
     try {
       if (recording) {
-        await recorder?.stop();
+        await capture.stop();
         recording = false;
       }
       if (!discard && file != null) {
@@ -151,7 +194,7 @@ class _NativeVoiceNoteState extends State<NativeVoiceNote>
           throw const FormatException(
               'Record a voice note smaller than 25 MB.');
         }
-        if (mounted) {
+        if (mounted && token == generation) {
           widget.onReady(PlatformFile(
               name: 'voice-note-${DateTime.now().millisecondsSinceEpoch}.m4a',
               size: bytes.length,

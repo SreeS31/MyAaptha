@@ -1,3 +1,4 @@
+import 'people_highlights.dart';
 import 'package:myaaptha_mobile/core/contacts/contact_oauth_poll.dart';
 import 'package:myaaptha_mobile/core/contacts/device_contact_access.dart';
 import 'package:permission_handler/permission_handler.dart' show openAppSettings;
@@ -23,6 +24,8 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
   List<Map<String, dynamic>> items = [], circles = [];
   bool busy = false, organize = true, cancelled = false;
   String? error, message;
+  int highlightRefresh=0;
+  bool showHighlights=false;
   int total = 0, processed = 0;
   int? cursor, circleFilter;
   String activeQuery = '';
@@ -335,6 +338,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                   return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        ExpansionTile(title:const Text('People highlights'),onExpansionChanged:(value)=>setState(()=>showHighlights=value),children:[if(showHighlights)PeopleHighlights(api:widget.api,refresh:highlightRefresh,showHeading:false)]),
                         Wrap(spacing:8,runSpacing:8,children:[
                           FilledButton(onPressed:busy?null:()=>run(()=>connect('google')),child:const Text('Sign in with Google')),
                           OutlinedButton(onPressed:busy?null:()=>run(()=>connect('microsoft')),child:const Text('Sign in with Microsoft'))
@@ -482,6 +486,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                               for (final value in [...phones, ...emails])
                                 Text(value),
                               Wrap(spacing: 8, children: [
+                                TextButton(onPressed:busy?null:()=>run(()async{await widget.api.chooseHighlight(contactId:(c['id'] as num).toInt(),starred:true);if(mounted){setState(()=>highlightRefresh++);}}),child:const Text('Star')),
                                 TextButton(
                                     onPressed:
                                         busy ? null : () => editCircles(c),
