@@ -102,7 +102,7 @@ public class StatementParser {
  }
  static BigDecimal amount(String value){String s=value.trim().toUpperCase(Locale.ROOT);if(s.isEmpty()||s.equals("-")||s.equals("NIL"))return null;s=s.replace("INR","").replace("RS.","").replace("\u20B9","").replaceAll("\\s*(DR|CR)$","").trim();boolean negative=s.startsWith("(")&&s.endsWith(")");if(negative)s=s.substring(1,s.length()-1);if(!s.matches("[+-]?(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3})(?:\\.[0-9]{1,2})?"))throw bad("Use decimal amounts with at most two decimal places");BigDecimal result=new BigDecimal(s.replace(",",""));return negative?result.negate():result;}
  static void validateAmount(BigDecimal amount){if(amount==null||amount.signum()<=0||amount.scale()>2||amount.compareTo(new BigDecimal("1000000000000"))>0)throw bad("Amount must be positive, at most 1,000,000,000,000 and have at most two decimal places");}
- static String normal(String s){return s.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]","");}
+ static String normal(String s){return s.toLowerCase(Locale.ROOT).replaceAll("\\bamt\\b","amount").replaceAll("\\bdt\\b","date").replaceAll("[^a-z0-9]","");}
  private static String value(List<String> row,Map<String,Integer> columns,String key){Integer index=columns.get(key);return index==null||index>=row.size()?"":row.get(index).trim();}
  static ResponseStatusException bad(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
 }
