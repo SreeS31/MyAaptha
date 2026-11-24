@@ -29,3 +29,27 @@ This batch does not complete the entire Instagram/WhatsApp audit. The owner has 
 Targeted call regression: six existing call tests passed. Six new backend cases cover answered-call scope, hidden/disabled suggestions, 55 private contact stars and pagination, owner isolation, consent, feed deduplication/local actions, safe errors with retained saves, RSS/Atom parsing and blocked XML/network addresses. Native recorder lifecycle tests cover review bytes, discard and denied permission. Final browser/native/CI/deployment results are recorded after completion.
 
 Targeted production browser validation: eight desktop/mobile cases passed, including accessibility and viewport fit. Native: 24 targeted tests passed, including recorder lifecycle and existing contact-import/permission checks; analysis clean. A real public-feed probe exposed an overly broad IPv4 exclusion; the filter now uses the precise reserved subnets, with a regression for a public publisher address.
+
+## Configuration needed for the next parity work
+
+Current Android application ID is `com.myaaptha.myaaptha_mobile`; iOS bundle ID is `com.myaaptha.myaapthaMobile`. Firebase app registrations must match those identifiers. No Firebase app configuration files were found in this repository. The owner needs to confirm whether Firebase is configured for the existing GCP project and whether an Apple Developer/APNs key is available. Keep private provider keys in the protected deployment configuration, not chat or Git.
+
+Firebase's [Flutter messaging setup](https://firebase.google.com/docs/cloud-messaging/flutter/get-started) requires Apple push/background notification capabilities and an APNs authentication key for iOS. Credentials alone do not implement native incoming-call lifecycle or prove device delivery. The remaining work includes client/server integration and real-device acceptance.
+
+For encrypted messaging, the unresolved choice is encrypted-by-default with local search, or separate encrypted chats alongside existing server-searchable chats. Server-side message AI/search cannot read end-to-end encrypted text. Device identity, recovery and multi-device behavior need to follow that choice and a reviewed protocol/library.
+
+## Final release evidence
+
+Application source `b1afdf42204f4b9cee98000f8694a47be1f05541`, tag `beta-20261124-highlights-feeds-r3`, is deployed to the GCP beta. [CI](https://github.com/SreeS31/MyAaptha/actions/runs/45443732001) and [image validation/scans](https://github.com/SreeS31/MyAaptha/actions/runs/45443731971) passed. Final CI: 320 backend tests (zero failures/errors, one skip), 94 browser scenarios, 26 web unit tests and 136 native tests (two expected skips); native analysis clean. Android debug build succeeded with the audio recorder plugin.
+
+The initial frontend run found an unhandled malformed highlights response in older contact fixtures. Highlights now fail locally without breaking contact import/search, with dedicated regression coverage and updated fixture contracts. The diary layout assertion now selects the visible accessible main region rather than a hidden Suspense fallback. A redundant unrelated refresh button was removed from External feeds before final image validation. A supplemental Windows layout run hit existing timing limits and was stopped after the full Linux CI suite passed; no failed candidate was deployed.
+
+Migration 80 is applied. Fresh backup `/opt/myaaptha-beta/runtime/release-backups/20261124T171023446479Z.dump` was restored into an isolated database and its user count verified before migration. Exact running digests, HTTPS health UP and schema 80 were checked. Existing Google Contacts and authenticated TURN configuration/service were preserved. No additional public firewall ports or provider credentials were required.
+
+Four live desktop/mobile scenarios passed: private contact starring, suggestion opt-out, real public RSS preview import, local likes/saves, retaining saves after pause, viewport fit and public navigation/accessibility. Separate live API checks passed for two answered call sessions, private stars/hiding/opt-out, owner isolation, RSS imports, local actions, pause and confirmed original-link repost. These call tests exercise control-plane membership, not real phone media. The synthetic link post was removed through its author's API. Standalone public probes returned ten RSS and fifteen YouTube Atom previews.
+
+Matching Android test APK: `.tools/preview/MyAaptha-beta-highlights-feeds-20261124.apk`, SHA-256 `a4e535d1c62efdf2e94296d0c587639948dfad479f71692bb6ad33fa667576eb`. This is a debug test build, not an app-store publication or verified iOS binary. Real-device microphone/call acceptance remains pending.
+
+Guarded cleanup removed four exact synthetic accounts and their owned data. All fifteen remaining-count checks are zero, including contacts, calls/members/signals, highlights/preferences, external sources/items, trees, advisors, reposts, finance records and active uploads. User contacts were not used as fixtures or changed. Immutable images, overlay hash, backup and test evidence are recorded in `infrastructure/production/highlights-feeds-images-20261124.json`.
+
+After cleanup, HTTPS health remained UP, schema 80 and exact running image references matched the release, and Google Contacts/authenticated TURN remained configured.

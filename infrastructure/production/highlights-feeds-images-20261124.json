@@ -1,0 +1,62 @@
+{
+  "sourceCommit": "b1afdf42204f4b9cee98000f8694a47be1f05541",
+  "tag": "beta-20261124-highlights-feeds-r3",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45443732001",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45443731971",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:21faa17639ca8097bbd42babab929e306c9a51d18d59fd5a0e49351882d6260e",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:94288646e69eda63dcc160485d2859a60b77af7b737b3eeba0626b7c1cefcfcb",
+  "deployed": true,
+  "previousBetaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "80",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/advisors",
+  "androidTestApkSha256": "a4e535d1c62efdf2e94296d0c587639948dfad479f71692bb6ad33fa667576eb",
+  "backup": "/opt/myaaptha-beta/runtime/release-backups/20261124T171023446479Z.dump",
+  "backupRestoreVerified": true,
+  "httpsHealth": "UP",
+  "googleContactsConfigured": true,
+  "microsoftContactsConfigured": false,
+  "authenticatedTurnPreserved": true,
+  "contactsUrl": "https://35-244-31-192.sslip.io/contacts",
+  "androidTestApkPath": ".tools/preview/MyAaptha-beta-highlights-feeds-20261124.apk",
+  "validation": {
+    "backend": {
+      "tests": 320,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browser": {
+      "passed": 94
+    },
+    "webUnit": {
+      "passed": 26
+    },
+    "native": {
+      "passed": 136,
+      "skipped": 2,
+      "analysis": "clean"
+    },
+    "targetedLocalBrowserPassed": 8,
+    "targetedNativePassed": 24,
+    "realRssFetchPreviews": 10,
+    "realAtomFetchPreviews": 15,
+    "liveApi": "passed: answered calls, private stars, RSS imports, local actions, pause and link repost",
+    "liveBrowser": {
+      "passed": 4,
+      "layouts": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "fixtureCleanup": {
+      "accountsRemoved": 4,
+      "remainingSyntheticRecordCounts": "all 15 checks zero",
+      "syntheticLinkPostsRemovedThroughApi": 1
+    },
+    "releaseIterations": "Initial frontend fixture/response-handling regression fixed; final exact-source CI and image validation passed",
+    "postCleanupHealth": "UP; schema 80 and exact images verified"
+  }
+}
