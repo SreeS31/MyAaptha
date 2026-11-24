@@ -91,3 +91,5 @@ Immutable image and backup references are recorded in `infrastructure/production
 ## 24 November follow-up
 
 Private frequent-call highlights and stars, RSS/Atom/YouTube public-feed previews and the native audio-only recorder are implemented in the [24 November follow-up](HIGHLIGHTS-EXTERNAL-FEEDS-2026-11-24.md). The public-feed actions are local saves/likes and confirmed original-link sharing; they do not automate Instagram personal-account access or upstream social actions. Message E2EE, background incoming-call integration, larger-call/live media architecture and the other incomplete rows remain outstanding. Provider setup and the encrypted/searchable chat model are still unresolved. Commercial features remain deferred.
+
+Project setup status and encryption decisions can be saved under **Administration → Inputs needed** (`/project-inputs`), with the same administrator API and native mobile form. This tracks pending inputs; it does not activate providers or complete parity. See [tree views and project inputs](TREE-VIEWS-PROJECT-INPUTS-2026-11-24.md).
