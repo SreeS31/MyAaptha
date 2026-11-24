@@ -60,6 +60,8 @@ class MyAapthaApi {
   Future<CircleModel> createChatGroup(String name, List<int> members) async => CircleModel.fromJson(Map<String, dynamic>.from(await _json(_client.post('/api/network/chats/groups', {'name': name, 'memberIds': members}, bearerToken: _token)) as Map));
   Future<List<Map<String, dynamic>>> searchAllChats(String query) async => (await _json(_client.get('/api/network/chats/search?q=${Uri.encodeQueryComponent(query)}', bearerToken: _token)) as List).map((v) => Map<String, dynamic>.from(v as Map)).toList();
   Future<Map<String, dynamic>> uploadPolicy() async => Map<String, dynamic>.from(await _json(_client.get('/api/uploads/policy', bearerToken: _token)) as Map);
+  Future<List<Map<String,dynamic>>> projectInputs() async => (await _json(_client.get('/api/admin/project-inputs',bearerToken:_token)) as List).map((v)=>Map<String,dynamic>.from(v as Map)).toList();
+  Future<Map<String,dynamic>> saveProjectInputs(String key,Map values,bool ready,int version) async => Map<String,dynamic>.from(await _json(_client.post('/api/admin/project-inputs/$key',{'values':values,'ready':ready,'version':version},bearerToken:_token)) as Map);
   Future<Map<String, dynamic>> sessionProfile() async => Map<String, dynamic>.from(await _json(_client.get('/api/auth/me', bearerToken: _token)) as Map);
   Future<List<Map<String, dynamic>>> uploadLevels() async => (await _json(_client.get('/api/admin/upload-levels', bearerToken: _token)) as List).map((v) => Map<String, dynamic>.from(v as Map)).toList();
   Future<void> saveUploadLevel(Map<String, dynamic> level) async => _json(_client.put('/api/admin/upload-levels', level, bearerToken: _token));

@@ -1,3 +1,4 @@
+import 'project_inputs_screen.dart';
 import 'advisors_screen.dart';
 import 'reviewed_trees_screen.dart';
 import 'finance_statements_screen.dart';
@@ -427,6 +428,11 @@ class MoreScreen extends StatelessWidget {
               'AI controls',
               'Review permissions, approvals and AI outcomes.',
               AiControlScreen(api: api)),
+          FutureBuilder<Map<String,dynamic>>(
+              future: api.sessionProfile(),
+              builder: (context,snapshot) => snapshot.data?['role']=='ADMIN'
+                  ? _moreTile(context, Icons.checklist, 'Inputs needed', '', ProjectInputsScreen(api:api))
+                  : const SizedBox.shrink()),
           const _MenuSection('SAFETY & CONTROL'),
           _moreTile(context, Icons.flag_outlined, 'My reports',
               'Track reports you submitted.', ReportsScreen(api: api)),

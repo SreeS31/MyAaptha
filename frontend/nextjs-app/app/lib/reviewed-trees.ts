@@ -1,5 +1,5 @@
 import {authenticatedRequest as request} from './api';
-export type TreeNode={key:string;contactId:number|null;name:string;relation:string;parentKey:string|null};
+export type TreeNode={key:string;contactId:number|null;name:string;relation:string;parentKey:string|null;gender?:'MALE'|'FEMALE'|'OTHER'|'UNSPECIFIED'|null};
 export type ReviewedTree={id:number|null;sourceKey:string|null;name:string;reason:string;confidence:string;nodes:TreeNode[];version:number};
 export type TreeCard={id:number|null;key:string|null;name:string;reason:string;confidence:string;count:number;preview:TreeNode[];version:number};
 export type TreeSuggestions={scannedContacts:number;totalSuggestions:number;dismissedCount:number;smallGroupsSkipped:number;items:TreeCard[];nextOffset:number|null};

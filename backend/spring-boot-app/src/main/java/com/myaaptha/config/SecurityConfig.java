@@ -57,7 +57,7 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/contact-organizer/oauth/callback/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
         .requestMatchers("/api/admin/upload-levels", "/api/admin/upload-levels/**").hasRole("ADMIN")
-          .requestMatchers("/api/admin/security/**").hasRole("ADMIN")
+          .requestMatchers("/api/admin/security/**", "/api/admin/project-inputs", "/api/admin/project-inputs/**").hasRole("ADMIN")
         .requestMatchers("/api/ai/help/admin/**").hasRole("ADMIN")
         .requestMatchers(HttpMethod.DELETE, "/api/ai/help/history").authenticated()
         // These are platform-wide administration APIs, not the owner-scoped

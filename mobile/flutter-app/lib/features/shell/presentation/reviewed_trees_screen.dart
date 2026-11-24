@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'reviewed_tree_canvas.dart';
 import 'package:flutter/material.dart';
 import '../../../core/network/myaaptha_api.dart';
 
@@ -240,7 +241,7 @@ class _TreeEditorState extends State<ReviewedTreeEditor> {
       search = TextEditingController();
   String? selected, error;
   bool reviewed = false, busy = false, dirty = false;
-  int limit = 40;
+
   List<Map<String, dynamic>> get nodes =>
       (tree['nodes'] as List).cast<Map<String, dynamic>>();
   Map<String, dynamic>? get active {
@@ -329,34 +330,9 @@ class _TreeEditorState extends State<ReviewedTreeEditor> {
     }).toList();
   }
 
-  Widget branch(Map<String, dynamic> node,
-      Map<String?, List<Map<String, dynamic>>> children) {
-    final next = children[node['key']] ?? [];
-    final label = ListTile(
-        selected: selected == node['key'],
-        title: Text('${node['name']}'),
-        subtitle: Text('${node['relation']}'),
-        onTap: () => select(node));
-    if (next.isEmpty) {
-      return label;
-    }
-    return ExpansionTile(
-        title: label,
-        children: next
-            .map((child) => Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: branch(child, children)))
-            .toList());
-  }
-
   @override
   Widget build(BuildContext context) {
     final current = active;
-    final children = <String?, List<Map<String, dynamic>>>{};
-    for (final node in nodes) {
-      children.putIfAbsent(node['parentKey'] as String?, () => []).add(node);
-    }
-    final roots = children[null] ?? [];
     return PopScope(
         canPop: !dirty && !busy,
         onPopInvokedWithResult: (didPop, result) {
@@ -471,6 +447,27 @@ class _TreeEditorState extends State<ReviewedTreeEditor> {
                               onChanged: (value) =>
                                   change(() => current['relation'] = value)),
                           DropdownButtonFormField<String>(
+                              key: ValueKey('$selected-${current['gender']}'),
+                              initialValue:
+                                  current['gender'] as String? ?? 'UNSPECIFIED',
+                              decoration:
+                                  const InputDecoration(labelText: 'Gender'),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'UNSPECIFIED',
+                                    child: Text('Unspecified')),
+                                DropdownMenuItem(
+                                    value: 'MALE', child: Text('Man')),
+                                DropdownMenuItem(
+                                    value: 'FEMALE', child: Text('Woman')),
+                                DropdownMenuItem(
+                                    value: 'OTHER', child: Text('Other'))
+                              ],
+                              onChanged: busy
+                                  ? null
+                                  : (value) =>
+                                      change(() => current['gender'] = value)),
+                          DropdownButtonFormField<String>(
                               key:
                                   ValueKey('$selected-${current['parentKey']}'),
                               isExpanded: true,
@@ -507,12 +504,8 @@ class _TreeEditorState extends State<ReviewedTreeEditor> {
                                       }),
                               child: const Text('Remove node'))
                         ]))),
-              const Chip(label: Text('You')),
-              ...roots.take(limit).map((node) => branch(node, children)),
-              if (roots.length > limit)
-                TextButton(
-                    onPressed: () => setState(() => limit += 50),
-                    child: const Text('Show more people')),
+              ReviewedTreeCanvas(
+                  nodes: nodes, selected: selected, onSelect: select),
               CheckboxListTile(
                   title: const Text('I reviewed these connections'),
                   value: reviewed,
