@@ -115,7 +115,7 @@ class _SavedTreeDisplayState extends State<SavedTreeDisplay> {
                 ReviewedTreeCanvas(
                     key: ValueKey('${tree!['id']}:${tree!['version']}'),
                     nodes: nodes,
-                    initiallyExpanded: true,
+                    initiallyExpanded: false,
                     connectRoots: true,
                     selected: selected,
                     onSelect: (n) =>

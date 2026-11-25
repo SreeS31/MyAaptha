@@ -55,6 +55,15 @@ void main() {
                     onDelete: (_) {})))));
     await tester.pumpAndSettle();
     expect(find.byType(ReviewedTreeCanvas), findsOneWidget);
+    expect(find.text('Person 1-29'), findsNothing);
+    expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Compact'))
+            .selected,
+        isTrue);
+    await tester.ensureVisible(find.text('You: Expand tree'));
+    await tester.tap(find.text('You: Expand tree'));
+    await tester.pumpAndSettle();
     expect(find.text('Person 1-29'), findsOneWidget);
     expect(find.widgetWithText(ChoiceChip, 'Modern'), findsOneWidget);
     await tester.ensureVisible(find.byType(DropdownButtonFormField<int>));
@@ -64,7 +73,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.requests, ['1', '2']);
     expect(find.text('Person 1-29'), findsNothing);
-    expect(find.text('Person 2-0'), findsOneWidget);
+    expect(find.text('Person 2-0'), findsNothing);
+    expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Compact'))
+            .selected,
+        isTrue);
     await tester.ensureVisible(find.widgetWithText(TextButton, 'Edit tree'));
     await tester.tap(find.widgetWithText(TextButton, 'Edit tree'));
     await tester.pumpAndSettle();

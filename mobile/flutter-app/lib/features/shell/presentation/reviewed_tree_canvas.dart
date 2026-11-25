@@ -18,7 +18,8 @@ class ReviewedTreeCanvas extends StatefulWidget {
 }
 
 class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
-  String layout = 'Modern';
+  String layout = 'Compact';
+  late bool rootOpen;
   final expanded = <String>{};
   int limit = 80;
   final transform = TransformationController();
@@ -31,6 +32,7 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
   @override
   void initState() {
     super.initState();
+    rootOpen = !widget.connectRoots || widget.initiallyExpanded;
     if (widget.initiallyExpanded) {
       expanded.addAll(widget.nodes.map((n) => n['key'] as String));
     }
@@ -46,6 +48,7 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
   void revealSelection() {
     final byKey = {for (final node in widget.nodes) node['key']: node};
     var node = byKey[widget.selected];
+    if (node != null) rootOpen = true;
     final seen = <String>{};
     while (
         node?['parentKey'] != null && seen.add(node!['parentKey'] as String)) {
@@ -100,7 +103,9 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
       return pos;
     }
 
-    for (final root in ordered(children[null] ?? <Map<String, dynamic>>[])) {
+    for (final root in ordered(rootOpen
+        ? (children[null] ?? <Map<String, dynamic>>[])
+        : <Map<String, dynamic>>[])) {
       visit(root, 0, null);
     }
     for (var i = 0; i < entries.length; i++) {
@@ -127,12 +132,16 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
               .toList()),
       Wrap(spacing: 8, children: [
         TextButton(
-            onPressed: () => setState(() =>
-                expanded.addAll(widget.nodes.map((n) => n['key'] as String))),
+            onPressed: () => setState(() {
+                  rootOpen = true;
+                  expanded.addAll(widget.nodes.map((n) => n['key'] as String));
+                }),
             child: const Text('Expand all')),
         TextButton(
             onPressed: () => setState(() {
                   expanded.clear();
+                  rootOpen = !widget.connectRoots;
+                  layout = 'Compact';
                   limit = 80;
                   transform.value = Matrix4.identity();
                 }),
@@ -145,98 +154,103 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
         Text('● Has branches'),
         Text('○ End node')
       ]),
-      Chip(
-          avatar: widget.connectRoots && widget.nodes.isNotEmpty
-              ? const Icon(Icons.circle, size: 12)
-              : null,
-          label: const Text('You')),
-      SizedBox(
-          height: 350,
-          child: ClipRect(
-              child: InteractiveViewer(
-                  constrained: false,
-                  transformationController: transform,
-                  minScale: .3,
-                  maxScale: 2,
-                  child: SizedBox(
-                      width: width,
-                      height: height,
-                      child: Stack(children: [
-                        Positioned.fill(
-                            child: CustomPaint(
-                                painter: _Edges(
-                                    entries, layout, widget.connectRoots))),
-                        ...entries.map((entry) {
-                          final node = entry.node;
-                          final hasChildren =
-                              (children[node['key']] ?? []).isNotEmpty;
-                          final color = node['gender'] == 'MALE'
-                              ? const Color(0xff326bc4)
-                              : node['gender'] == 'FEMALE'
-                                  ? const Color(0xffbe3273)
-                                  : const Color(0xff64748b);
-                          return Positioned(
-                              left: entry.offset.dx,
-                              top: entry.offset.dy,
-                              width: 180,
-                              height: 64,
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                      color: layout == 'Heritage'
-                                          ? const Color(0xfffffaf0)
-                                          : Colors.white,
-                                      border: Border.all(
-                                          color: widget.selected == node['key']
-                                              ? Colors.teal
-                                              : color,
-                                          width: 2),
-                                      borderRadius: BorderRadius.circular(
-                                          layout == 'Heritage' ? 3 : 16)),
-                                  child: Row(children: [
-                                    Expanded(
-                                        child: TextButton(
-                                            onPressed: () =>
-                                                widget.onSelect(node),
-                                            child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text('${node['name']}',
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow
-                                                          .ellipsis),
-                                                  Text('${node['relation']}',
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: const TextStyle(
-                                                          fontSize: 11))
-                                                ]))),
-                                    if (hasChildren)
-                                      IconButton(
-                                          tooltip:
-                                              '${expanded.contains(node['key']) ? 'Collapse' : 'Expand'} ${node['name']}',
-                                          onPressed: () => setState(() {
-                                                final key =
-                                                    node['key'] as String;
-                                                if (!expanded.remove(key)) {
-                                                  expanded.add(key);
-                                                }
-                                              }),
-                                          icon: Icon(
-                                              expanded.contains(node['key'])
-                                                  ? Icons.remove_circle
-                                                  : Icons.add_circle,
-                                              color: color))
-                                    else
-                                      Semantics(
-                                          label: '${node['name']}: end node',
-                                          child: Padding(
-                                              padding: const EdgeInsets.all(8),
-                                              child: Icon(Icons.circle_outlined,
-                                                  color: color, size: 24)))
-                                  ])));
-                        })
-                      ]))))),
+      TextButton.icon(
+          onPressed: () => setState(() => rootOpen = !rootOpen),
+          icon: Icon(rootOpen ? Icons.remove_circle : Icons.add_circle),
+          label: Text(rootOpen ? 'You: Collapse tree' : 'You: Expand tree')),
+      if (rootOpen)
+        SizedBox(
+            height: 350,
+            child: ClipRect(
+                child: InteractiveViewer(
+                    constrained: false,
+                    transformationController: transform,
+                    minScale: .3,
+                    maxScale: 2,
+                    child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: Stack(children: [
+                          Positioned.fill(
+                              child: CustomPaint(
+                                  painter: _Edges(
+                                      entries, layout, widget.connectRoots))),
+                          ...entries.map((entry) {
+                            final node = entry.node;
+                            final hasChildren =
+                                (children[node['key']] ?? []).isNotEmpty;
+                            final color = node['gender'] == 'MALE'
+                                ? const Color(0xff326bc4)
+                                : node['gender'] == 'FEMALE'
+                                    ? const Color(0xffbe3273)
+                                    : const Color(0xff64748b);
+                            return Positioned(
+                                left: entry.offset.dx,
+                                top: entry.offset.dy,
+                                width: 180,
+                                height: 64,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                        color: layout == 'Heritage'
+                                            ? const Color(0xfffffaf0)
+                                            : Colors.white,
+                                        border: Border.all(
+                                            color:
+                                                widget.selected == node['key']
+                                                    ? Colors.teal
+                                                    : color,
+                                            width: 2),
+                                        borderRadius: BorderRadius.circular(
+                                            layout == 'Heritage' ? 3 : 16)),
+                                    child: Row(children: [
+                                      Expanded(
+                                          child: TextButton(
+                                              onPressed: () =>
+                                                  widget.onSelect(node),
+                                              child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text('${node['name']}',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis),
+                                                    Text('${node['relation']}',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: const TextStyle(
+                                                            fontSize: 11))
+                                                  ]))),
+                                      if (hasChildren)
+                                        IconButton(
+                                            tooltip:
+                                                '${expanded.contains(node['key']) ? 'Collapse' : 'Expand'} ${node['name']}',
+                                            onPressed: () => setState(() {
+                                                  final key =
+                                                      node['key'] as String;
+                                                  if (!expanded.remove(key)) {
+                                                    expanded.add(key);
+                                                  }
+                                                }),
+                                            icon: Icon(
+                                                expanded.contains(node['key'])
+                                                    ? Icons.remove_circle
+                                                    : Icons.add_circle,
+                                                color: color))
+                                      else
+                                        Semantics(
+                                            label: '${node['name']}: end node',
+                                            child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                child: Icon(
+                                                    Icons.circle_outlined,
+                                                    color: color,
+                                                    size: 24)))
+                                    ])));
+                          })
+                        ]))))),
       if (truncated)
         TextButton(
             onPressed: () => setState(() {
