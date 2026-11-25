@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'reviewed_tree_canvas.dart';
+import 'saved_tree_display.dart';
 import 'package:flutter/material.dart';
 import '../../../core/network/myaaptha_api.dart';
 
@@ -66,7 +67,7 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
     }
   }
 
-  Future<void> open(Map<String, dynamic>? card) async {
+  Future<void> open(Map<String, dynamic>? card, {String? nodeKey}) async {
     setState(() => busy = true);
     try {
       final tree = card == null
@@ -87,7 +88,8 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
       await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => ReviewedTreeEditor(api: widget.api, tree: tree)));
+              builder: (_) => ReviewedTreeEditor(
+                  api: widget.api, tree: tree, initialNodeKey: nodeKey)));
       if (mounted) {
         await load();
       }
@@ -99,6 +101,33 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
       if (mounted) {
         setState(() => busy = false);
       }
+    }
+  }
+
+  Future<void> removeSaved(Map<String, dynamic> card) async {
+    final yes = await showDialog<bool>(
+        context: context,
+        builder: (c) => AlertDialog(
+                title: const Text('Delete tree?'),
+                content: const Text('Your contacts stay in your address book.'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(c, false),
+                      child: const Text('Cancel')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(c, true),
+                      child: const Text('Delete'))
+                ]));
+    if (yes != true || !mounted) return;
+    setState(() => busy = true);
+    try {
+      await widget.api
+          .deleteReviewedRelationshipTree((card['id'] as num).toInt());
+      await load();
+    } catch (e) {
+      if (mounted) setState(() => error = '$e');
+    } finally {
+      if (mounted) setState(() => busy = false);
     }
   }
 
@@ -141,77 +170,86 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
         Text(widget.saved
             ? 'Save a suggestion or create your own tree.'
             : 'No groups with at least 3 people have enough shared clues yet. You can create a tree manually.'),
-      ...cards.map((card) => Card(
-          child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${card['name']}',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    Text("${card['count']} people; ${card['confidence']}"),
-                    Text('${card['reason']}'),
-                    const Chip(label: Text('You')),
-                    ...(card['preview'] as List).map((node) => Padding(
-                        padding: const EdgeInsets.only(left: 16, bottom: 6),
-                        child: Text(
-                            "\u2514 ${node['name']}; ${node['relation']}"))),
-                    Wrap(spacing: 8, children: [
-                      TextButton(
-                          onPressed: busy ? null : () => open(card),
-                          child: Text(card['id'] == null
-                              ? 'Review tree'
-                              : 'Open tree')),
-                      TextButton(
-                          onPressed: busy
-                              ? null
-                              : () async {
-                                  if (card['id'] != null) {
-                                    final confirmed = await showDialog<bool>(
-                                        context: context,
-                                        builder: (c) => AlertDialog(
-                                                title:
-                                                    const Text('Delete tree?'),
-                                                content: const Text(
-                                                    'Your contacts stay in your address book.'),
-                                                actions: [
-                                                  TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              c, false),
-                                                      child:
-                                                          const Text('Cancel')),
-                                                  FilledButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              c, true),
-                                                      child:
-                                                          const Text('Delete'))
-                                                ]));
-                                    if (confirmed != true) {
-                                      return;
-                                    }
-                                  }
-                                  try {
-                                    if (card['id'] == null) {
-                                      await widget.api.dismissRelationshipTree(
-                                          card['key'] as String);
-                                    } else {
-                                      await widget.api
-                                          .deleteReviewedRelationshipTree(
-                                              (card['id'] as num).toInt());
-                                    }
-                                    await load();
-                                  } catch (e) {
-                                    if (mounted) {
-                                      setState(() => error = '$e');
-                                    }
-                                  }
-                                },
+      if (widget.saved && cards.isNotEmpty)
+        SavedTreeDisplay(
+            api: widget.api,
+            cards: cards,
+            busy: busy,
+            onEdit: (card, key) => open(card, nodeKey: key),
+            onDelete: removeSaved),
+      if (!widget.saved)
+        ...cards.map((card) => Card(
+            child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${card['name']}',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      Text("${card['count']} people; ${card['confidence']}"),
+                      Text('${card['reason']}'),
+                      const Chip(label: Text('You')),
+                      ...(card['preview'] as List).map((node) => Padding(
+                          padding: const EdgeInsets.only(left: 16, bottom: 6),
                           child: Text(
-                              card['id'] == null ? 'Dismiss' : 'Delete tree'))
-                    ])
-                  ])))),
+                              "\u2514 ${node['name']}; ${node['relation']}"))),
+                      Wrap(spacing: 8, children: [
+                        TextButton(
+                            onPressed: busy ? null : () => open(card),
+                            child: Text(card['id'] == null
+                                ? 'Review tree'
+                                : 'Open tree')),
+                        TextButton(
+                            onPressed: busy
+                                ? null
+                                : () async {
+                                    if (card['id'] != null) {
+                                      final confirmed = await showDialog<bool>(
+                                          context: context,
+                                          builder: (c) => AlertDialog(
+                                                  title: const Text(
+                                                      'Delete tree?'),
+                                                  content: const Text(
+                                                      'Your contacts stay in your address book.'),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                c, false),
+                                                        child: const Text(
+                                                            'Cancel')),
+                                                    FilledButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                c, true),
+                                                        child: const Text(
+                                                            'Delete'))
+                                                  ]));
+                                      if (confirmed != true) {
+                                        return;
+                                      }
+                                    }
+                                    try {
+                                      if (card['id'] == null) {
+                                        await widget.api
+                                            .dismissRelationshipTree(
+                                                card['key'] as String);
+                                      } else {
+                                        await widget.api
+                                            .deleteReviewedRelationshipTree(
+                                                (card['id'] as num).toInt());
+                                      }
+                                      await load();
+                                    } catch (e) {
+                                      if (mounted) {
+                                        setState(() => error = '$e');
+                                      }
+                                    }
+                                  },
+                            child: Text(
+                                card['id'] == null ? 'Dismiss' : 'Delete tree'))
+                      ])
+                    ])))),
       if (more != null)
         TextButton(
             onPressed: busy ? null : () => load(cursor: more!),
@@ -226,7 +264,9 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
 }
 
 class ReviewedTreeEditor extends StatefulWidget {
-  const ReviewedTreeEditor({super.key, required this.api, required this.tree});
+  const ReviewedTreeEditor(
+      {super.key, required this.api, required this.tree, this.initialNodeKey});
+  final String? initialNodeKey;
   final MyAapthaApi api;
   final Map<String, dynamic> tree;
   @override
@@ -262,6 +302,13 @@ class _TreeEditorState extends State<ReviewedTreeEditor> {
         .map((n) => Map<String, dynamic>.from(n as Map))
         .toList();
     title = TextEditingController(text: tree['name'] as String);
+    final matches = nodes.where((n) => n['key'] == widget.initialNodeKey);
+    if (matches.isNotEmpty) {
+      final node = matches.first;
+      selected = node['key'] as String;
+      name.text = node['name'] as String;
+      relation.text = node['relation'] as String;
+    }
   }
 
   @override

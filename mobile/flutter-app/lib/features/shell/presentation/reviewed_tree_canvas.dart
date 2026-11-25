@@ -5,7 +5,11 @@ class ReviewedTreeCanvas extends StatefulWidget {
       {super.key,
       required this.nodes,
       required this.selected,
-      required this.onSelect});
+      required this.onSelect,
+      this.initiallyExpanded = false,
+      this.connectRoots = false});
+  final bool connectRoots;
+  final bool initiallyExpanded;
   final List<Map<String, dynamic>> nodes;
   final String? selected;
   final ValueChanged<Map<String, dynamic>> onSelect;
@@ -25,8 +29,21 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initiallyExpanded) {
+      expanded.addAll(widget.nodes.map((n) => n['key'] as String));
+    }
+    revealSelection();
+  }
+
+  @override
   void didUpdateWidget(covariant ReviewedTreeCanvas oldWidget) {
     super.didUpdateWidget(oldWidget);
+    revealSelection();
+  }
+
+  void revealSelection() {
     final byKey = {for (final node in widget.nodes) node['key']: node};
     var node = byKey[widget.selected];
     final seen = <String>{};
@@ -59,8 +76,11 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
     final entries = <_Entry>[];
     final seen = <String>{};
     var leaf = 0;
+    var truncated = false;
     double visit(Map<String, dynamic> node, int depth, String? parent) {
-      if (entries.length >= limit || !seen.add(node['key'] as String)) {
+      if (!seen.add(node['key'] as String)) return -1;
+      if (entries.length >= limit) {
+        truncated = true;
         return -1;
       }
       final entry = _Entry(node, depth, parent);
@@ -125,7 +145,11 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
         Text('● Has branches'),
         Text('○ End node')
       ]),
-      const Chip(label: Text('You')),
+      Chip(
+          avatar: widget.connectRoots && widget.nodes.isNotEmpty
+              ? const Icon(Icons.circle, size: 12)
+              : null,
+          label: const Text('You')),
       SizedBox(
           height: 350,
           child: ClipRect(
@@ -139,8 +163,9 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
                       height: height,
                       child: Stack(children: [
                         Positioned.fill(
-                            child:
-                                CustomPaint(painter: _Edges(entries, layout))),
+                            child: CustomPaint(
+                                painter: _Edges(
+                                    entries, layout, widget.connectRoots))),
                         ...entries.map((entry) {
                           final node = entry.node;
                           final hasChildren =
@@ -212,11 +237,10 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
                                   ])));
                         })
                       ]))))),
-      if (entries.length < widget.nodes.length)
+      if (truncated)
         TextButton(
             onPressed: () => setState(() {
                   limit += 100;
-                  expanded.addAll(widget.nodes.map((n) => n['key'] as String));
                 }),
             child: Text(
                 'Show more people (${entries.length} of ${widget.nodes.length})'))
@@ -233,7 +257,8 @@ class _Entry {
 }
 
 class _Edges extends CustomPainter {
-  _Edges(this.entries, this.layout);
+  _Edges(this.entries, this.layout, this.connectRoots);
+  final bool connectRoots;
   final List<_Entry> entries;
   final String layout;
   @override
@@ -245,7 +270,24 @@ class _Edges extends CustomPainter {
       ..style = PaintingStyle.stroke;
     for (final entry in entries) {
       final parent = byKey[entry.parent];
-      if (parent == null) continue;
+      if (parent == null) {
+        if (connectRoots) {
+          final root = Path()..moveTo(25, 0);
+          if (layout == 'Right-growing' || layout == 'Compact') {
+            root
+              ..lineTo(8, 0)
+              ..lineTo(8, entry.offset.dy + 32)
+              ..lineTo(entry.offset.dx, entry.offset.dy + 32);
+          } else {
+            root
+              ..lineTo(25, 8)
+              ..lineTo(entry.offset.dx + 90, 8)
+              ..lineTo(entry.offset.dx + 90, entry.offset.dy);
+          }
+          canvas.drawPath(root, paint);
+        }
+        continue;
+      }
       final p = Path();
       if (layout == 'Right-growing') {
         p.moveTo(parent.offset.dx + 180, parent.offset.dy + 32);
