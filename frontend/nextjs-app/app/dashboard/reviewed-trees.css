@@ -7,3 +7,6 @@
 .saved-tree-display{padding:24px;margin:18px 0;border:1px solid #d7e1e8;border-top:3px solid #d7e1e8;border-radius:16px;background:white;min-width:0}.saved-tree-display>header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}.saved-tree-display h3{margin:0}.saved-tree-display-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.saved-tree-display-actions label{display:flex;align-items:center;gap:8px}.saved-tree-display-actions select{max-width:320px;min-width:0}.saved-tree-person{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0 0}.saved-tree-display .restored-tree-viewport{min-height:300px;max-height:60dvh}.saved-tree-display [role=alert] button{margin-left:10px}@media(max-width:700px){.saved-tree-display{padding:16px}.saved-tree-display-actions{width:100%}.saved-tree-display-actions label{width:100%;min-width:0}.saved-tree-display-actions select{width:100%;max-width:none;flex:1}.saved-tree-display .restored-tree-viewport{min-height:280px}}
 
 .restored-tree-root-dot{display:inline-block;width:10px;height:10px;margin-right:8px;border-radius:50%;background:currentColor}
+
+/* Keep review actions in document flow so they cannot cover selectable people. */
+.reviewed-tree-editor>footer{position:static}
