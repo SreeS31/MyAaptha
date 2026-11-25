@@ -1,3 +1,4 @@
+import 'relationship_choices.dart';
 import 'people_highlights.dart';
 import 'package:myaaptha_mobile/core/contacts/contact_oauth_poll.dart';
 import 'package:myaaptha_mobile/core/contacts/device_contact_access.dart';
@@ -260,7 +261,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
 
   Future<void> relate(Map<String, dynamic> contact) async {
     final phones = List<String>.from(contact['phones'] as List? ?? []);
-    var type = 'Other';
+    var type = 'Father';
     String? phone = phones.firstOrNull;
     final accepted = await showDialog<bool>(
         context: context,
@@ -276,20 +277,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                           initialValue: type,
                           decoration:
                               const InputDecoration(labelText: 'Relationship'),
-                          items: [
-                            'Other',
-                            'Friend',
-                            'Relative',
-                            'Colleague',
-                            'Mother',
-                            'Father',
-                            'Brother',
-                            'Sister',
-                            'Son',
-                            'Daughter',
-                            'Cousin'
-                          ]
-                              .map((v) =>
+                          items: familyRelationshipTypes.map((v) =>
                                   DropdownMenuItem(value: v, child: Text(v)))
                               .toList(),
                           onChanged: (v) => update(() => type = v!)),

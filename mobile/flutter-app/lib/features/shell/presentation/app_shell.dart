@@ -1,3 +1,4 @@
+import 'relationship_choices.dart';
 import 'project_inputs_screen.dart';
 import 'advisors_screen.dart';
 import 'reviewed_trees_screen.dart';
@@ -2919,7 +2920,7 @@ class RelationshipTile extends StatelessWidget {
                         Wrap(spacing: 6, runSpacing: 5, children: [
                           _Tag(relationship.type, const Color(0xFFEAF4F5),
                               const Color(0xFF17634E)),
-                          _Tag(relationship.visibilityScope,
+                          _Tag(relationshipVisibilityLabel(relationship.visibilityScope),
                               const Color(0xFFF4F7FA), const Color(0xFF256F7B)),
                           _Tag(
                               person.accountStatus == 'ACTIVE'
@@ -3035,7 +3036,7 @@ class RelationshipTile extends StatelessWidget {
     final name = TextEditingController();
     final phone = TextEditingController();
     final email = TextEditingController();
-    var type = 'Relative';
+    var type = 'Father';
     var visibility = 'RELATIVES';
     final saved = await showModalBottomSheet<bool>(
         context: context,
@@ -3082,35 +3083,11 @@ class RelationshipTile extends StatelessWidget {
                               prefixIcon: Icon(Icons.email_outlined))),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
-                          initialValue: type,
+                          initialValue: familyRelationshipTypes.contains(type)?type:null, hint:Text(type),
                           decoration: InputDecoration(
                               labelText:
                                   'Relationship to ${relationship.person.displayName}'),
-                          items: const [
-                            'Father',
-                            'Mother',
-                            'Husband',
-                            'Wife',
-                            'Son',
-                            'Daughter',
-                            'Brother',
-                            'Sister',
-                            'Grandfather',
-                            'Grandmother',
-                            'Grandson',
-                            'Granddaughter',
-                            'Uncle',
-                            'Aunt',
-                            'Nephew',
-                            'Niece',
-                            'Cousin',
-                            'Guardian',
-                            'Relative',
-                            'Friend',
-                            'Colleague',
-                            'Other'
-                          ]
-                              .map((value) => DropdownMenuItem(
+                          items: familyRelationshipTypes.map((value) => DropdownMenuItem(
                                   value: value, child: Text(value)))
                               .toList(),
                           onChanged: (value) => setModal(() => type = value!)),
@@ -3119,16 +3096,7 @@ class RelationshipTile extends StatelessWidget {
                           initialValue: visibility,
                           decoration:
                               const InputDecoration(labelText: 'Who can view'),
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'RELATIVES', child: Text('Relatives')),
-                            DropdownMenuItem(
-                                value: 'FRIENDS', child: Text('Friends')),
-                            DropdownMenuItem(
-                                value: 'COLLEAGUES', child: Text('Colleagues')),
-                            DropdownMenuItem(
-                                value: 'PUBLIC', child: Text('Public'))
-                          ],
+                          items: relationshipVisibilityScopes.map((scope)=>DropdownMenuItem(value:scope,child:Text(relationshipVisibilityLabel(scope)))).toList(),
                           onChanged: (value) =>
                               setModal(() => visibility = value!)),
                       const SizedBox(height: 18),
@@ -3200,25 +3168,10 @@ class RelationshipTile extends StatelessWidget {
                               fontSize: 18, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 14),
                       DropdownButtonFormField<String>(
-                          initialValue: type,
+                          initialValue: familyRelationshipTypes.contains(type)?type:null, hint:Text(type),
                           decoration:
                               const InputDecoration(labelText: 'Relationship'),
-                          items: const [
-                            'Friend',
-                            'Spouse',
-                            'Father',
-                            'Mother',
-                            'Parent',
-                            'Child',
-                            'Son',
-                            'Daughter',
-                            'Sibling',
-                            'Brother',
-                            'Sister',
-                            'Colleague',
-                            'Relative'
-                          ]
-                              .map((value) => DropdownMenuItem(
+                          items: familyRelationshipTypes.map((value) => DropdownMenuItem(
                                   value: value, child: Text(value)))
                               .toList(),
                           onChanged: (value) => setModal(() => type = value!)),
@@ -3226,16 +3179,7 @@ class RelationshipTile extends StatelessWidget {
                       DropdownButtonFormField<String>(
                           initialValue: visibility,
                           decoration: const InputDecoration(labelText: 'View'),
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'FRIENDS', child: Text('Friends')),
-                            DropdownMenuItem(
-                                value: 'RELATIVES', child: Text('Relatives')),
-                            DropdownMenuItem(
-                                value: 'COLLEAGUES', child: Text('Colleagues')),
-                            DropdownMenuItem(
-                                value: 'PUBLIC', child: Text('Public'))
-                          ],
+                          items: relationshipVisibilityScopes.map((scope)=>DropdownMenuItem(value:scope,child:Text(relationshipVisibilityLabel(scope)))).toList(),
                           onChanged: (value) =>
                               setModal(() => visibility = value!)),
                       const SizedBox(height: 16),
@@ -4794,7 +4738,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   }))
       ]);
   Future<void> add(Person person) async {
-    String relation = 'Friend', visibility = 'FRIENDS';
+    String relation = 'Father', visibility = 'FRIENDS';
     final ok = await showModalBottomSheet<bool>(
         context: context,
         showDragHandle: true,
@@ -4807,21 +4751,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           fontSize: 18, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 16),
                   DropdownButtonFormField(
-                      initialValue: relation,
+                      initialValue: familyRelationshipTypes.contains(relation)?relation:null, hint:Text(relation),
                       decoration:
                           const InputDecoration(labelText: 'Relationship'),
-                      items: [
-                        'Friend',
-                        'Mother',
-                        'Father',
-                        'Cousin',
-                        'Other',
-                        'Brother',
-                        'Sister',
-                        'Colleague',
-                        'Relative'
-                      ]
-                          .map(
+                      items: familyRelationshipTypes.map(
                               (v) => DropdownMenuItem(value: v, child: Text(v)))
                           .toList(),
                       onChanged: (v) => setModal(() => relation = v!)),
@@ -4830,15 +4763,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       initialValue: visibility,
                       decoration:
                           const InputDecoration(labelText: 'Who can view'),
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'FRIENDS', child: Text('Friends')),
-                        DropdownMenuItem(
-                            value: 'RELATIVES', child: Text('Relatives')),
-                        DropdownMenuItem(
-                            value: 'COLLEAGUES', child: Text('Colleagues')),
-                        DropdownMenuItem(value: 'PUBLIC', child: Text('Public'))
-                      ],
+                      items: relationshipVisibilityScopes.map((scope)=>DropdownMenuItem(value:scope,child:Text(relationshipVisibilityLabel(scope)))).toList(),
                       onChanged: (v) => setModal(() => visibility = v!)),
                   const SizedBox(height: 18),
                   FilledButton(
@@ -5155,30 +5080,7 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
     setState(() { oauthConnecting = false; loading = false; error = 'Contact connection cancelled. Nothing was saved.'; });
   }
 
-  static const relationshipTypes = [
-    'Mother',
-    'Father',
-    'Wife',
-    'Husband',
-    'Son',
-    'Daughter',
-    'Brother',
-    'Sister',
-    'Grandmother',
-    'Grandfather',
-    'Granddaughter',
-    'Grandson',
-    'Aunt',
-    'Uncle',
-    'Niece',
-    'Nephew',
-    'Cousin',
-    'Guardian',
-    'Relative',
-    'Friend',
-    'Colleague',
-    'Other'
-  ];
+  static const relationshipTypes = familyRelationshipTypes;
 
   @override
   void dispose() {
@@ -5368,8 +5270,8 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
                                     subtitle: Text(item['phone']?.toString() ??
                                         'No mobile number — will be skipped')),
                                 DropdownButtonFormField<String>(
-                                    initialValue: item['suggested_relationship']
-                                        ?.toString(),
+                                    initialValue: familyRelationshipTypes.contains(item['suggested_relationship']) ? item['suggested_relationship']?.toString() : null,
+                                    hint: Text(item['suggested_relationship']?.toString()??'Relationship'),
                                     decoration: const InputDecoration(
                                         labelText: 'Relationship'),
                                     items: relationshipTypes

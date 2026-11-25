@@ -1,4 +1,5 @@
 'use client';
+import {familyRelationshipTypes} from '../lib/relationship-choices';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,7 +9,7 @@ import UserNetworkDashboard from './UserNetworkDashboard';
 
 type ResourceType = 'user' | 'person' | 'circle' | 'project' | 'task' | 'milestone';
 type ToastTone = 'success' | 'error';
-const supportedRelationshipTypes=['Mother','Father','Wife','Husband','Son','Daughter','Brother','Sister','Grandmother','Grandfather','Granddaughter','Grandson','Aunt','Uncle','Niece','Nephew','Cousin','Guardian','Relative','Friend','Colleague','Other'];
+const supportedRelationshipTypes=familyRelationshipTypes;
 
 export default function DashboardPage() {
   const router = useRouter();

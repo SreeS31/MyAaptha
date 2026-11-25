@@ -38,11 +38,13 @@ import com.myaaptha.domain.privacy.UserBlockRepository;
 @Service
 @Transactional
 public class NetworkService {
+  private static final List<String> PICKER_RELATIONSHIP_TYPES = List.of("Father","Mother","Brother","Sister","Wife","Husband","Son","Daughter");
+  // Existing imports and older clients retain their saved relationship vocabulary.
   private static final Set<String> RELATIONSHIP_TYPES = Set.of(
       "Mother", "Father", "Wife", "Husband", "Son", "Daughter", "Brother", "Sister",
       "Grandmother", "Grandfather", "Granddaughter", "Grandson", "Aunt", "Uncle",
       "Niece", "Nephew", "Cousin", "Guardian", "Relative", "Friend", "Colleague", "Other");
-  private static final Set<String> VISIBILITY_SCOPES = Set.of("PUBLIC", "FRIENDS", "RELATIVES", "COLLEAGUES");
+  private static final Set<String> VISIBILITY_SCOPES = Set.of("PUBLIC", "FRIENDS", "RELATIVES", "FRIENDS_RELATIVES", "COLLEAGUES");
   private static final Set<String> RELATIVE_TYPES = Set.of("wife", "husband", "mother", "father",
       "son", "daughter", "sister", "brother", "grandmother", "grandfather", "granddaughter",
       "grandson", "aunt", "uncle", "niece", "nephew", "cousin", "guardian", "relative");
@@ -103,7 +105,7 @@ public class NetworkService {
 
   @Transactional(readOnly = true)
   public List<String> relationshipTypes() {
-    return RELATIONSHIP_TYPES.stream().sorted(String.CASE_INSENSITIVE_ORDER).toList();
+    return PICKER_RELATIONSHIP_TYPES;
   }
 
   public NetworkRelationshipDto addRelationship(Long currentUserId, AddRelationshipRequest request) {
@@ -455,8 +457,8 @@ public class NetworkService {
       if (share.getOwnerUserId() == null) continue;
       RelationshipEntity audience = relationshipRepository.findByOwnerUserIdAndRelatedUserId(share.getOwnerUserId(), viewerId).orElse(null);
       if (audience == null) continue;
-      if ("FRIENDS".equalsIgnoreCase(scope) && "Friend".equalsIgnoreCase(audience.getType())) return true;
-      if ("RELATIVES".equalsIgnoreCase(scope) && audience.getType() != null
+      if (("FRIENDS".equalsIgnoreCase(scope)||"FRIENDS_RELATIVES".equalsIgnoreCase(scope)) && "Friend".equalsIgnoreCase(audience.getType())) return true;
+      if (("RELATIVES".equalsIgnoreCase(scope)||"FRIENDS_RELATIVES".equalsIgnoreCase(scope)) && audience.getType() != null
           && RELATIVE_TYPES.contains(audience.getType().toLowerCase())) return true;
       if ("COLLEAGUES".equalsIgnoreCase(scope) && share.getVisibilityCompany() != null
           && employmentCompanies(viewerId).stream().anyMatch(company -> company.equalsIgnoreCase(share.getVisibilityCompany()))) return true;
@@ -473,7 +475,7 @@ public class NetworkService {
 
   private String normalizeRelationshipType(String type) {
     String value = requireText(type, "Relationship type");
-    return relationshipTypes().stream().filter(item -> item.equalsIgnoreCase(value)).findFirst()
+    return RELATIONSHIP_TYPES.stream().filter(item -> item.equalsIgnoreCase(value)).findFirst()
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported relationship type"));
   }
 

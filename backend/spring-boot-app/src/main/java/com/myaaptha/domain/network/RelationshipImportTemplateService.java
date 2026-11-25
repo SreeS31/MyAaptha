@@ -58,7 +58,7 @@ public class RelationshipImportTemplateService {
           {"R1", "Ravi Kumar", "Father", "", "ACCOUNT", "", "9876500001", "ravi.kumar@example.com", "1968-05-14", "", "", "FRIENDS", "", "Lives in Hyderabad"},
           {"R2", "Lakshmi Kumar", "Mother", "", "ACCOUNT", "", "9876500002", "lakshmi.kumar@example.com", "1970-02-20", "", "1990-11-30", "FRIENDS", "", "Wedding anniversary in Milestone Date"},
           {"R3", "Anjali Kumar", "Sister", "R1", "ACCOUNT", "", "9876500003", "anjali.kumar@example.com", "1995-07-09", "", "", "RELATIVES", "", "Relative To links her under Father in the tree"},
-          {"R4", "Grandma Devi", "Grandmother", "R1", "MANAGED", "MEMORIAL", "", "", "1935-01-01", "2018-06-12", "", "RELATIVES", "", "MANAGED + MEMORIAL creates a memorial profile you control"},
+          {"R4", "Grandma Devi", "Mother", "R1", "MANAGED", "MEMORIAL", "", "", "1935-01-01", "2018-06-12", "", "RELATIVES", "", "MANAGED + MEMORIAL creates a memorial profile you control"},
       };
       for (int r = 0; r < sampleRows.length; r++) {
         Row row = sheet.createRow(r + 1);
@@ -119,7 +119,7 @@ public class RelationshipImportTemplateService {
     r = writeLine(sheet, r, "Date Of Birth (YYYY-MM-DD)", "Optional.");
     r = writeLine(sheet, r, "Date Of Death (YYYY-MM-DD)", "Optional, memorial profiles only.");
     r = writeLine(sheet, r, "Milestone Date (YYYY-MM-DD)", "Optional, e.g. anniversary.");
-    r = writeLine(sheet, r, "Visibility Scope (PUBLIC/FRIENDS/RELATIVES/COLLEAGUES)", "Optional, defaults to FRIENDS.");
+    r = writeLine(sheet, r, "Visibility Scope (PUBLIC/FRIENDS/RELATIVES/COLLEAGUES)", "Optional, defaults to FRIENDS. FRIENDS_RELATIVES allows both friends and relatives.");
     r = writeLine(sheet, r, "Visibility Company", "Optional, required only when Visibility Scope is COLLEAGUES and must match a company already saved in your employment profile.");
     r = writeLine(sheet, r, "Notes", "Optional, private notes only you can see.");
     r++;

@@ -33,14 +33,14 @@ import {buildChain} from './chain-layout';
 import './tree-tools.css';
 import {attachmentAccept,validateUploadMetadata} from '../lib/upload-security';
 
-const defaultRelationshipTypes = ['Mother','Father','Wife','Husband','Son','Daughter','Brother','Sister','Grandmother','Grandfather','Granddaughter','Grandson','Aunt','Uncle','Niece','Nephew','Cousin','Guardian','Relative','Friend','Colleague','Other'];
+import {familyRelationshipTypes as defaultRelationshipTypes} from '../lib/relationship-choices';
 const circleAttachmentLimit=25*1024*1024;
 const isSupportedAttachment=(file:File)=>{try{validateUploadMetadata(file);return true;}catch{return false;}};
 const formatFileSize=(bytes:number)=>bytes>=1024*1024?`${(bytes/(1024*1024)).toFixed(1)} MB`:`${Math.max(1,Math.round(bytes/1024))} KB`;
 const waitForIceGathering=(connection:RTCPeerConnection)=>new Promise<void>(resolve=>{if(connection.iceGatheringState==='complete'){resolve();return;}const finish=()=>{connection.removeEventListener('icegatheringstatechange',check);resolve();};const check=()=>{if(connection.iceGatheringState==='complete')finish();};connection.addEventListener('icegatheringstatechange',check);window.setTimeout(finish,5000);});
 const visibilityOptions: { value: VisibilityScope; label: string }[] = [
   { value: 'PUBLIC', label: 'Public' }, { value: 'FRIENDS', label: 'Friends' },
-  { value: 'RELATIVES', label: 'Relatives' }, { value: 'COLLEAGUES', label: 'Colleagues' },
+  { value: 'RELATIVES', label: 'Relatives' }, { value: 'FRIENDS_RELATIVES', label: 'Friends & relatives' }, { value: 'COLLEAGUES', label: 'Colleagues' },
 ];
 
 function CircleAttachment({post,onReply}:{post:CirclePost;onReply?:()=>void}) {
@@ -280,7 +280,7 @@ export default function UserNetworkDashboard({ username, treeOnly=false }: { use
     const [relationshipData, circleData, typeData, profileData] = await Promise.all([fetchMyRelationships(), fetchMyCircles(), fetchRelationshipTypes(), fetchUserProfile()]);
     setRelationships(relationshipData);
     setCircles(circleData);
-    setRelationshipTypes(typeData.length ? typeData : defaultRelationshipTypes);
+    setRelationshipTypes(defaultRelationshipTypes.filter(type => !typeData.length || typeData.includes(type)));
     setSelfPhoto(profileData.profilePhoto as string | null);
     setSelfGender(String(profileData.gender || ''));
     const companies = String(profileData.employer || '').split(/[,;|\n]/).map(item => item.trim()).filter(Boolean);

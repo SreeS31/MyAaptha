@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public record UpdateRelationshipRequest(@NotBlank @Size(max=200) String contactName,
     @Pattern(regexp="^$|\\+?[0-9 ()-]{7,32}",message="must be a valid phone number") String contactPhone,
     @Email @Size(max=254) String contactEmail, @NotBlank @Size(max=80) String type,
-    @NotBlank @Pattern(regexp="PUBLIC|FRIENDS|RELATIVES|COLLEAGUES") String visibilityScope,
+    @NotBlank @Pattern(regexp="PUBLIC|FRIENDS|RELATIVES|FRIENDS_RELATIVES|COLLEAGUES") String visibilityScope,
     @Size(max=150) String visibilityCompany,
     @Pattern(regexp="^$|\\d{4}-\\d{2}-\\d{2}") String milestoneDate,
     @Pattern(regexp="^$|\\d{4}-\\d{2}-\\d{2}") String dateOfBirth,

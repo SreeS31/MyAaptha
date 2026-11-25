@@ -60,4 +60,30 @@ class NetworkPrivacyTest {
     mvc.perform(delete("/api/finance/transactions/" + id).header("Authorization", owner))
         .andExpect(status().isNoContent());
   }
+
+  @Test void combinedViewIncludesFriendsAndRelativesButNotColleaguesOrStrangers() throws Exception {
+    var owner=member();var target=member();var friend=member();var relative=member();var colleague=member();var stranger=member();
+    String query="AudienceTarget"+java.util.UUID.randomUUID();target.setFirstName(query);users.saveAndFlush(target);
+    for(var entry:java.util.Map.of(friend,"Friend",relative,"Mother",colleague,"Colleague").entrySet()){
+      var relationship=new RelationshipEntity();relationship.setOwnerUserId(owner.getId());relationship.setRelatedUserId(entry.getKey().getId());relationship.setType(entry.getValue());relationships.saveAndFlush(relationship);
+    }
+    String ownerToken=token(owner);
+    mvc.perform(get("/api/network/relationship-types").header("Authorization",ownerToken)).andExpect(status().isOk())
+      .andExpect(jsonPath("$",org.hamcrest.Matchers.contains("Father","Mother","Brother","Sister","Wife","Husband","Son","Daughter")));
+    var created=mvc.perform(post("/api/network/relationships").header("Authorization",ownerToken).contentType("application/json")
+      .content(mapper.writeValueAsString(java.util.Map.of("relatedUserId",target.getId(),"type","Son","visibilityScope","FRIENDS_RELATIVES","visibilityCompany","Ignored outside colleagues"))))
+      .andExpect(status().isOk()).andExpect(jsonPath("$.visibilityScope").value("FRIENDS_RELATIVES"))
+      .andExpect(jsonPath("$.visibilityCompany").isEmpty()).andReturn();
+    String friendToken=token(friend),relativeToken=token(relative);
+    for(String allowed:java.util.List.of(friendToken,relativeToken))mvc.perform(get("/api/network/search").param("q",query).header("Authorization",allowed))
+      .andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(target.getId())).andExpect(jsonPath("$[0].phoneNumber").doesNotExist());
+    for(var excluded:java.util.List.of(colleague,stranger))mvc.perform(get("/api/network/search").param("q",query).header("Authorization",token(excluded)))
+      .andExpect(status().isOk()).andExpect(content().json("[]"));
+    long id=mapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+    mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/network/relationships/"+id).header("Authorization",ownerToken).contentType("application/json")
+      .content("{\"contactName\":\"Private target label\",\"type\":\"Son\",\"visibilityScope\":\"RELATIVES\"}"))
+      .andExpect(status().isOk());
+    mvc.perform(get("/api/network/search").param("q",query).header("Authorization",friendToken)).andExpect(status().isOk()).andExpect(content().json("[]"));
+    mvc.perform(get("/api/network/search").param("q",query).header("Authorization",relativeToken)).andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(target.getId()));
+  }
 }
