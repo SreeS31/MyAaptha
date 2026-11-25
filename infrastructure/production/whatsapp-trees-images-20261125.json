@@ -1,0 +1,70 @@
+{
+  "sourceCommit": "2c80a1d00f1876f24d6d8761c484a22af9fb95cf",
+  "tag": "beta-20261125-whatsapp-trees-r2",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45641129909",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45641129104",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:3eb5c2fea94ea6eddaff7d876e898615b8c97662f79b9f1eef5c2f00a871816f",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:c2de7a606695f54b7e755625afdb87fdec88d421160c2f1d4b0bd3e82c57e476",
+  "deployed": true,
+  "previousBetaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "81",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/relationship-tree?view=whatsapp",
+  "androidTestApkSha256": "82ba6df63c27c0dde7fff8e8d1a65bdeb8b092059ec25f454bb57f5e4be909f6",
+  "verifiedAt": "2026-11-25T15:18:59.450194+00:00",
+  "databaseBackup": "/opt/myaaptha-beta/runtime/release-backups/20261125T151400988821Z.dump",
+  "databaseRestoreCheckPassed": true,
+  "health": "UP",
+  "schemaVersionVerified": "81",
+  "schemaChanges": false,
+  "validation": {
+    "backend": {
+      "tests": 322,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browserScenarios": 102,
+    "browserFirstPass": 102,
+    "webUnitPassed": 28,
+    "nativePassed": 141,
+    "nativeSkipped": 2,
+    "nativeAnalysis": "clean",
+    "liveDesktopMobilePassed": 4
+  },
+  "cleanup": {
+    "syntheticAccountsRemoved": 2,
+    "zeroCounts": {
+      "remaining_synthetic_accounts": 0,
+      "remaining_synthetic_contacts": 0,
+      "remaining_synthetic_circles": 0,
+      "remaining_synthetic_calls": 0,
+      "remaining_synthetic_call_members": 0,
+      "remaining_synthetic_call_signals": 0,
+      "remaining_synthetic_financial_transactions": 0,
+      "remaining_synthetic_active_media": 0,
+      "remaining_synthetic_trees": 0,
+      "remaining_synthetic_advisors": 0,
+      "remaining_synthetic_reposts": 0,
+      "remaining_synthetic_people_highlights": 0,
+      "remaining_synthetic_highlight_preferences": 0,
+      "remaining_synthetic_external_sources": 0,
+      "remaining_synthetic_external_items": 0
+    }
+  },
+  "configurationPreserved": {
+    "googleContacts": true,
+    "microsoftContacts": false,
+    "authenticatedRelay": true
+  },
+  "physicalDeviceAcceptance": "pending",
+  "androidTestApk": ".tools/preview/MyAaptha-beta-family-choices-20261125.apk",
+  "previousImages": {
+    "backend": "ghcr.io/srees31/myaaptha-backend@sha256:1dc2259e11ebe2ee6b86dfc28e7efef8c4c0e57b295a0121732b881fe2983e4e",
+    "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:ed0f0113682a747df9667328705d676c190d7657fcc36426dc85e967c5742542"
+  },
+  "nativeSourceUnchanged": true,
+  "nativeSourceCommit": "f807559fdf84c25eceeea92199207f21ddcdeebc"
+}
