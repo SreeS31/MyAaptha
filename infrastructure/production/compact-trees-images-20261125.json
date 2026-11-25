@@ -1,0 +1,68 @@
+{
+  "sourceCommit": "68833e954c1dc584fd6bb4f532f019004b72b527",
+  "tag": "beta-20261125-compact-trees-r1",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45655950162",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45655950202",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:c23b6c1d644d5eb9d87b72dacd36b5e97507f0fa714e465b612e106a86e9f6e0",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:07e511f097b935870a9031f9f3d259e2bd541c3f1d7b8641a5a38fa76383001f",
+  "deployed": true,
+  "previousBetaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "81",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/relationship-tree?view=saved",
+  "androidTestApkSha256": "dcfde7e086baaa6e546e06b88320dced57936da9deef9afdae8b5692ed71c5c6",
+  "verifiedAt": "2026-11-25T16:50:02.258533+00:00",
+  "databaseBackup": "/opt/myaaptha-beta/runtime/release-backups/20261125T164553537362Z.dump",
+  "databaseRestoreCheckPassed": true,
+  "health": "UP",
+  "schemaVersionVerified": "81",
+  "schemaChanges": false,
+  "validation": {
+    "backend": {
+      "tests": 322,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browserScenarios": 102,
+    "browserFirstPass": 102,
+    "webUnitPassed": 28,
+    "nativePassed": 141,
+    "nativeSkipped": 2,
+    "nativeAnalysis": "clean",
+    "liveDesktopMobilePassed": 4
+  },
+  "cleanup": {
+    "syntheticAccountsRemoved": 2,
+    "zeroCounts": {
+      "remaining_synthetic_accounts": 0,
+      "remaining_synthetic_contacts": 0,
+      "remaining_synthetic_circles": 0,
+      "remaining_synthetic_calls": 0,
+      "remaining_synthetic_call_members": 0,
+      "remaining_synthetic_call_signals": 0,
+      "remaining_synthetic_financial_transactions": 0,
+      "remaining_synthetic_active_media": 0,
+      "remaining_synthetic_trees": 0,
+      "remaining_synthetic_advisors": 0,
+      "remaining_synthetic_reposts": 0,
+      "remaining_synthetic_people_highlights": 0,
+      "remaining_synthetic_highlight_preferences": 0,
+      "remaining_synthetic_external_sources": 0,
+      "remaining_synthetic_external_items": 0
+    }
+  },
+  "configurationPreserved": {
+    "googleContacts": true,
+    "microsoftContacts": false,
+    "authenticatedRelay": true
+  },
+  "physicalDeviceAcceptance": "pending",
+  "androidTestApk": ".tools/preview/MyAaptha-beta-compact-trees-20261125.apk",
+  "previousImages": {
+    "backend": "ghcr.io/srees31/myaaptha-backend@sha256:3eb5c2fea94ea6eddaff7d876e898615b8c97662f79b9f1eef5c2f00a871816f",
+    "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:c2de7a606695f54b7e755625afdb87fdec88d421160c2f1d4b0bd3e82c57e476"
+  }
+}
