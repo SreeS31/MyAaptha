@@ -41,8 +41,23 @@ class _ReviewedTreesState extends State<ReviewedTreesScreen> {
     setState(() => busy = true);
     try {
       final value = widget.saved
-          ? await widget.api.savedRelationshipTrees(afterId: cursor)
+          ? await widget.api.savedRelationshipTrees(afterId: 0)
           : await widget.api.suggestedRelationshipTrees(offset: cursor);
+      if (widget.saved) {
+        final rows = List<dynamic>.from(value['items'] as List);
+        var after = (value['nextCursor'] as num?)?.toInt();
+        final seen = <int>{0};
+        while (after != null) {
+          if (!seen.add(after)) {
+            throw StateError('Refresh to reload the tree list.');
+          }
+          final page = await widget.api.savedRelationshipTrees(afterId: after);
+          rows.addAll(page['items'] as List);
+          after = (page['nextCursor'] as num?)?.toInt();
+        }
+        value['items'] = rows;
+        value['nextCursor'] = null;
+      }
       if (mounted) {
         setState(() {
           summary = value;

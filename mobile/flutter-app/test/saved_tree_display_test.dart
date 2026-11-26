@@ -36,8 +36,7 @@ class SavedApi extends MyAapthaApi {
 }
 
 void main() {
-  testWidgets(
-      'saved diagrams load full nodes inline and switch without opening an editor',
+  testWidgets('all saved trees start closed around You and open independently',
       (tester) async {
     final api = SavedApi();
     Map<String, dynamic>? edited;
@@ -54,31 +53,31 @@ void main() {
                     onEdit: (card, key) => edited = card,
                     onDelete: (_) {})))));
     await tester.pumpAndSettle();
-    expect(find.byType(ReviewedTreeCanvas), findsOneWidget);
-    expect(find.text('Person 1-29'), findsNothing);
-    expect(
-        tester
-            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Compact'))
-            .selected,
-        isTrue);
-    await tester.ensureVisible(find.text('You: Expand tree'));
-    await tester.tap(find.text('You: Expand tree'));
+    expect(find.byType(ReviewedTreeCanvas), findsNothing);
+    expect(find.byType(DropdownButtonFormField<int>), findsNothing);
+    expect(api.requests, isEmpty);
+    final office = find.widgetWithText(OutlinedButton, 'Office tree');
+    final college = find.widgetWithText(OutlinedButton, 'College tree');
+    await tester.ensureVisible(office);
+    await tester.tap(office);
     await tester.pumpAndSettle();
     expect(find.text('Person 1-29'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Modern'), findsOneWidget);
-    await tester.ensureVisible(find.byType(DropdownButtonFormField<int>));
-    await tester.tap(find.byType(DropdownButtonFormField<int>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('College tree (3)').last);
-    await tester.pumpAndSettle();
-    expect(api.requests, ['1', '2']);
-    expect(find.text('Person 1-29'), findsNothing);
-    expect(find.text('Person 2-0'), findsNothing);
     expect(
         tester
             .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Compact'))
             .selected,
         isTrue);
+    await tester.ensureVisible(college);
+    await tester.tap(college);
+    await tester.pumpAndSettle();
+    expect(api.requests, ['1', '2']);
+    expect(find.text('Person 1-29'), findsOneWidget);
+    expect(find.text('Person 2-0'), findsOneWidget);
+    await tester.ensureVisible(office);
+    await tester.tap(office);
+    await tester.pumpAndSettle();
+    expect(find.text('Person 1-29'), findsNothing);
+    expect(find.text('Person 2-0'), findsOneWidget);
     await tester.ensureVisible(find.widgetWithText(TextButton, 'Edit tree'));
     await tester.tap(find.widgetWithText(TextButton, 'Edit tree'));
     await tester.pumpAndSettle();

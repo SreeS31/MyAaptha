@@ -10,3 +10,11 @@
 
 /* Keep review actions in document flow so they cannot cover selectable people. */
 .reviewed-tree-editor>footer{position:static}
+
+.saved-tree-circle-viewport{overflow:auto;max-height:70dvh;border:1px solid #d7e1e8;border-radius:20px;background:radial-gradient(circle,#eaf5f2,#f8fafc);margin:18px 0;overscroll-behavior:contain}
+.saved-tree-circle{position:relative}.saved-tree-circle>svg{position:absolute;pointer-events:none}
+.saved-tree-circle-self,.saved-tree-circle-node{position:absolute;transform:translate(-50%,-50%)}
+.saved-tree-circle-self{display:grid;place-items:center;width:86px;height:86px;border-radius:50%;background:#205d65;color:white;border:6px solid #d5ebe7;font-size:1.15rem;z-index:1}
+.saved-tree-circle-node{width:160px;min-height:78px;display:grid;gap:4px;text-align:left;padding:12px 30px 12px 14px!important;border:2px solid #c3d8da!important;border-radius:18px!important;background:white!important;box-shadow:0 4px 12px #1830470c}
+.saved-tree-circle-node>span{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.saved-tree-circle-node>small{font-size:.78rem;color:#50657b}.saved-tree-circle-node>b{position:absolute;right:10px;top:24px;color:#205d65}.saved-tree-circle-node[aria-expanded=true]{border-color:#25838a!important;background:#e6f2ef!important}.saved-tree-circle-node:focus-visible{outline:3px solid #7661b8;outline-offset:3px}
+.saved-tree-circle-node{transform:none!important;margin-left:-80px;margin-top:-39px}

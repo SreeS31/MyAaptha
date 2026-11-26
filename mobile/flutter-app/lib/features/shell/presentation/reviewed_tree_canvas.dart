@@ -7,7 +7,11 @@ class ReviewedTreeCanvas extends StatefulWidget {
       required this.selected,
       required this.onSelect,
       this.initiallyExpanded = false,
-      this.connectRoots = false});
+      this.connectRoots = false,
+      this.rootInitiallyOpen = false,
+      this.rootName = 'You'});
+  final bool rootInitiallyOpen;
+  final String rootName;
   final bool connectRoots;
   final bool initiallyExpanded;
   final List<Map<String, dynamic>> nodes;
@@ -32,7 +36,9 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
   @override
   void initState() {
     super.initState();
-    rootOpen = !widget.connectRoots || widget.initiallyExpanded;
+    rootOpen = !widget.connectRoots ||
+        widget.initiallyExpanded ||
+        widget.rootInitiallyOpen;
     if (widget.initiallyExpanded) {
       expanded.addAll(widget.nodes.map((n) => n['key'] as String));
     }
@@ -157,7 +163,9 @@ class _ReviewedTreeCanvasState extends State<ReviewedTreeCanvas> {
       TextButton.icon(
           onPressed: () => setState(() => rootOpen = !rootOpen),
           icon: Icon(rootOpen ? Icons.remove_circle : Icons.add_circle),
-          label: Text(rootOpen ? 'You: Collapse tree' : 'You: Expand tree')),
+          label: Text(rootOpen
+              ? '${widget.rootName}: Collapse tree'
+              : '${widget.rootName}: Expand tree')),
       if (rootOpen)
         SizedBox(
             height: 350,
