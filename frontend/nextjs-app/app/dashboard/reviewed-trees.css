@@ -24,3 +24,24 @@
 .tree-forest-person.man{border-color:#326bc4!important}.tree-forest-person.woman{border-color:#be3273!important}.tree-forest-person strong,.tree-forest-person small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.tree-forest-person small{font-size:11px;color:#50657b}.tree-forest-person i{position:absolute;right:7px;top:22px;width:12px;height:12px;border:2px solid currentColor;border-radius:50%;color:#64748b}.tree-forest-person.man i{color:#326bc4}.tree-forest-person.woman i{color:#be3273}.tree-forest-person i.filled{background:currentColor}.tree-forest-person[aria-pressed=true]{outline:3px solid #25838a;outline-offset:3px}
 .tree-person-info{align-self:start;position:sticky;top:16px;max-height:70dvh;overflow:auto;padding:18px;background:white;border:1px solid #cbd8df;border-radius:18px;overflow-wrap:anywhere}.tree-person-info header{display:flex;justify-content:space-between;gap:10px;align-items:start}.tree-person-info h3{margin:0;font-size:1.1rem}.tree-person-info dt{font-size:.8rem;color:#50657b;margin-top:12px}.tree-person-info dd{margin:3px 0 0}.tree-person-info>button{margin-top:12px}
 @media(max-width:900px){.tree-forest-layout.has-person{grid-template-columns:minmax(0,1fr)}.tree-person-info{position:fixed;right:12px;bottom:12px;top:auto;width:min(340px,calc(100vw - 24px));max-height:55dvh;z-index:150;box-shadow:0 12px 35px #18304733}}
+.tree-person-info{padding:14px;border-color:#d8e5e6;border-radius:16px;box-shadow:0 6px 22px #18304709}
+.tree-person-info header{display:grid;grid-template-columns:36px minmax(0,1fr) 30px;align-items:center;gap:9px;margin:-14px -14px 10px;padding:12px 14px;border-bottom:1px solid #e5eded;background:linear-gradient(110deg,#eef7f4,#fff);border-radius:16px 16px 0 0}
+.tree-person-info h3{font-size:1rem!important;font-weight:600;line-height:1.3;color:#16373e}
+.tree-person-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#dceee8;color:#205d65;font-size:13px!important;font-weight:600;border:1px solid #cfe3dc}
+.tree-person-info .tree-person-close{width:30px;min-height:30px!important;height:30px;padding:0!important;border:0;border-radius:50%!important;background:transparent;font-size:20px!important;color:#506572}
+.tree-person-info dl{display:grid;grid-template-columns:86px minmax(0,1fr);column-gap:10px;row-gap:9px;margin:0;padding:7px 0}
+.tree-person-info dl+dl{border-top:1px solid #edf1f3;margin-top:4px;padding-top:12px}
+.tree-person-info dt{margin:0;font-size:11px!important;line-height:1.7;letter-spacing:.025em;font-weight:500;color:#607383}
+.tree-person-info dd{margin:0;font-size:14px!important;line-height:1.4;font-weight:600;color:#183047}
+.tree-person-info dd.is-empty{color:#667684;font-size:13px!important;font-weight:400;font-style:italic}
+.tree-person-info>p{font-size:12px!important;line-height:1.45;color:#607383;margin:8px 0}
+.tree-person-info>button{width:100%;margin-top:12px;font-size:13px!important;border-color:#d5e4e0;background:#edf5f2;color:#205d65}
+@media(pointer:coarse){.tree-person-info header{grid-template-columns:36px minmax(0,1fr) 44px}.tree-person-info .tree-person-close{width:44px;height:44px;min-height:44px!important}}
+
+@layer app-visual-contract {
+ .tree-person-info h3{font-size:16px!important;line-height:1.3!important}
+ .tree-person-info dt{font-size:11px!important;line-height:1.7!important}
+ .tree-person-info dd{font-size:14px!important;line-height:1.4!important}
+ .tree-person-info dd.is-empty{font-size:13px!important}
+ .tree-person-info>p{font-size:12px!important;line-height:1.45!important}
+}

@@ -478,46 +478,108 @@ class _Basics extends StatelessWidget {
   final VoidCallback onClose, onEdit;
   @override
   Widget build(BuildContext context) {
+    final name = node['name'] as String;
+    final initials = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .take(2)
+        .map((part) =>
+            part.isEmpty ? '' : String.fromCharCodes(part.runes.take(1)))
+        .join()
+        .toUpperCase();
+    Widget field(String label, String value, {bool empty = false}) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text.rich(TextSpan(children: [
+          TextSpan(
+              text: '$label: ',
+              style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xff607383))),
+          TextSpan(
+              text: value,
+              style: TextStyle(
+                  fontSize: empty ? 13 : 14,
+                  fontWeight: empty ? FontWeight.w400 : FontWeight.w600,
+                  fontStyle: empty ? FontStyle.italic : FontStyle.normal,
+                  color: empty
+                      ? const Color(0xff667684)
+                      : const Color(0xff183047)))
+        ])));
     return Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xffd8e5e6))),
         child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: FutureBuilder<Map<String, dynamic>>(
                 future: request,
                 builder: (context, snapshot) {
                   final info = snapshot.data;
+                  final phones = (info?['phones'] as List? ?? []).join(', '),
+                      emails = (info?['emails'] as List? ?? []).join(', '),
+                      organization = info?['organization'] as String? ?? '';
                   return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(children: [
+                          CircleAvatar(
+                              radius: 18,
+                              backgroundColor: const Color(0xffdceee8),
+                              child: Text(initials,
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff205d65)))),
+                          const SizedBox(width: 9),
                           Expanded(
-                              child: Text(node['name'] as String,
-                                  style:
-                                      Theme.of(context).textTheme.titleLarge)),
+                              child: Text(name,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff16373e)))),
                           TextButton(
-                              onPressed: onClose, child: const Text('Close'))
+                              onPressed: onClose,
+                              child: const Text('Close',
+                                  style: TextStyle(fontSize: 12)))
                         ]),
-                        Text('Tree: ${node['treeName']}'),
-                        Text('Relationship: ${node['relation']}'),
-                        Text('Gender: ${node['gender'] ?? 'Unspecified'}'),
+                        const Divider(height: 20, color: Color(0xffe5eded)),
+                        field('Tree', '${node['treeName']}'),
+                        field('Relationship', '${node['relation']}'),
+                        field(
+                            'Gender',
+                            node['gender'] == 'MALE'
+                                ? 'Man'
+                                : node['gender'] == 'FEMALE'
+                                    ? 'Woman'
+                                    : node['gender'] == 'OTHER'
+                                        ? 'Other'
+                                        : 'Unspecified'),
                         if (snapshot.connectionState == ConnectionState.waiting)
                           const LinearProgressIndicator(),
                         if (snapshot.hasError)
                           const Text(
                               'Contact details could not be loaded. Close and select the person to retry.'),
                         if (info != null) ...[
-                          Text(
-                              'Phone: ${(info['phones'] as List? ?? []).isEmpty ? 'Not saved' : (info['phones'] as List).join(', ')}'),
-                          Text(
-                              'Email: ${(info['emails'] as List? ?? []).isEmpty ? 'Not saved' : (info['emails'] as List).join(', ')}'),
-                          Text(
-                              'Organization: ${(info['organization'] as String? ?? '').isEmpty ? 'Not saved' : info['organization']}'),
+                          const Divider(height: 16, color: Color(0xffedf1f3)),
+                          field('Phone', phones.isEmpty ? 'Not saved' : phones,
+                              empty: phones.isEmpty),
+                          field('Email', emails.isEmpty ? 'Not saved' : emails,
+                              empty: emails.isEmpty),
+                          field('Organization',
+                              organization.isEmpty ? 'Not saved' : organization,
+                              empty: organization.isEmpty),
                           if ((info['groups'] as List? ?? []).isNotEmpty)
-                            Text(
-                                'Contact groups: ${(info['groups'] as List).join(', ')}')
+                            field('Contact groups',
+                                (info['groups'] as List).join(', '))
                         ],
-                        TextButton(
-                            onPressed: onEdit, child: const Text('Edit person'))
+                        const SizedBox(height: 10),
+                        SizedBox(
+                            width: double.infinity,
+                            child: TextButton(
+                                onPressed: onEdit,
+                                child: const Text('Edit person')))
                       ]);
                 })));
   }
