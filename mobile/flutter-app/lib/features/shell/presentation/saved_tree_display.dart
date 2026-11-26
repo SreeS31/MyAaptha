@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../core/network/myaaptha_api.dart';
-import 'reviewed_tree_canvas.dart';
 
 class SavedTreeDisplay extends StatefulWidget {
   const SavedTreeDisplay(
@@ -21,269 +20,505 @@ class SavedTreeDisplay extends StatefulWidget {
 }
 
 class _SavedTreeDisplayState extends State<SavedTreeDisplay> {
-  final open = <int>{};
+  final open = <int>{}, loading = <int>{};
+  final trees = <int, Map<String, dynamic>>{},
+      errors = <int, String>{},
+      generations = <int, int>{},
+      limits = <int, int>{};
   final transform = TransformationController();
-  Size? lastViewport;
-  double? lastSize;
+  int? active, focus;
+  Map<String, dynamic>? selected;
+  Future<Map<String, dynamic>>? info;
+  String? previousLayout;
+  Size? previousViewport;
+  @override
+  void didUpdateWidget(covariant SavedTreeDisplay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final ids = widget.cards.map((card) => (card['id'] as num).toInt()).toSet();
+    for (final id in open.toList()) {
+      final old = oldWidget.cards.where((card) => card['id'] == id).firstOrNull;
+      final card = widget.cards.where((card) => card['id'] == id).firstOrNull;
+      if (!ids.contains(id)) {
+        open.remove(id);
+        trees.remove(id);
+        loading.remove(id);
+        errors.remove(id);
+        generations[id] = (generations[id] ?? 0) + 1;
+        if (selected?['treeId'] == id) {
+          selected = null;
+          info = null;
+        }
+      } else if (old?['version'] != card?['version']) {
+        if (selected?['treeId'] == id) {
+          selected = null;
+          info = null;
+        }
+        Future.microtask(() {
+          if (mounted && open.contains(id)) {
+            load(id);
+          }
+        });
+      }
+    }
+    if (!ids.contains(active)) {
+      active = null;
+    }
+    if (!ids.contains(focus)) {
+      focus = null;
+    }
+  }
+
   @override
   void dispose() {
     transform.dispose();
     super.dispose();
   }
 
-  void toggle(int id) => setState(() {
-        if (!open.remove(id)) open.add(id);
-      });
+  Future<void> load(int id) async {
+    final generation = (generations[id] ?? 0) + 1;
+    generations[id] = generation;
+    setState(() {
+      loading.add(id);
+      errors.remove(id);
+      trees.remove(id);
+    });
+    try {
+      final tree =
+          await widget.api.reviewedRelationshipTree('$id', saved: true);
+      if (mounted && generations[id] == generation && open.contains(id)) {
+        setState(() => trees[id] = tree);
+      }
+    } catch (e) {
+      if (mounted && generations[id] == generation && open.contains(id)) {
+        setState(() => errors[id] = '$e');
+      }
+    } finally {
+      if (mounted && generations[id] == generation) {
+        setState(() => loading.remove(id));
+      }
+    }
+  }
+
+  void toggle(int id) {
+    setState(() {
+      active = id;
+      if (open.remove(id)) {
+        generations[id] = (generations[id] ?? 0) + 1;
+        trees.remove(id);
+        loading.remove(id);
+        errors.remove(id);
+        if (selected?['treeId'] == id) {
+          selected = null;
+          info = null;
+        }
+        focus = null;
+        active = open.isEmpty ? null : open.last;
+      } else {
+        open.add(id);
+        focus = id;
+      }
+    });
+    if (open.contains(id)) {
+      load(id);
+    }
+  }
+
+  void choose(_Group group, _Person person) {
+    final local = <String, dynamic>{
+      ...person.node,
+      'phones': <String>[],
+      'emails': <String>[],
+      'organization': '',
+      'groups': <String>[],
+      'contactAvailable': false
+    };
+    final request = person.node['contactId'] == null
+        ? Future.value(local)
+        : widget.api
+            .reviewedTreePersonInfo(group.id, person.node['key'] as String);
+    setState(() {
+      selected = {
+        ...person.node,
+        'treeId': group.id,
+        'treeName': group.card['name']
+      };
+      info = request;
+      active = group.id;
+    });
+    if (MediaQuery.sizeOf(context).width < 900) {
+      showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => SafeArea(
+              child: SingleChildScrollView(
+                  child: _Basics(
+                      node: selected!,
+                      request: request,
+                      onClose: () => Navigator.pop(context),
+                      onEdit: () {
+                        Navigator.pop(context);
+                        widget.onEdit(group.card, person.node['key'] as String);
+                      }))));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final positions = <Offset>[];
-    int used = 0, ring = 0;
-    double radius = 245;
-    while (used < widget.cards.length) {
-      radius = 245 + ring * 190.0;
-      final count = math.min(
-          widget.cards.length - used, (2 * math.pi * radius / 190).floor());
-      for (int i = 0; i < count; i++) {
-        final angle = -math.pi / 2 + 2 * math.pi * i / count;
-        positions
-            .add(Offset(math.cos(angle) * radius, math.sin(angle) * radius));
-      }
-      used += count;
-      ring++;
+    final groups = _groups(widget.cards, trees, open, limits);
+    final extent =
+        groups.fold<double>(0, (value, g) => math.max(value, g.radius));
+    final radius = math.max(
+        245.0,
+        (extent > 0 ? extent + 140 : 110) /
+            math.sin(math.pi / math.max(2, groups.length)));
+    final size = 2 * (radius + extent + 120),
+        center = Offset(size / 2, size / 2);
+    for (int i = 0; i < groups.length; i++) {
+      final angle = -math.pi / 2 + 2 * math.pi * i / groups.length;
+      groups[i].center =
+          center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
     }
-    final size = 2 * (radius + 110), center = Offset(size / 2, size / 2);
-    return Column(children: [
-      SizedBox(
-          height: 520,
-          child: LayoutBuilder(builder: (context, constraints) {
-            final viewport = Size(constraints.maxWidth, 520);
-            if (lastViewport != viewport || lastSize != size) {
-              lastViewport = viewport;
-              lastSize = size;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                final scale = math.min(1.0,
-                    math.min(viewport.width / size, viewport.height / size));
-                transform.value = Matrix4.identity()
-                  ..translateByDouble((viewport.width - size * scale) / 2,
-                      (viewport.height - size * scale) / 2, 0, 1)
-                  ..scaleByDouble(scale, scale, scale, 1);
-              });
-            }
-            return ClipRect(
-                child: InteractiveViewer(
-                    transformationController: transform,
-                    constrained: false,
-                    minScale: .05,
-                    maxScale: 2,
-                    child: SizedBox(
-                        width: size,
-                        height: size,
-                        child: Stack(children: [
-                          Positioned.fill(
-                              child: CustomPaint(
-                                  painter:
-                                      _CircleConnections(center, positions))),
+    final current = groups.where((g) => g.id == active).firstOrNull;
+    final canvas = SizedBox(
+        height: 560,
+        child: LayoutBuilder(builder: (context, constraints) {
+          final viewport = Size(constraints.maxWidth, 560),
+              signature =
+                  '$focus:$size:${groups.map((g) => g.people.length).join(',')}';
+          if (previousLayout != signature || previousViewport != viewport) {
+            previousLayout = signature;
+            previousViewport = viewport;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              final chosen = groups.where((g) => g.id == focus).firstOrNull;
+              final around = chosen == null ? size / 2 : chosen.radius + 110,
+                  target = chosen?.center ?? center;
+              final scale = chosen != null
+                  ? 1.0
+                  : math.min(
+                      1.0,
+                      math.min(viewport.width / (around * 2),
+                          viewport.height / (around * 2)));
+              transform.value = Matrix4.identity()
+                ..translateByDouble(viewport.width / 2 - target.dx * scale,
+                    viewport.height / 2 - target.dy * scale, 0, 1)
+                ..scaleByDouble(scale, scale, scale, 1);
+            });
+          }
+          return ClipRect(
+              child: InteractiveViewer(
+                  transformationController: transform,
+                  constrained: false,
+                  minScale: .01,
+                  maxScale: 2,
+                  child: SizedBox(
+                      width: size,
+                      height: size,
+                      child: Stack(children: [
+                        Positioned.fill(
+                            child:
+                                CustomPaint(painter: _Lines(center, groups))),
+                        Positioned(
+                            left: center.dx - 43,
+                            top: center.dy - 43,
+                            width: 86,
+                            height: 86,
+                            child: const CircleAvatar(child: Text('You'))),
+                        for (final group in groups) ...[
                           Positioned(
-                              left: center.dx - 43,
-                              top: center.dy - 43,
-                              width: 86,
-                              height: 86,
-                              child: const CircleAvatar(child: Text('You'))),
-                          for (int i = 0; i < widget.cards.length; i++)
+                              left: group.center.dx - 80,
+                              top: group.center.dy - 39,
+                              width: 160,
+                              height: 78,
+                              child: OutlinedButton(
+                                  onPressed: widget.busy
+                                      ? null
+                                      : () => toggle(group.id),
+                                  style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.all(6),
+                                      backgroundColor: open.contains(group.id)
+                                          ? const Color(0xffe6f2ef)
+                                          : Colors.white),
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(group.card['name'] as String,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center),
+                                        Text(
+                                            '${group.card['count']} people ${open.contains(group.id) ? '-' : '+'}',
+                                            style:
+                                                const TextStyle(fontSize: 12))
+                                      ]))),
+                          for (final person in group.people)
                             Positioned(
-                                left: center.dx + positions[i].dx - 80,
-                                top: center.dy + positions[i].dy - 36,
-                                width: 160,
-                                height: 72,
-                                child: Semantics(
-                                    button: true,
-                                    expanded:
-                                        open.contains(widget.cards[i]['id']),
-                                    child: OutlinedButton(
-                                        onPressed: widget.busy
-                                            ? null
-                                            : () => toggle(
-                                                (widget.cards[i]['id'] as num)
-                                                    .toInt()),
-                                        style: OutlinedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            backgroundColor:
-                                                open.contains(widget.cards[i]['id'])
-                                                    ? const Color(0xffe6f2ef)
-                                                    : Colors.white),
-                                        child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                  widget.cards[i]['name']
-                                                      as String,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.center),
-                                              Text(
-                                                  '${widget.cards[i]['count']} people ${open.contains(widget.cards[i]['id']) ? '-' : '+'}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12))
-                                            ]))))
-                        ]))));
-          })),
-      for (final card in widget.cards)
-        if (open.contains(card['id']))
-          _ExpandedSavedTree(
-              key: ValueKey(card['id']),
-              api: widget.api,
-              card: card,
-              busy: widget.busy,
-              onEdit: widget.onEdit,
-              onDelete: widget.onDelete,
-              onCollapse: () => toggle((card['id'] as num).toInt()))
+                                left: group.center.dx + person.offset.dx - 75,
+                                top: group.center.dy + person.offset.dy - 30,
+                                width: 150,
+                                height: 60,
+                                child: OutlinedButton(
+                                    onPressed: () => choose(group, person),
+                                    style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        backgroundColor: Colors.white,
+                                        side: BorderSide(
+                                            color: _color(person.node),
+                                            width: 2)),
+                                    child: Row(children: [
+                                      Expanded(
+                                          child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                            Text(person.node['name'] as String,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    fontSize: 13)),
+                                            Text(
+                                                person.node['relation']
+                                                    as String,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    fontSize: 11))
+                                          ])),
+                                      Icon(
+                                          person.hasChildren
+                                              ? Icons.circle
+                                              : Icons.circle_outlined,
+                                          size: 12,
+                                          color: _color(person.node))
+                                    ])))
+                        ]
+                      ]))));
+        }));
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            TextButton(
+                onPressed: () => setState(() {
+                      focus = null;
+                      previousLayout = null;
+                    }),
+                child: const Text('Overview')),
+            TextButton(
+                onPressed: () => setState(() {
+                      for (final id in open) {
+                        generations[id] = (generations[id] ?? 0) + 1;
+                      }
+                      open.clear();
+                      trees.clear();
+                      loading.clear();
+                      errors.clear();
+                      selected = null;
+                      focus = null;
+                    }),
+                child: const Text('Collapse all')),
+            if (current != null && open.contains(current.id)) ...[
+              Text(current.card['name'] as String),
+              TextButton(
+                  onPressed: trees[current.id] == null
+                      ? null
+                      : () => widget.onEdit(current.card, null),
+                  child: const Text('Edit tree')),
+              TextButton(
+                  onPressed:
+                      widget.busy ? null : () => widget.onDelete(current.card),
+                  child: const Text('Delete tree'))
+            ]
+          ]),
+      for (final id in loading)
+        Text(
+            'Loading ${widget.cards.firstWhere((c) => c['id'] == id)['name']}...'),
+      for (final entry in errors.entries)
+        Row(children: [
+          Expanded(child: Text(entry.value)),
+          TextButton(
+              onPressed: () => load(entry.key), child: const Text('Retry'))
+        ]),
+      if (MediaQuery.sizeOf(context).width >= 900 && selected != null)
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: canvas),
+          SizedBox(
+              width: 300,
+              child: _Basics(
+                  key: ValueKey('${selected!['treeId']}:${selected!['key']}'),
+                  node: selected!,
+                  request: info!,
+                  onClose: () => setState(() => selected = null),
+                  onEdit: () => widget.onEdit(
+                      widget.cards
+                          .firstWhere((c) => c['id'] == selected!['treeId']),
+                      selected!['key'] as String)))
+        ])
+      else
+        canvas,
+      for (final group in groups)
+        if (group.people.length < group.total)
+          TextButton(
+              onPressed: () => setState(() {
+                    limits[group.id] = (limits[group.id] ?? 80) + 100;
+                    focus = group.id;
+                  }),
+              child: Text(
+                  'Show more in ${group.card['name']} (${group.people.length} of ${group.total})'))
     ]);
   }
 }
 
-class _CircleConnections extends CustomPainter {
-  _CircleConnections(this.center, this.positions);
+Color _color(Map<String, dynamic> node) => node['gender'] == 'MALE'
+    ? const Color(0xff326bc4)
+    : node['gender'] == 'FEMALE'
+        ? const Color(0xffbe3273)
+        : const Color(0xff64748b);
+
+class _Person {
+  _Person(this.node, this.offset, this.hasChildren);
+  final Map<String, dynamic> node;
+  final Offset offset;
+  final bool hasChildren;
+}
+
+class _Group {
+  _Group(this.id, this.card, this.people, this.radius, this.total);
+  final int id, total;
+  final Map<String, dynamic> card;
+  final List<_Person> people;
+  final double radius;
+  Offset center = Offset.zero;
+}
+
+List<_Group> _groups(List<Map<String, dynamic>> cards,
+    Map<int, Map<String, dynamic>> trees, Set<int> open, Map<int, int> limits) {
+  return cards.map((card) {
+    final id = (card['id'] as num).toInt();
+    final List<dynamic> nodes = open.contains(id)
+        ? ((trees[id]?['nodes'] as List?) ?? <dynamic>[])
+        : <dynamic>[];
+    final byParent = <String?, List<Map<String, dynamic>>>{};
+    for (final raw in nodes) {
+      final node = Map<String, dynamic>.from(raw as Map);
+      byParent.putIfAbsent(node['parentKey'] as String?, () => []).add(node);
+    }
+    final stack = (byParent[null] ?? []).reversed.toList(),
+        seen = <String>{},
+        ordered = <Map<String, dynamic>>[];
+    while (stack.isNotEmpty) {
+      final node = stack.removeLast();
+      if (!seen.add(node['key'] as String)) continue;
+      ordered.add(node);
+      stack.addAll((byParent[node['key']] ?? []).reversed);
+    }
+    final shown = ordered.take(limits[id] ?? 80).toList(), people = <_Person>[];
+    int used = 0, ring = 0;
+    double radius = 0;
+    while (used < shown.length) {
+      radius = 180 + ring * 180.0;
+      final count =
+          math.min(shown.length - used, (2 * math.pi * radius / 180).floor());
+      for (int i = 0; i < count; i++) {
+        final angle = -math.pi / 2 + 2 * math.pi * i / count;
+        final node = shown[used + i];
+        people.add(_Person(
+            node,
+            Offset(math.cos(angle) * radius, math.sin(angle) * radius),
+            byParent.containsKey(node['key'])));
+      }
+      used += count;
+      ring++;
+    }
+    return _Group(id, card, people, radius, nodes.length);
+  }).toList();
+}
+
+class _Lines extends CustomPainter {
+  _Lines(this.center, this.groups);
   final Offset center;
-  final List<Offset> positions;
+  final List<_Group> groups;
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xff94b7b8)
+      ..color = const Color(0xff9bbfc1)
       ..strokeWidth = 2;
-    for (final position in positions) {
-      canvas.drawLine(center, center + position, paint);
+    for (final group in groups) {
+      canvas.drawLine(center, group.center, paint);
+      final byKey = {
+        for (final person in group.people) person.node['key']: person
+      };
+      for (final person in group.people) {
+        final parent = byKey[person.node['parentKey']];
+        canvas.drawLine(group.center + (parent?.offset ?? Offset.zero),
+            group.center + person.offset, paint);
+      }
     }
   }
 
   @override
-  bool shouldRepaint(covariant _CircleConnections old) =>
-      old.center != center || old.positions != positions;
+  bool shouldRepaint(covariant _Lines old) =>
+      old.groups != groups || old.center != center;
 }
 
-class _ExpandedSavedTree extends StatefulWidget {
-  const _ExpandedSavedTree(
+class _Basics extends StatelessWidget {
+  const _Basics(
       {super.key,
-      required this.api,
-      required this.card,
-      required this.onCollapse,
-      required this.busy,
-      required this.onEdit,
-      required this.onDelete});
-  final MyAapthaApi api;
-  final Map<String, dynamic> card;
-  final VoidCallback onCollapse;
-  final bool busy;
-  final void Function(Map<String, dynamic>, String?) onEdit;
-  final ValueChanged<Map<String, dynamic>> onDelete;
-  @override
-  State<_ExpandedSavedTree> createState() => __ExpandedSavedTreeState();
-}
-
-class __ExpandedSavedTreeState extends State<_ExpandedSavedTree> {
-  int request = 0;
-  String? selected, error;
-  Map<String, dynamic>? tree;
-  bool loading = false;
-  Map<String, dynamic> get card => widget.card;
-  @override
-  void initState() {
-    super.initState();
-    load();
-  }
-
-  @override
-  void didUpdateWidget(covariant _ExpandedSavedTree old) {
-    super.didUpdateWidget(old);
-    if (old.card['id'] != widget.card['id'] ||
-        old.card['version'] != widget.card['version']) {
-      load();
-    }
-  }
-
-  Future<void> load() async {
-    final generation = ++request;
-    final id = card['id'];
-    setState(() {
-      loading = true;
-      error = null;
-      tree = null;
-      selected = null;
-    });
-    try {
-      final value =
-          await widget.api.reviewedRelationshipTree('$id', saved: true);
-      if (mounted && generation == request) setState(() => tree = value);
-    } catch (e) {
-      if (mounted && generation == request) setState(() => error = '$e');
-    } finally {
-      if (mounted && generation == request) setState(() => loading = false);
-    }
-  }
-
+      required this.node,
+      required this.request,
+      required this.onClose,
+      required this.onEdit});
+  final Map<String, dynamic> node;
+  final Future<Map<String, dynamic>> request;
+  final VoidCallback onClose, onEdit;
   @override
   Widget build(BuildContext context) {
-    final nodes = (tree?['nodes'] as List? ?? [])
-        .map((n) => Map<String, dynamic>.from(n as Map))
-        .toList();
-    final matches = nodes.where((n) => n['key'] == selected);
-    final person = matches.isEmpty ? null : matches.first;
     return Card(
         child: Padding(
             padding: const EdgeInsets.all(16),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('${tree?['name'] ?? card['name']}',
-                  style: Theme.of(context).textTheme.titleLarge),
-              Text('${tree == null ? card['count'] : nodes.length} people'),
-              Wrap(spacing: 8, children: [
-                TextButton(
-                    onPressed: widget.onCollapse,
-                    child: const Text('Collapse tree')),
-                TextButton(
-                    onPressed: widget.busy || loading || tree == null
-                        ? null
-                        : () => widget.onEdit(card, null),
-                    child: const Text('Edit tree')),
-                TextButton(
-                    onPressed: widget.busy || loading
-                        ? null
-                        : () => widget.onDelete(card),
-                    child: const Text('Delete tree'))
-              ]),
-              if (loading) const LinearProgressIndicator(),
-              if (error != null) ...[
-                Text(error!,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error)),
-                TextButton(onPressed: load, child: const Text('Retry'))
-              ],
-              if (tree != null)
-                ReviewedTreeCanvas(
-                    key: ValueKey('${tree!['id']}:${tree!['version']}'),
-                    nodes: nodes,
-                    initiallyExpanded: false,
-                    connectRoots: true,
-                    rootInitiallyOpen: true,
-                    rootName: card['name'] as String,
-                    selected: selected,
-                    onSelect: (n) =>
-                        setState(() => selected = n['key'] as String)),
-              if (person != null)
-                Wrap(spacing: 8, children: [
-                  TextButton(
-                      onPressed: widget.onCollapse,
-                      child: const Text('Collapse tree')),
-                  Text('${person['name']} · ${person['relation']}'),
-                  TextButton(
-                      onPressed: widget.busy
-                          ? null
-                          : () => widget.onEdit(card, selected),
-                      child: const Text('Edit person'))
-                ])
-            ])));
+            child: FutureBuilder<Map<String, dynamic>>(
+                future: request,
+                builder: (context, snapshot) {
+                  final info = snapshot.data;
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(children: [
+                          Expanded(
+                              child: Text(node['name'] as String,
+                                  style:
+                                      Theme.of(context).textTheme.titleLarge)),
+                          TextButton(
+                              onPressed: onClose, child: const Text('Close'))
+                        ]),
+                        Text('Tree: ${node['treeName']}'),
+                        Text('Relationship: ${node['relation']}'),
+                        Text('Gender: ${node['gender'] ?? 'Unspecified'}'),
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          const LinearProgressIndicator(),
+                        if (snapshot.hasError)
+                          const Text(
+                              'Contact details could not be loaded. Close and select the person to retry.'),
+                        if (info != null) ...[
+                          Text(
+                              'Phone: ${(info['phones'] as List? ?? []).isEmpty ? 'Not saved' : (info['phones'] as List).join(', ')}'),
+                          Text(
+                              'Email: ${(info['emails'] as List? ?? []).isEmpty ? 'Not saved' : (info['emails'] as List).join(', ')}'),
+                          Text(
+                              'Organization: ${(info['organization'] as String? ?? '').isEmpty ? 'Not saved' : info['organization']}'),
+                          if ((info['groups'] as List? ?? []).isNotEmpty)
+                            Text(
+                                'Contact groups: ${(info['groups'] as List).join(', ')}')
+                        ],
+                        TextButton(
+                            onPressed: onEdit, child: const Text('Edit person'))
+                      ]);
+                })));
   }
 }

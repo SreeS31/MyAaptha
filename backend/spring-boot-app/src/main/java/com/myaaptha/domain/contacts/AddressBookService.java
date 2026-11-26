@@ -91,7 +91,8 @@ public class AddressBookService {
   public List<Entry> entries(long owner,List<Long> ids){if(ids.isEmpty())return List.of();return new NamedParameterJdbcTemplate(jdbc).query("SELECT * FROM address_book_contacts WHERE user_id=:owner AND id IN (:ids)",Map.of("owner",owner,"ids",ids),this::row);}
   @Transactional(readOnly=true)
   public List<Entry> allEntries(long owner){return jdbc.query("SELECT * FROM address_book_contacts WHERE user_id=? ORDER BY id",this::row,owner);}
-  private Entry required(long owner,long id) {var items=jdbc.query("SELECT * FROM address_book_contacts WHERE user_id=? AND id=?",this::row,owner,id);if(items.isEmpty())missing();return items.getFirst();}
+  public Optional<Entry> findOwned(long owner,long id) {return jdbc.query("SELECT * FROM address_book_contacts WHERE user_id=? AND id=?",this::row,owner,id).stream().findFirst();}
+  private Entry required(long owner,long id) {return findOwned(owner,id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found"));}
   private Entry row(ResultSet rs,int number)throws SQLException{return entry(rs);}
   private Entry entry(ResultSet rs)throws SQLException {
     try {ContactInput data=json.readValue(encryption.decrypt(rs.getString("contact_data")),ContactInput.class);

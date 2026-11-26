@@ -7,6 +7,8 @@ export const suggestTrees=(offset=0)=>request<TreeSuggestions>('/api/relationshi
 export const suggestedTree=(key:string)=>request<ReviewedTree>('/api/relationship-trees/suggestions/'+key);
 export const savedTrees=(afterId=0)=>request<{items:TreeCard[];nextCursor:number|null}>('/api/relationship-trees?afterId='+afterId);
 export const savedTree=(id:number)=>request<ReviewedTree>('/api/relationship-trees/'+id);
+export type TreePersonInfo={key:string;name:string;relation:string;gender:string|null;phones:string[];emails:string[];organization:string;groups:string[];contactAvailable:boolean};
+export const treePersonInfo=(id:number,key:string)=>request<TreePersonInfo>(`/api/relationship-trees/${id}/person?key=${encodeURIComponent(key)}`);
 export const saveTree=(tree:ReviewedTree)=>request<ReviewedTree>(`/api/relationship-trees${tree.id?`/${tree.id}/update`:''}`,{method:'POST',body:JSON.stringify({name:tree.name,sourceKey:tree.sourceKey,reason:tree.reason,nodes:tree.nodes,version:tree.version,reviewed:true})});
 export const deleteTree=(id:number)=>request<void>(`/api/relationship-trees/${id}/delete`,{method:'POST',body:'{}'});
 export const dismissTree=(key:string)=>request<void>('/api/relationship-trees/suggestions/dismiss',{method:'POST',body:JSON.stringify({key})});
