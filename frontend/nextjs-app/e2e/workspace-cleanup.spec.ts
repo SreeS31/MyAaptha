@@ -30,7 +30,7 @@ test('messages has one navigation and one working search; composer remains reach
  await page.goto('/messages');
  await expect(page.locator('.workspace-section-tabs')).toHaveCount(0);
  await expect(page.locator('.workspace-utilities')).toHaveCount(0);
- await expect(page.locator('.workspace-topbar input')).toHaveCount(0);
+ await expect(page.getByRole('search',{name:'Discover on this page'}).getByRole('searchbox')).toHaveCount(1);
  await expect(page.locator('main input[type=search]:visible')).toHaveCount(1);
  await expect(page.getByRole('heading',{level:1})).toHaveText('Messages');
  await expect(page.getByRole('button',{name:'New chat',exact:true})).toHaveCount(1);
