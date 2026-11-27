@@ -147,6 +147,7 @@ class MyAapthaApi {
     await _json(_client.postMultipart('/api/finance/renewals/$id/attachment',{},bearerToken:_token,fileBytes:bytes,fileName:name,fileContentType:type));
   }
   Future<Map<String,dynamic>> suggestedRelationshipTrees({int offset=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees/suggestions?offset=$offset',bearerToken:_token)) as Map);
+  Future<Map<String,dynamic>> reviewedTreeMessageTarget(int id,String key) async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees/$id/message-target?key=${Uri.encodeComponent(key)}',bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> reviewedTreePersonInfo(int id,String key) async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees/$id/person?key=${Uri.encodeComponent(key)}',bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> savedRelationshipTrees({int afterId=0})async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees?afterId=$afterId',bearerToken:_token)) as Map);
   Future<Map<String,dynamic>> reviewedRelationshipTree(String key,{bool saved=false})async=>Map<String,dynamic>.from(await _json(_client.get('/api/relationship-trees/${saved?'':'suggestions/'}$key',bearerToken:_token)) as Map);

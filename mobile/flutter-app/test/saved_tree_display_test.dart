@@ -14,6 +14,13 @@ class SavedApi extends MyAapthaApi {
             expiresIn: 900));
   final requests = <String>[];
   @override
+  Future<Map<String, dynamic>> reviewedTreeMessageTarget(
+      int id, String key) async {
+    requests.add("message:$id:$key");
+    return {"userId": null, "name": null};
+  }
+
+  @override
   Future<Map<String, dynamic>> reviewedTreePersonInfo(
           int id, String key) async =>
       {
@@ -47,6 +54,37 @@ class SavedApi extends MyAapthaApi {
 }
 
 void main() {
+  testWidgets(
+      'Message resolves the selected contact and explains unavailable accounts',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final api = SavedApi();
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: SingleChildScrollView(
+                child: SavedTreeDisplay(
+                    api: api,
+                    cards: const [
+                      {'id': 1, 'name': 'Office tree', 'count': 30}
+                    ],
+                    busy: false,
+                    onEdit: (_, __) {},
+                    onDelete: (_) {})))));
+    await tester.tap(find.text('Office tree'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Person 1-0'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Message'));
+    await tester.tap(find.text('Message'));
+    await tester.pumpAndSettle();
+    expect(api.requests, contains('message:1:1-0'));
+    expect(find.text('This person is not available for MyAaptha messaging.'),
+        findsOneWidget);
+  });
+
   testWidgets('all saved trees start closed around You and open independently',
       (tester) async {
     final api = SavedApi();

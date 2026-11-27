@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'app_shell.dart' show DirectChatScreen;
+import '../../../core/models/network_models.dart';
 import 'package:flutter/material.dart';
 import '../../../core/network/myaaptha_api.dart';
 
@@ -152,6 +154,7 @@ class _SavedTreeDisplayState extends State<SavedTreeDisplay> {
           builder: (context) => SafeArea(
               child: SingleChildScrollView(
                   child: _Basics(
+                      api: widget.api,
                       node: selected!,
                       request: request,
                       onClose: () => Navigator.pop(context),
@@ -350,6 +353,7 @@ class _SavedTreeDisplayState extends State<SavedTreeDisplay> {
           SizedBox(
               width: 300,
               child: _Basics(
+                  api: widget.api,
                   key: ValueKey('${selected!['treeId']}:${selected!['key']}'),
                   node: selected!,
                   request: info!,
@@ -469,10 +473,12 @@ class _Lines extends CustomPainter {
 class _Basics extends StatelessWidget {
   const _Basics(
       {super.key,
+      required this.api,
       required this.node,
       required this.request,
       required this.onClose,
       required this.onEdit});
+  final MyAapthaApi api;
   final Map<String, dynamic> node;
   final Future<Map<String, dynamic>> request;
   final VoidCallback onClose, onEdit;
@@ -575,6 +581,11 @@ class _Basics extends StatelessWidget {
                                 (info['groups'] as List).join(', '))
                         ],
                         const SizedBox(height: 10),
+                        _TreeMessageButton(
+                            key: ValueKey('${node['treeId']}:${node['key']}'),
+                            api: api,
+                            node: node,
+                            ready: info != null),
                         SizedBox(
                             width: double.infinity,
                             child: TextButton(
@@ -583,4 +594,65 @@ class _Basics extends StatelessWidget {
                       ]);
                 })));
   }
+}
+
+class _TreeMessageButton extends StatefulWidget {
+  const _TreeMessageButton(
+      {super.key, required this.api, required this.node, required this.ready});
+  final MyAapthaApi api;
+  final Map<String, dynamic> node;
+  final bool ready;
+  @override
+  State<_TreeMessageButton> createState() => _TreeMessageButtonState();
+}
+
+class _TreeMessageButtonState extends State<_TreeMessageButton> {
+  bool busy = false;
+  String? error;
+  Future<void> message() async {
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      final target = await widget.api.reviewedTreeMessageTarget(
+          (widget.node['treeId'] as num).toInt(), widget.node['key'] as String);
+      if (!mounted) return;
+      if (target['userId'] == null) {
+        setState(() =>
+            error = 'This person is not available for MyAaptha messaging.');
+        return;
+      }
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => DirectChatScreen(
+                  api: widget.api,
+                  person: Person(
+                      id: (target['userId'] as num).toInt(),
+                      displayName: target['name'] as String? ??
+                          widget.node['name'] as String,
+                      accountStatus: 'ACTIVE',
+                      identityType: 'ACCOUNT'))));
+    } catch (_) {
+      if (mounted) {
+        setState(() => error = 'Unable to open chat. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        FilledButton.icon(
+            onPressed: busy || !widget.ready ? null : message,
+            icon: const Icon(Icons.chat_bubble_outline, size: 18),
+            label: Text(busy ? 'Opening chat...' : 'Message')),
+        if (error != null)
+          Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Text(error!, style: const TextStyle(fontSize: 12)))
+      ]);
 }

@@ -45,3 +45,6 @@
  .tree-person-info dd.is-empty{font-size:13px!important}
  .tree-person-info>p{font-size:12px!important;line-height:1.45!important}
 }
+
+.tree-person-info>button.tree-person-message{background:#205d65;color:#fff;border-color:#205d65}
+.tree-person-info>button:disabled{opacity:.55;cursor:wait}

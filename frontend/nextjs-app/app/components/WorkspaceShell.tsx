@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import WorkspaceIcon from './WorkspaceIcon';
+import PageDiscover from './PageDiscover';
 import {primaryNavigation} from '../lib/workspace-navigation';
 import Image from 'next/image';
 import type { Route } from 'next';
@@ -154,9 +155,10 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     <header className="workspace-topbar">
       <button ref={menuButton} className="workspace-menu-button" onClick={toggle} aria-label="Toggle main menu" aria-expanded={isMobile ? mobileOpen : expanded} aria-controls="workspace-navigation"><WorkspaceIcon name="menu" /></button>
       <Link href="/dashboard" className="workspace-brand" aria-label="MyAaptha home"><Image src="/myaaptha-logo-256.webp" unoptimized width={38} height={38} alt="" priority /><strong>MyAaptha</strong></Link>
+      <PageDiscover page={pathname}/>
     </header>
     <aside ref={sidebar} id="workspace-navigation" inert={isMobile&&!mobileOpen} className={`workspace-sidebar ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main navigation">
-      {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.map(item => <Link key={item.href} href={item.href as Route} title={item.label} aria-current={pathname===item.href?"page":undefined} className={pathname===item.href ? 'active' : ''}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><b>{item.label}{item.href==='/notifications'&&unread>0&&<span className="nav-unread">{unread>99?'99+':unread}</span>}</b></Link>)}</nav></section>)}
+      {navigationSections.map(section => <section className="workspace-nav-section" key={section.label}><h2>{section.label}</h2><nav>{section.items.filter(item=>item.href!=='/discover').map(item => <Link key={item.href} href={item.href as Route} title={item.label} aria-current={pathname===item.href?"page":undefined} className={pathname===item.href ? 'active' : ''}><span aria-hidden="true"><WorkspaceIcon name={item.href} /></span><b>{item.label}{item.href==='/notifications'&&unread>0&&<span className="nav-unread">{unread>99?'99+':unread}</span>}</b></Link>)}</nav></section>)}
       {isAdmin&&<section className="workspace-nav-section"><h2>Administration</h2><nav><Link href={'/security-reports' as Route} className={pathname==='/security-reports'?'active':''}><span><WorkspaceIcon name="/security-reports" /></span><b>Security & errors</b></Link><Link href={'/project-inputs' as Route} className={pathname==='/project-inputs'?'active':''}><span><WorkspaceIcon name="/settings" /></span><b>Inputs needed</b></Link></nav></section>}
       <button type="button" className="workspace-sidebar-sign-out" disabled={signingOut} onClick={()=>void signOut()}><span><WorkspaceIcon name="logout" /></span><b>{signingOut?'Signing out...':'Sign out'}</b></button>
     </aside>

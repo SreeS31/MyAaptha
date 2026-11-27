@@ -34,6 +34,7 @@ import 'help_chat_screen.dart';
 import 'chain_network_view.dart';
 import 'dart:math' as math;
 import 'dart:async';
+import 'page_discover.dart';
 import 'dart:convert';
 
 import 'package:myaaptha_mobile/core/models/network_models.dart';
@@ -61,6 +62,7 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
+  final _discoverRoot=GlobalKey();
   Map<String,dynamic> workspaceSettings = {};
   bool syncBusy = false;
   int index = 0;
@@ -350,14 +352,14 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final wide=size.width>=1000 && size.height>=650;
     visitedPages.add(index);
     final allPages=pages;
-    final content=IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]);
+    final content=KeyedSubtree(key:_discoverRoot,child:IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]));
     final selectedPrimary=workspacePrimaryIndexes.contains(index)?workspacePrimaryIndexes.indexOf(index):null;
     final theme=Theme.of(context);
     final desktopDensity=wide&&!{TargetPlatform.android,TargetPlatform.iOS}.contains(defaultTargetPlatform);
     return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true||(desktopDensity&&workspaceSettings['compactLayout']!=false)?VisualDensity.compact:VisualDensity.standard),
       child:MediaQuery(data:MediaQuery.of(context).copyWith(disableAnimations:MediaQuery.of(context).disableAnimations||workspaceSettings['reducedMotion']==true),
       child:Scaffold(
-        appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark()),
+        appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark(),actions:[PageDiscoverButton(root:_discoverRoot)]),
         drawer:wide?null:Drawer(child:SafeArea(child:Column(children:[
           Expanded(child:ListView(children:[for(final i in workspacePrimaryIndexes)ListTile(
             selected:index==i,leading:destinations[i].icon,title:Text(destinations[i].label),

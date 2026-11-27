@@ -2,6 +2,9 @@ package com.myaaptha.domain.relationship;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myaaptha.domain.contacts.AddressBookService;
+import com.myaaptha.domain.user.UserRepository;
+import com.myaaptha.domain.user.model.UserEntity;
+import com.myaaptha.domain.privacy.UserBlockRepository;
 import com.myaaptha.domain.contacts.AddressBookService.Entry;
 import com.myaaptha.platform.security.FieldEncryption;
 import jakarta.validation.Valid;
@@ -35,8 +38,8 @@ public class ReviewedTrees {
  private record Generated(long count,int small,List<Tree> trees){}
  private static final Set<String> MAIL_PROVIDERS=Set.of("gmail.com","googlemail.com","yahoo.com","yahoo.co.in","ymail.com","outlook.com","hotmail.com","live.com","msn.com","icloud.com","me.com","aol.com","rediffmail.com","proton.me","protonmail.com","mail.com","gmx.com","zoho.com");
  private static final Set<String> GENERIC=Set.of("contacts","my contacts","all contacts","imported","starred in android","friends","other contacts","mobile","home","work","family");
- private final AddressBookService book;private final JdbcTemplate db;private final ObjectMapper json;private final FieldEncryption encryption;
- public ReviewedTrees(AddressBookService book,JdbcTemplate db,ObjectMapper json,FieldEncryption encryption){this.book=book;this.db=db;this.json=json;this.encryption=encryption;}
+ private final AddressBookService book;private final JdbcTemplate db;private final ObjectMapper json;private final FieldEncryption encryption;private final UserRepository users;private final UserBlockRepository blocks;
+ public ReviewedTrees(AddressBookService book,JdbcTemplate db,ObjectMapper json,FieldEncryption encryption,UserRepository users,UserBlockRepository blocks){this.book=book;this.db=db;this.json=json;this.encryption=encryption;this.users=users;this.blocks=blocks;}
  private long owner(Principal p){return Long.parseLong(p.getName());}
  @GetMapping("/contacts") public ContactPage contacts(Principal p,@RequestParam(defaultValue="0") long afterId,@RequestParam(defaultValue="") String q){var page=book.list(owner(p),afterId,50,q,null);return new ContactPage(page.items().stream().map(c->new Contact(c.id(),c.displayName())).toList(),page.nextCursor(),page.total());}
  @GetMapping("/suggestions") public Suggestions suggestions(Principal p,@RequestParam(defaultValue="0") int offset,@RequestParam(defaultValue="24") int limit){if(offset<0||limit<1||limit>100)throw bad("Invalid suggestion page");long user=owner(p);var generated=generate(user);Set<String> dismissed=new HashSet<>(db.queryForList("SELECT source_key FROM dismissed_relationship_trees WHERE user_id=?",String.class,user));Set<String> saved=new HashSet<>(db.queryForList("SELECT source_key FROM reviewed_relationship_trees WHERE user_id=? AND source_key IS NOT NULL",String.class,user));var available=generated.trees().stream().filter(t->!dismissed.contains(t.sourceKey())&&!saved.contains(t.sourceKey())).toList();var page=available.stream().skip(offset).limit(limit).map(this::card).toList();return new Suggestions(generated.count(),available.size(),dismissed.size(),generated.small(),page,offset+page.size()<available.size()?offset+page.size():null);}
@@ -49,6 +52,23 @@ public class ReviewedTrees {
   long user=owner(p);var tree=required(user,id);var node=tree.nodes().stream().filter(n->n.key().equals(key)).findFirst().orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Person not found in this tree"));
   var contact=node.contactId()==null?Optional.<Entry>empty():book.findOwned(user,node.contactId());
   return new PersonInfo(node.key(),node.name(),node.relation(),node.gender(),contact.map(Entry::phones).orElse(List.of()),contact.map(Entry::emails).orElse(List.of()),contact.map(Entry::organization).orElse(""),contact.map(Entry::groups).orElse(List.of()),contact.isPresent());
+ }
+ public record MessageTarget(Long userId,String name){}
+ @GetMapping("/{id}/message-target") public MessageTarget messageTarget(Principal p,@PathVariable long id,@RequestParam String key){
+  long owner=owner(p);var contact=person(p,id,key);Map<Long,UserEntity> matches=new LinkedHashMap<>();
+  for(String phone:contact.phones()){
+   String digits=phone.replaceAll("[^0-9]","");if(digits.startsWith("00"))digits=digits.substring(2);
+   if(digits.length()>=7&&digits.length()<=15){users.findByPhoneNumber("+"+digits).ifPresent(u->matches.put(u.getId(),u));users.findByPhoneNumber(digits).ifPresent(u->matches.put(u.getId(),u));}
+  }
+  for(String email:contact.emails())users.findByEmail(email.trim().toLowerCase(Locale.ROOT)).ifPresent(u->matches.put(u.getId(),u));
+  // Conflicting identifiers must never silently route a private message to a different account.
+  if(matches.size()!=1)return new MessageTarget(null,null);
+  var target=matches.values().iterator().next();long targetId=target.getId();
+  if(targetId==owner||!"ACTIVE".equals(target.getAccountStatus())||"MANAGED".equals(target.getIdentityType())||blocks.blockedEitherWay(owner,targetId))return new MessageTarget(null,null);
+  boolean visible=db.queryForObject("SELECT COUNT(*) FROM app_settings WHERE user_id=? AND discoverable=TRUE",Integer.class,targetId)>0||db.queryForObject("SELECT COUNT(*) FROM relationships WHERE owner_user_id=? AND related_user_id=?",Integer.class,owner,targetId)>0;
+  if(!visible)return new MessageTarget(null,null);
+  String name=(Objects.requireNonNullElse(target.getFirstName(),"")+" "+Objects.requireNonNullElse(target.getSurname(),"")).trim();
+  return new MessageTarget(targetId,name.isEmpty()?target.getUsername():name);
  }
  @PostMapping @Transactional public Tree create(Principal p,@Valid @RequestBody Save input){long user=owner(p);lock(user);validate(user,input);if(input.sourceKey()!=null){var existing=db.queryForList("SELECT id FROM reviewed_relationship_trees WHERE user_id=? AND source_key=?",Long.class,user,input.sourceKey());if(!existing.isEmpty()){var saved=required(user,existing.getFirst());if(saved.name().equals(input.name().trim())&&saved.nodes().equals(input.nodes()))return saved;throw new ResponseStatusException(HttpStatus.CONFLICT,"This suggestion was already saved. Open it in My trees to edit");}proposal(user,input.sourceKey());}var key=new GeneratedKeyHolder();String data=encode(input);db.update(connection->{var statement=connection.prepareStatement("INSERT INTO reviewed_relationship_trees(user_id,source_key,tree_data) VALUES(?,?,?)",new String[]{"id"});statement.setLong(1,user);statement.setString(2,input.sourceKey());statement.setString(3,data);return statement;},key);return required(user,Objects.requireNonNull(key.getKey()).longValue());}
  @PostMapping("/{id}/update") @Transactional public Tree update(Principal p,@PathVariable long id,@Valid @RequestBody Save input){long user=owner(p);lock(user);var original=required(user,id);validate(user,input);if(input.version()==null||input.version()!=original.version())throw new ResponseStatusException(HttpStatus.CONFLICT,"This tree changed on another device. Reopen it before saving");db.update("UPDATE reviewed_relationship_trees SET tree_data=?,version=version+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?",encode(input),id,user);return required(user,id);}
