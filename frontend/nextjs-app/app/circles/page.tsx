@@ -3,13 +3,15 @@ import {startPolling} from '../lib/polling';
 import PageHeading from '../components/PageHeading';
 import CircleBranch from './CircleBranch';
 import styles from './page.module.css';
-import {FormEvent,useCallback,useEffect,useMemo,useRef,useState} from 'react';
-import {useRouter} from 'next/navigation';
+import {FormEvent,Suspense,useCallback,useEffect,useMemo,useRef,useState} from 'react';
+import {useRouter,useSearchParams} from 'next/navigation';
 import {AddressCircle,createMyCircle,fetchAddressCircles,fetchMyCircles,hasAuthSession,isUnauthorizedError,NetworkCircle} from '../lib/api';
 
-export default function CirclesPage(){
-  const router=useRouter();
+function CircleContent(){
+  const router=useRouter(),params=useSearchParams();
+  const selectedCircle=Number(params.get('circle')),ownership=params.get('ownership');
   const [expanded,setExpanded]=useState<Set<number>>(new Set());
+  useEffect(()=>{if(selectedCircle>0)setExpanded(current=>new Set(Array.from(current).concat(selectedCircle)));},[selectedCircle]);
   const [privateCircles,setPrivateCircles]=useState<AddressCircle[]>([]);
   const [circles,setCircles]=useState<NetworkCircle[]>([]),[query,setQuery]=useState('');
   const [loading,setLoading]=useState(true),[error,setError]=useState('');
@@ -22,7 +24,7 @@ export default function CirclesPage(){
   },[router]);
   useEffect(()=>{if(!hasAuthSession())router.replace('/auth');else return startPolling(load,30000);},[load,router]);
   useEffect(()=>{const listener=(event:Event)=>setQuery((event as CustomEvent<string>).detail);window.addEventListener('myaaptha:page-search',listener);return()=>window.removeEventListener('myaaptha:page-search',listener);},[]);
-  const visible=useMemo(()=>{const term=query.trim().toLowerCase();return term?circles.filter(circle=>circle.name.toLowerCase().includes(term)||circle.description?.toLowerCase().includes(term)||circle.members.some(member=>member.person.displayName.toLowerCase().includes(term))):circles;},[circles,query]);
+  const visible=useMemo(()=>{const term=query.trim().toLowerCase(),available=circles.filter(c=>ownership==='mine'?c.ownedByCurrentUser:ownership==='others'?!c.ownedByCurrentUser:true);return term?available.filter(circle=>circle.name.toLowerCase().includes(term)||circle.description?.toLowerCase().includes(term)||circle.members.some(member=>member.person.displayName.toLowerCase().includes(term))):available;},[circles,query,ownership]);
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();if(saving)return;
     const form=event.currentTarget,values=new FormData(form),name=String(values.get('name')||'').trim();
@@ -51,3 +53,5 @@ export default function CirclesPage(){
     </dialog>
   </main>;
 }
+
+export default function CirclesPage(){return <Suspense fallback={<main className="container"><p>Loading circles...</p></main>}><CircleContent/></Suspense>;}

@@ -30,7 +30,7 @@ test('messages has one navigation and one working search; composer remains reach
  await page.goto('/messages');
  await expect(page.locator('.workspace-section-tabs')).toHaveCount(0);
  await expect(page.locator('.workspace-utilities')).toHaveCount(0);
- await expect(page.getByRole('search',{name:'Discover on this page'}).getByRole('searchbox')).toHaveCount(1);
+ await expect(page.getByRole('search',{name:'Find people & Circles'}).getByRole('searchbox')).toHaveCount(1);
  await expect(page.locator('main input[type=search]:visible')).toHaveCount(1);
  await expect(page.getByRole('heading',{level:1})).toHaveText('Messages');
  await expect(page.getByRole('button',{name:'New chat',exact:true})).toHaveCount(1);
@@ -49,7 +49,8 @@ test('all former section destinations remain reachable once in the main menu',as
  const sidebar=page.locator('#workspace-navigation');
  const hrefs=await sidebar.locator('a').evaluateAll(items=>items.map(a=>a.getAttribute('href')));
  expect(new Set(hrefs).size).toBe(hrefs.length);
- for(const path of ['/messages','/circles','/contacts','/circle-search','/dashboard','/timeline','/profile','/trust','/interests','/online-feed','/posts','/followers','/following','/settings','/notifications','/help','/reports','/session','/ai-activity','/moderation'])expect(hrefs,path).toContain(path);
+ for(const path of ['/messages','/circles','/contacts','/dashboard','/timeline','/profile','/trust','/interests','/online-feed','/posts','/followers','/following','/settings','/notifications','/help','/reports','/session','/ai-activity','/moderation'])expect(hrefs,path).toContain(path);
+ expect(hrefs).not.toContain('/circle-search');expect(hrefs).not.toContain('/discover');
  await sidebar.locator('a[href="/contacts"]').click();await expect(page).toHaveURL(/\/contacts$/);
  if(info.project.name.includes('mobile'))await page.getByRole('button',{name:'Toggle main menu'}).click();
  await sidebar.locator('a[href="/circles"]').click();await expect(page).toHaveURL(/\/circles$/);

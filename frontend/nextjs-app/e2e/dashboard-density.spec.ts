@@ -15,6 +15,8 @@ for(const populated of [false,true])test(`dashboard keeps ${populated?'populated
  await page.goto('/dashboard');
  await expect(page.getByRole('heading',{name:'Dashboard',exact:true})).toBeVisible();
  await expect(page.locator('.user-dashboard-metrics article')).toHaveCount(5);
+ const destinations=['/relationship-tree','/circles','/managed-profiles','/messages?filter=unread','/notifications'];
+ for(let index=0;index<destinations.length;index++)await expect(page.locator('.user-dashboard-metrics article').nth(index).getByRole('link')).toHaveAttribute('href',destinations[index]);
  await expect(page.getByRole('navigation',{name:'Dashboard shortcuts'})).toHaveCount(0);
  await expect(page.getByLabel('Quick actions',{exact:true})).toHaveCount(0);
  const network=page.getByRole('region',{name:'Network summary',exact:true});
@@ -30,4 +32,6 @@ for(const populated of [false,true])test(`dashboard keeps ${populated?'populated
  await expect(page.getByText('Counts from your saved relationships.',{exact:true})).toHaveCount(0);
  await expect(page.locator('.contact-organizer').getByRole('button',{name:'Import contacts',exact:true})).toHaveText('Import contacts');
  await page.screenshot({path:info.outputPath(`dashboard-${populated?'populated':'empty'}.png`),fullPage:true});
+ await page.locator('.user-dashboard-metrics article').nth(2).getByRole('link').click();
+ await expect(page).toHaveURL(/\/managed-profiles$/);
 });

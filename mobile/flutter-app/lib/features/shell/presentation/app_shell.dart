@@ -160,7 +160,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         const NavigationDestination(
             icon: Icon(Icons.person_search_outlined),
             selectedIcon: Icon(Icons.person_search_rounded),
-            label: 'Discover'),
+            label: 'Find people & Circles'),
         const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
@@ -353,14 +353,14 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     visitedPages.add(index);
     final allPages=pages;
     final content=KeyedSubtree(key:_discoverRoot,child:IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]));
-    final navigationIndexes=workspacePrimaryIndexes.where((i)=>destinations[i].label!='Discover').toList();
+    final navigationIndexes=workspacePrimaryIndexes.where((i)=>!{'discover','find people & circles'}.contains(destinations[i].label.toLowerCase())).toList();
     final selectedPrimary=navigationIndexes.contains(index)?navigationIndexes.indexOf(index):null;
     final theme=Theme.of(context);
     final desktopDensity=wide&&!{TargetPlatform.android,TargetPlatform.iOS}.contains(defaultTargetPlatform);
     return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true||(desktopDensity&&workspaceSettings['compactLayout']!=false)?VisualDensity.compact:VisualDensity.standard),
       child:MediaQuery(data:MediaQuery.of(context).copyWith(disableAnimations:MediaQuery.of(context).disableAnimations||workspaceSettings['reducedMotion']==true),
       child:Scaffold(
-        appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark(),actions:[PageDiscoverButton(root:_discoverRoot)]),
+        appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark(),actions:[PageDiscoverButton(root:_discoverRoot,api:api,onPerson:(person)=>Navigator.push(context,MaterialPageRoute(builder:(_)=>Scaffold(appBar:AppBar(title:Text(person.displayName)),body:DiscoverScreen(api:api,initialQuery:person.displayName)))),onCircle:(circle)=>Navigator.push(context,MaterialPageRoute(builder:(_)=>CircleChatScreen(api:api,circle:circle))))]),
         drawer:wide?null:Drawer(child:SafeArea(child:Column(children:[
           Expanded(child:ListView(children:[for(final i in navigationIndexes)ListTile(
             selected:index==i,leading:destinations[i].icon,title:Text(destinations[i].label),
@@ -2022,24 +2022,20 @@ class _ErrorState extends StatelessWidget {
 }
 
 class MobileDashboard extends StatefulWidget {
-  const MobileDashboard({super.key,required this.api});
-  final MyAapthaApi api;
-  @override State<MobileDashboard> createState()=>_MobileDashboardState();
+ const MobileDashboard({super.key,required this.api});final MyAapthaApi api;
+ @override State<MobileDashboard> createState()=>_MobileDashboardState();
 }
 class _MobileDashboardState extends State<MobileDashboard>{
-  late Future<List<Relationship>> relationships=widget.api.relationships();
-  @override Widget build(BuildContext context)=>ListView(padding:const EdgeInsets.all(16),children:[
-    const _PageHeader(eyebrow:'',title:'Dashboard',subtitle:'Your relationship overview.'),
-    FutureBuilder<List<Relationship>>(future:relationships,builder:(context,snapshot){
-      if(snapshot.hasError)return TextButton(onPressed:()=>setState(()=>relationships=widget.api.relationships()),child:const Text('Retry overview'));
-      if(!snapshot.hasData)return const Center(child:CircularProgressIndicator());
-      final counts=<String,int>{};for(final relation in snapshot.data!){counts.update(relation.type,(value)=>value+1,ifAbsent:()=>1);}
-      return Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        Text('${snapshot.data!.length} relationships',style:Theme.of(context).textTheme.titleLarge),
-        ...counts.entries.map((entry)=>Padding(padding:const EdgeInsets.symmetric(vertical:8),child:Row(children:[Expanded(child:Text(entry.key)),Text('${entry.value}')]))),
-      ])));
-    }),
-  ]);
+ late Future<List<dynamic>> summary=load();
+ Future<List<dynamic>> load()=>Future.wait<dynamic>([widget.api.relationships(),widget.api.circles(),widget.api.directConversations(),widget.api.circleUnreadCounts(),widget.api.unreadNotificationCount()]);
+ void open(String title,Widget page)=>Navigator.push(context,MaterialPageRoute(builder:(_)=>Scaffold(appBar:AppBar(title:Text(title)),body:page)));
+ @override Widget build(BuildContext context)=>ListView(padding:const EdgeInsets.all(16),children:[const _PageHeader(eyebrow:'',title:'Dashboard',subtitle:''),FutureBuilder<List<dynamic>>(future:summary,builder:(context,snapshot){
+ if(snapshot.hasError)return TextButton(onPressed:()=>setState(()=>summary=load()),child:const Text('Retry overview'));if(!snapshot.hasData)return const Center(child:CircularProgressIndicator());
+ final relations=snapshot.data![0] as List<Relationship>,circles=snapshot.data![1] as List<CircleModel>,chats=snapshot.data![2] as List<DirectConversation>,circleUnread=snapshot.data![3] as Map<int,int>,notifications=snapshot.data![4] as int;
+ final managed=relations.where((r)=>r.person.identityType=='MANAGED'||r.person.accountStatus=='MANAGED').toList(),unread=chats.fold<int>(0,(sum,c)=>sum+c.unreadCount)+circleUnread.values.fold<int>(0,(sum,n)=>sum+n);
+ Widget metric(String label,int count,Widget page)=>Card(child:ListTile(title:Text(label),trailing:Text('$count',style:const TextStyle(fontSize:20,fontWeight:FontWeight.w600)),onTap:()=>open(label,page)));
+ return Column(children:[metric('Relationships',relations.length,NetworkHome(api:widget.api)),metric('Circles',circles.length,CirclesScreen(api:widget.api)),metric('Managed profiles',managed.length,ListView(children:[if(managed.isEmpty)const ListTile(title:Text('No managed profiles yet.')),...managed.map((r)=>ListTile(title:Text(r.person.displayName),subtitle:Text(r.type)))])),metric('Unread messages',unread,MessagesScreen(api:widget.api,initialFolder:'unread')),metric('Notifications',notifications,NotificationsScreen(api:widget.api))]);
+ })]);
 }
 
 class NetworkHome extends StatefulWidget {
@@ -3690,8 +3686,9 @@ String _time(DateTime value) =>
     '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
 
 class MessagesScreen extends StatefulWidget {
-  const MessagesScreen({super.key, required this.api});
+  const MessagesScreen({super.key, required this.api,this.initialFolder='inbox'});
   final MyAapthaApi api;
+  final String initialFolder;
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
 }
@@ -3719,7 +3716,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Timer? poller;
   bool? readReceipts;
   bool saving=false;
-  String folder='inbox';
+  late String folder=widget.initialFolder;
   List<Object> get visible {
     final result=<Object>[
       ...(items??[]).where((item)=>folder=='circles'?false:folder=='archived'?item.archived:!item.archived&&(folder!='unread'||item.unreadCount>0||item.markedUnread)),
@@ -4652,14 +4649,16 @@ class _CirclesScreenState extends State<CirclesScreen> {
 }
 
 class DiscoverScreen extends StatefulWidget {
-  const DiscoverScreen({super.key, required this.api});
+  const DiscoverScreen({super.key, required this.api,this.initialQuery=''});
   final MyAapthaApi api;
+  final String initialQuery;
   @override
   State<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   final query = TextEditingController();
+  @override void initState(){super.initState();query.text=widget.initialQuery;if(query.text.trim().length>=2)search();}
   List<PeopleMatch> results = [];
   PeopleDiscovery? discovery;
   final added = <int>{};
@@ -4687,8 +4686,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Widget build(BuildContext context) => CustomScrollView(slivers: [
         const SliverToBoxAdapter(
             child: _PageHeader(
-                eyebrow: 'DISCOVER',
-                title: 'Find people',
+                eyebrow: '',
+                title: 'Find people & Circles',
                 subtitle: 'Find people and explore shared connections and interests.')),
         SliverToBoxAdapter(
             child: Padding(

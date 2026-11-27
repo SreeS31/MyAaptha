@@ -31,6 +31,9 @@ public class CircleEntity {
 
   @Column(name = "posting_permission", nullable = false)
   private String postingPermission = "ALL_MEMBERS";
+  @Column(name="auto_organized",nullable=false) private boolean autoOrganized;
+  public boolean isAutoOrganized(){return autoOrganized;}
+  public void setAutoOrganized(boolean value){autoOrganized=value;}
 
   @org.hibernate.annotations.BatchSize(size = 64)
   @ElementCollection

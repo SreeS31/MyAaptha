@@ -15,7 +15,7 @@ export default function CircleBranch({circle,privateCount,expanded,onToggle}:{ci
   }
   return <article className={styles.branch}>
     <button type="button" className={styles.circleNode} aria-label={`Open ${circle.name}`} aria-expanded={expanded} aria-controls={`circle-branch-${circle.id}`} onClick={onToggle}>
-      <span className={styles.marker} aria-hidden="true">{expanded?'−':'+'}</span><span><strong>{circle.name}</strong><small>{circle.members.length} {circle.members.length===1?'member':'members'}{privateCount>0?` · ${privateCount} private contacts`:''}</small></span>
+      <span className={styles.marker} aria-hidden="true">{expanded?'−':'+'}</span><span><strong>{circle.name}</strong><small>{privateCount>0?`${privateCount} private contacts - `:''}{circle.members.length} {privateCount>0?'joined ':''}{circle.members.length===1?'member':'members'}</small></span>
     </button>
     {expanded&&<div id={`circle-branch-${circle.id}`} className={styles.children}>
       <div className={styles.actions}><Link href={`/messages?circle=${circle.id}`}>Messages</Link>{circle.ownedByCurrentUser&&<Link href={`/contacts?circleId=${circle.id}`}>Manage contacts</Link>}</div>

@@ -15,7 +15,7 @@ void main() {
                   SingleChildScrollView(child: Text('Office contacts')),
                   Text('Private hidden page')
                 ])))));
-    await tester.tap(find.text('Discover'));
+    await tester.tap(find.text('Find people & Circles'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Office');
     await tester.pump();

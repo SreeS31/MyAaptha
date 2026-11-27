@@ -267,6 +267,7 @@ public class NetworkService {
 
   public NetworkCircleDto updateCircle(Long currentUserId, Long circleId, UpdateNetworkCircleRequest request) {
     CircleEntity circle = administeredCircle(currentUserId, circleId);
+    circle.setAutoOrganized(false);
     circle.setName(requireText(request.name(), "Circle name"));
     circle.setDescription(request.description() == null || request.description().isBlank() ? "Circle conversation" : request.description().trim());
     String postingPermission=request.postingPermission()==null?circle.getPostingPermission():request.postingPermission().trim().toUpperCase();

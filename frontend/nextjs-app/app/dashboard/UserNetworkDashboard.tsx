@@ -714,11 +714,11 @@ export default function UserNetworkDashboard({ username, treeOnly=false }: { use
     <PageHeading title={treeOnly?"Relationship tree":"Dashboard"} help="Find people you know, define relationships and organize them into circles."/>
     {!treeOnly&&<>
     <section className="user-dashboard-metrics" aria-label="Your MyAaptha summary">
-      <article><span className="metric-symbol people">P</span><div><strong>{relationships.length}</strong><small>Relationships</small></div></article>
-      <article><span className="metric-symbol circles">C</span><div><strong>{circles.length}</strong><small>Circles</small></div></article>
-      <article><span className="metric-symbol managed">M</span><div><strong>{relationships.filter(item=>item.person.identityType==='MANAGED'||item.person.accountStatus==='MANAGED').length}</strong><small>Managed profiles</small></div></article>
-      <article><span className="metric-symbol messages">✉</span><div><strong>{unreadMessages}</strong><small>Unread messages</small></div></article>
-      <article><span className="metric-symbol alerts">◇</span><div><strong>{unreadNotifications}</strong><small>Notifications</small></div></article>
+      <article><Link className="dashboard-metric-link" href="/relationship-tree"><span className="metric-symbol people">P</span><div><strong>{relationships.length}</strong><small>Relationships</small></div></Link></article>
+      <article><Link className="dashboard-metric-link" href="/circles"><span className="metric-symbol circles">C</span><div><strong>{circles.length}</strong><small>Circles</small></div></Link></article>
+      <article><Link className="dashboard-metric-link" href="/managed-profiles"><span className="metric-symbol managed">M</span><div><strong>{relationships.filter(item=>item.person.identityType==='MANAGED'||item.person.accountStatus==='MANAGED').length}</strong><small>Managed profiles</small></div></Link></article>
+      <article><Link className="dashboard-metric-link" href="/messages?filter=unread"><span className="metric-symbol messages">✉</span><div><strong>{unreadMessages}</strong><small>Unread messages</small></div></Link></article>
+      <article><Link className="dashboard-metric-link" href="/notifications"><span className="metric-symbol alerts">◇</span><div><strong>{unreadNotifications}</strong><small>Notifications</small></div></Link></article>
     </section>
     </>}
     {treeOnly&&<>
@@ -726,7 +726,7 @@ export default function UserNetworkDashboard({ username, treeOnly=false }: { use
     <section id="relationship-broadcast" className={`network-section relationship-broadcast ${broadcastOpen?'is-open':''}`}>
       <div className="broadcast-heading"><button type="button" className="tree-tool-toggle" aria-expanded={broadcastOpen} aria-controls="tree-broadcast-fields" onClick={()=>setBroadcastOpen(value=>!value)}><span aria-hidden="true">&#8599;</span><strong>Message your tree</strong><span aria-hidden="true">{broadcastOpen?'−':'+'}</span></button><InfoTip label="Tree message audience"><p>Same level: message people exactly the selected number of generations below the starting person. Family branch: include the starting person and connections up to your chosen depth. Whole branch includes all available connections. You are excluded. Preview recipients before sending; each receives a private message.</p></InfoTip></div>
       {broadcastOpen&&<div className="broadcast-composer" id="tree-broadcast-fields">
-        
+
         {broadcastType!=='LOCATION'&&<div className="broadcast-modes" role="radiogroup" aria-label="Family broadcast audience"><label><input type="radio" disabled={busy} checked={broadcastType==='HORIZONTAL'} onChange={()=>{setBroadcastType('HORIZONTAL');setBroadcastLevels('1');setBroadcastAudience(null);}}/><span>Same level</span></label><label><input type="radio" disabled={busy} checked={broadcastType==='VERTICAL'} onChange={()=>{setBroadcastType('VERTICAL');setBroadcastAudience(null);}}/><span>Family branch</span></label></div>}
         {broadcastType!=='LOCATION'&&<label className="broadcast-level-picker">{broadcastType==='HORIZONTAL'?'Generation':'Branch depth'}<select aria-label="Relationship levels" disabled={busy} value={broadcastLevels} onChange={event=>{setBroadcastLevels(event.target.value);setBroadcastAudience(null);}}>{Array.from({length:10},(_,i)=><option key={i+1} value={i+1}>{i+1} {i===0?'level':'levels'}</option>)}{broadcastType==='VERTICAL'&&<option value="">Whole branch</option>}</select></label>}
         <div className="broadcast-target">{broadcastType==='LOCATION'?<input disabled={busy} value={broadcastLocation} onChange={event=>{setBroadcastLocation(event.target.value);setBroadcastAudience(null);}} placeholder="City, town, or area"/>:<select aria-label="Starting person" disabled={busy} value={broadcastAnchor} onChange={event=>{setBroadcastAnchor(event.target.value);setBroadcastAudience(null);}}><option value="">Choose a family member</option>{relationships.filter((item,index,all)=>all.findIndex(candidate=>candidate.person.id===item.person.id)===index).map(item=><option key={item.person.id} value={item.person.id}>{item.person.displayName}</option>)}</select>}<button type="button" className="action-tag action-tag-admin" disabled={busy} onClick={()=>void previewBroadcast()}>Preview audience</button></div>
@@ -761,40 +761,9 @@ export default function UserNetworkDashboard({ username, treeOnly=false }: { use
     {!treeOnly&&addPersonPanel}
 
     {!treeOnly&&<>
-    <details className="card dashboard-tool-disclosure">
-      <summary><span className="dashboard-tool-icon">⌕</span><span><strong>Find people and create circles</strong></span><i>⌄</i></summary>
-      <section className="network-layout dashboard-tool-content">
-      <article className="card network-search-card">
-        <h2>Find someone</h2>
-        <form className="network-search" onSubmit={search}>
-          <input required value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Person name, surname, mobile number, or location…" />
-          <button className="btn btn-primary" disabled={busy}>Search</button>
-        </form>
-        <div className="search-results">
-          {results.map(person => {
-            const relationship = relationships.find(item => item.person.id === person.id);
-            return <div className="people-result" key={person.id}>
-              <PersonAvatar name={person.displayName} photo={person.profilePhoto}/>
-              <div className="people-identity"><strong>{person.displayName}</strong><small>{person.location || 'Location not provided'}</small><PersonStatus person={person}/></div>
-              {!relationship ? <div className="people-controls">
-                <SearchableSelect value={relationshipType[person.id] || ''} placeholder="Relation" options={relationshipTypes} onChange={type => setRelationshipType({...relationshipType,[person.id]:type})}/>
-                {['Wife','Husband'].includes(relationshipType[person.id])&&<label className="relationship-inline-date"><span>Marriage date</span><input type="date" value={relationshipMilestoneDates[person.id]||''} onChange={event=>setRelationshipMilestoneDates({...relationshipMilestoneDates,[person.id]:event.target.value})}/></label>}
-                {['Son','Daughter','Grandson','Granddaughter'].includes(relationshipType[person.id])&&<label className="relationship-inline-date"><span>Date of birth</span><input type="date" value={relationshipBirthDates[person.id]||''} onChange={event=>setRelationshipBirthDates({...relationshipBirthDates,[person.id]:event.target.value})}/></label>}
-                <label className="relationship-inline-date"><span>Date of death (if deceased)</span><input type="date" value={relationshipDeathDates[person.id]||''} onChange={event=>setRelationshipDeathDates({...relationshipDeathDates,[person.id]:event.target.value})}/></label>
-                <SearchableSelect value={visibilityLabel(visibilityChoice[person.id] || '')} placeholder="View" options={visibilityLabels} onChange={label => setVisibilityChoice({...visibilityChoice,[person.id]:visibilityValue(label) as VisibilityScope})}/>
-                {visibilityChoice[person.id] === 'COLLEAGUES' && <SearchableSelect value={companyChoice[person.id] || ''} placeholder="Company" options={employmentCompanies} onChange={company => setCompanyChoice({...companyChoice,[person.id]:company})}/>}
-                <button className="btn btn-primary" disabled={busy} onClick={() => connect(person)}>Add relationship</button>
-              </div> : <div className="people-controls"><span className="relationship-badge">{relationship.type}</span><select value={circleChoice[person.id] || ''} onChange={e => setCircleChoice({...circleChoice, [person.id]: e.target.value})}><option value="">Choose circle</option>{administeredCircles.map(circle => <option value={circle.id} key={circle.id}>{circle.name}</option>)}</select><button className="btn btn-secondary" disabled={busy || !administeredCircles.length} onClick={() => addToCircle(person)}>+ Circle</button></div>}
-            </div>;
-          })}
-        </div>
-      </article>
 
-      <aside className="card create-circle-card"><h2>Create a circle</h2><form onSubmit={createCircle}><input required value={circleName} onChange={e => setCircleName(e.target.value)} placeholder="Family, Close friends…" /><textarea value={circleDescription} onChange={e => setCircleDescription(e.target.value)} placeholder="Optional description" /><button className="btn btn-primary" disabled={busy}>Create circle</button></form></aside>
-      </section>
-    </details>
 
-    <details open={!!searchParams.get('circleId')||undefined} className="card dashboard-tool-disclosure dashboard-circles-disclosure"><summary><span className="dashboard-tool-icon">◎</span><span><strong>My circles</strong><small>{ownedCircles.length} created by me · {circles.length-ownedCircles.length} added by others</small></span><b>{circles.length}</b><i>⌄</i></summary><section className="dashboard-tool-content circle-tree-section"><div className="circle-forest circle-forest-compact">{circles.map(renderCircle)}</div>{!circles.length&&<p className="circle-empty-state">You have not created or joined any circles yet.</p>}</section></details>
+    <details open={!!searchParams.get('circleId')||undefined} className="card dashboard-tool-disclosure dashboard-circles-disclosure"><summary><span className="dashboard-tool-icon">◎</span><span><strong>My circles</strong><small><Link href="/circles?ownership=mine">{ownedCircles.length} created by me</Link> · <Link href="/circles?ownership=others">{circles.length-ownedCircles.length} added by others</Link></small></span><b><Link href="/circles">{circles.length}</Link></b><i>⌄</i></summary><section className="dashboard-tool-content circle-tree-section"><div className="circle-forest circle-forest-compact">{circles.map(renderCircle)}</div>{!circles.length&&<p className="circle-empty-state">You have not created or joined any circles yet.</p>}</section></details>
     </>}
     {directCallPerson&&<div className="direct-call-backdrop"><section className={`direct-call-panel ${directCall?.callType==='VIDEO'?'is-video':'is-audio'}`} role="dialog" aria-modal="true" aria-label={`${directCall?.callType==='VIDEO'?'Video':'Audio'} call with ${directCallPerson.displayName}`}><div className="direct-call-stage">{directCall?.callType==='VIDEO'&&<video ref={remoteVideoRef} autoPlay playsInline/>}<audio ref={remoteAudioRef} autoPlay/><div className="direct-call-identity"><PersonAvatar name={directCallPerson.displayName} photo={directCallPerson.profilePhoto}/><h3>{directCallPerson.displayName}</h3><p>{directCallPhase==='incoming'?`Incoming ${(directCall?.callType||'AUDIO').toLowerCase()} call`:directCallPhase==='preparing'?'Preparing devices…':directCallPhase==='ringing'?'Ringing…':directCallPhase==='connected'?'Connected':'Call ended'}</p></div>{directCall?.callType==='VIDEO'&&<video className="direct-call-local" ref={localVideoRef} autoPlay muted playsInline/>}</div>{directCallError&&<p className="direct-call-error" role="alert">{directCallError}</p>}<footer>{directCallPhase==='incoming'?<><button type="button" className="call-control accept" onClick={()=>void answerIncomingCall()}>Accept</button><button type="button" className="call-control end" onClick={()=>void declineIncomingCall()}>Decline</button></>:<button type="button" className="call-control end" onClick={()=>void closeDirectCall()}>End call</button>}</footer></section></div>}
     {directChatPerson&&<div className="direct-chat-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setDirectChatPerson(null);}}><section className="direct-chat-panel" role="dialog" aria-modal="true" aria-label={`Private conversation with ${directChatPerson.displayName}`}>

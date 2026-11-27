@@ -5,8 +5,7 @@ import com.myaaptha.domain.circle.CircleRepository;
 import com.myaaptha.domain.network.NetworkService;
 import com.myaaptha.domain.network.dto.AddPersonRequest;
 import com.myaaptha.domain.network.dto.CreateNetworkCircleRequest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +24,7 @@ public class ContactOrganizerService {
     int peopleAdded = 0;
     int membershipsAdded = 0;
     List<String> skipped = new ArrayList<>();
+    Map<String,Set<Long>> circlePeople=new LinkedHashMap<>();Map<String,String> names=new LinkedHashMap<>();
     if (suggestions == null) return new AcceptResult(0, 0, skipped);
     for (AcceptedContactSuggestion suggestion : suggestions) {
       if (suggestion == null || !suggestion.selected()) continue;
@@ -44,17 +44,20 @@ public class ContactOrganizerService {
         for (String proposedName : suggestion.circles()) {
           if (proposedName == null || proposedName.isBlank()) continue;
           String circleName = proposedName.trim();
-          var circle = circles.findByOwnerUserId(userId).stream()
-              .filter(existing -> existing.getName().equalsIgnoreCase(circleName)).findFirst()
-              .map(existing -> network.circles(userId).stream().filter(dto -> dto.id().equals(existing.getId())).findFirst().orElseThrow())
-              .orElseGet(() -> network.createCircle(userId,
-                  new CreateNetworkCircleRequest(circleName, "Suggested by the AI contact organizer")));
-          network.addCircleMember(userId, circle.id(), relationship.person().id());
-          membershipsAdded++;
+          if(circleName.length()>100||circleName.chars().anyMatch(Character::isISOControl))continue;
+          String key=circleName.replaceAll("\\s+"," ").toLowerCase(Locale.ROOT);names.putIfAbsent(key,circleName);
+          circlePeople.computeIfAbsent(key,ignored->new LinkedHashSet<>()).add(relationship.person().id());
         }
       } catch (RuntimeException exception) {
         skipped.add(suggestion.displayName() + ": " + readable(exception));
       }
+    }
+    for(var group:circlePeople.entrySet()){
+      String circleName=names.get(group.getKey());
+      var existing=circles.findByOwnerUserId(userId).stream().filter(circle->circle.getName().equalsIgnoreCase(circleName)).findFirst();
+      if(existing.isEmpty()&&group.getValue().size()<3)continue;
+      var circle=existing.map(value->network.circles(userId).stream().filter(dto->dto.id().equals(value.getId())).findFirst().orElseThrow()).orElseGet(()->network.createCircle(userId,new CreateNetworkCircleRequest(circleName,"Suggested by the AI contact organizer")));
+      for(long person:group.getValue()){network.addCircleMember(userId,circle.id(),person);membershipsAdded++;}
     }
     return new AcceptResult(peopleAdded, membershipsAdded, skipped);
   }

@@ -89,7 +89,7 @@ function CircleSearchContent() {
   const globalCount = Object.values(globalResults).reduce((total, values) => total + values.length, 0);
 
   return <main className="container circle-search-page">
-    <header className="network-header"><div><div className="inline-help-heading"><h1>Search MyAaptha</h1><InfoTip label="About Search MyAaptha">Find people, relationships, circles, and messages across your account.</InfoTip></div></div><Link href="/discover" className="btn btn-secondary">Find people & connections</Link></header>
+    <header className="network-header"><div><div className="inline-help-heading"><h1>Find people & Circles</h1><InfoTip label="About Find people & Circles">Find people, relationships, circles, and messages across your account.</InfoTip></div></div></header>
     {error && <p className="network-message error-message">{error}</p>}
     {globalQuery && <section className="card global-search-results" aria-live="polite">
       <header><div><h2>Results for &quot;{globalQuery}&quot;</h2></div>{!globalLoading && <span>{globalCount} {globalCount === 1 ? 'match' : 'matches'}</span>}</header>

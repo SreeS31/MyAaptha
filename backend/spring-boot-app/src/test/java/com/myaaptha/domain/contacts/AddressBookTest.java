@@ -47,7 +47,8 @@ class AddressBookTest {
     var invalid=Map.of("displayName","","phones",List.of("bad",""),"emails",List.of("bad"));
     var rows=List.of(Map.of("contact",valid,"circleNames",List.of("INCOIS")),Map.of("contact",invalid,"circleNames",List.of("Never create")));
     mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("consent",true,"contacts",rows,"source","csv")))).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(1)).andExpect(jsonPath("$.skipped").value(1));
-    mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].name").value("INCOIS"));
+    mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+    assertEquals(1L,jdbc.queryForObject("SELECT COUNT(*) FROM address_book_circle_candidates WHERE owner_user_id=? AND circle_name='INCOIS'",Long.class,owner.id()));
   }
   @Test void signInRequestDoesNotRequireUsersToEnterEmail()throws Exception{
     var owner=member();
@@ -62,8 +63,8 @@ class AddressBookTest {
     String payload=json.writeValueAsString(Map.of("consent",true,"contacts",rows,"source","google"));
     mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(2)).andExpect(jsonPath("$.skipped").value(0));
     mvc.perform(post("/api/address-book/import-reviewed").header("Authorization",owner.bearer()).contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk()).andExpect(jsonPath("$.added").value(0)).andExpect(jsonPath("$.unchanged").value(2));
-    mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
-    assertEquals(2L,jdbc.queryForObject("SELECT COUNT(*) FROM circle_members m JOIN circles c ON c.id=m.circle_id WHERE c.owner_user_id=?",Long.class,owner.id()));
+    mvc.perform(get("/api/address-book/circles").header("Authorization",owner.bearer())).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+    assertEquals(0L,jdbc.queryForObject("SELECT COUNT(*) FROM circle_members m JOIN circles c ON c.id=m.circle_id WHERE c.owner_user_id=?",Long.class,owner.id()));
   }
   @Test void importIsPrivateEncryptedIdempotentAndDoesNotCreateAccountsOrRelations()throws Exception{
     var owner=member();var stranger=member();long users=jdbc.queryForObject("SELECT COUNT(*) FROM users",Long.class),relations=jdbc.queryForObject("SELECT COUNT(*) FROM relationships",Long.class);

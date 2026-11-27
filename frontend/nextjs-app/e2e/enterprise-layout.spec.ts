@@ -64,7 +64,7 @@ for (const width of [390, 1600]) {
       await expect(page.locator('main:visible')).toBeVisible();
       await expect(page.locator('.workspace-section-tabs')).toHaveCount(0);
       await expect(page.locator('.workspace-utilities')).toHaveCount(0);
-      await expect(page.getByRole('search',{name:'Discover on this page'}).getByRole('searchbox')).toHaveCount(1);
+      await expect(page.getByRole('search',{name:'Find people & Circles'}).getByRole('searchbox')).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path).toBe(true);
       await page.evaluate(() => document.fonts.ready);
       const typography = await page.locator('main:visible').evaluate(main => {
