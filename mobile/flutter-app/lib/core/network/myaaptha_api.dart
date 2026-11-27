@@ -600,11 +600,12 @@ class MyAapthaApi {
       .map((item) => DirectConversation.fromJson(item as Map<String, dynamic>))
       .toList();
   Future<void> sendDirectMessage(int userId, String message,
-          {int? replyToMessageId}) async =>
+          {int? replyToMessageId,int? contactId}) async =>
       _json(_client.postMultipart(
           '/api/network/messages/with/$userId',
           {
             'message': message,
+            if(contactId!=null)'contactId':'$contactId',
             if (replyToMessageId != null)
               'replyToMessageId': '$replyToMessageId'
           },
@@ -615,12 +616,14 @@ class MyAapthaApi {
     Uint8List bytes,
     String fileName, {
     int? replyToMessageId,
+    int? contactId,
     void Function(double progress)? onProgress,
   }) async =>
       _json(_client.postMultipart(
         '/api/network/messages/with/$userId',
         {
           'message': message,
+            if(contactId!=null)'contactId':'$contactId',
           if (replyToMessageId != null) 'replyToMessageId': '$replyToMessageId'
         },
         bearerToken: _token,

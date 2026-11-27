@@ -628,6 +628,7 @@ class _TreeMessageButtonState extends State<_TreeMessageButton> {
           MaterialPageRoute(
               builder: (_) => DirectChatScreen(
                   api: widget.api,
+                  contactId: (target['contactId'] as num?)?.toInt(),
                   person: Person(
                       id: (target['userId'] as num).toInt(),
                       displayName: target['name'] as String? ??

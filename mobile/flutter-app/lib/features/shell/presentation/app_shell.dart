@@ -5403,9 +5403,10 @@ class _ContactOrganizerScreenState extends State<ContactOrganizerScreen> {
 }
 
 class DirectChatScreen extends StatelessWidget {
-  const DirectChatScreen({super.key, required this.api, required this.person});
+  const DirectChatScreen({super.key, required this.api, required this.person,this.contactId});
   final MyAapthaApi api;
   final Person person;
+  final int? contactId;
   @override
   Widget build(BuildContext context) => ConversationScreen(
       title: person.displayName,
@@ -5420,10 +5421,10 @@ class DirectChatScreen extends StatelessWidget {
       load: () => api.directMessages(person.id),
           loadEarlier: (id) => api.directMessages(person.id, beforeId: id),
       send: (text, parentId) =>
-          api.sendDirectMessage(person.id, text, replyToMessageId: parentId),
+          api.sendDirectMessage(person.id, text, replyToMessageId: parentId,contactId:contactId),
       sendAttachment: (text, bytes, name, parentId, onProgress) =>
           api.sendDirectAttachment(person.id, text, bytes, name,
-              replyToMessageId: parentId, onProgress: onProgress),
+              replyToMessageId: parentId,contactId:contactId, onProgress: onProgress),
       fetchAttachment: api.attachment,
       allowReplies: true,
       searchMessages: (query) => api.searchDirectMessages(person.id, query),

@@ -12,7 +12,7 @@ import VoiceRecorder from './VoiceRecorder';
 import {useMessagingCalls} from './MessagingCalls';
 import MessageTimestamp,{chatDay} from '../components/MessageTimestamp';
 
-export type OpenChat={type:'DIRECT'|'CIRCLE';id:number;name:string;photo?:string|null;draft?:string;search?:string};
+export type OpenChat={type:'DIRECT'|'CIRCLE';id:number;name:string;photo?:string|null;draft?:string;search?:string;contactId?:number};
 type Message=api.DirectMessage|api.CirclePost;
 const author=(message:Message)=>'senderName' in message?message.senderName:message.authorName;
 const authorId=(message:Message)=>'senderId' in message?message.senderId:message.authorId;
@@ -66,7 +66,7 @@ export default function ChatThread({chat,onBack,onChanged,onOpenPerson}:{chat:Op
   function update(message:Message){setMessages(values=>values.map(value=>value.id===message.id?message:value));setResults(values=>values?.map(value=>value.id===message.id?message:value)??null);if(info?.id===message.id)setInfo(message);onChanged();}
   function hide(id:number){setMessages(values=>values.map(value=>value.id===id?{...value,hiddenForMe:true}:value));setResults(values=>values?.filter(value=>value.id!==id)??null);if(info?.id===id)setInfo(null);if(reply?.id===id)setReply(null);onChanged();}
   async function earlier(){if(!messages.length)return;const scroll=list.current,oldHeight=scroll?.scrollHeight||0;try{const page=direct?await api.fetchDirectMessages(chat.id,messages[0].id):await api.fetchCirclePosts(chat.id,messages[0].id);setMessages(values=>mergeMessagePage(page,values));setHasEarlier(page.length===50);requestAnimationFrame(()=>{if(scroll)scroll.scrollTop+=scroll.scrollHeight-oldHeight;});}catch(e){setError((e as Error).message);}}
-  async function send(){if(sending||(!draft.trim()&&!file)||!canPost)return;setSending(true);setError('');try{const value=direct?await api.sendDirectMessage(chat.id,draft,file||undefined,setProgress,reply?.id):await api.createCirclePost(chat.id,draft,file||undefined,reply?.id,setProgress);setMessages(values=>mergeMessagePage(values,[value]));setDraft('');if(input.current)input.current.style.height='36px';setFile(null);setReply(null);setEmojiOpen(false);onChanged();requestAnimationFrame(bottom);}catch(e){setError((e as Error).message);}finally{setSending(false);setProgress(null);input.current?.focus();}}
+  async function send(){if(sending||(!draft.trim()&&!file)||!canPost)return;setSending(true);setError('');try{const value=direct?await api.sendDirectMessage(chat.id,draft,file||undefined,setProgress,reply?.id,chat.contactId):await api.createCirclePost(chat.id,draft,file||undefined,reply?.id,setProgress);setMessages(values=>mergeMessagePage(values,[value]));setDraft('');if(input.current)input.current.style.height='36px';setFile(null);setReply(null);setEmojiOpen(false);onChanged();requestAnimationFrame(bottom);}catch(e){setError((e as Error).message);}finally{setSending(false);setProgress(null);input.current?.focus();}}
   function write(value:string){setDraft(value);if(Date.now()-lastTyping.current>3000){lastTyping.current=Date.now();void(direct?api.setDirectTyping(chat.id,!!value.trim()):api.setCircleTyping(chat.id,!!value.trim())).catch(()=>{});}}
   function quote(message:Message){setReply(message);input.current?.focus();}
   function openPrivate(message:Message,quoted:boolean){onOpenPerson({type:'DIRECT',id:authorId(message),name:author(message),draft:quoted?`Regarding your message in ${chat.name}:\n“${message.message||message.attachmentName||'Attachment'}”\n\n`:undefined});}

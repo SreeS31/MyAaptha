@@ -37,6 +37,12 @@ import java.util.*;import org.junit.jupiter.api.Test;import org.springframework.
   var nodes=List.of(Map.of("key","a","name","Saved name","relation","Friend","contactId",contact),Map.of("key","b","name","Manual","relation","Member"),Map.of("key","c","name","Manual two","relation","Member"));
   var created=mvc.perform(post("/api/relationship-trees").header("Authorization",owner.token).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("name","Messaging tree","nodes",nodes,"reviewed",true)))).andExpect(status().isOk()).andReturn();long id=json.readTree(created.getResponse().getContentAsString()).get("id").asLong();String path="/api/relationship-trees/"+id+"/message-target?key=a";
   assertThat(read(owner,path).get("userId").asLong()).isEqualTo(target.id);
+  mvc.perform(multipart("/api/network/messages/with/"+target.id).header("Authorization",owner.token).param("message","Missing contact context")).andExpect(status().isForbidden());
+  mvc.perform(multipart("/api/network/messages/with/"+other.id).header("Authorization",owner.token).param("contactId",String.valueOf(contact)).param("message","Wrong target")).andExpect(status().isForbidden());
+  mvc.perform(multipart("/api/network/messages/with/"+target.id).header("Authorization",other.token).param("contactId",String.valueOf(contact)).param("message","Foreign contact")).andExpect(status().isForbidden());
+  mvc.perform(multipart("/api/network/messages/with/"+target.id).header("Authorization",owner.token).param("contactId",String.valueOf(contact)).param("message","Tree contact message")).andExpect(status().isOk());
+  assertThat(read(target,"/api/network/messages/with/"+owner.id).toString()).contains("Tree contact message");
+
   mvc.perform(get(path).header("Authorization",other.token)).andExpect(status().isNotFound());mvc.perform(get("/api/relationship-trees/"+id+"/message-target?key=missing").header("Authorization",owner.token)).andExpect(status().isNotFound());
   assertThat(read(owner,"/api/relationship-trees/"+id+"/message-target?key=b").get("userId").isNull()).isTrue();
   db.update("INSERT INTO user_blocks(blocker_user_id,blocked_user_id) VALUES(?,?)",target.id,owner.id);assertThat(read(owner,path).get("userId").isNull()).isTrue();db.update("DELETE FROM user_blocks WHERE blocker_user_id=? AND blocked_user_id=?",target.id,owner.id);

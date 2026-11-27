@@ -170,7 +170,7 @@ public class NetworkController {
 
   @PostMapping(value="/messages/with/{otherUserId}",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
   public DirectMessageDto sendDirectMessage(Principal principal,@PathVariable Long otherUserId,@RequestParam(required=false) Integer levels,
-      @RequestParam(value="message",required=false) String message,@RequestParam(value="replyToMessageId",required=false) Long replyToMessageId,@RequestPart(value="file",required=false) MultipartFile file){return directMessageService.send(userId(principal),otherUserId,message,file,replyToMessageId);}
+      @RequestParam(value="message",required=false) String message,@RequestParam(value="replyToMessageId",required=false) Long replyToMessageId,@RequestParam(value="contactId",required=false) Long contactId,@RequestPart(value="file",required=false) MultipartFile file){return directMessageService.send(userId(principal),otherUserId,message,file,replyToMessageId,contactId);}
 
   @PutMapping("/messages/with/{otherUserId}/{messageId}")
   public DirectMessageDto editDirectMessage(Principal principal,@PathVariable Long otherUserId,@PathVariable Long messageId,@RequestBody MessageTextRequest request){return directMessageService.edit(userId(principal),otherUserId,messageId,request.message());}

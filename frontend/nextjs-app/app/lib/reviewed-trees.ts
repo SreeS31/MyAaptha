@@ -15,4 +15,4 @@ export const dismissTree=(key:string)=>request<void>('/api/relationship-trees/su
 export const restoreTrees=()=>request<void>('/api/relationship-trees/suggestions/restore',{method:'POST',body:'{}'});
 export const treeContacts=(q='',afterId=0)=>request<{items:{id:number;name:string}[];nextCursor:number|null;total:number}>('/api/relationship-trees/contacts?'+new URLSearchParams({q,afterId:String(afterId)}));
 
-export const treeMessageTarget=(id:number,key:string)=>request<{userId:number|null;name:string|null}>(`/api/relationship-trees/${id}/message-target?key=${encodeURIComponent(key)}`);
+export const treeMessageTarget=(id:number,key:string)=>request<{userId:number|null;name:string|null;contactId?:number|null}>(`/api/relationship-trees/${id}/message-target?key=${encodeURIComponent(key)}`);

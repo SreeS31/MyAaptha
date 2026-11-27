@@ -32,6 +32,7 @@ public class DirectMessageService {
   private final UserBlockRepository blocks;
   private final DirectMessageReactionRepository reactions;
   private final MessagePersonalization personalization;
+  @org.springframework.beans.factory.annotation.Autowired private com.myaaptha.domain.contacts.ContactMessageMatcher contactMessages;
   @org.springframework.beans.factory.annotation.Autowired private ChatRetentionService chatRetention;
   private static final Set<String> ALLOWED_REACTIONS=Set.of("👍","❤️","😂","😮","😢","🙏");
   public DirectMessageService(DirectMessageRepository messages,UserRepository users,RelationshipRepository relationships,UserProfileRepository profiles,CircleMediaStorage storage,NotificationService notificationService,UserBlockRepository blocks,DirectMessageReactionRepository reactions,MessagePersonalization personalization){this.messages=messages;this.users=users;this.relationships=relationships;this.profiles=profiles;this.storage=storage;this.notificationService=notificationService;this.blocks=blocks;this.reactions=reactions;this.personalization=personalization;}
@@ -42,7 +43,10 @@ public class DirectMessageService {
   @Transactional(readOnly=true) public List<DirectConversationDto> conversations(Long userId){users.findById(userId).orElseThrow();var all=messages.latestConversations(userId);var pins=personalization.pinnedChats(userId);var settings=personalization.chatSettings(userId);Map<Long,DirectMessageEntity> latest=new LinkedHashMap<>();Map<Long,Long> unread=new java.util.HashMap<>();for(var row:messages.unreadCounts(userId))unread.put(row.getSenderId(),row.getUnreadCount());for(var message:all){Long other=userId.equals(message.getSenderUserId())?message.getRecipientUserId():message.getSenderUserId();latest.putIfAbsent(other,message);}return latest.entrySet().stream().map(entry->{UserEntity other=users.findById(entry.getKey()).orElseThrow();DirectMessageEntity message=entry.getValue();String preview=message.getDeletedAt()!=null?"Message deleted":message.getMessage()!=null&&!message.getMessage().isBlank()?message.getMessage():message.getAttachmentName()!=null?message.getAttachmentName():"Attachment";return new DirectConversationDto(other.getId(),name(other),photo(other),preview,message.getCreatedAt(),unread.getOrDefault(other.getId(),0L),pins.contains(other.getId()),settings.getOrDefault(other.getId(),MessagePersonalization.DEFAULT_CHAT).archived(),settings.getOrDefault(other.getId(),MessagePersonalization.DEFAULT_CHAT).muted(),settings.getOrDefault(other.getId(),MessagePersonalization.DEFAULT_CHAT).markedUnread());}).sorted(java.util.Comparator.comparing(DirectConversationDto::pinned).reversed()).toList();}
 
   public DirectMessageDto send(Long senderId,Long recipientId,String message,MultipartFile file,Long replyToMessageId){
-    validateRecipient(senderId,recipientId);
+    return send(senderId,recipientId,message,file,replyToMessageId,null);
+  }
+  public DirectMessageDto send(Long senderId,Long recipientId,String message,MultipartFile file,Long replyToMessageId,Long contactId){
+    validateRecipient(senderId,recipientId,contactId);
     String clean=message==null?"":message.trim();
     if(clean.length()>4000)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Message must be 4000 characters or less");
     if(clean.isBlank()&&(file==null||file.isEmpty()))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Write a message or choose a file");
@@ -55,11 +59,12 @@ public class DirectMessageService {
   }
   public DirectMessageDto send(Long senderId,Long recipientId,String message,MultipartFile file){return send(senderId,recipientId,message,file,null);}
 
-  public void validateRecipient(Long senderId,Long recipientId){
+  public void validateRecipient(Long senderId,Long recipientId){validateRecipient(senderId,recipientId,null);}
+  private void validateRecipient(Long senderId,Long recipientId,Long contactId){
     UserEntity recipient=assertConversationParticipant(senderId,recipientId);
     if(blocks.blockedEitherWay(senderId,recipientId))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Messaging is unavailable for this account");
     if(!"ACTIVE".equals(recipient.getAccountStatus())||"MANAGED".equals(recipient.getIdentityType()))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"This person does not have an active MyAaptha account and cannot receive private messages");
-    if(relationships.findByOwnerUserIdAndRelatedUserId(senderId,recipientId).isEmpty()&&messages.page(senderId,recipientId,Long.MAX_VALUE,org.springframework.data.domain.PageRequest.of(0,1)).isEmpty())throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Add this person to your relationships before sending a private message");
+    if(relationships.findByOwnerUserIdAndRelatedUserId(senderId,recipientId).isEmpty()&&messages.page(senderId,recipientId,Long.MAX_VALUE,org.springframework.data.domain.PageRequest.of(0,1)).isEmpty()&&(contactId==null||!recipientId.equals(contactMessages.match(senderId,contactId).userId())))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Add this person to your relationships before sending a private message");
   }
   public DirectMessageDto forwardSource(Long user,Long other,Long id){
     var source=participantMessage(user,other,id);

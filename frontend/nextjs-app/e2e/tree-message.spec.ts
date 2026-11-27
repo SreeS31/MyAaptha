@@ -10,9 +10,9 @@ for(const member of [101,null])test(`tree Message ${member?'opens the matched di
  else if(path==='/api/relationship-trees')data={items:[{id:1,name:'Office',count:3,version:1,preview:nodes}],nextCursor:null};
  else if(path==='/api/relationship-trees/1')data={id:1,name:'Office',version:1,nodes};
  else if(path.endsWith('/person'))data={...nodes[0],phones:['+19990000001'],emails:[],organization:'',groups:[],contactAvailable:true};
- else if(path.endsWith('/message-target'))data={userId:member,name:member?'Member':null};
+ else if(path.endsWith('/message-target'))data={userId:member,contactId:member?42:null,name:member?'Member':null};
  await route.fulfill({json:data});});
  await page.goto('/relationship-tree?view=saved');await page.getByRole('button',{name:'Office (3 people)',exact:true}).click();await page.getByRole('button',{name:'Person: Person 0',exact:true}).click();
  const details=page.getByRole('complementary',{name:'Person information'}),button=details.getByRole('button',{name:'Message',exact:true});await expect(button).toBeEnabled();await button.click();
- if(member)await expect(page).toHaveURL(/\/messages\?person=101$/);else{await expect(details.getByText('This person is not available for MyAaptha messaging.',{exact:true})).toBeVisible();await expect(page).toHaveURL(/relationship-tree/);await expect(button).toBeEnabled();}
+ if(member)await expect(page).toHaveURL(/\/messages\?person=101&contact=42$/);else{await expect(details.getByText('This person is not available for MyAaptha messaging.',{exact:true})).toBeVisible();await expect(page).toHaveURL(/relationship-tree/);await expect(button).toBeEnabled();}
 });
