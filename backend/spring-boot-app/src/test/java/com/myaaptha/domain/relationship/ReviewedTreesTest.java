@@ -32,7 +32,7 @@ import java.util.*;import org.junit.jupiter.api.Test;import org.springframework.
  }
  @Test void messageTargetRequiresOwnedContactAndOneVisibleUnblockedActiveAccount()throws Exception{
   Account owner=account(),target=account(),other=account();String phone=db.queryForObject("SELECT phone_number FROM users WHERE id=?",String.class,target.id);
-  db.update("INSERT INTO app_settings(user_id,discoverable) VALUES(?,TRUE)",target.id);
+  var settings=(ObjectNode)read(target,"/api/settings/me");settings.put("discoverable",true);mvc.perform(put("/api/settings/me").header("Authorization",target.token).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(settings))).andExpect(status().isOk());
   book.save(owner.id,List.of(new ContactInput("Contact name",List.of(phone),List.of("conflicting-tree@example.test"),"",List.of())),"csv");long contact=book.allEntries(owner.id).getFirst().id();
   var nodes=List.of(Map.of("key","a","name","Saved name","relation","Friend","contactId",contact),Map.of("key","b","name","Manual","relation","Member"),Map.of("key","c","name","Manual two","relation","Member"));
   var created=mvc.perform(post("/api/relationship-trees").header("Authorization",owner.token).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("name","Messaging tree","nodes",nodes,"reviewed",true)))).andExpect(status().isOk()).andReturn();long id=json.readTree(created.getResponse().getContentAsString()).get("id").asLong();String path="/api/relationship-trees/"+id+"/message-target?key=a";

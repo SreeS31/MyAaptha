@@ -353,7 +353,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     visitedPages.add(index);
     final allPages=pages;
     final content=KeyedSubtree(key:_discoverRoot,child:IndexedStack(index:index,children:[for(int i=0;i<allPages.length;i++)visitedPages.contains(i)?allPages[i]:const SizedBox.shrink()]));
-    final selectedPrimary=workspacePrimaryIndexes.contains(index)?workspacePrimaryIndexes.indexOf(index):null;
+    final navigationIndexes=workspacePrimaryIndexes.where((i)=>destinations[i].label!='Discover').toList();
+    final selectedPrimary=navigationIndexes.contains(index)?navigationIndexes.indexOf(index):null;
     final theme=Theme.of(context);
     final desktopDensity=wide&&!{TargetPlatform.android,TargetPlatform.iOS}.contains(defaultTargetPlatform);
     return Theme(data:theme.copyWith(visualDensity:workspaceSettings['compactLayout']==true||(desktopDensity&&workspaceSettings['compactLayout']!=false)?VisualDensity.compact:VisualDensity.standard),
@@ -361,7 +362,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       child:Scaffold(
         appBar:AppBar(surfaceTintColor:Colors.transparent,title:const _BrandMark(),actions:[PageDiscoverButton(root:_discoverRoot)]),
         drawer:wide?null:Drawer(child:SafeArea(child:Column(children:[
-          Expanded(child:ListView(children:[for(final i in workspacePrimaryIndexes)ListTile(
+          Expanded(child:ListView(children:[for(final i in navigationIndexes)ListTile(
             selected:index==i,leading:destinations[i].icon,title:Text(destinations[i].label),
             onTap:(){Navigator.pop(context);setState(()=>index=i);}),
             const Divider(),
@@ -369,8 +370,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           ])),ListTile(leading:const Icon(Icons.logout_rounded),title:const Text('Sign out'),onTap:signOut),
         ]))),
         body:SafeArea(child:wide?Row(children:[
-          NavigationRail(scrollable:true,extended:true,minExtendedWidth:216,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=workspacePrimaryIndexes[value]),labelType:NavigationRailLabelType.none,
-            destinations:workspacePrimaryIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:TextButton.icon(onPressed:openSettings,icon:const Icon(Icons.settings_outlined),label:const Text('Settings'))),
+          NavigationRail(scrollable:true,extended:true,minExtendedWidth:216,selectedIndex:selectedPrimary,onDestinationSelected:(value)=>setState(()=>index=navigationIndexes[value]),labelType:NavigationRailLabelType.none,
+            destinations:navigationIndexes.map((i)=>NavigationRailDestination(icon:destinations[i].icon,selectedIcon:destinations[i].selectedIcon,label:Text(destinations[i].label))).toList(),trailing:TextButton.icon(onPressed:openSettings,icon:const Icon(Icons.settings_outlined),label:const Text('Settings'))),
           const VerticalDivider(width:1),Expanded(child:content),
         ]):content),
       )));
