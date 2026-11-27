@@ -39,7 +39,10 @@
     "freshclamReportedUpToDate": true,
     "mandatoryScanningUnchanged": true,
     "proposedBetaAgeLimitHours": 72,
-    "userApprovalPending": true
+    "userApprovalPending": true,
+    "explicitApprovalRequired": true,
+    "automaticApprovalReviewRejected": true,
+    "lastRecheckedAt": "2026-11-27T14:04:59.226215+00:00"
   },
   "physicalDeviceAcceptance": "pending",
   "androidTestApk": ".tools/preview/MyAaptha-beta-node-discover-20261127.apk",
@@ -62,5 +65,17 @@
       "remaining_synthetic_external_sources": 0,
       "remaining_synthetic_external_items": 0
     }
+  },
+  "setupBoardReview": {
+    "savedTaskCount": 0,
+    "unsavedTasks": [
+      "apns",
+      "community-parity",
+      "devices",
+      "encryption",
+      "firebase",
+      "meta"
+    ],
+    "referencedProviderSecretsRead": false
   }
 }
