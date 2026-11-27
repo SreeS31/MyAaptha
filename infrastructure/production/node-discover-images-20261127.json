@@ -1,0 +1,66 @@
+{
+  "sourceCommit": "f4a83a145f919ef0ff1827f1c7e1937cf4bb8705",
+  "tag": "beta-20261127-node-discover-r4",
+  "ciRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45928253956",
+  "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/45928254055",
+  "backend": "ghcr.io/srees31/myaaptha-backend@sha256:03a0319e97a9c54f334216b3a809fc040b1f11d17753f633331227509996c041",
+  "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:1bbc87049926fd96c99ddc12d5dd1b64a23466adf8b8574b1bb13a8000a9aca9",
+  "deployed": false,
+  "previousBetaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "googlePeopleApiEnabled": true,
+  "apiSchemaVersion": "81",
+  "databaseMigrations": true,
+  "url": "https://35-244-31-192.sslip.io/relationship-tree?view=saved",
+  "androidTestApkSha256": "b9b8c4c6600137e592beb6d0b37f0eb0d094d9401490819739bf1cc55272b8c4",
+  "deploymentStatus": "awaiting-scanner-age-decision",
+  "validation": {
+    "backend": {
+      "tests": 324,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browserScenarios": 108,
+    "browserFirstPass": 108,
+    "webUnitPassed": 30,
+    "nativePassed": 143,
+    "nativeSkipped": 2,
+    "nativeAnalysis": "clean"
+  },
+  "previousImages": {
+    "backend": "ghcr.io/srees31/myaaptha-backend@sha256:bccc6c03708b06352746a4413d83d68d906e8363620228138b5491e050af18f4",
+    "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:ed020da623433ed39de4e58f3199c47a0e452125f0709f88ef65c5484f3413ce"
+  },
+  "deploymentBlocker": {
+    "currentSignatureAgeLimitHours": 48,
+    "publisherLatestSignatureVersion": "28194",
+    "signatureBuildTimestampUTC": "2026-11-25T06:26:59Z",
+    "freshclamReportedUpToDate": true,
+    "mandatoryScanningUnchanged": true,
+    "proposedBetaAgeLimitHours": 72,
+    "userApprovalPending": true
+  },
+  "physicalDeviceAcceptance": "pending",
+  "androidTestApk": ".tools/preview/MyAaptha-beta-node-discover-20261127.apk",
+  "preliminaryLiveCheckCleanup": {
+    "syntheticAccountsRemoved": 4,
+    "zeroCounts": {
+      "remaining_synthetic_accounts": 0,
+      "remaining_synthetic_contacts": 0,
+      "remaining_synthetic_circles": 0,
+      "remaining_synthetic_calls": 0,
+      "remaining_synthetic_call_members": 0,
+      "remaining_synthetic_call_signals": 0,
+      "remaining_synthetic_financial_transactions": 0,
+      "remaining_synthetic_active_media": 0,
+      "remaining_synthetic_trees": 0,
+      "remaining_synthetic_advisors": 0,
+      "remaining_synthetic_reposts": 0,
+      "remaining_synthetic_people_highlights": 0,
+      "remaining_synthetic_highlight_preferences": 0,
+      "remaining_synthetic_external_sources": 0,
+      "remaining_synthetic_external_items": 0
+    }
+  }
+}
