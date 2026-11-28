@@ -5,10 +5,19 @@
   "validationRun": "https://github.com/SreeS31/MyAaptha/actions/runs/46034839425",
   "backend": "ghcr.io/srees31/myaaptha-backend@sha256:f26173fd5b35af43b50ffd7523795d4e1145ea8ed3b7d60a641a8544307c1dae",
   "frontend": "ghcr.io/srees31/myaaptha-frontend@sha256:4c4f7dd474c3f965913c482d523f0f9bf5f1e1001ce40293f307a04c8a98c681",
-  "deployed": false,
+  "deployed": true,
   "requiredSchemaVersion": 82,
-  "deploymentStatus": "Pending existing antivirus freshness gate; security policy unchanged",
-  "betaOverlaySha256": "e1ca4d63c22b3516a02c017e3605a4a3f6b773e062b593a2a5d90ac570cc4e6b",
+  "deploymentStatus": "Deployed and verified; HTTPS/API health UP",
+  "betaOverlaySha256": "b06f9b16af61a2de0a99903a8192288b9be1c97af32112ccc386eb4a528d897e",
   "androidTestApkSha256": "3b23a547c592779f3724cef8c870ad69bc1816788ea60db9fa11b11bc9ca3aa0",
-  "androidTestApkPath": ".tools/preview/MyAaptha-beta-dashboard-finder-20261127.apk"
+  "androidTestApkPath": ".tools/preview/MyAaptha-beta-dashboard-finder-20261127.apk",
+  "deployedOn": "2026-11-28",
+  "antivirusSignatureMaxAgeHours": 72,
+  "antivirusSettingExplicitlyApproved": true,
+  "apiSchemaVersion": 82,
+  "databaseBackup": "20261128T015150801269Z.dump",
+  "backupRestoreVerified": true,
+  "liveDesktopMobileChecksPassed": 2,
+  "syntheticAccountsRemoved": 4,
+  "scopedCleanupCountsAllZero": true
 }
